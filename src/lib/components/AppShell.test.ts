@@ -16,6 +16,17 @@ describe("AppShell", () => {
       screen.getByRole("heading", { level: 1, name: "Discover anime" }),
     ).toBeInTheDocument();
 
+    await fireEvent.click(
+      screen.getByRole("button", { name: "Preview details view" }),
+    );
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Media details" }),
+    ).toBeInTheDocument();
+
+    await fireEvent.click(
+      screen.getByRole("button", { name: "Back to discover" }),
+    );
+
     await fireEvent.click(screen.getByRole("button", { name: "For you" }));
     expect(
       screen.getByRole("heading", { level: 1, name: "Recommendations" }),

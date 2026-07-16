@@ -30,9 +30,11 @@ export const navigationItems = [
 
 export type PrimaryViewId = (typeof navigationItems)[number]["id"];
 
-export interface DetailsView {
-  id: "details";
-  mediaId: number;
-}
+export const detailsPlaceholder = {
+  id: "details",
+  title: "Media details",
+  description:
+    "A focused title view will show metadata and local tracking controls here.",
+} as const;
 
-export type AppView = PrimaryViewId | DetailsView;
+export type AppViewId = PrimaryViewId | typeof detailsPlaceholder.id;

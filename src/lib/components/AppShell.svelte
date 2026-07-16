@@ -1,13 +1,19 @@
 <script lang="ts">
-  import { navigationItems, type PrimaryViewId } from "$lib/navigation";
+  import {
+    detailsPlaceholder,
+    navigationItems,
+    type AppViewId,
+  } from "$lib/navigation";
 
   import SmokePanel from "./SmokePanel.svelte";
   import ViewPlaceholder from "./ViewPlaceholder.svelte";
 
-  let activeView = $state<PrimaryViewId>("library");
+  let activeView = $state<AppViewId>("library");
   let activeItem = $derived(
-    navigationItems.find((item) => item.id === activeView) ??
-      navigationItems[0],
+    activeView === "details"
+      ? detailsPlaceholder
+      : (navigationItems.find((item) => item.id === activeView) ??
+          navigationItems[0]),
   );
 </script>
 
@@ -18,7 +24,7 @@
         aria-hidden="true"
         class="bg-accent text-surface-raised grid size-10 place-items-center rounded-2xl text-xl"
       >
-        ⌁
+        =^
       </div>
       <div>
         <p class="text-lg font-bold tracking-tight">Animi</p>
@@ -55,6 +61,23 @@
         title={activeItem.title}
         description={activeItem.description}
       />
+      {#if activeView === "discover"}
+        <button
+          type="button"
+          class="border-border bg-surface-raised text-foreground hover:bg-overlay justify-self-start rounded-xl border px-4 py-2 text-sm font-semibold transition"
+          onclick={() => (activeView = "details")}
+        >
+          Preview details view
+        </button>
+      {:else if activeView === "details"}
+        <button
+          type="button"
+          class="border-border bg-surface-raised text-foreground hover:bg-overlay justify-self-start rounded-xl border px-4 py-2 text-sm font-semibold transition"
+          onclick={() => (activeView = "discover")}
+        >
+          Back to discover
+        </button>
+      {/if}
       <SmokePanel />
     </main>
   </div>
