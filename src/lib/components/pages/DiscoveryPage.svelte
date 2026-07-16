@@ -1,146 +1,307 @@
 <script lang="ts">
-  import { onDestroy, tick } from "svelte";
+  import { onDestroy, onMount, tick } from "svelte";
 
   import {
-    discoveryPreviewAnime,
-    matchesDiscoveryQuery,
-    type DiscoveryPreviewAnime,
-  } from "../discoveryPreview";
-  import DiscoveryPreviewCover from "../DiscoveryPreviewCover.svelte";
+    getMediaDetails,
+    listLibrary,
+    listTrending,
+    normalizeCommandError,
+    removeLibraryEntry,
+    searchMedia,
+    upsertLibraryEntry,
+  } from "$lib/ipc/client";
+  import type {
+    CommandError,
+    Freshness,
+    LibraryEntry,
+    LibraryItem,
+    MediaDetailsRequest,
+    MediaDetailsResponse,
+    MediaPageRequest,
+    MediaPageResponse,
+    MediaSummary,
+    RemoveLibraryEntryRequest,
+    RemoveLibraryEntryResponse,
+    SearchMediaRequest,
+    UpsertLibraryEntryRequest,
+  } from "$lib/ipc/types";
+
+  import AsyncStateNotice from "../AsyncStateNotice.svelte";
+  import MediaCover from "../MediaCover.svelte";
+  import MediaDetailsDialog from "../MediaDetailsDialog.svelte";
   import PageHeader from "../PageHeader.svelte";
 
-  const trendingPreview = discoveryPreviewAnime.slice(0, 4);
-  const recommendationPreview = discoveryPreviewAnime.slice(4);
-
-  let query = $state("");
-  let submittedQuery = $state("");
-  let selectedAnime = $state<DiscoveryPreviewAnime | null>(null);
-
-  let searchInput: HTMLInputElement;
-  let detailsDialog = $state<HTMLDialogElement | null>(null);
-  let detailsCloseButton = $state<HTMLButtonElement | null>(null);
-  let detailsOpener: HTMLButtonElement | null = null;
-  let pendingFocusTarget: HTMLElement | null = null;
-
-  const searchResults = $derived(
-    discoveryPreviewAnime.filter((anime) =>
-      matchesDiscoveryQuery(anime, submittedQuery),
-    ),
-  );
-
-  const resultStatus = $derived(
-    submittedQuery.length === 0
-      ? `${discoveryPreviewAnime.length} bundled sample titles ready to browse.`
-      : `${searchResults.length} bundled sample ${
-          searchResults.length === 1 ? "match" : "matches"
-        } for ${submittedQuery}.`,
-  );
-
-  onDestroy(() => {
-    document.documentElement.classList.remove("has-modal");
-  });
-
-  function submitSearch(event: SubmitEvent) {
-    event.preventDefault();
-    closeDetails(searchInput);
-    submittedQuery = query.trim();
+  interface Props {
+    loadTrending?: (request: MediaPageRequest) => Promise<MediaPageResponse>;
+    searchAnime?: (request: SearchMediaRequest) => Promise<MediaPageResponse>;
+    loadDetails?: (
+      request: MediaDetailsRequest,
+    ) => Promise<MediaDetailsResponse>;
+    loadLibrary?: () => Promise<LibraryItem[]>;
+    saveEntry?: (request: UpsertLibraryEntryRequest) => Promise<LibraryEntry>;
+    deleteEntry?: (
+      request: RemoveLibraryEntryRequest,
+    ) => Promise<RemoveLibraryEntryResponse>;
+    debounceMs?: number;
   }
 
-  function clearSearch() {
-    closeDetails(searchInput);
+  let {
+    loadTrending = listTrending,
+    searchAnime = searchMedia,
+    loadDetails = getMediaDetails,
+    loadLibrary = listLibrary,
+    saveEntry = upsertLibraryEntry,
+    deleteEntry = removeLibraryEntry,
+    debounceMs = 350,
+  }: Props = $props();
+
+  const collectionRequest = { page: 1, perPage: 12 } as const;
+
+  let query = $state("");
+  let searchTerm = $state("");
+  let searchResponse = $state<MediaPageResponse | null>(null);
+  let searchError = $state<CommandError | null>(null);
+  let searchLoading = $state(false);
+  let searchTimer: ReturnType<typeof setTimeout> | null = null;
+  let searchRequestVersion = 0;
+
+  let trendingResponse = $state<MediaPageResponse | null>(null);
+  let trendingError = $state<CommandError | null>(null);
+  let trendingLoading = $state(true);
+
+  let libraryItems = $state<LibraryItem[]>([]);
+  let libraryError = $state<CommandError | null>(null);
+  let libraryLoading = $state(true);
+
+  let searchInput = $state<HTMLInputElement | null>(null);
+  let selectedSummary = $state<MediaSummary | null>(null);
+  let selectedFreshness = $state<Freshness | null>(null);
+  let detailsOpener: HTMLButtonElement | null = null;
+
+  const trackingIssue = $derived<CommandError | null>(
+    libraryError ??
+      (libraryLoading
+        ? {
+            code: "LIBRARY_LOADING",
+            message: "Animi is still reading the local library.",
+            retryable: false,
+          }
+        : null),
+  );
+
+  onMount(() => {
+    void fetchTrending();
+    void fetchLibrary();
+  });
+
+  onDestroy(() => {
+    cancelSearchTimer();
+    searchRequestVersion += 1;
+  });
+
+  async function fetchTrending(): Promise<void> {
+    trendingLoading = true;
+    trendingError = null;
+
+    try {
+      trendingResponse = await loadTrending(collectionRequest);
+    } catch (reason) {
+      trendingError = normalizeCommandError(reason);
+    } finally {
+      trendingLoading = false;
+    }
+  }
+
+  async function fetchLibrary(): Promise<void> {
+    libraryLoading = true;
+    libraryError = null;
+
+    try {
+      libraryItems = (await loadLibrary()).filter(
+        (item) => item.entry.mediaKind === "ANIME",
+      );
+    } catch (reason) {
+      libraryError = normalizeCommandError(reason);
+    } finally {
+      libraryLoading = false;
+    }
+  }
+
+  function cancelSearchTimer(): void {
+    if (searchTimer !== null) {
+      clearTimeout(searchTimer);
+      searchTimer = null;
+    }
+  }
+
+  function invalidatePendingSearch(): void {
+    cancelSearchTimer();
+    searchRequestVersion += 1;
+  }
+
+  function resetSearchState(): void {
+    invalidatePendingSearch();
+    searchTerm = "";
+    searchResponse = null;
+    searchError = null;
+    searchLoading = false;
+  }
+
+  function handleSearchInput(event: Event): void {
+    query = (event.currentTarget as HTMLInputElement).value;
+    const nextTerm = query.trim();
+    invalidatePendingSearch();
+
+    if (nextTerm.length === 0) {
+      searchTerm = "";
+      searchResponse = null;
+      searchError = null;
+      searchLoading = false;
+      return;
+    }
+
+    searchTerm = nextTerm;
+    searchResponse = null;
+    searchError = null;
+    searchLoading = true;
+    searchTimer = setTimeout(() => {
+      searchTimer = null;
+      void executeSearch(nextTerm);
+    }, debounceMs);
+  }
+
+  function submitSearch(event: SubmitEvent): void {
+    event.preventDefault();
+    const nextTerm = query.trim();
+    if (nextTerm.length === 0) {
+      resetSearchState();
+      return;
+    }
+
+    cancelSearchTimer();
+    searchTerm = nextTerm;
+    searchLoading = true;
+    void executeSearch(nextTerm);
+  }
+
+  async function executeSearch(term: string): Promise<void> {
+    const requestVersion = ++searchRequestVersion;
+    searchLoading = true;
+    searchError = null;
+
+    try {
+      const response = await searchAnime({
+        search: term,
+        ...collectionRequest,
+      });
+      if (requestVersion !== searchRequestVersion) {
+        return;
+      }
+      searchResponse = response;
+    } catch (reason) {
+      if (requestVersion !== searchRequestVersion) {
+        return;
+      }
+      searchError = normalizeCommandError(reason);
+    } finally {
+      if (requestVersion === searchRequestVersion) {
+        searchLoading = false;
+      }
+    }
+  }
+
+  function clearSearch(): void {
     query = "";
-    submittedQuery = "";
+    resetSearchState();
     void tick().then(() => searchInput?.focus());
   }
 
-  async function openDetails(anime: DiscoveryPreviewAnime, event: MouseEvent) {
+  function entryFor(anilistId: number): LibraryEntry | null {
+    return (
+      libraryItems.find((item) => item.entry.anilistId === anilistId)?.entry ??
+      null
+    );
+  }
+
+  function openDetails(
+    summary: MediaSummary,
+    freshness: Freshness,
+    event: MouseEvent,
+  ): void {
     if (!(event.currentTarget instanceof HTMLButtonElement)) {
       return;
     }
-
     detailsOpener = event.currentTarget;
-    pendingFocusTarget = detailsOpener;
-    selectedAnime = anime;
-    await tick();
-
-    const dialog = detailsDialog;
-    if (dialog === null) {
-      return;
-    }
-
-    document.documentElement.classList.add("has-modal");
-    try {
-      dialog.showModal();
-    } catch {
-      dialog.setAttribute("open", "");
-    }
-    detailsCloseButton?.focus();
+    selectedSummary = summary;
+    selectedFreshness = freshness;
   }
 
-  function closeDetails(focusTarget: HTMLElement | null = detailsOpener) {
-    if (selectedAnime === null) {
-      return;
-    }
-
-    pendingFocusTarget = focusTarget;
-    if (detailsDialog?.open && typeof detailsDialog.close === "function") {
-      try {
-        detailsDialog.close();
-        return;
-      } catch {
-        // The local test environment does not implement native dialog closing.
-      }
-    }
-
-    detailsDialog?.removeAttribute("open");
-    finishClosingDetails();
-  }
-
-  function finishClosingDetails() {
-    document.documentElement.classList.remove("has-modal");
-    selectedAnime = null;
+  function closeDetails(): void {
+    selectedSummary = null;
+    selectedFreshness = null;
     const focusTarget =
-      pendingFocusTarget?.isConnected === true
-        ? pendingFocusTarget
-        : searchInput;
-    pendingFocusTarget = null;
+      detailsOpener?.isConnected === true ? detailsOpener : searchInput;
+    detailsOpener = null;
     void tick().then(() => focusTarget?.focus());
   }
 
-  function handleDialogBackdrop(event: MouseEvent) {
-    if (event.target === event.currentTarget) {
-      closeDetails();
+  function handleLibraryChanged(entry: LibraryEntry | null): void {
+    const anilistId = selectedSummary?.anilistId;
+    if (anilistId === undefined) {
+      return;
     }
-  }
 
-  function handleDialogCancel(event: Event) {
-    event.preventDefault();
-    closeDetails();
+    if (entry === null) {
+      libraryItems = libraryItems.filter(
+        (item) => item.entry.anilistId !== anilistId,
+      );
+      return;
+    }
+
+    const existingIndex = libraryItems.findIndex(
+      (item) => item.entry.anilistId === entry.anilistId,
+    );
+    if (existingIndex === -1) {
+      libraryItems = [...libraryItems, { entry, media: null }];
+      return;
+    }
+
+    libraryItems = libraryItems.map((item, index) =>
+      index === existingIndex ? { ...item, entry } : item,
+    );
   }
 
   function formatLabel(value: string | null): string {
-    if (value === null) {
-      return "unknown";
-    }
-
-    return value.toLocaleLowerCase().replaceAll("_", " ");
+    return value === null
+      ? "format unknown"
+      : value.toLocaleLowerCase().replaceAll("_", " ");
   }
 
   function episodeLabel(episodes: number | null): string {
-    if (episodes === null) {
-      return "episode count unknown";
-    }
-
-    return `${episodes} ${episodes === 1 ? "episode" : "episodes"}`;
+    return episodes === null
+      ? "episode total unknown"
+      : `${episodes} ${episodes === 1 ? "episode" : "episodes"}`;
   }
 
-  function formatCalendarDate(value: string): string {
+  function genreLabel(genres: string[]): string {
+    return genres.length === 0
+      ? "genres unavailable"
+      : genres.slice(0, 2).join(" · ");
+  }
+
+  function formatTimestamp(value: string): string {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
     return new Intl.DateTimeFormat(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      timeZone: "UTC",
-    }).format(new Date(`${value}T00:00:00Z`));
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(date);
+  }
+
+  function isOfflineError(error: CommandError | null): boolean {
+    return error?.code.toLocaleUpperCase().includes("OFFLINE") ?? false;
   }
 </script>
 
@@ -151,527 +312,373 @@
   tabindex="0"
   class="grid min-w-0 gap-4 pb-8 sm:gap-5"
 >
-  <div class="grid min-w-0 gap-4 sm:gap-5">
-    <PageHeader
-      eyebrow="catalog // find your next signal"
-      title="Discover"
-      description="Search the anime catalog, scan cover collections, and inspect a title without leaving your quiet corner."
-    />
+  <PageHeader
+    eyebrow="catalog // find your next signal"
+    title="Discover"
+    description="Search AniList, browse what is trending, and keep your private library on this device."
+  />
 
+  {#if libraryError}
+    <AsyncStateNotice
+      status="error"
+      title="Tracking controls are unavailable"
+      description="Browsing still works, but Animi could not safely determine what is already in your local library."
+      error={libraryError}
+      onRetry={libraryError.retryable ? fetchLibrary : undefined}
+      retryLabel="Retry library"
+      compact
+    />
+  {/if}
+
+  <section
+    aria-labelledby="discover-search-heading"
+    class="glass-panel panel-large border-border grid min-w-0 gap-4 border p-4 sm:p-6"
+  >
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <p class="text-accent text-[0.68rem] tracking-[0.14em] uppercase">
+          search://anime
+        </p>
+        <h2
+          id="discover-search-heading"
+          class="text-foreground mt-1 text-lg font-light tracking-[0.03em] sm:text-xl"
+        >
+          Find an anime by title
+        </h2>
+      </div>
+      <span
+        class="control-rounded border-border bg-glass-control text-muted border px-2 py-1 text-[0.62rem] tracking-[0.12em] uppercase"
+      >
+        AniList metadata
+      </span>
+    </div>
+
+    <form
+      role="search"
+      aria-label="Search anime"
+      class="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]"
+      onsubmit={submitSearch}
+    >
+      <div class="min-w-0">
+        <label
+          for="discovery-search"
+          class="text-muted mb-2 block text-xs tracking-[0.08em]"
+        >
+          Anime title
+        </label>
+        <div class="relative min-w-0">
+          <span
+            aria-hidden="true"
+            class="text-accent pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm"
+          >
+            &gt;_
+          </span>
+          <input
+            bind:this={searchInput}
+            id="discovery-search"
+            type="search"
+            value={query}
+            autocomplete="off"
+            maxlength="200"
+            placeholder="Try Frieren or Cowboy Bebop"
+            class="glass-control control-rounded border-border text-foreground placeholder:text-muted min-h-11 w-full min-w-0 border py-2 pr-11 pl-10 text-sm outline-none"
+            oninput={handleSearchInput}
+          />
+          {#if query.length > 0}
+            <button
+              type="button"
+              aria-label="Clear search"
+              class="glass-interactive control-rounded text-muted absolute top-1/2 right-0.5 grid size-10 -translate-y-1/2 place-items-center transition-colors"
+              onclick={clearSearch}
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          {/if}
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="glass-accent control-rounded min-h-11 self-end px-5 py-2.5 text-xs tracking-[0.08em]"
+      >
+        Search now
+      </button>
+    </form>
+
+    <div class="border-border border-t pt-3">
+      <p class="text-muted text-xs leading-5">
+        Results update after a short pause. Press Enter to search immediately.
+        Opening a title saves only its useful metadata snapshot; browsing alone
+        does not add it to your library.
+      </p>
+    </div>
+  </section>
+
+  {#snippet mediaGrid(
+    items: MediaSummary[],
+    label: string,
+    freshness: Freshness,
+  )}
+    <ul
+      aria-label={label}
+      class="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-4 xl:grid-cols-6"
+    >
+      {#each items as media (media.anilistId)}
+        {@const entry = entryFor(media.anilistId)}
+        <li class="min-w-0">
+          <button
+            type="button"
+            aria-haspopup="dialog"
+            aria-label={`Open details for ${media.title}`}
+            class="discovery-card glass-control glass-interactive control-rounded border-border group flex h-full w-full min-w-0 flex-col border p-2 text-left transition-[transform,background-color] hover:-translate-y-0.5 focus-visible:-translate-y-0.5"
+            onclick={(event) => openDetails(media, freshness, event)}
+          >
+            <MediaCover title={media.title} coverUrl={media.coverUrl} />
+
+            <span
+              class="flex min-h-32 w-full min-w-0 flex-1 flex-col px-1 pt-3 pb-2"
+            >
+              <span
+                class="text-muted text-[0.64rem] tracking-[0.08em] uppercase"
+              >
+                {formatLabel(media.mediaFormat)} // {episodeLabel(
+                  media.episodes,
+                )}
+              </span>
+              <span
+                class="text-foreground mt-1.5 line-clamp-2 text-sm leading-5 font-light tracking-[0.02em]"
+              >
+                {media.title}
+              </span>
+              <span class="text-muted mt-2 line-clamp-1 text-xs">
+                {genreLabel(media.genres)}
+              </span>
+              <span
+                class="border-border mt-auto border-t pt-2 text-[0.62rem] tracking-[0.07em] uppercase"
+                class:text-accent={entry !== null}
+                class:text-muted={entry === null}
+              >
+                {#if libraryLoading}
+                  checking local library
+                {:else if libraryError}
+                  tracking unavailable
+                {:else if entry}
+                  tracked // {entry.status.toLocaleLowerCase()}
+                {:else}
+                  not tracked
+                {/if}
+              </span>
+            </span>
+          </button>
+        </li>
+      {/each}
+    </ul>
+  {/snippet}
+
+  {#if searchTerm.length > 0}
     <section
-      aria-labelledby="discover-search-heading"
+      aria-labelledby="search-results-heading"
       class="glass-panel panel-large border-border grid min-w-0 gap-4 border p-4 sm:p-6"
     >
-      <div class="flex flex-wrap items-end justify-between gap-3">
+      <header class="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <p class="text-accent text-[0.68rem] tracking-[0.14em] uppercase">
-            search://anime
-          </p>
-          <h2
-            id="discover-search-heading"
-            class="text-foreground mt-1 text-lg font-light tracking-[0.03em] sm:text-xl"
-          >
-            Scan the bundled catalog
-          </h2>
-        </div>
-        <span
-          class="control-rounded border-border bg-glass-control text-muted border px-2 py-1 text-[0.62rem] tracking-[0.12em] uppercase"
-        >
-          sample catalog
-        </span>
-      </div>
-
-      <form
-        role="search"
-        aria-label="Discover sample anime"
-        class="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]"
-        onsubmit={submitSearch}
-      >
-        <div class="min-w-0">
-          <label
-            for="discovery-search"
-            class="text-muted mb-2 block text-xs tracking-[0.08em]"
-          >
-            Title, genre, or tag
-          </label>
-          <div class="relative min-w-0">
-            <span
-              aria-hidden="true"
-              class="text-accent pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm"
-            >
-              &gt;_
-            </span>
-            <input
-              bind:this={searchInput}
-              id="discovery-search"
-              type="search"
-              value={query}
-              autocomplete="off"
-              placeholder="Try mystery, cats, or movie"
-              class="glass-control control-rounded border-border text-foreground placeholder:text-muted min-h-11 w-full min-w-0 border py-2 pr-11 pl-10 text-sm outline-none"
-              oninput={(event) => (query = event.currentTarget.value)}
-            />
-            {#if query.length > 0 || submittedQuery.length > 0}
-              <button
-                type="button"
-                aria-label="Clear search"
-                class="glass-interactive control-rounded text-muted absolute top-1/2 right-0.5 grid size-10 -translate-y-1/2 place-items-center transition-colors"
-                onclick={clearSearch}
-              >
-                <span aria-hidden="true">×</span>
-              </button>
-            {/if}
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          class="glass-accent control-rounded min-h-11 self-end px-5 py-2.5 text-xs tracking-[0.08em]"
-        >
-          search samples
-        </button>
-      </form>
-
-      <div
-        class="border-border grid gap-2 border-t pt-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start"
-      >
-        <p class="text-muted text-xs leading-5">
-          Layout preview only — this searches bundled fictional titles; no
-          network request or library change occurs.
-        </p>
-        <p
-          role="status"
-          aria-live="polite"
-          class="text-foreground text-xs leading-5 sm:text-right"
-        >
-          {resultStatus}
-        </p>
-      </div>
-    </section>
-
-    {#snippet previewCard(anime: DiscoveryPreviewAnime, showSignals: boolean)}
-      <li class="min-w-0">
-        <button
-          type="button"
-          aria-haspopup="dialog"
-          aria-label={`Open sample details for ${anime.media.title}`}
-          class="discovery-card glass-control glass-interactive control-rounded border-border group flex h-full w-full min-w-0 flex-col border p-2 text-left transition-[transform,background-color] hover:-translate-y-0.5 focus-visible:-translate-y-0.5"
-          onclick={(event) => openDetails(anime, event)}
-        >
-          <DiscoveryPreviewCover
-            title={anime.media.title}
-            motif={anime.motif}
-            code={anime.catalogCode}
-          />
-
-          <span
-            class="flex min-h-30 w-full min-w-0 flex-1 flex-col px-1 pt-3 pb-2"
-          >
-            <span class="text-muted text-[0.66rem] tracking-[0.09em] uppercase">
-              {formatLabel(anime.media.mediaFormat)} //
-              {anime.media.episodes ?? "??"}
-            </span>
-            <span
-              class="text-foreground mt-1.5 line-clamp-2 text-sm leading-5 font-light tracking-[0.02em]"
-            >
-              {anime.media.title}
-            </span>
-            <span class="text-muted mt-2 line-clamp-1 text-xs">
-              {anime.media.genres.join(" · ")}
-            </span>
-            {#if showSignals}
-              <span
-                class="border-border text-accent mt-auto border-t pt-2 text-[0.62rem] leading-4 tracking-[0.06em]"
-              >
-                sample signals // {anime.matchSignals.join(" · ")}
-              </span>
-            {:else}
-              <span
-                class="text-accent mt-auto pt-2 text-[0.62rem] tracking-[0.08em] uppercase"
-              >
-                inspect dossier →
-              </span>
-            {/if}
-          </span>
-        </button>
-      </li>
-    {/snippet}
-
-    {#if submittedQuery.length === 0}
-      <section
-        aria-labelledby="trending-preview-heading"
-        class="glass-panel panel-large border-border min-w-0 border p-4 sm:p-6"
-      >
-        <div class="mb-4 flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <p class="text-accent text-[0.66rem] tracking-[0.14em] uppercase">
-              01 // cover collection
-            </p>
-            <h2
-              id="trending-preview-heading"
-              class="text-foreground mt-1 text-xl font-light tracking-[0.03em]"
-            >
-              Sample trending layout
-            </h2>
-          </div>
-          <p class="text-muted text-xs">fictional snapshot // 04 titles</p>
-        </div>
-
-        <ul
-          aria-label="Sample trending anime"
-          class="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-4 xl:grid-cols-6"
-        >
-          {#each trendingPreview as anime (anime.media.anilistId)}
-            {@render previewCard(anime, false)}
-          {/each}
-        </ul>
-      </section>
-
-      <section
-        aria-labelledby="recommendation-preview-heading"
-        class="glass-panel panel-large border-border min-w-0 border p-4 sm:p-6"
-      >
-        <div class="mb-4 max-w-2xl">
           <p class="text-accent text-[0.66rem] tracking-[0.14em] uppercase">
-            02 // explanation treatment
-          </p>
-          <h2
-            id="recommendation-preview-heading"
-            class="text-foreground mt-1 text-xl font-light tracking-[0.03em]"
-          >
-            Recommendation layout preview
-          </h2>
-          <p class="text-muted mt-2 text-xs leading-5">
-            These labels demonstrate how future local match reasons can read;
-            they are not personalized rankings.
-          </p>
-        </div>
-
-        <ul
-          aria-label="Sample recommendation layout"
-          class="grid min-w-0 grid-cols-2 gap-3 sm:max-w-[24rem] lg:gap-4"
-        >
-          {#each recommendationPreview as anime (anime.media.anilistId)}
-            {@render previewCard(anime, true)}
-          {/each}
-        </ul>
-      </section>
-    {:else if searchResults.length > 0}
-      <section
-        aria-labelledby="search-results-heading"
-        class="glass-panel panel-large border-border min-w-0 border p-4 sm:p-6"
-      >
-        <div class="mb-4">
-          <p class="text-accent text-[0.66rem] tracking-[0.14em] uppercase">
-            query // {submittedQuery}
+            query // {searchTerm}
           </p>
           <h2
             id="search-results-heading"
             class="text-foreground mt-1 text-xl font-light tracking-[0.03em]"
           >
-            Sample catalog results
+            Search results
           </h2>
         </div>
+        {#if searchResponse}
+          <p class="text-muted text-xs" aria-live="polite">
+            {searchResponse.items.length}
+            {searchResponse.items.length === 1 ? "title" : "titles"} // cached
+            {formatTimestamp(searchResponse.freshness.fetchedAt)}
+          </p>
+        {/if}
+      </header>
 
-        <ul
-          aria-label="Bundled sample search results"
-          class="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-4 xl:grid-cols-6"
-        >
-          {#each searchResults as anime (anime.media.anilistId)}
-            {@render previewCard(anime, false)}
-          {/each}
-        </ul>
-      </section>
-    {:else}
-      <section
-        aria-labelledby="empty-results-heading"
-        class="glass-panel panel-large border-border grid min-h-72 items-center gap-5 border p-5 sm:grid-cols-[13rem_minmax(0,1fr)] sm:p-7"
-      >
-        <div
-          aria-hidden="true"
-          class="empty-cat-panel glass-control control-rounded border-border text-accent grid min-h-36 min-w-0 place-items-center overflow-hidden border p-3"
-        >
-          <div class="max-w-full min-w-0 text-center">
-            <p
-              class="max-w-full text-base leading-none tracking-[-0.08em] whitespace-nowrap sm:text-lg"
-            >
-              ฅ(≈චᆽච≈)ฅ
-            </p>
-            <p
-              class="text-muted mt-3 text-[0.62rem] tracking-[0.12em] uppercase"
-            >
-              no signal
-            </p>
-          </div>
-        </div>
+      {#if searchLoading}
+        <AsyncStateNotice
+          status="loading"
+          title={`Searching for "${searchTerm}"`}
+          description="Animi is checking its cache and AniList when needed."
+          compact
+        />
+      {/if}
 
-        <div class="max-w-xl">
-          <p class="text-accent text-xs tracking-[0.14em] uppercase">
-            sample catalog // no match
+      {#if searchError}
+        <AsyncStateNotice
+          status={searchResponse
+            ? isOfflineError(searchError)
+              ? "offline"
+              : "stale"
+            : isOfflineError(searchError)
+              ? "offline"
+              : "error"}
+          title={searchResponse
+            ? "Keeping the last search results"
+            : "Search could not finish"}
+          description={searchResponse
+            ? "The latest search failed, so the previous results remain visible."
+            : searchError.message}
+          error={searchError}
+          onRetry={searchError.retryable
+            ? () => executeSearch(searchTerm)
+            : undefined}
+          retryLabel="Retry search"
+          compact
+        />
+      {:else if searchResponse?.freshness.isStale}
+        <AsyncStateNotice
+          status={isOfflineError(searchResponse.freshness.refreshError)
+            ? "offline"
+            : "stale"}
+          title="Showing cached search results"
+          description={`Saved ${formatTimestamp(searchResponse.freshness.fetchedAt)}. The latest refresh did not replace them.`}
+          error={searchResponse.freshness.refreshError}
+          onRetry={searchResponse.freshness.refreshError?.retryable
+            ? () => executeSearch(searchTerm)
+            : undefined}
+          retryLabel="Retry search"
+          compact
+        />
+      {/if}
+
+      {#if searchResponse}
+        {#if searchResponse.items.length > 0}
+          {@render mediaGrid(
+            searchResponse.items,
+            `Anime search results for ${searchTerm}`,
+            searchResponse.freshness,
+          )}
+        {:else}
+          <AsyncStateNotice
+            status="empty"
+            title={`No anime found for "${searchTerm}"`}
+            description="Check the title spelling or try a shorter title."
+            compact
+          />
+        {/if}
+      {/if}
+    </section>
+  {:else}
+    <section
+      aria-labelledby="trending-heading"
+      class="glass-panel panel-large border-border grid min-w-0 gap-4 border p-4 sm:p-6"
+    >
+      <header class="flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <p class="text-accent text-[0.66rem] tracking-[0.14em] uppercase">
+            catalog // trending now
           </p>
           <h2
-            id="empty-results-heading"
-            class="text-foreground mt-2 text-xl font-light tracking-[0.03em] sm:text-2xl"
+            id="trending-heading"
+            class="text-foreground mt-1 text-xl font-light tracking-[0.03em]"
           >
-            No bundled sample titles match “{submittedQuery}”.
+            Trending anime
           </h2>
-          <p class="text-muted mt-3 text-sm leading-6">
-            Try a broader genre or tag. This only describes the six fictional
-            entries in the layout preview, not AniList results.
+        </div>
+        {#if trendingResponse}
+          <p class="text-muted text-xs">
+            {trendingResponse.items.length}
+            {trendingResponse.items.length === 1 ? "title" : "titles"} // cached
+            {formatTimestamp(trendingResponse.freshness.fetchedAt)}
           </p>
-          <button
-            type="button"
-            class="glass-accent control-rounded mt-5 min-h-10 px-4 py-2 text-xs tracking-[0.08em]"
-            onclick={clearSearch}
-          >
-            clear search
-          </button>
-        </div>
-      </section>
-    {/if}
-  </div>
+        {/if}
+      </header>
 
-  {#if selectedAnime}
-    <dialog
-      bind:this={detailsDialog}
-      aria-labelledby="preview-details-title"
-      aria-describedby="preview-details-description"
-      aria-modal="true"
-      class="discovery-dialog glass-panel panel-large border-border text-foreground border"
-      onclose={finishClosingDetails}
-      oncancel={handleDialogCancel}
-      onclick={handleDialogBackdrop}
-    >
-      <div class="min-h-full">
-        <div
-          class="bg-glass border-border sticky top-0 z-10 flex min-h-14 items-center justify-between gap-3 border-b px-4 py-2 backdrop-blur-xl"
-        >
-          <p
-            class="text-accent min-w-0 truncate text-[0.66rem] tracking-[0.12em] uppercase"
-          >
-            dossier // {selectedAnime.catalogCode}
-          </p>
-          <button
-            bind:this={detailsCloseButton}
-            type="button"
-            aria-label="Close details"
-            class="glass-control glass-interactive control-rounded grid size-10 shrink-0 place-items-center transition-colors"
-            onclick={() => closeDetails()}
-          >
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
+      {#if trendingLoading}
+        <AsyncStateNotice
+          status="loading"
+          title="Loading trending anime"
+          description="Animi is checking its discovery cache and AniList when needed."
+          compact
+        />
+      {/if}
 
-        <div
-          class="grid min-w-0 gap-5 p-4 sm:grid-cols-[10rem_minmax(0,1fr)] sm:p-6"
-        >
-          <div class="mx-auto w-full max-w-40">
-            <DiscoveryPreviewCover
-              title={selectedAnime.media.title}
-              motif={selectedAnime.motif}
-              code={selectedAnime.catalogCode}
-            />
-          </div>
+      {#if trendingError}
+        <AsyncStateNotice
+          status={trendingResponse
+            ? isOfflineError(trendingError)
+              ? "offline"
+              : "stale"
+            : isOfflineError(trendingError)
+              ? "offline"
+              : "error"}
+          title={trendingResponse
+            ? "Keeping the saved trending list"
+            : "Trending anime could not load"}
+          description={trendingResponse
+            ? "The latest refresh failed, so the previous trending list remains visible."
+            : trendingError.message}
+          error={trendingError}
+          onRetry={trendingError.retryable ? fetchTrending : undefined}
+          retryLabel="Retry trending"
+          compact
+        />
+      {:else if trendingResponse?.freshness.isStale}
+        <AsyncStateNotice
+          status={isOfflineError(trendingResponse.freshness.refreshError)
+            ? "offline"
+            : "stale"}
+          title="Showing cached trending anime"
+          description={`Saved ${formatTimestamp(trendingResponse.freshness.fetchedAt)}. The latest refresh did not replace this list.`}
+          error={trendingResponse.freshness.refreshError}
+          onRetry={trendingResponse.freshness.refreshError?.retryable
+            ? fetchTrending
+            : undefined}
+          retryLabel="Retry trending"
+          compact
+        />
+      {/if}
 
-          <div class="min-w-0">
-            <p class="text-accent text-[0.66rem] tracking-[0.12em] uppercase">
-              sample details // not fetched
-            </p>
-            <h2
-              id="preview-details-title"
-              class="text-foreground mt-2 text-2xl leading-tight font-light tracking-[0.025em]"
-            >
-              {selectedAnime.media.title}
-            </h2>
-            <p
-              id="preview-details-description"
-              class="text-muted mt-2 text-xs leading-5"
-            >
-              Secondary details layout preview. No library changes are available
-              in this checkpoint.
-            </p>
+      {#if trendingResponse}
+        {#if trendingResponse.items.length > 0}
+          {@render mediaGrid(
+            trendingResponse.items,
+            "Trending anime",
+            trendingResponse.freshness,
+          )}
+        {:else}
+          <AsyncStateNotice
+            status="empty"
+            title="No trending anime are available"
+            description="Try again later or search for a title directly."
+            compact
+          />
+        {/if}
+      {/if}
+    </section>
+  {/if}
 
-            <dl class="mt-5 grid grid-cols-2 gap-x-4 gap-y-4">
-              <div>
-                <dt
-                  class="text-muted text-[0.62rem] tracking-[0.12em] uppercase"
-                >
-                  format
-                </dt>
-                <dd class="text-foreground mt-1 text-sm">
-                  {formatLabel(selectedAnime.media.mediaFormat)}
-                </dd>
-              </div>
-              <div>
-                <dt
-                  class="text-muted text-[0.62rem] tracking-[0.12em] uppercase"
-                >
-                  status
-                </dt>
-                <dd class="text-foreground mt-1 text-sm">
-                  {formatLabel(selectedAnime.media.status)}
-                </dd>
-              </div>
-              <div class="col-span-2">
-                <dt
-                  class="text-muted text-[0.62rem] tracking-[0.12em] uppercase"
-                >
-                  episodes
-                </dt>
-                <dd class="text-foreground mt-1 text-sm">
-                  {episodeLabel(selectedAnime.media.episodes)}
-                </dd>
-              </div>
-            </dl>
-          </div>
-        </div>
-
-        <div class="border-border grid gap-5 border-t px-4 py-5 sm:px-6">
-          <section aria-labelledby="preview-genres-heading">
-            <h3
-              id="preview-genres-heading"
-              class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
-            >
-              genres
-            </h3>
-            <ul class="mt-2 flex flex-wrap gap-2">
-              {#each selectedAnime.media.genres as genre (genre)}
-                <li
-                  class="control-rounded border-border bg-glass-control border px-2 py-1 text-xs"
-                >
-                  {genre}
-                </li>
-              {/each}
-            </ul>
-          </section>
-
-          <section aria-labelledby="preview-tags-heading">
-            <h3
-              id="preview-tags-heading"
-              class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
-            >
-              ranked tags
-            </h3>
-            <ul class="mt-2 grid gap-2">
-              {#each selectedAnime.media.tags as tag (tag.name)}
-                <li
-                  class="glass-control control-rounded border-border flex items-center justify-between gap-3 border px-3 py-2 text-xs"
-                >
-                  <span>{tag.name}</span>
-                  <span class="text-accent">rank {tag.rank}</span>
-                </li>
-              {/each}
-            </ul>
-          </section>
-
-          <section aria-labelledby="preview-sequel-heading">
-            <h3
-              id="preview-sequel-heading"
-              class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
-            >
-              official sequel relations
-            </h3>
-            {#if selectedAnime.media.sequels.length > 0}
-              <ul class="mt-2 grid gap-2">
-                {#each selectedAnime.media.sequels as sequel (sequel.anilistId)}
-                  <li
-                    class="glass-control control-rounded border-border border px-3 py-2 text-xs leading-5"
-                  >
-                    <span class="text-foreground block">{sequel.title}</span>
-                    {#if sequel.releaseDate}
-                      <time
-                        class="text-muted block"
-                        datetime={sequel.releaseDate}
-                      >
-                        releases {formatCalendarDate(sequel.releaseDate)}
-                      </time>
-                    {:else}
-                      <span class="text-muted block">release date unknown</span>
-                    {/if}
-                  </li>
-                {/each}
-              </ul>
-            {:else}
-              <p class="text-muted mt-2 text-xs leading-5">
-                No official sequel relation in this sample.
-              </p>
-            {/if}
-          </section>
-
-          <button
-            type="button"
-            disabled
-            class="glass-accent control-rounded min-h-11 w-full px-4 py-2.5 text-xs tracking-[0.06em] disabled:cursor-default disabled:opacity-55"
-          >
-            add to planning // preview only
-          </button>
-        </div>
-      </div>
-    </dialog>
+  {#if selectedSummary}
+    <MediaDetailsDialog
+      summary={selectedSummary}
+      entry={entryFor(selectedSummary.anilistId)}
+      fallbackFreshness={selectedFreshness}
+      {loadDetails}
+      {saveEntry}
+      {deleteEntry}
+      trackingError={trackingIssue}
+      onRetryTracking={fetchLibrary}
+      onLibraryChanged={handleLibraryChanged}
+      onClose={closeDetails}
+    />
   {/if}
 </div>
 
 <style>
-  .discovery-dialog {
-    position: fixed;
-    inset: 50% auto auto 50%;
-    width: min(54rem, calc(100vw - 2rem));
-    height: min(46rem, calc(100dvh - 2rem));
-    max-width: none;
-    max-height: none;
-    margin: 0;
-    padding: 0;
-    overflow-y: auto;
-    transform: translate(-50%, -50%);
-    transform-origin: center;
-    animation: dossier-materialize 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-
-  .discovery-dialog::backdrop {
-    background: var(--scrim);
-    -webkit-backdrop-filter: blur(5px);
-    backdrop-filter: blur(5px);
-    animation: dossier-scrim-enter 180ms ease-out;
-  }
-
   .discovery-card:active {
     transform: translateY(1px) scale(0.985);
   }
 
-  @keyframes dossier-materialize {
-    from {
-      opacity: 0;
-      filter: blur(6px);
-      transform: translate(-50%, calc(-50% + 0.75rem)) scale(0.965);
-    }
-
-    to {
-      opacity: 1;
-      filter: blur(0);
-      transform: translate(-50%, -50%) scale(1);
-    }
-  }
-
-  @keyframes dossier-scrim-enter {
-    from {
-      background: transparent;
-      -webkit-backdrop-filter: blur(0);
-      backdrop-filter: blur(0);
-    }
-  }
-
-  @media (max-width: 639px) {
-    .discovery-dialog {
-      inset: 50% auto auto 50%;
-      width: calc(100vw - 1rem);
-      height: calc(100dvh - 1rem);
-    }
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .discovery-dialog,
-    .discovery-dialog::backdrop {
-      animation: none;
+    .discovery-card {
+      transition: none;
     }
   }
 </style>
