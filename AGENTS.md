@@ -17,7 +17,8 @@ Version 1 is anime-focused and has no server, cloud database, analytics, AniList
 - Prefer small, reviewable changes. Update nearby tests and documentation when behavior changes.
 - Use Bun exclusively for frontend dependencies, lockfiles, and scripts. Do not introduce npm, pnpm, or Yarn lockfiles.
 - Maintained dependencies may be added when they materially reduce risk or complexity. Avoid overlapping libraries and explain additions in the handoff.
-- Work on `main` unless the task requests a branch. Do not create commits unless requested.
+- Work on `main` unless the task requests a branch.
+- The user has requested frequent commits. Commit each completed, verified, coherent slice instead of allowing a large uncommitted diff to accumulate.
 - When commits are requested, keep them focused and use Conventional Commit prefixes such as `feat`, `fix`, `test`, `docs`, `refactor`, and `chore`.
 
 ## Architecture Boundaries
