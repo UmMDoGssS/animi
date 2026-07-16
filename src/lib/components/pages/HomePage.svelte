@@ -410,7 +410,7 @@
 
             <div
               aria-hidden="true"
-              class="bg-glass-control mt-3 h-1.5 overflow-hidden rounded-sm"
+              class="home-progress-track bg-glass-control mt-3 h-1.5 overflow-hidden rounded-sm"
             >
               <span
                 class="bg-accent block h-full rounded-sm transition-[width]"
@@ -418,14 +418,16 @@
               ></span>
             </div>
 
-            <button
-              type="button"
-              disabled={!canMarkWatched(show)}
-              class="glass-accent control-rounded mt-5 w-full px-4 py-3 text-xs tracking-[0.06em] transition disabled:cursor-default disabled:opacity-55 sm:mt-auto sm:w-fit sm:min-w-60"
-              onclick={() => markWatched(selectedIndex)}
-            >
-              {actionLabel(show)}
-            </button>
+            <div class="home-progress-action mt-5 shrink-0 sm:mt-auto sm:pt-5">
+              <button
+                type="button"
+                disabled={!canMarkWatched(show)}
+                class="glass-accent control-rounded w-full px-4 py-3 text-xs tracking-[0.06em] transition disabled:cursor-default disabled:opacity-55 sm:w-fit sm:min-w-60"
+                onclick={() => markWatched(selectedIndex)}
+              >
+                {actionLabel(show)}
+              </button>
+            </div>
           </div>
         </article>
       </div>

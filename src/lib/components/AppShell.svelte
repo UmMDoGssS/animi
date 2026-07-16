@@ -98,7 +98,10 @@
   <div
     class="relative mx-auto grid min-h-screen max-w-[96rem] grid-cols-[3.5rem_minmax(0,1fr)] gap-2 p-2 sm:gap-3 sm:p-4"
   >
-    <aside class="sticky top-0 z-30 flex h-screen items-center py-2 sm:py-4">
+    <aside
+      aria-label="Primary navigation rail"
+      class="sticky top-2 z-30 flex h-[calc(100dvh-1rem)] items-center self-start py-2 sm:top-4 sm:h-[calc(100dvh-2rem)] sm:py-4"
+    >
       <AppNavigation {activeView} {selectView} />
     </aside>
 

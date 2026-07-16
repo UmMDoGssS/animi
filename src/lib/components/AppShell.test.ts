@@ -51,6 +51,17 @@ describe("AppShell", () => {
       expect(
         screen.getByRole("link", { name: "Skip to content" }),
       ).toHaveAttribute("href", "#main-content");
+      expect(
+        screen.getByRole("complementary", {
+          name: "Primary navigation rail",
+        }),
+      ).toHaveClass(
+        "top-2",
+        "h-[calc(100dvh-1rem)]",
+        "self-start",
+        "sm:top-4",
+        "sm:h-[calc(100dvh-2rem)]",
+      );
 
       for (const destination of ["Discover", "Dashboard", "Settings"]) {
         await fireEvent.click(screen.getByRole("tab", { name: destination }));

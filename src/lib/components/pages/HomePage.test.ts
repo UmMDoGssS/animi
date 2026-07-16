@@ -110,11 +110,15 @@ describe("HomePage", () => {
     expect(
       within(catchUpSlide).getByText(/2\s+episodes\s+waiting/i),
     ).toBeInTheDocument();
-    await user.click(
-      within(catchUpSlide).getByRole("button", {
-        name: "preview · mark ep. 06 watched",
-      }),
-    );
+    const firstProgressAction = within(catchUpSlide).getByRole("button", {
+      name: "preview · mark ep. 06 watched",
+    });
+    const actionBoundary = firstProgressAction.closest(".home-progress-action");
+    expect(actionBoundary).toHaveClass("shrink-0", "sm:pt-5");
+    expect(
+      catchUpSlide.querySelector(".home-progress-track")?.nextElementSibling,
+    ).toBe(actionBoundary);
+    await user.click(firstProgressAction);
     expect(within(catchUpSlide).getByText("06 / 12")).toBeInTheDocument();
     expect(
       within(catchUpSlide).getByText(/1\s+episode\s+waiting/i),
