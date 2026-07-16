@@ -6,7 +6,22 @@
     normalizeCommandError,
     setThemePreference,
   } from "$lib/ipc/client";
-  import type { CommandError, ThemePreference } from "$lib/ipc/types";
+  import type {
+    CommandError,
+    DashboardInsights,
+    LibraryEntry,
+    LibraryItem,
+    MediaDetailsRequest,
+    MediaDetailsResponse,
+    MediaPageRequest,
+    MediaPageResponse,
+    RefreshLibraryMetadataResponse,
+    RemoveLibraryEntryRequest,
+    RemoveLibraryEntryResponse,
+    SearchMediaRequest,
+    ThemePreference,
+    UpsertLibraryEntryRequest,
+  } from "$lib/ipc/types";
   import type { PrimaryViewId } from "$lib/navigation";
   import { applyThemePreference } from "$lib/theme/theme";
 
@@ -22,6 +37,22 @@
     saveThemePreference?: (
       preference: ThemePreference,
     ) => Promise<ThemePreference>;
+    p4Services?: P4ServiceOverrides;
+  }
+
+  interface P4ServiceOverrides {
+    loadTrending?: (request: MediaPageRequest) => Promise<MediaPageResponse>;
+    searchAnime?: (request: SearchMediaRequest) => Promise<MediaPageResponse>;
+    loadDetails?: (
+      request: MediaDetailsRequest,
+    ) => Promise<MediaDetailsResponse>;
+    loadLibrary?: () => Promise<LibraryItem[]>;
+    saveEntry?: (request: UpsertLibraryEntryRequest) => Promise<LibraryEntry>;
+    deleteEntry?: (
+      request: RemoveLibraryEntryRequest,
+    ) => Promise<RemoveLibraryEntryResponse>;
+    loadInsights?: () => Promise<DashboardInsights>;
+    refreshMetadata?: () => Promise<RefreshLibraryMetadataResponse>;
   }
 
   type FailedThemeOperation =
@@ -30,6 +61,7 @@
   let {
     loadThemePreference = getThemePreference,
     saveThemePreference = setThemePreference,
+    p4Services = {},
   }: Props = $props();
 
   let activeView = $state<PrimaryViewId>("home");
@@ -149,9 +181,23 @@
         {#if activeView === "home"}
           <HomePage openDiscovery={() => selectView("discovery")} />
         {:else if activeView === "discovery"}
-          <DiscoveryPage />
+          <DiscoveryPage
+            loadTrending={p4Services.loadTrending}
+            searchAnime={p4Services.searchAnime}
+            loadDetails={p4Services.loadDetails}
+            loadLibrary={p4Services.loadLibrary}
+            saveEntry={p4Services.saveEntry}
+            deleteEntry={p4Services.deleteEntry}
+          />
         {:else if activeView === "dashboard"}
-          <DashboardPage />
+          <DashboardPage
+            loadInsights={p4Services.loadInsights}
+            refreshMetadata={p4Services.refreshMetadata}
+            loadDetails={p4Services.loadDetails}
+            saveEntry={p4Services.saveEntry}
+            deleteEntry={p4Services.deleteEntry}
+            openDiscovery={() => selectView("discovery")}
+          />
         {:else}
           <SettingsPage
             {themePreference}

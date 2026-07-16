@@ -8,11 +8,92 @@ import {
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import type { ThemePreference } from "$lib/ipc/types";
+import type {
+  DashboardInsights,
+  LibraryEntry,
+  MediaSummary,
+  ThemePreference,
+  UpsertLibraryEntryRequest,
+} from "$lib/ipc/types";
 
 import { setTestViewport, testViewports } from "../../test/viewports";
 
 import AppShell from "./AppShell.svelte";
+
+const appShellMedia: MediaSummary = {
+  anilistId: 101,
+  title: "Paper Cranes at Dawn",
+  coverUrl: null,
+  mediaFormat: "TV",
+  status: "RELEASING",
+  episodes: 12,
+  durationMinutes: 24,
+  genres: ["Drama"],
+  tags: [{ name: "Found Family", rank: 88 }],
+  trending: 90,
+};
+
+const emptyDashboard: DashboardInsights = {
+  mediaKind: "ANIME",
+  libraryItems: [],
+  libraryTotals: {
+    tracked: 0,
+    watching: 0,
+    completed: 0,
+    planning: 0,
+    currentProgress: 0,
+  },
+  preferenceSignals: {
+    eligibleTitles: 0,
+    metadataTitles: 0,
+    missingMetadataTitles: 0,
+    staleMetadataTitles: 0,
+    genres: [],
+    tags: [],
+  },
+  activity: {
+    eventCount: 0,
+    recordedEpisodes: 0,
+    knownDurationEpisodes: 0,
+    recordedMinutes: 0,
+    unknownDurationEpisodes: 0,
+    events: [],
+  },
+};
+
+function p4Services() {
+  return {
+    loadTrending: vi.fn().mockResolvedValue({
+      items: [appShellMedia],
+      hasNextPage: false,
+      freshness: {
+        fetchedAt: "2026-07-17T08:00:00.000Z",
+        expiresAt: "2026-07-17T14:00:00.000Z",
+        isStale: false,
+        refreshError: null,
+      },
+    }),
+    searchAnime: vi.fn(),
+    loadLibrary: vi.fn().mockResolvedValue([]),
+    loadDetails: vi.fn().mockResolvedValue({
+      media: { ...appShellMedia, sequels: [] },
+      freshness: {
+        fetchedAt: "2026-07-17T08:00:00.000Z",
+        expiresAt: "2026-07-18T08:00:00.000Z",
+        isStale: false,
+        refreshError: null,
+      },
+    }),
+    saveEntry: vi.fn(async (request: UpsertLibraryEntryRequest) => ({
+      ...request,
+      createdAt: "2026-07-17T08:00:00.000Z",
+      updatedAt: "2026-07-17T08:00:00.000Z",
+    })) as (request: UpsertLibraryEntryRequest) => Promise<LibraryEntry>,
+    deleteEntry: vi.fn().mockResolvedValue({ removed: true }),
+    loadInsights: vi.fn().mockResolvedValue(emptyDashboard),
+    refreshMetadata: vi.fn(),
+  };
+}
 
 describe("AppShell", () => {
   it.each(testViewports)(
@@ -22,6 +103,7 @@ describe("AppShell", () => {
       render(AppShell, {
         loadThemePreference: vi.fn().mockResolvedValue("SYSTEM"),
         saveThemePreference: vi.fn(),
+        p4Services: p4Services(),
       });
 
       const tabs = screen.getAllByRole("tab");
@@ -139,13 +221,14 @@ describe("AppShell", () => {
     render(AppShell, {
       loadThemePreference: vi.fn().mockResolvedValue("SYSTEM"),
       saveThemePreference: vi.fn(),
+      p4Services: p4Services(),
     });
 
     const discoverTab = screen.getByRole("tab", { name: "Discover" });
     await user.click(discoverTab);
     await user.click(
       screen.getByRole("button", {
-        name: "Open sample details for Paper Cranes at Dawn",
+        name: "Open details for Paper Cranes at Dawn",
       }),
     );
 
