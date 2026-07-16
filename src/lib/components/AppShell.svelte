@@ -24,6 +24,9 @@
     ) => Promise<ThemePreference>;
   }
 
+  type FailedThemeOperation =
+    { kind: "load" } | { kind: "save"; preference: ThemePreference };
+
   let {
     loadThemePreference = getThemePreference,
     saveThemePreference = setThemePreference,
@@ -33,18 +36,24 @@
   let themePreference = $state<ThemePreference>("SYSTEM");
   let themeStatus = $state<"loading" | "ready" | "saving" | "error">("loading");
   let themeError = $state<CommandError | null>(null);
+  let failedThemeOperation = $state<FailedThemeOperation | null>(null);
 
   onMount(() => {
     void loadPreference();
   });
 
   async function loadPreference() {
+    themeStatus = "loading";
+    themeError = null;
+
     try {
       themePreference = await loadThemePreference();
       applyThemePreference(themePreference);
+      failedThemeOperation = null;
       themeStatus = "ready";
     } catch (reason) {
       themeError = normalizeCommandError(reason);
+      failedThemeOperation = { kind: "load" };
       themeStatus = "error";
     }
   }
@@ -59,15 +68,32 @@
     try {
       themePreference = await saveThemePreference(preference);
       applyThemePreference(themePreference);
+      failedThemeOperation = null;
       themeStatus = "ready";
     } catch (reason) {
       themeError = normalizeCommandError(reason);
+      failedThemeOperation = { kind: "save", preference };
       themeStatus = "error";
     }
   }
 
+  async function retryThemePreference() {
+    if (!themeError?.retryable || failedThemeOperation === null) {
+      return;
+    }
+
+    if (failedThemeOperation.kind === "load") {
+      await loadPreference();
+      return;
+    }
+
+    await selectThemePreference(failedThemeOperation.preference);
+  }
+
   function selectView(view: PrimaryViewId) {
     activeView = view;
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }
 </script>
 
@@ -119,7 +145,7 @@
         </div>
       </header>
 
-      <main id="main-content" class="min-w-0 px-1 sm:px-3">
+      <main id="main-content" tabindex="-1" class="min-w-0 px-1 sm:px-3">
         {#if activeView === "home"}
           <HomePage openDiscovery={() => selectView("discovery")} />
         {:else if activeView === "discovery"}
@@ -132,6 +158,7 @@
             {themeStatus}
             {themeError}
             {selectThemePreference}
+            {retryThemePreference}
           />
         {/if}
       </main>

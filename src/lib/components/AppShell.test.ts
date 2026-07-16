@@ -51,6 +51,7 @@ describe("AppShell", () => {
       expect(
         screen.getByRole("link", { name: "Skip to content" }),
       ).toHaveAttribute("href", "#main-content");
+      expect(screen.getByRole("main")).toHaveAttribute("tabindex", "-1");
       expect(
         screen.getByRole("complementary", {
           name: "Primary navigation rail",
@@ -116,6 +117,23 @@ describe("AppShell", () => {
     ).toBeInTheDocument();
   });
 
+  it("opens each primary destination at the top of the page", async () => {
+    render(AppShell, {
+      loadThemePreference: vi.fn().mockResolvedValue("SYSTEM"),
+      saveThemePreference: vi.fn(),
+    });
+    document.documentElement.scrollTop = 640;
+    document.body.scrollTop = 640;
+
+    await fireEvent.click(screen.getByRole("tab", { name: "Settings" }));
+
+    expect(document.documentElement.scrollTop).toBe(0);
+    expect(document.body.scrollTop).toBe(0);
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Settings" }),
+    ).toBeInTheDocument();
+  });
+
   it("keeps Discover selected while media details open secondarily", async () => {
     const user = userEvent.setup();
     render(AppShell, {
@@ -173,13 +191,17 @@ describe("AppShell", () => {
   });
 
   it("keeps the active theme when saving a preference fails", async () => {
-    render(AppShell, {
-      loadThemePreference: vi.fn().mockResolvedValue("LATTE"),
-      saveThemePreference: vi.fn().mockRejectedValue({
+    const saveThemePreference = vi
+      .fn()
+      .mockRejectedValueOnce({
         code: "DATABASE_UNAVAILABLE",
         message: "Animi could not save the theme preference.",
         retryable: true,
-      }),
+      })
+      .mockResolvedValueOnce("MACCHIATO");
+    render(AppShell, {
+      loadThemePreference: vi.fn().mockResolvedValue("LATTE"),
+      saveThemePreference,
     });
 
     await waitFor(() =>
@@ -193,5 +215,72 @@ describe("AppShell", () => {
     );
     expect(document.documentElement).toHaveAttribute("data-theme", "latte");
     expect(screen.getByRole("radio", { name: /Light/ })).toBeChecked();
+
+    await fireEvent.click(
+      screen.getByRole("button", { name: "Retry preference" }),
+    );
+    await waitFor(() =>
+      expect(document.documentElement).toHaveAttribute(
+        "data-theme",
+        "macchiato",
+      ),
+    );
+    expect(screen.getByRole("radio", { name: /Dark/ })).toBeChecked();
+    expect(saveThemePreference).toHaveBeenCalledTimes(2);
+    expect(saveThemePreference).toHaveBeenNthCalledWith(1, "MACCHIATO");
+    expect(saveThemePreference).toHaveBeenNthCalledWith(2, "MACCHIATO");
+  });
+
+  it("retries a failed theme load only when the error is retryable", async () => {
+    const loadThemePreference = vi
+      .fn()
+      .mockRejectedValueOnce({
+        code: "DATABASE_UNAVAILABLE",
+        message: "Animi could not load the theme preference.",
+        retryable: true,
+      })
+      .mockResolvedValueOnce("MACCHIATO");
+    render(AppShell, {
+      loadThemePreference,
+      saveThemePreference: vi.fn(),
+    });
+
+    await fireEvent.click(screen.getByRole("tab", { name: "Settings" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Animi could not load the theme preference.",
+    );
+    expect(screen.getByRole("radio", { name: /System/ })).toBeChecked();
+
+    await fireEvent.click(
+      screen.getByRole("button", { name: "Retry preference" }),
+    );
+
+    await waitFor(() =>
+      expect(document.documentElement).toHaveAttribute(
+        "data-theme",
+        "macchiato",
+      ),
+    );
+    expect(loadThemePreference).toHaveBeenCalledTimes(2);
+    expect(screen.getByRole("radio", { name: /Dark/ })).toBeChecked();
+  });
+
+  it("does not offer a retry for a terminal theme error", async () => {
+    render(AppShell, {
+      loadThemePreference: vi.fn().mockRejectedValue({
+        code: "INVALID_THEME_PREFERENCE",
+        message: "The saved theme preference is invalid.",
+        retryable: false,
+      }),
+      saveThemePreference: vi.fn(),
+    });
+
+    await fireEvent.click(screen.getByRole("tab", { name: "Settings" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "The saved theme preference is invalid.",
+    );
+    expect(
+      screen.queryByRole("button", { name: "Retry preference" }),
+    ).not.toBeInTheDocument();
   });
 });

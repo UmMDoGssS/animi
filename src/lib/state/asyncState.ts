@@ -12,3 +12,8 @@ export type AsyncState<T> =
   | { status: "offline"; data: T | null; error: CommandError }
   | { status: "stale"; data: T; refreshError: CommandError | null }
   | { status: "error"; error: CommandError };
+
+export type AsyncPresentationStatus = Exclude<
+  AsyncState<unknown>["status"],
+  "idle" | "ready"
+>;

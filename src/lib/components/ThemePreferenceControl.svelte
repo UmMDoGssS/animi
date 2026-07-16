@@ -2,17 +2,27 @@
   import type { CommandError, ThemePreference } from "$lib/ipc/types";
   import { themeOptions } from "$lib/theme/theme";
 
+  import AsyncStateNotice from "./AsyncStateNotice.svelte";
+
   interface Props {
     preference: ThemePreference;
     status: "loading" | "ready" | "saving" | "error";
     error: CommandError | null;
     selectPreference: (preference: ThemePreference) => Promise<void>;
+    retryPreference: () => Promise<void>;
   }
 
-  let { preference, status, error, selectPreference }: Props = $props();
+  let { preference, status, error, selectPreference, retryPreference }: Props =
+    $props();
   let displayedPreference = $derived(preference);
+  let hasRequestedChange = $state(false);
+  let activeOption = $derived(
+    themeOptions.find((option) => option.value === preference) ??
+      themeOptions[0],
+  );
 
   async function choosePreference(nextPreference: ThemePreference) {
+    hasRequestedChange = true;
     await selectPreference(nextPreference);
     displayedPreference = preference;
   }
@@ -20,6 +30,7 @@
 
 <section
   aria-labelledby="theme-preference-heading"
+  aria-busy={status === "loading" || status === "saving"}
   class="glass-panel panel-large border-border border p-5 sm:p-6"
 >
   <div class="max-w-2xl">
@@ -37,7 +48,7 @@
     <div class="grid gap-3 sm:grid-cols-3">
       {#each themeOptions as option (option.value)}
         <label
-          class="glass-control glass-interactive control-rounded border-border has-checked:border-accent has-checked:ring-accent/30 flex cursor-pointer gap-3 border p-4 transition has-checked:ring-2"
+          class="theme-option glass-control glass-interactive control-rounded border-border has-checked:border-accent has-checked:ring-accent/30 flex cursor-pointer gap-3 border p-4 transition has-checked:ring-2"
         >
           <input
             type="radio"
@@ -61,12 +72,50 @@
   </fieldset>
 
   {#if status === "loading"}
-    <p class="text-muted mt-3 text-sm" role="status">Loading preference…</p>
+    <div class="mt-4">
+      <AsyncStateNotice
+        status="loading"
+        title="Loading your saved palette"
+        description="System colors stay active while Animi checks this device."
+        compact
+      />
+    </div>
   {:else if status === "saving"}
-    <p class="text-muted mt-3 text-sm" role="status">Saving preference…</p>
+    <div class="mt-4">
+      <AsyncStateNotice
+        status="loading"
+        title="Saving the palette on this device"
+        description="The current palette stays active until the local save finishes."
+        compact
+      />
+    </div>
   {:else if status === "error" && error}
-    <p class="text-danger mt-3 text-sm" role="alert">{error.message}</p>
+    <div class="mt-4">
+      <AsyncStateNotice
+        status="error"
+        title="Appearance stayed unchanged"
+        {error}
+        onRetry={retryPreference}
+        retryLabel="Retry preference"
+        compact
+      />
+    </div>
   {:else}
-    <p class="text-muted mt-3 text-sm" role="status">Preference saved.</p>
+    <p class="text-muted mt-4 text-sm leading-6">
+      <span class="text-foreground">{activeOption.label} is active.</span>
+      {activeOption.description} The preference is stored only on this device.
+    </p>
+    {#if hasRequestedChange}
+      <p class="sr-only" role="status">
+        Theme preference saved. {activeOption.label} is active.
+      </p>
+    {/if}
   {/if}
 </section>
+
+<style>
+  .theme-option:has(input:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+</style>
