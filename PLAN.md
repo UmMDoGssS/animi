@@ -7,7 +7,7 @@
 | Product | Animi |
 | Release | Version 1, Windows desktop |
 | Overall status | In progress |
-| Current phase | P2 - AniList integration and caching (not started) |
+| Current phase | P2 - AniList integration and caching (in progress) |
 | Schedule | Dependency-driven; no calendar commitment |
 | Last updated | 2026-07-16 |
 
@@ -46,7 +46,7 @@ The following remain outside v1:
 |---|---|---|---|---|
 | P0 | Scaffold and engineering foundation | Approved project baseline | Complete | Windows app launches and baseline quality checks pass |
 | P1 | Local persistence and typed IPC | P0 | Complete | Durable library CRUD survives restart safely |
-| P2 | AniList integration and caching | P1 | Not started | Mocked network, cache, offline, and rate-limit behavior passes |
+| P2 | AniList integration and caching | P1 | In progress | Mocked network, cache, offline, and rate-limit behavior passes |
 | P3 | Application shell and design system | P0; coordinate with P1 contracts | Not started | Accessible shell works at desktop and narrow widths |
 | P4 | Discovery, details, and library workflow | P1, P2, P3 | Not started | Core search-to-library flow passes end to end |
 | P5 | Airing information and recommendations | P2, P4 | Not started | Airing and deterministic recommendation behavior passes |
@@ -188,18 +188,18 @@ Every applicable milestone must satisfy these requirements, even when they are n
 
 ### Entry gate
 
-- [ ] **P2-E1** AniList response fixtures cover normal, incomplete, malformed, forbidden, rate-limited, and offline cases.
-- [ ] **P2-E2** The HTTP client can be replaced with a deterministic mock in every automated test.
+- [x] **P2-E1** AniList response fixtures cover normal, incomplete, malformed, forbidden, rate-limited, and offline cases.
+- [x] **P2-E2** The HTTP client can be replaced with a deterministic mock in every automated test.
 
 ### Milestones
 
-- [ ] **P2-M1 - Typed GraphQL adapter:** Implement narrowly scoped queries and validated response mapping for anime search, details, trending results, airing schedules, and sequel relations. Exclude adult content by default.
+- [x] **P2-M1 - Typed GraphQL adapter:** Implement narrowly scoped queries and validated response mapping for anime search, details, trending results, airing schedules, and sequel relations. Exclude adult content by default.
 - [ ] **P2-M2 - Discovery commands:** Implement `search_media`, `get_media_details`, and `list_trending` without exposing raw GraphQL responses to the frontend.
 - [ ] **P2-M3 - Cache policy:** Apply 24-hour detail, 6-hour discovery/recommendation, and 30-minute airing TTLs. Cache only on-demand results and retain fetch timestamps needed for stale display.
 - [ ] **P2-M4 - Offline and stale reads:** Return usable cached data with explicit freshness metadata when refresh fails; return a terminal, retryable error when no usable cache exists.
 - [ ] **P2-M5 - Rate limiting:** Honor response rate-limit headers and `Retry-After`, avoid retry storms, and distinguish retryable throttling from non-retryable contract errors.
 - [ ] **P2-M6 - Library refresh:** Implement `refresh_library_metadata` so it refreshes only relevant tracked records and never holds a database transaction or lock during network work.
-- [ ] **P2-M7 - Contract tests:** Cover success, absent episode totals, absent sequel dates, partial GraphQL errors, malformed data, offline failures, `403`, and `429 Retry-After` entirely through mocks.
+- [x] **P2-M7 - Contract tests:** Cover success, absent episode totals, absent sequel dates, partial GraphQL errors, malformed data, offline failures, `403`, and `429 Retry-After` entirely through mocks.
 
 ### Exit gate
 
@@ -208,7 +208,11 @@ Every applicable milestone must satisfy these requirements, even when they are n
 - [ ] **P2-G3** Rate-limit and offline behavior is deterministic and never corrupts local records.
 - [ ] **P2-G4** The automated suite proves no live AniList access is possible.
 
-**Evidence:** Pending.
+**Evidence:** In progress. The first slice added a replaceable AniList transport, a network-disabled
+test default, a production `reqwest` transport, narrow anime-only/non-adult GraphQL queries, stable
+media/detail/airing/sequel mapping, and deterministic fixtures for all P2 contract cases. Verified
+with `cargo test --manifest-path src-tauri/Cargo.toml --all-features` (24 unit tests and 4 integration
+tests) and `cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings`.
 
 ## P3 - Application Shell and Design System
 

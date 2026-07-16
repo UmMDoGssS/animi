@@ -1,0 +1,23 @@
+{
+  "data": {
+    "Page": {
+      "pageInfo": { "hasNextPage": false },
+      "media": [
+        {
+          "id": 99,
+          "title": { "romaji": "Partial Result", "english": null, "native": null },
+          "coverImage": null,
+          "format": null,
+          "status": null,
+          "episodes": null,
+          "genres": [],
+          "tags": [],
+          "trending": 1
+        }
+      ]
+    }
+  },
+  "errors": [
+    { "message": "A nonessential field could not be resolved", "path": ["Page", "media", 0, "coverImage"] }
+  ]
+}

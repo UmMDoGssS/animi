@@ -1,0 +1,49 @@
+{
+  "data": {
+    "Media": {
+      "id": 21,
+      "title": { "romaji": "Incomplete Anime", "english": null, "native": null },
+      "coverImage": null,
+      "format": "TV",
+      "status": "RELEASING",
+      "episodes": null,
+      "genres": ["Fantasy"],
+      "tags": [],
+      "trending": 12,
+      "relations": {
+        "edges": [
+          {
+            "relationType": "SEQUEL",
+            "node": {
+              "id": 22,
+              "type": "ANIME",
+              "isAdult": false,
+              "title": { "romaji": "Unannounced Sequel", "english": null, "native": null },
+              "startDate": { "year": null, "month": null, "day": null }
+            }
+          },
+          {
+            "relationType": "PREQUEL",
+            "node": {
+              "id": 20,
+              "type": "ANIME",
+              "isAdult": false,
+              "title": { "romaji": "Earlier Story", "english": null, "native": null },
+              "startDate": { "year": 2020, "month": 1, "day": 1 }
+            }
+          },
+          {
+            "relationType": "SEQUEL",
+            "node": {
+              "id": 23,
+              "type": "ANIME",
+              "isAdult": true,
+              "title": { "romaji": "Filtered Sequel", "english": null, "native": null },
+              "startDate": { "year": 2027, "month": 1, "day": 1 }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
