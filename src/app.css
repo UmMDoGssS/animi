@@ -18,6 +18,7 @@
   --danger: #d20f39;
   --border: rgb(76 79 105 / 18%);
   --glass: rgb(239 241 245 / 82%);
+  --selection: rgb(136 57 239 / 28%);
   font-family:
     Inter,
     ui-sans-serif,
@@ -46,6 +47,7 @@
   --danger: #ed8796;
   --border: rgb(202 211 245 / 16%);
   --glass: rgb(36 39 58 / 84%);
+  --selection: rgb(198 160 246 / 34%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -65,6 +67,7 @@
     --danger: #ed8796;
     --border: rgb(202 211 245 / 16%);
     --glass: rgb(36 39 58 / 84%);
+    --selection: rgb(198 160 246 / 34%);
   }
 }
 
@@ -83,6 +86,7 @@
   --color-danger: var(--danger);
   --color-border: var(--border);
   --color-glass: var(--glass);
+  --color-selection: var(--selection);
 }
 
 html {
@@ -95,6 +99,11 @@ body {
   min-height: 100vh;
   margin: 0;
   background: var(--surface);
+  color: var(--text);
+}
+
+::selection {
+  background: var(--selection);
   color: var(--text);
 }
 

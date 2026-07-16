@@ -238,7 +238,7 @@ warnings denied, 34 Rust unit tests, and 5 Rust integration tests.
 ### Milestones
 
 - [x] **P3-M1 - Theme system:** Implement Catppuccin Latte and Macchiato through semantic surface, overlay, text, muted-text, accent, success, warning, and danger variables.
-- [ ] **P3-M2 - Theme preference:** Default to the operating-system preference, persist a manual override through the durable settings boundary, and react predictably when the OS preference changes without an override.
+- [x] **P3-M2 - Theme preference:** Default to the operating-system preference, persist a manual override through the durable settings boundary, and react predictably when the OS preference changes without an override.
 - [ ] **P3-M3 - Visual foundation:** Add rounded cover-focused layouts and restrained frosted-glass panels with subtle borders, restrained blur, and opaque fallbacks.
 - [ ] **P3-M4 - Navigation shell:** Implement keyboard-operable navigation among Library, Discover, Recommendations, and Settings/Backup plus a consistent details presentation.
 - [ ] **P3-M5 - Async state components:** Provide focused loading, empty, offline, stale, and error presentations with retry actions where the underlying error is retryable.
@@ -253,7 +253,7 @@ warnings denied, 34 Rust unit tests, and 5 Rust integration tests.
 - [ ] **P3-G3** Every asynchronous placeholder has a defined terminal success, empty, offline, or error state.
 - [ ] **P3-G4** Component accessibility and responsive-layout tests pass.
 
-**Evidence:** P3 entry gates and P3-M1 completed 2026-07-16. Added explicit Catppuccin Latte and Macchiato selectors behind semantic color tokens, retained system dark-mode selection when no override exists, established a discriminated async-state convention, and added reusable 1280x800 desktop and 390x844 narrow component-test viewports. `bun run format:check`, `bun run lint`, `bun run check`, and `bun run test` passed (10 frontend tests).
+**Evidence:** P3 entry gates and P3-M1 completed 2026-07-16. Added explicit Catppuccin Latte and Macchiato selectors behind semantic color tokens, retained system dark-mode selection when no override exists, established a discriminated async-state convention, and added reusable 1280x800 desktop and 390x844 narrow component-test viewports. The user manually confirmed both palettes and the responsive shell at desktop and narrow widths. P3-M2 added accessible System, Light, and Dark controls; typed Tauri commands persist the preference in SQLite, System mode remains driven by the OS media query, failed saves retain the active palette, and themed text selection replaces the browser default. The frontend quality gate passed with 13 tests; Rust formatting, Clippy with warnings denied, 36 unit tests, and 5 integration tests passed.
 
 ## P4 - Discovery, Details, and Library Workflow
 

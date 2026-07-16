@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { semanticColorTokens, themeIds } from "./theme";
+import { applyThemePreference, semanticColorTokens, themeIds } from "./theme";
 
 const appStyles = readFileSync(resolve("src/app.css"), "utf8");
 
@@ -24,5 +24,18 @@ describe("theme contract", () => {
   it("uses Macchiato when the OS prefers dark and no override exists", () => {
     expect(appStyles).toContain(":root:not([data-theme])");
     expect(appStyles).toContain("@media (prefers-color-scheme: dark)");
+  });
+
+  it("applies manual palettes and removes the override for system mode", () => {
+    const root = document.createElement("html");
+
+    applyThemePreference("LATTE", root);
+    expect(root.dataset.theme).toBe("latte");
+
+    applyThemePreference("MACCHIATO", root);
+    expect(root.dataset.theme).toBe("macchiato");
+
+    applyThemePreference("SYSTEM", root);
+    expect(root).not.toHaveAttribute("data-theme");
   });
 });

@@ -11,6 +11,7 @@ import type {
   RemoveLibraryEntryResponse,
   RefreshLibraryMetadataResponse,
   SmokeResponse,
+  ThemePreference,
   SearchMediaRequest,
   UpsertLibraryEntryRequest,
 } from "./types";
@@ -38,6 +39,16 @@ export async function removeLibraryEntry(
   return invoke<RemoveLibraryEntryResponse>("remove_library_entry", {
     request,
   });
+}
+
+export async function getThemePreference(): Promise<ThemePreference> {
+  return invoke<ThemePreference>("get_theme_preference");
+}
+
+export async function setThemePreference(
+  preference: ThemePreference,
+): Promise<ThemePreference> {
+  return invoke<ThemePreference>("set_theme_preference", { preference });
 }
 
 export async function searchMedia(

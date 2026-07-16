@@ -16,6 +16,7 @@ export type CalendarDate = string;
 
 export type MediaKind = "ANIME" | "MANGA";
 export type LibraryStatus = "WATCHING" | "COMPLETED" | "PLANNING";
+export type ThemePreference = "SYSTEM" | "LATTE" | "MACCHIATO";
 
 export interface LibraryEntry {
   anilistId: number;

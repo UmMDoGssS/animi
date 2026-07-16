@@ -1,20 +1,77 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+
+  import {
+    getThemePreference,
+    normalizeCommandError,
+    setThemePreference,
+  } from "$lib/ipc/client";
+  import type { CommandError, ThemePreference } from "$lib/ipc/types";
   import {
     detailsPlaceholder,
     navigationItems,
     type AppViewId,
   } from "$lib/navigation";
+  import { applyThemePreference } from "$lib/theme/theme";
 
   import SmokePanel from "./SmokePanel.svelte";
+  import ThemePreferenceControl from "./ThemePreferenceControl.svelte";
   import ViewPlaceholder from "./ViewPlaceholder.svelte";
 
+  interface Props {
+    loadThemePreference?: () => Promise<ThemePreference>;
+    saveThemePreference?: (
+      preference: ThemePreference,
+    ) => Promise<ThemePreference>;
+  }
+
+  let {
+    loadThemePreference = getThemePreference,
+    saveThemePreference = setThemePreference,
+  }: Props = $props();
+
   let activeView = $state<AppViewId>("library");
+  let themePreference = $state<ThemePreference>("SYSTEM");
+  let themeStatus = $state<"loading" | "ready" | "saving" | "error">("loading");
+  let themeError = $state<CommandError | null>(null);
   let activeItem = $derived(
     activeView === "details"
       ? detailsPlaceholder
       : (navigationItems.find((item) => item.id === activeView) ??
           navigationItems[0]),
   );
+
+  onMount(() => {
+    void loadPreference();
+  });
+
+  async function loadPreference() {
+    try {
+      themePreference = await loadThemePreference();
+      applyThemePreference(themePreference);
+      themeStatus = "ready";
+    } catch (reason) {
+      themeError = normalizeCommandError(reason);
+      themeStatus = "error";
+    }
+  }
+
+  async function selectThemePreference(preference: ThemePreference) {
+    if (preference === themePreference && themeStatus !== "error") {
+      return;
+    }
+
+    themeStatus = "saving";
+    themeError = null;
+    try {
+      themePreference = await saveThemePreference(preference);
+      applyThemePreference(themePreference);
+      themeStatus = "ready";
+    } catch (reason) {
+      themeError = normalizeCommandError(reason);
+      themeStatus = "error";
+    }
+  }
 </script>
 
 <div class="bg-surface text-foreground min-h-screen">
@@ -61,6 +118,14 @@
         title={activeItem.title}
         description={activeItem.description}
       />
+      {#if activeView === "settings"}
+        <ThemePreferenceControl
+          preference={themePreference}
+          status={themeStatus}
+          error={themeError}
+          selectPreference={selectThemePreference}
+        />
+      {/if}
       {#if activeView === "discover"}
         <button
           type="button"
