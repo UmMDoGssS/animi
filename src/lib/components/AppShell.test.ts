@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import type { ThemePreference } from "$lib/ipc/types";
@@ -9,7 +10,7 @@ import AppShell from "./AppShell.svelte";
 
 describe("AppShell", () => {
   it.each(testViewports)(
-    "navigates between each shell view at the $name viewport",
+    "renders all four page destinations at the $name viewport",
     async (viewport) => {
       setTestViewport(viewport);
       render(AppShell, {
@@ -17,37 +18,76 @@ describe("AppShell", () => {
         saveThemePreference: vi.fn(),
       });
 
+      const tabs = screen.getAllByRole("tab");
+      expect(tabs).toHaveLength(4);
       expect(
-        screen.getByRole("heading", { level: 1, name: "Your library" }),
-      ).toBeInTheDocument();
-
-      await fireEvent.click(screen.getByRole("button", { name: "Discover" }));
-      expect(
-        screen.getByRole("heading", { level: 1, name: "Discover anime" }),
-      ).toBeInTheDocument();
-
-      await fireEvent.click(
-        screen.getByRole("button", { name: "Preview details view" }),
+        screen.getByRole("tablist", { name: "Primary pages" }),
+      ).toHaveAttribute("aria-orientation", "vertical");
+      expect(screen.getByRole("tab", { name: "Home" })).toHaveAttribute(
+        "aria-selected",
+        "true",
       );
       expect(
-        screen.getByRole("heading", { level: 1, name: "Media details" }),
+        screen.getByRole("heading", { level: 1, name: "Home" }),
       ).toBeInTheDocument();
-
-      await fireEvent.click(
-        screen.getByRole("button", { name: "Back to discover" }),
-      );
-
-      await fireEvent.click(screen.getByRole("button", { name: "For you" }));
+      expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+      expect(screen.getByRole("tabpanel")).toHaveAttribute("id", "home-panel");
       expect(
-        screen.getByRole("heading", { level: 1, name: "Recommendations" }),
-      ).toBeInTheDocument();
+        screen.getByRole("link", { name: "Skip to content" }),
+      ).toHaveAttribute("href", "#main-content");
 
-      await fireEvent.click(screen.getByRole("button", { name: "Settings" }));
-      expect(
-        screen.getByRole("heading", { level: 1, name: "Settings & backup" }),
-      ).toBeInTheDocument();
+      for (const destination of ["Discover", "Dashboard", "Settings"]) {
+        await fireEvent.click(screen.getByRole("tab", { name: destination }));
+        expect(
+          screen.getByRole("heading", { level: 1, name: destination }),
+        ).toBeInTheDocument();
+        expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+      }
     },
   );
+
+  it("supports roving keyboard navigation and activation", async () => {
+    const user = userEvent.setup();
+    render(AppShell, {
+      loadThemePreference: vi.fn().mockResolvedValue("SYSTEM"),
+      saveThemePreference: vi.fn(),
+    });
+
+    const homeTab = screen.getByRole("tab", { name: "Home" });
+    const discoverTab = screen.getByRole("tab", { name: "Discover" });
+    const dashboardTab = screen.getByRole("tab", { name: "Dashboard" });
+    const settingsTab = screen.getByRole("tab", { name: "Settings" });
+
+    expect(homeTab).toHaveAttribute("tabindex", "0");
+    expect(homeTab).toHaveAttribute("aria-controls", "home-panel");
+    expect(discoverTab).toHaveAttribute("tabindex", "-1");
+    homeTab.focus();
+
+    await user.keyboard("{ArrowDown}");
+    await waitFor(() => expect(discoverTab).toHaveFocus());
+    expect(discoverTab).toHaveAttribute("aria-selected", "true");
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Discover" }),
+    ).toBeInTheDocument();
+
+    await user.keyboard("{End}");
+    await waitFor(() => expect(settingsTab).toHaveFocus());
+    expect(settingsTab).toHaveAttribute("aria-selected", "true");
+
+    await user.keyboard("{Home}");
+    await waitFor(() => expect(homeTab).toHaveFocus());
+
+    settingsTab.focus();
+    await user.keyboard(" ");
+    expect(settingsTab).toHaveAttribute("aria-selected", "true");
+
+    dashboardTab.focus();
+    await user.keyboard("{Enter}");
+    expect(dashboardTab).toHaveAttribute("aria-selected", "true");
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Dashboard" }),
+    ).toBeInTheDocument();
+  });
 
   it("loads, applies, and persists each theme preference", async () => {
     const saveThemePreference = vi.fn(
@@ -64,7 +104,7 @@ describe("AppShell", () => {
         "macchiato",
       ),
     );
-    await fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+    await fireEvent.click(screen.getByRole("tab", { name: "Settings" }));
     expect(screen.getByRole("radio", { name: /Dark/ })).toBeChecked();
 
     await fireEvent.click(screen.getByRole("radio", { name: /Light/ }));
@@ -93,7 +133,7 @@ describe("AppShell", () => {
     await waitFor(() =>
       expect(document.documentElement).toHaveAttribute("data-theme", "latte"),
     );
-    await fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+    await fireEvent.click(screen.getByRole("tab", { name: "Settings" }));
     await fireEvent.click(screen.getByRole("radio", { name: /Dark/ }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(

@@ -19,6 +19,7 @@
   --border: rgb(76 79 105 / 18%);
   --glass: rgb(239 241 245 / 82%);
   --selection: rgb(136 57 239 / 28%);
+  --panel-shadow: 0 20px 60px rgb(76 79 105 / 10%);
   font-family:
     Inter,
     ui-sans-serif,
@@ -48,6 +49,7 @@
   --border: rgb(202 211 245 / 16%);
   --glass: rgb(36 39 58 / 84%);
   --selection: rgb(198 160 246 / 34%);
+  --panel-shadow: 0 20px 60px rgb(17 17 27 / 24%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -68,6 +70,7 @@
     --border: rgb(202 211 245 / 16%);
     --glass: rgb(36 39 58 / 84%);
     --selection: rgb(198 160 246 / 34%);
+    --panel-shadow: 0 20px 60px rgb(17 17 27 / 24%);
   }
 }
 
@@ -117,10 +120,18 @@ a {
   outline-offset: 3px;
 }
 
-@supports (backdrop-filter: blur(12px)) {
+.glass-panel {
+  background: var(--surface-raised);
+  box-shadow: var(--panel-shadow);
+}
+
+@supports (
+  (backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px))
+) {
   .glass-panel {
     background: var(--glass);
-    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px) saturate(112%);
+    backdrop-filter: blur(12px) saturate(112%);
   }
 }
 

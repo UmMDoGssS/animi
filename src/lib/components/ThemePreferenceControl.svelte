@@ -20,7 +20,7 @@
 
 <section
   aria-labelledby="theme-preference-heading"
-  class="border-border bg-surface-raised rounded-3xl border p-5 sm:p-6"
+  class="glass-panel border-border rounded-3xl border p-5 sm:p-6"
 >
   <div class="max-w-2xl">
     <h2 id="theme-preference-heading" class="text-foreground font-semibold">

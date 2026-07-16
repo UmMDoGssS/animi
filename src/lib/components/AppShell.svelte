@@ -7,16 +7,14 @@
     setThemePreference,
   } from "$lib/ipc/client";
   import type { CommandError, ThemePreference } from "$lib/ipc/types";
-  import {
-    detailsPlaceholder,
-    navigationItems,
-    type AppViewId,
-  } from "$lib/navigation";
+  import type { PrimaryViewId } from "$lib/navigation";
   import { applyThemePreference } from "$lib/theme/theme";
 
-  import SmokePanel from "./SmokePanel.svelte";
-  import ThemePreferenceControl from "./ThemePreferenceControl.svelte";
-  import ViewPlaceholder from "./ViewPlaceholder.svelte";
+  import AppNavigation from "./AppNavigation.svelte";
+  import DashboardPage from "./pages/DashboardPage.svelte";
+  import DiscoveryPage from "./pages/DiscoveryPage.svelte";
+  import HomePage from "./pages/HomePage.svelte";
+  import SettingsPage from "./pages/SettingsPage.svelte";
 
   interface Props {
     loadThemePreference?: () => Promise<ThemePreference>;
@@ -30,16 +28,10 @@
     saveThemePreference = setThemePreference,
   }: Props = $props();
 
-  let activeView = $state<AppViewId>("library");
+  let activeView = $state<PrimaryViewId>("home");
   let themePreference = $state<ThemePreference>("SYSTEM");
   let themeStatus = $state<"loading" | "ready" | "saving" | "error">("loading");
   let themeError = $state<CommandError | null>(null);
-  let activeItem = $derived(
-    activeView === "details"
-      ? detailsPlaceholder
-      : (navigationItems.find((item) => item.id === activeView) ??
-          navigationItems[0]),
-  );
 
   onMount(() => {
     void loadPreference();
@@ -72,78 +64,77 @@
       themeStatus = "error";
     }
   }
+
+  function selectView(view: PrimaryViewId) {
+    activeView = view;
+  }
 </script>
 
-<div class="bg-surface text-foreground min-h-screen">
-  <header class="border-border bg-surface-raised border-b">
-    <div class="mx-auto flex max-w-7xl items-center gap-3 px-4 py-4 sm:px-6">
-      <div
-        aria-hidden="true"
-        class="bg-accent text-on-accent grid size-10 place-items-center rounded-2xl text-xl"
-      >
-        =^
-      </div>
-      <div>
-        <p class="text-lg font-bold tracking-tight">Animi</p>
-        <p class="text-muted text-xs">Your quiet anime corner</p>
-      </div>
-    </div>
-  </header>
+<a
+  href="#main-content"
+  class="bg-accent text-on-accent fixed top-3 left-3 z-50 -translate-y-20 rounded-xl px-4 py-2 text-sm font-semibold transition focus:translate-y-0"
+>
+  Skip to content
+</a>
+
+<div class="bg-surface text-foreground relative min-h-screen overflow-clip">
+  <div
+    aria-hidden="true"
+    class="pointer-events-none fixed inset-0 overflow-hidden"
+  >
+    <span
+      class="bg-accent absolute top-[8%] -left-24 size-72 rounded-full opacity-[0.08] blur-3xl"
+    ></span>
+    <span
+      class="bg-accent-strong absolute right-[-8rem] bottom-[4%] size-96 rounded-full opacity-[0.07] blur-3xl"
+    ></span>
+  </div>
 
   <div
-    class="mx-auto grid max-w-7xl gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[14rem_1fr] lg:py-8"
+    class="relative mx-auto grid min-h-screen max-w-[96rem] grid-cols-[4rem_minmax(0,1fr)] gap-2 p-2 sm:grid-cols-[5.5rem_minmax(0,1fr)] sm:gap-4 sm:p-4"
   >
-    <nav
-      aria-label="Primary"
-      class="glass-panel border-border bg-glass rounded-3xl border p-2 lg:self-start"
-    >
-      <ul class="grid grid-cols-2 gap-1 sm:grid-cols-4 lg:grid-cols-1">
-        {#each navigationItems as item (item.id)}
-          <li>
-            <button
-              type="button"
-              aria-current={activeView === item.id ? "page" : undefined}
-              class="hover:bg-overlay aria-[current=page]:bg-accent aria-[current=page]:text-on-accent w-full rounded-2xl px-3 py-3 text-left text-sm font-medium transition"
-              onclick={() => (activeView = item.id)}
-            >
-              {item.label}
-            </button>
-          </li>
-        {/each}
-      </ul>
-    </nav>
+    <aside class="sticky top-0 flex h-screen items-center py-2 sm:py-4">
+      <AppNavigation {activeView} {selectView} />
+    </aside>
 
-    <main class="grid min-w-0 gap-5">
-      <ViewPlaceholder
-        title={activeItem.title}
-        description={activeItem.description}
-      />
-      {#if activeView === "settings"}
-        <ThemePreferenceControl
-          preference={themePreference}
-          status={themeStatus}
-          error={themeError}
-          selectPreference={selectThemePreference}
-        />
-      {/if}
-      {#if activeView === "discover"}
-        <button
-          type="button"
-          class="border-border bg-surface-raised text-foreground hover:bg-overlay justify-self-start rounded-xl border px-4 py-2 text-sm font-semibold transition"
-          onclick={() => (activeView = "details")}
+    <div class="min-w-0">
+      <header
+        class="flex min-h-20 items-center justify-between gap-3 px-2 py-3 sm:min-h-24 sm:px-3"
+      >
+        <div class="min-w-0">
+          <p class="text-foreground truncate text-lg font-black tracking-tight">
+            animi
+          </p>
+          <p class="text-muted truncate text-xs">Your quiet anime corner</p>
+        </div>
+        <div
+          class="glass-panel border-border flex shrink-0 items-center gap-2 rounded-full border px-3 py-2"
+          title="Your library stays on this device"
         >
-          Preview details view
-        </button>
-      {:else if activeView === "details"}
-        <button
-          type="button"
-          class="border-border bg-surface-raised text-foreground hover:bg-overlay justify-self-start rounded-xl border px-4 py-2 text-sm font-semibold transition"
-          onclick={() => (activeView = "discover")}
-        >
-          Back to discover
-        </button>
-      {/if}
-      <SmokePanel />
-    </main>
+          <span class="bg-success size-2 rounded-full"></span>
+          <span class="text-muted hidden text-xs font-semibold sm:inline">
+            Private & local
+          </span>
+          <span class="text-muted text-xs font-semibold sm:hidden">Local</span>
+        </div>
+      </header>
+
+      <main id="main-content" class="min-w-0 px-1 sm:px-3">
+        {#if activeView === "home"}
+          <HomePage />
+        {:else if activeView === "discovery"}
+          <DiscoveryPage />
+        {:else if activeView === "dashboard"}
+          <DashboardPage />
+        {:else}
+          <SettingsPage
+            {themePreference}
+            {themeStatus}
+            {themeError}
+            {selectThemePreference}
+          />
+        {/if}
+      </main>
+    </div>
   </div>
 </div>
