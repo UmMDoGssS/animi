@@ -7,7 +7,7 @@
 | Product | Animi |
 | Release | Version 1, Windows desktop |
 | Overall status | In progress |
-| Current phase | P1 - Local persistence and typed IPC (not started) |
+| Current phase | P2 - AniList integration and caching (not started) |
 | Schedule | Dependency-driven; no calendar commitment |
 | Last updated | 2026-07-16 |
 
@@ -45,7 +45,7 @@ The following remain outside v1:
 | Phase | Objective | Depends on | Status | Exit gate |
 |---|---|---|---|---|
 | P0 | Scaffold and engineering foundation | Approved project baseline | Complete | Windows app launches and baseline quality checks pass |
-| P1 | Local persistence and typed IPC | P0 | Not started | Durable library CRUD survives restart safely |
+| P1 | Local persistence and typed IPC | P0 | Complete | Durable library CRUD survives restart safely |
 | P2 | AniList integration and caching | P1 | Not started | Mocked network, cache, offline, and rate-limit behavior passes |
 | P3 | Application shell and design system | P0; coordinate with P1 contracts | Not started | Accessible shell works at desktop and narrow widths |
 | P4 | Discovery, details, and library workflow | P1, P2, P3 | Not started | Core search-to-library flow passes end to end |
@@ -158,27 +158,27 @@ Every applicable milestone must satisfy these requirements, even when they are n
 
 ### Entry gate
 
-- [ ] **P1-E1** Database location and test-only temporary database injection are established without opening a real user database in tests.
-- [ ] **P1-E2** Planned DTO naming and UTC timestamp representation are documented next to the IPC types.
+- [x] **P1-E1** Database location and test-only temporary database injection are established without opening a real user database in tests.
+- [x] **P1-E2** Planned DTO naming and UTC timestamp representation are documented next to the IPC types.
 
 ### Milestones
 
-- [ ] **P1-M1 - Initial migrations:** Add forward-migratable schema for library entries, settings, media snapshots, airing data, and response caches. Preserve `MediaKind` even though only anime is exposed in v1.
-- [ ] **P1-M2 - Connection safety:** Enable foreign keys for every connection, apply migrations at startup, map database failures to typed domain errors, and keep blocking work off the async runtime.
-- [ ] **P1-M3 - Library domain rules:** Implement validated status, progress, score, notes, identifiers, and timestamps. Reject negative progress and progress beyond a known total while handling unknown totals without guessing.
-- [ ] **P1-M4 - Repositories:** Implement parameterized, transactional repositories for library entries, settings, media snapshots, airing data, and cache records.
-- [ ] **P1-M5 - Library commands:** Implement `list_library`, `upsert_library_entry`, and `remove_library_entry` as thin adapters with camelCase DTOs and structured errors.
-- [ ] **P1-M6 - Persistence tests:** Cover fresh migrations, foreign keys, CRUD, status transitions, progress bounds, missing totals, update timestamps, restart persistence, and transaction rollback using temporary databases.
-- [ ] **P1-M7 - Migration fixtures:** Preserve a reusable pre-upgrade database fixture strategy so later migrations can be tested without rewriting history.
+- [x] **P1-M1 - Initial migrations:** Add forward-migratable schema for library entries, settings, media snapshots, airing data, and response caches. Preserve `MediaKind` even though only anime is exposed in v1.
+- [x] **P1-M2 - Connection safety:** Enable foreign keys for every connection, apply migrations at startup, map database failures to typed domain errors, and keep blocking work off the async runtime.
+- [x] **P1-M3 - Library domain rules:** Implement validated status, progress, score, notes, identifiers, and timestamps. Reject negative progress and progress beyond a known total while handling unknown totals without guessing.
+- [x] **P1-M4 - Repositories:** Implement parameterized, transactional repositories for library entries, settings, media snapshots, airing data, and cache records.
+- [x] **P1-M5 - Library commands:** Implement `list_library`, `upsert_library_entry`, and `remove_library_entry` as thin adapters with camelCase DTOs and structured errors.
+- [x] **P1-M6 - Persistence tests:** Cover fresh migrations, foreign keys, CRUD, status transitions, progress bounds, missing totals, update timestamps, restart persistence, and transaction rollback using temporary databases.
+- [x] **P1-M7 - Migration fixtures:** Preserve a reusable pre-upgrade database fixture strategy so later migrations can be tested without rewriting history.
 
 ### Exit gate
 
-- [ ] **P1-G1** A library entry can be created, read, updated, and explicitly removed through the command boundary.
-- [ ] **P1-G2** Data survives a close-and-reopen test using an isolated application database.
-- [ ] **P1-G3** Invalid values and database failures return stable structured errors without partial writes.
-- [ ] **P1-G4** Migration, repository, and command-boundary tests pass without accessing user data.
+- [x] **P1-G1** A library entry can be created, read, updated, and explicitly removed through the command boundary.
+- [x] **P1-G2** Data survives a close-and-reopen test using an isolated application database.
+- [x] **P1-G3** Invalid values and database failures return stable structured errors without partial writes.
+- [x] **P1-G4** Migration, repository, and command-boundary tests pass without accessing user data.
 
-**Evidence:** Pending.
+**Evidence:** Completed 2026-07-16. Added embedded migration `0001_initial.sql`, async `sqlx` SQLite initialization in Tauri's app-data directory, per-connection foreign-key enforcement, typed repositories and errors, validated library domain rules, camelCase library commands, UTC RFC 3339 IPC timestamps, and an immutable migration-fixture strategy. Tests use only `tempfile` roots and cover migrations, foreign keys, repository round trips, CRUD and status changes, known and unknown totals, identifier/score/notes validation, deterministic update timestamps, explicit removal confirmation, restart persistence, typed database failures, and transaction rollback. `bun run format:check`, `bun run lint`, `bun run check`, and `bun run test` passed (5 frontend tests). `cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings`, and `cargo test --manifest-path src-tauri/Cargo.toml --all-features` passed (21 Rust tests). `bun run tauri build --no-bundle` produced `src-tauri/target/release/animi.exe` with the migration embedded; the executable was not launched so verification did not open a real user database. A lockfile scan found only `bun.lock` and `src-tauri/Cargo.lock`.
 
 ## P2 - AniList Integration and Caching
 
