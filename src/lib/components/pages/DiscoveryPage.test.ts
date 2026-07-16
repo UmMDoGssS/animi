@@ -144,9 +144,9 @@ describe("DiscoveryPage", () => {
     expect(
       within(emptyState as HTMLElement).getByText(/not AniList results/i),
     ).toBeInTheDocument();
-    expect(
-      within(emptyState as HTMLElement).getByText("ฅ(≈චᆽච≈)ฅ"),
-    ).toHaveClass("whitespace-nowrap");
+    const emptyCat = within(emptyState as HTMLElement).getByText("ฅ(≈චᆽච≈)ฅ");
+    expect(emptyCat).toHaveClass("whitespace-nowrap", "text-base");
+    expect(emptyCat.closest(".empty-cat-panel")).toHaveClass("overflow-hidden");
     expect(
       screen.queryByRole("list", { name: "Bundled sample search results" }),
     ).not.toBeInTheDocument();

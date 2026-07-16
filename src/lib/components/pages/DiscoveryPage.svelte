@@ -385,15 +385,15 @@
     {:else}
       <section
         aria-labelledby="empty-results-heading"
-        class="glass-panel panel-large border-border grid min-h-72 items-center gap-5 border p-5 sm:grid-cols-[10rem_minmax(0,1fr)] sm:p-7"
+        class="glass-panel panel-large border-border grid min-h-72 items-center gap-5 border p-5 sm:grid-cols-[13rem_minmax(0,1fr)] sm:p-7"
       >
         <div
           aria-hidden="true"
-          class="glass-control control-rounded border-border text-accent grid min-h-36 place-items-center border p-4"
+          class="empty-cat-panel glass-control control-rounded border-border text-accent grid min-h-36 min-w-0 place-items-center overflow-hidden border p-3"
         >
-          <div class="text-center">
+          <div class="max-w-full min-w-0 text-center">
             <p
-              class="text-[clamp(1.15rem,7vw,1.875rem)] leading-none tracking-[-0.08em] whitespace-nowrap"
+              class="max-w-full text-base leading-none tracking-[-0.08em] whitespace-nowrap sm:text-lg"
             >
               ฅ(≈චᆽච≈)ฅ
             </p>
