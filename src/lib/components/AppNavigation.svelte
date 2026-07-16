@@ -11,7 +11,7 @@
   }
 
   let { activeView, selectView }: Props = $props();
-  let navigationButtons: HTMLButtonElement[] = [];
+  let navigationButtons = $state<HTMLButtonElement[]>([]);
 
   async function moveTo(index: number) {
     const item = navigationItems[index];
