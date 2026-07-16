@@ -1,0 +1,432 @@
+# Animi Delivery Plan
+
+## Plan Status
+
+| Field | Value |
+|---|---|
+| Product | Animi |
+| Release | Version 1, Windows desktop |
+| Overall status | Not started |
+| Current phase | P0 - Scaffold and engineering foundation |
+| Schedule | Dependency-driven; no calendar commitment |
+| Last updated | 2026-07-16 |
+
+This document is the living execution roadmap for Animi. [`PROJECT.md`](PROJECT.md) is authoritative for product scope, architecture, fixed behavior, and technical decisions. This plan is authoritative for implementation order, milestone status, dependencies, and release readiness.
+
+If product scope or architecture changes, approve and record the change in `PROJECT.md` first, then update the affected milestones here. Normal implementation progress updates only this file.
+
+## How to Use This Plan
+
+- `[ ]` means not complete and `[x]` means complete. Do not check a milestone for partial work.
+- Milestone IDs are stable. Add new work under the relevant phase instead of renumbering existing milestones.
+- A phase begins only after its dependencies and entry gate are satisfied.
+- A phase is complete only when every required milestone and its exit gate are checked and the evidence field names the commands, tests, or artifacts that proved completion.
+- Exit gates are cumulative. Later work must not regress an earlier gate.
+- Record blockers beside the affected milestone. Do not mark blocked or deferred work complete.
+- Keep implementation changes small enough to verify with focused tests before running the broader phase gate.
+- Items under Future Roadmap are context, not approved v1 work.
+
+## Version 1 Boundaries
+
+Version 1 is a private, local-first, anime-focused Windows desktop application. The local SQLite database is authoritative. Rust owns durable state, AniList access, caching, backups, and imports; Svelte communicates with Rust only through typed Tauri commands.
+
+The following remain outside v1:
+
+- Manga workflows, even though shared types and storage leave room for them.
+- Mobile clients and live cross-device synchronization.
+- A server, cloud database, accounts, analytics, or AniList OAuth.
+- Closed-app refresh or notifications.
+- Predicted or inferred sequel announcements.
+- Bulk collection of AniList data or use of AniList as application storage.
+- Public distribution until the AniList terms and permission concern in `PROJECT.md` is resolved.
+
+## Roadmap Overview
+
+| Phase | Objective | Depends on | Status | Exit gate |
+|---|---|---|---|---|
+| P0 | Scaffold and engineering foundation | Approved project baseline | Not started | Windows app launches and baseline quality checks pass |
+| P1 | Local persistence and typed IPC | P0 | Not started | Durable library CRUD survives restart safely |
+| P2 | AniList integration and caching | P1 | Not started | Mocked network, cache, offline, and rate-limit behavior passes |
+| P3 | Application shell and design system | P0; coordinate with P1 contracts | Not started | Accessible shell works at desktop and narrow widths |
+| P4 | Discovery, details, and library workflow | P1, P2, P3 | Not started | Core search-to-library flow passes end to end |
+| P5 | Airing information and recommendations | P2, P4 | Not started | Airing and deterministic recommendation behavior passes |
+| P6 | Settings, backup, and recovery | P1, P3, P4 | Not started | Backup round trips and rollback guarantees pass |
+| P7 | Release hardening and Windows packaging | P0-P6 | Not started | Full quality gate and production NSIS acceptance pass |
+
+## Planned Contracts
+
+These are implementation targets, not interfaces already present in the repository. The detailed shapes must remain compatible with the decisions in `PROJECT.md`.
+
+### Shared domain types
+
+- `MediaKind`: `ANIME | MANGA`; v1 commands and views expose only anime workflows.
+- `LibraryStatus`: `WATCHING | COMPLETED | PLANNING`.
+- `LibraryEntry`: AniList ID, media kind, status, progress, timestamps, optional score, and optional notes.
+- `MediaSnapshot`: titles, cover URL, format, genres, weighted tags, status, episode or chapter total, and cache timestamp.
+- `AiringInfo`: episode number, airing timestamp, and fetch timestamp.
+- `Recommendation`: media summary, local score, and concise explanation labels.
+- `CommandError`: `code`, `message`, and `retryable` at the IPC boundary.
+
+All JSON fields crossing the Tauri boundary use camelCase. Rust may use snake_case internally with explicit Serde renaming. Timestamps cross the boundary as UTC values in one documented representation.
+
+### Tauri commands
+
+| Area | Commands | Planned phase |
+|---|---|---|
+| Discovery | `search_media`, `get_media_details`, `list_trending` | P2, surfaced in P4 |
+| Library | `list_library`, `upsert_library_entry`, `remove_library_entry` | P1, surfaced in P4 |
+| Metadata | `refresh_library_metadata` | P2, surfaced in P4-P5 |
+| Recommendations | `get_recommendations` | P5 |
+| Backup | `export_backup`, `preview_import`, `import_backup` | P6 |
+
+Commands remain thin adapters. Validation, database behavior, AniList behavior, recommendation logic, and backup logic live in testable Rust modules.
+
+### Backup envelope
+
+Backups use versioned JSON containing `schemaVersion`, `exportedAt`, settings, and local library entries. Cache records and downloaded images are excluded. Import validates the complete file before opening one write transaction. For duplicate entries, the greatest `updatedAt` wins; import never deletes unrelated local entries.
+
+## Cross-Cutting Definition of Done
+
+Every applicable milestone must satisfy these requirements, even when they are not repeated in its checklist.
+
+### Data and architecture
+
+- SQLite foreign-key enforcement is enabled and tested on every database connection.
+- SQL is parameterized, timestamps are UTC, and multi-record writes are transactional.
+- Released migrations are append-only and tested from every supported prior schema.
+- No production path uses `unwrap` or `expect`.
+- Blocking database or file work stays off the async runtime; locks and transactions are not held across network requests.
+- The frontend neither executes SQL nor calls AniList directly.
+
+### Network and offline behavior
+
+- AniList requests are on demand and do not bulk-collect metadata.
+- Cache TTLs, stale presentation, rate-limit headers, and `Retry-After` follow `PROJECT.md`.
+- Previously cached data remains usable offline and visibly identifies its age or stale state.
+- Automated tests never contact the live AniList API.
+
+### User experience and safety
+
+- Loading, empty, offline, stale, and error states terminate clearly; failures never leave an indefinite spinner.
+- Destructive operations require explicit confirmation and never silently discard library entries.
+- Both Catppuccin palettes maintain readable contrast, visible focus, keyboard operation, meaningful alternative text, and reduced-motion behavior.
+- Important layouts work at a representative desktop viewport and a 390-pixel-wide responsive viewport.
+- Cat styling remains decorative and never obscures information or controls.
+
+### Verification
+
+- Changed behavior has focused automated coverage at the lowest practical layer.
+- Critical user-flow changes update end-to-end coverage.
+- Formatting and lockfiles are current; Bun is the only frontend package manager.
+- The final diff contains no unrelated changes, secrets, real user data, or accidental scope expansion.
+
+## P0 - Scaffold and Engineering Foundation
+
+**Goal:** Establish a minimal Windows application and reliable development loop before domain features begin.
+
+**Dependencies:** The architecture and v1 boundaries in `PROJECT.md` are approved.
+
+### Entry gate
+
+- [ ] **P0-E1** Confirm the repository is still pre-scaffold or reconcile any newly added user work before generating files.
+- [ ] **P0-E2** Verify Bun, Node, Rust, Cargo, Microsoft C++ Build Tools, WebView2, and the Tauri system prerequisites on the development machine.
+
+### Milestones
+
+- [ ] **P0-M1 - Application scaffold:** Create a Tauri 2 application with a Svelte 5, strict TypeScript, Vite, and Bun frontend plus a Rust backend. Configure a stable application identifier and Windows app-data location before persistent data exists.
+- [ ] **P0-M2 - Styling foundation:** Add Tailwind CSS and the semantic CSS-variable layer needed by the Latte and Macchiato themes without embedding raw palette values in feature components.
+- [ ] **P0-M3 - Backend structure:** Establish thin command registration and separate Rust modules for commands, domain types, database access, AniList, backups, and recommendations. Empty modules should be added only when immediately needed.
+- [ ] **P0-M4 - Frontend structure:** Establish focused routes or view composition for Library, Discover, Details, Recommendations, and Settings/Backup using Svelte 5 state primitives and no global state library.
+- [ ] **P0-M5 - Quality tooling:** Configure Prettier, ESLint, `svelte-check`, Vitest, Svelte Testing Library, Rust formatting, Clippy, and Rust tests. Provide all scripts listed in the Quality Gates section.
+- [ ] **P0-M6 - Test isolation:** Provide deterministic fixture locations, a temporary database strategy, and a mock HTTP boundary so tests cannot reach AniList or real user storage.
+- [ ] **P0-M7 - Smoke application:** Render a minimal navigable shell through Tauri, verify frontend-to-Rust command invocation, and return a typed smoke response and structured smoke error.
+
+### Exit gate
+
+- [ ] **P0-G1** The development application launches on Windows with no console or Rust panic.
+- [ ] **P0-G2** Baseline frontend formatting, linting, type checks, and tests pass.
+- [ ] **P0-G3** Baseline Rust formatting, Clippy, and tests pass with warnings denied.
+- [ ] **P0-G4** No npm, pnpm, or Yarn lockfile exists.
+
+**Evidence:** Pending.
+
+## P1 - Local Persistence and Typed IPC
+
+**Goal:** Make SQLite-backed local state safe, testable, and accessible through typed commands.
+
+**Dependencies:** P0 complete.
+
+### Entry gate
+
+- [ ] **P1-E1** Database location and test-only temporary database injection are established without opening a real user database in tests.
+- [ ] **P1-E2** Planned DTO naming and UTC timestamp representation are documented next to the IPC types.
+
+### Milestones
+
+- [ ] **P1-M1 - Initial migrations:** Add forward-migratable schema for library entries, settings, media snapshots, airing data, and response caches. Preserve `MediaKind` even though only anime is exposed in v1.
+- [ ] **P1-M2 - Connection safety:** Enable foreign keys for every connection, apply migrations at startup, map database failures to typed domain errors, and keep blocking work off the async runtime.
+- [ ] **P1-M3 - Library domain rules:** Implement validated status, progress, score, notes, identifiers, and timestamps. Reject negative progress and progress beyond a known total while handling unknown totals without guessing.
+- [ ] **P1-M4 - Repositories:** Implement parameterized, transactional repositories for library entries, settings, media snapshots, airing data, and cache records.
+- [ ] **P1-M5 - Library commands:** Implement `list_library`, `upsert_library_entry`, and `remove_library_entry` as thin adapters with camelCase DTOs and structured errors.
+- [ ] **P1-M6 - Persistence tests:** Cover fresh migrations, foreign keys, CRUD, status transitions, progress bounds, missing totals, update timestamps, restart persistence, and transaction rollback using temporary databases.
+- [ ] **P1-M7 - Migration fixtures:** Preserve a reusable pre-upgrade database fixture strategy so later migrations can be tested without rewriting history.
+
+### Exit gate
+
+- [ ] **P1-G1** A library entry can be created, read, updated, and explicitly removed through the command boundary.
+- [ ] **P1-G2** Data survives a close-and-reopen test using an isolated application database.
+- [ ] **P1-G3** Invalid values and database failures return stable structured errors without partial writes.
+- [ ] **P1-G4** Migration, repository, and command-boundary tests pass without accessing user data.
+
+**Evidence:** Pending.
+
+## P2 - AniList Integration and Caching
+
+**Goal:** Provide typed, rate-limit-aware AniList metadata while retaining reliable offline behavior.
+
+**Dependencies:** P1 complete.
+
+### Entry gate
+
+- [ ] **P2-E1** AniList response fixtures cover normal, incomplete, malformed, forbidden, rate-limited, and offline cases.
+- [ ] **P2-E2** The HTTP client can be replaced with a deterministic mock in every automated test.
+
+### Milestones
+
+- [ ] **P2-M1 - Typed GraphQL adapter:** Implement narrowly scoped queries and validated response mapping for anime search, details, trending results, airing schedules, and sequel relations. Exclude adult content by default.
+- [ ] **P2-M2 - Discovery commands:** Implement `search_media`, `get_media_details`, and `list_trending` without exposing raw GraphQL responses to the frontend.
+- [ ] **P2-M3 - Cache policy:** Apply 24-hour detail, 6-hour discovery/recommendation, and 30-minute airing TTLs. Cache only on-demand results and retain fetch timestamps needed for stale display.
+- [ ] **P2-M4 - Offline and stale reads:** Return usable cached data with explicit freshness metadata when refresh fails; return a terminal, retryable error when no usable cache exists.
+- [ ] **P2-M5 - Rate limiting:** Honor response rate-limit headers and `Retry-After`, avoid retry storms, and distinguish retryable throttling from non-retryable contract errors.
+- [ ] **P2-M6 - Library refresh:** Implement `refresh_library_metadata` so it refreshes only relevant tracked records and never holds a database transaction or lock during network work.
+- [ ] **P2-M7 - Contract tests:** Cover success, absent episode totals, absent sequel dates, partial GraphQL errors, malformed data, offline failures, `403`, and `429 Retry-After` entirely through mocks.
+
+### Exit gate
+
+- [ ] **P2-G1** Discovery and detail commands return stable domain DTOs from live-shaped fixtures.
+- [ ] **P2-G2** Fresh cache avoids unnecessary requests and expired cache attempts refresh while retaining stale fallback.
+- [ ] **P2-G3** Rate-limit and offline behavior is deterministic and never corrupts local records.
+- [ ] **P2-G4** The automated suite proves no live AniList access is possible.
+
+**Evidence:** Pending.
+
+## P3 - Application Shell and Design System
+
+**Goal:** Build the accessible, responsive interface foundation shared by every feature.
+
+**Dependencies:** P0 complete. Coordinate state and error adapters with P1 before feature integration.
+
+### Entry gate
+
+- [ ] **P3-E1** Semantic design tokens and async-state conventions are agreed in code before feature components consume them.
+- [ ] **P3-E2** Desktop and 390-pixel-wide test viewports are available to component or end-to-end tests.
+
+### Milestones
+
+- [ ] **P3-M1 - Theme system:** Implement Catppuccin Latte and Macchiato through semantic surface, overlay, text, muted-text, accent, success, warning, and danger variables.
+- [ ] **P3-M2 - Theme preference:** Default to the operating-system preference, persist a manual override through the durable settings boundary, and react predictably when the OS preference changes without an override.
+- [ ] **P3-M3 - Visual foundation:** Add rounded cover-focused layouts and restrained frosted-glass panels with subtle borders, restrained blur, and opaque fallbacks.
+- [ ] **P3-M4 - Navigation shell:** Implement keyboard-operable navigation among Library, Discover, Recommendations, and Settings/Backup plus a consistent details presentation.
+- [ ] **P3-M5 - Async state components:** Provide focused loading, empty, offline, stale, and error presentations with retry actions where the underlying error is retryable.
+- [ ] **P3-M6 - Accessibility:** Add visible focus, meaningful labels and alternative text, logical heading order, sufficient contrast, reduced-motion behavior, and non-color-only status communication.
+- [ ] **P3-M7 - Cat character:** Add tasteful iconography or microcopy only where it supports orientation or warmth; keep motifs secondary to content and controls.
+- [ ] **P3-M8 - Layout tests:** Cover the main shell and state presentations in both themes at desktop and narrow widths, including keyboard navigation and reduced motion.
+
+### Exit gate
+
+- [ ] **P3-G1** Every primary view is reachable and operable without a mouse.
+- [ ] **P3-G2** Both themes are readable and retain visible focus at desktop and narrow widths.
+- [ ] **P3-G3** Every asynchronous placeholder has a defined terminal success, empty, offline, or error state.
+- [ ] **P3-G4** Component accessibility and responsive-layout tests pass.
+
+**Evidence:** Pending.
+
+## P4 - Discovery, Details, and Library Workflow
+
+**Goal:** Deliver the core search-to-tracking workflow backed by local authoritative state.
+
+**Dependencies:** P1, P2, and P3 complete.
+
+### Entry gate
+
+- [ ] **P4-E1** Library and discovery command contracts are stable enough for UI integration.
+- [ ] **P4-E2** Core user-flow tests run against isolated storage and mocked AniList responses.
+
+### Milestones
+
+- [ ] **P4-M1 - Library view:** Present watching, completed, and planning entries with cover art, progress, freshness, concise metadata, and useful empty states.
+- [ ] **P4-M2 - Search and trending:** Implement debounced anime search and a trending discovery view without persisting unneeded remote data.
+- [ ] **P4-M3 - Media details:** Present titles, cover, format, genres, tags, status, episode total when known, and cached-data freshness.
+- [ ] **P4-M4 - Add and update:** Let users choose a supported status, update progress, score, and notes, and persist changes through typed commands.
+- [ ] **P4-M5 - Validation feedback:** Explain progress bounds and malformed input without discarding the user's other edits; handle unknown episode totals explicitly.
+- [ ] **P4-M6 - Removal safety:** Require explicit confirmation before removal and make clear that removal affects the local library record rather than AniList.
+- [ ] **P4-M7 - Refresh behavior:** Refresh relevant metadata on demand while continuing to show cached entries offline or during transient failures.
+- [ ] **P4-M8 - Core end-to-end flow:** Cover search, open details, add, change status and progress, restart, verify persistence, use cached data offline, and confirm removal.
+
+### Exit gate
+
+- [ ] **P4-G1** The complete search-to-library flow works from the packaged application boundary using mocks and isolated data.
+- [ ] **P4-G2** Local edits remain authoritative across metadata refreshes and application restarts.
+- [ ] **P4-G3** Offline, stale, empty, missing-total, validation, and command-error states are covered.
+- [ ] **P4-G4** Removal cannot occur without explicit user confirmation.
+
+**Evidence:** Pending.
+
+## P5 - Airing Information and Recommendations
+
+**Goal:** Add timely airing context and explainable local recommendations without predicting unavailable information.
+
+**Dependencies:** P2 and P4 complete.
+
+### Entry gate
+
+- [ ] **P5-E1** Airing and recommendation fixtures include missing dates, unknown sequels, insufficient history, and offline cache cases.
+- [ ] **P5-E2** Recommendation logic can run as a pure, deterministic Rust domain operation over supplied inputs.
+
+### Milestones
+
+- [ ] **P5-M1 - Airing refresh scheduler:** Refresh relevant airing data at application launch and every 30 minutes while the application remains open, respecting cache and rate limits.
+- [ ] **P5-M2 - Airing presentation:** Show the next known episode and airing time with a last-updated or stale indicator; do not imply a schedule when AniList provides none.
+- [ ] **P5-M3 - Sequel presentation:** Show dates only for official sequel relations with release information. Label unknown sequels as unknown rather than estimating them.
+- [ ] **P5-M4 - Preference profile:** Build the local recommendation input from genres and weighted AniList tags in completed and watching entries without uploading library data.
+- [ ] **P5-M5 - Ranking algorithm:** Apply the `PROJECT.md` weighting of 55% tag similarity, 25% genre similarity, and 20% normalized trending score. Define normalization, tie-breaking, and the insufficient-history threshold as deterministic domain behavior before UI integration.
+- [ ] **P5-M6 - Candidate rules:** Rank untracked trending candidates, exclude already tracked titles, and fall back to trending when local history is insufficient.
+- [ ] **P5-M7 - Explanations:** Return the strongest matching tags as concise explanation labels without implying opaque certainty.
+- [ ] **P5-M8 - Recommendation view:** Present ranked, explainable results with loading, empty, offline, stale, and fallback states.
+- [ ] **P5-M9 - Deterministic tests:** Cover scoring weights, normalization edges, ties, exclusion, fallback, missing metadata, unknown sequels, cache expiry, and refresh scheduling using a controllable clock.
+
+### Exit gate
+
+- [ ] **P5-G1** Airing refresh occurs only at launch, on an allowed manual action, or at the in-app 30-minute interval.
+- [ ] **P5-G2** No test or UI path predicts an unannounced sequel or unknown date.
+- [ ] **P5-G3** Recommendation results and explanations are reproducible from fixed inputs.
+- [ ] **P5-G4** Insufficient history and offline operation produce useful, explicit fallbacks.
+
+**Evidence:** Pending.
+
+## P6 - Settings, Backup, and Recovery
+
+**Goal:** Give users control over local preferences and a safe, forward-migratable way to protect their library.
+
+**Dependencies:** P1, P3, and P4 complete.
+
+### Entry gate
+
+- [ ] **P6-E1** The current backup schema and supported import versions are documented next to the Rust backup types.
+- [ ] **P6-E2** File-dialog and filesystem operations can be replaced with temporary paths in automated tests.
+
+### Milestones
+
+- [ ] **P6-M1 - Settings view:** Surface theme selection, cache freshness information, backup actions, and destructive local-data actions through accessible controls.
+- [ ] **P6-M2 - Versioned export:** Implement `export_backup` with `schemaVersion`, UTC `exportedAt`, settings, and library entries while excluding caches and images.
+- [ ] **P6-M3 - Import validation:** Validate file readability, JSON shape, schema version, enums, timestamps, identifiers, progress, and duplicate records before opening a write transaction.
+- [ ] **P6-M4 - Import preview:** Implement `preview_import` with counts, conflicts, validation errors, and a clear statement that unrelated local entries will remain.
+- [ ] **P6-M5 - Transactional import:** Implement `import_backup` in one write transaction, resolve duplicates by greatest `updatedAt`, and roll back every write if any application step fails.
+- [ ] **P6-M6 - Destructive confirmation:** Require explicit, specific confirmation before clearing local data and keep backup/import actions visually distinct from deletion.
+- [ ] **P6-M7 - Backup tests:** Cover empty and populated round trips, malformed JSON, unsupported versions, invalid records, duplicate conflicts, equal or newer local records, unrelated local entries, forced mid-import failure, and rollback.
+- [ ] **P6-M8 - Recovery flow:** Add end-to-end coverage for export, clearing an isolated test database, previewing import, restoring, and verifying library and settings.
+
+### Exit gate
+
+- [ ] **P6-G1** Exported backups round-trip without cached data and preserve supported user-owned fields.
+- [ ] **P6-G2** Invalid imports make no database changes and return actionable structured errors.
+- [ ] **P6-G3** Conflict previews match the final transactional result.
+- [ ] **P6-G4** No destructive action can silently discard library entries.
+
+**Evidence:** Pending.
+
+## P7 - Release Hardening and Windows Packaging
+
+**Goal:** Prove v1 is safe to install, upgrade, use offline, back up, and recover on Windows.
+
+**Dependencies:** P0 through P6 complete.
+
+### Entry gate
+
+- [ ] **P7-E1** Every earlier phase gate is checked with current evidence and has no unresolved release blocker.
+- [ ] **P7-E2** Public distribution remains disabled unless the AniList terms and permission prerequisite in `PROJECT.md` has been resolved and documented.
+
+### Milestones
+
+- [ ] **P7-M1 - Regression matrix:** Run critical flows on a fresh profile and an upgraded profile in light and dark themes, online and offline, at desktop and narrow widths.
+- [ ] **P7-M2 - Upgrade safety:** Test every released migration path, application data-directory continuity, settings preservation, and library persistence across an application upgrade.
+- [ ] **P7-M3 - Accessibility review:** Verify keyboard-only use, focus order, focus visibility, accessible names, alternative text, contrast, reduced motion, and status announcements on critical flows.
+- [ ] **P7-M4 - Failure review:** Exercise unavailable network, stale cache, `403`, `429`, malformed GraphQL, database failure, invalid backup, and interrupted recovery paths without indefinite spinners or partial writes.
+- [ ] **P7-M5 - Privacy and scope audit:** Confirm there is no server, analytics, cloud storage, OAuth, hidden synchronization, bulk AniList collection, closed-app notification behavior, or real user/test data in artifacts.
+- [ ] **P7-M6 - Dependency and configuration audit:** Review maintained dependencies, licenses, Tauri permissions/capabilities, production URLs, application identity, icons, versioning, and Bun lockfile integrity.
+- [ ] **P7-M7 - Windows package:** Produce the production Tauri NSIS installer and smoke-test installation, launch, persistence, upgrade, uninstall behavior, and documented data-location expectations.
+- [ ] **P7-M8 - Release notes:** Record delivered features, known limitations, backup compatibility, migration expectations, verification evidence, and any justified dependency additions.
+
+### Version 1 acceptance gate
+
+- [ ] **P7-G1** Search, details, library management, progress updates, airing information, recommendations, settings, export, preview, and import pass their critical user flows.
+- [ ] **P7-G2** Previously cached tracked titles remain usable offline with accurate freshness indicators.
+- [ ] **P7-G3** The production NSIS build retains local data across a tested upgrade.
+- [ ] **P7-G4** The complete frontend and Rust quality gate passes from a clean checkout.
+- [ ] **P7-G5** The final diff and packaged artifacts contain no secrets, real user data, unrelated changes, or non-Bun lockfiles.
+- [ ] **P7-G6** Any limitation that remains is documented and does not violate `PROJECT.md` or an earlier gate.
+
+**Evidence:** Pending.
+
+## Quality Gates
+
+Run focused tests throughout a phase. Run the complete gate before v1 acceptance and after changes to shared contracts, migrations, packaging, or release configuration:
+
+```powershell
+bun run format:check
+bun run lint
+bun run check
+bun run test
+cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
+cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings
+cargo test --manifest-path src-tauri/Cargo.toml --all-features
+```
+
+Documentation-only changes may skip runtime suites when the handoff states that explicitly. Always inspect the diff and run `git diff --check` before handoff.
+
+## Risks and Gate Controls
+
+| Risk | Control | Release gate |
+|---|---|---|
+| Missing Windows native prerequisites | Verify them before scaffolding and again on the packaging machine | P0, P7 |
+| AniList outage, malformed data, or throttling | Typed adapters, bounded caching, stale fallback, `Retry-After`, and deterministic mocks | P2, P7 |
+| Local data loss | Transactions, foreign keys, append-only migrations, explicit confirmation, backups, and rollback tests | P1, P6, P7 |
+| Recommendation behavior becomes opaque or unstable | Pure deterministic scoring, fixed fixtures, and user-visible explanation labels | P5 |
+| Responsive or accessible behavior regresses | Desktop/narrow tests, keyboard checks, both themes, and reduced-motion review | P3, P7 |
+| Manga, mobile, sync, or notification scope enters v1 | Keep future work non-actionable until `PROJECT.md` is approved and revised | All phases |
+| Public distribution conflicts with AniList terms | Keep v1 private unless permission or a compatible product change is documented | P7 |
+
+## Future Roadmap - Not Approved for Version 1
+
+Future phases have no schedule, implementation status, or permission to begin. Promote one into the active roadmap only after its product and architecture decisions are added to `PROJECT.md`.
+
+### F1 - Manga workflows
+
+- Expose manga in search, details, library filtering, and recommendations using the existing `MediaKind` boundary.
+- Add chapter and volume progress semantics without weakening anime progress validation.
+- Extend backups and append-only migrations while preserving all v1 data.
+- Reassess manga-specific metadata, airing-equivalent UX, and test fixtures before implementation.
+
+### F2 - Tauri mobile clients
+
+- Reuse platform-neutral DTOs, Rust domain behavior where supported, and responsive Svelte layouts.
+- Design mobile navigation, storage locations, permissions, backup file exchange, and packaging explicitly.
+- Begin with manual versioned backup transfer; do not imply live synchronization.
+- Re-run accessibility, narrow-layout, migration, backup, and offline gates on each supported platform.
+
+### F3 - Optional synchronization and background features
+
+- Require a separately approved privacy, authentication, encryption, conflict-resolution, deletion, and recovery architecture.
+- Decide whether synchronization uses a user-operated service, a managed service, or an external account provider before implementation.
+- Treat background refresh and notifications as platform-specific capabilities with explicit permission and failure behavior.
+- Revisit AniList OAuth, API terms, public distribution, data minimization, and account-deletion requirements.
+- Preserve a fully local mode and provide a safe migration path for existing v1 users.
+
+## Decision Log
+
+| Date | Decision | Reason |
+|---|---|---|
+| 2026-07-16 | `PROJECT.md` owns product and architecture; `PLAN.md` owns delivery and status | Separates durable decisions from a frequently updated implementation roadmap |
+| 2026-07-16 | Plan by dependencies without dates or effort estimates | Avoids speculative commitments before the application is scaffolded |
+| 2026-07-16 | Track stable milestone IDs, phase gates, and evidence | Makes progress reviewable and prevents partial work from appearing complete |
+| 2026-07-16 | Detail v1 and keep later platforms as an unapproved outline | Preserves future direction without expanding the current product scope |

@@ -2,7 +2,7 @@
 
 ## Purpose and Scope
 
-This file applies to the entire repository. Read `PLAN.md` before making non-trivial changes. `PLAN.md` is the architectural source of truth; update it alongside an implementation only when the approved product scope or architecture changes.
+This file applies to the entire repository. Read `PROJECT.md` and `PLAN.md` before making non-trivial changes. `PROJECT.md` is the product and architecture source of truth; `PLAN.md` is the delivery roadmap and implementation-status source of truth. Update `PROJECT.md` when approved product scope or architecture changes, update `PLAN.md` as milestones progress, and keep the two documents aligned.
 
 Animi is a private, local-first anime tracker and recommendation application. Version 1 is a Windows desktop application built with Tauri 2, Svelte 5, TypeScript, Rust, SQLite, Tailwind CSS, AniList GraphQL, and Bun.
 
@@ -10,7 +10,7 @@ Version 1 is anime-focused and has no server, cloud database, analytics, AniList
 
 ## Working Agreement
 
-- Inspect `PROJECT.md`, relevant source files, tests, and current repository changes before editing.
+- Inspect `PROJECT.md`, `PLAN.md`, relevant source files, tests, and current repository changes before editing.
 - Implement clear, scoped tasks independently and verify the result without asking for routine approval.
 - State consequential assumptions and preserve unrelated user changes.
 - Avoid speculative abstractions, broad refactors, or features outside the requested scope.
@@ -27,7 +27,7 @@ Version 1 is anime-focused and has no server, cloud database, analytics, AniList
 - Use camelCase JSON fields at the IPC boundary. Rust may retain idiomatic snake_case internally with Serde renaming.
 - Return typed success values and structured command errors containing `code`, `message`, and `retryable`.
 - Treat AniList as an on-demand metadata provider, not as application storage. Do not bulk-collect data.
-- Honor cache TTLs, rate-limit response headers, `Retry-After`, offline operation, and stale-data indicators defined in `PLAN.md`.
+- Honor cache TTLs, rate-limit response headers, `Retry-After`, offline operation, and stale-data indicators defined in `PROJECT.md`.
 - Store timestamps consistently in UTC and perform multi-record writes in transactions.
 - Use versioned, forward-migratable backup formats. Validate a complete import before opening its write transaction.
 - Released database migrations are append-only. Never rewrite migration history that may already exist on a user device.
