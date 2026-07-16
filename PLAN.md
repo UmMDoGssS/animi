@@ -6,8 +6,8 @@
 |---|---|
 | Product | Animi |
 | Release | Version 1, Windows desktop |
-| Overall status | Not started |
-| Current phase | P0 - Scaffold and engineering foundation |
+| Overall status | In progress |
+| Current phase | P1 - Local persistence and typed IPC (not started) |
 | Schedule | Dependency-driven; no calendar commitment |
 | Last updated | 2026-07-16 |
 
@@ -44,7 +44,7 @@ The following remain outside v1:
 
 | Phase | Objective | Depends on | Status | Exit gate |
 |---|---|---|---|---|
-| P0 | Scaffold and engineering foundation | Approved project baseline | Not started | Windows app launches and baseline quality checks pass |
+| P0 | Scaffold and engineering foundation | Approved project baseline | Complete | Windows app launches and baseline quality checks pass |
 | P1 | Local persistence and typed IPC | P0 | Not started | Durable library CRUD survives restart safely |
 | P2 | AniList integration and caching | P1 | Not started | Mocked network, cache, offline, and rate-limit behavior passes |
 | P3 | Application shell and design system | P0; coordinate with P1 contracts | Not started | Accessible shell works at desktop and narrow widths |
@@ -128,27 +128,27 @@ Every applicable milestone must satisfy these requirements, even when they are n
 
 ### Entry gate
 
-- [ ] **P0-E1** Confirm the repository is still pre-scaffold or reconcile any newly added user work before generating files.
-- [ ] **P0-E2** Verify Bun, Node, Rust, Cargo, Microsoft C++ Build Tools, WebView2, and the Tauri system prerequisites on the development machine.
+- [x] **P0-E1** Confirm the repository is still pre-scaffold or reconcile any newly added user work before generating files.
+- [x] **P0-E2** Verify Bun, Node, Rust, Cargo, Microsoft C++ Build Tools, WebView2, and the Tauri system prerequisites on the development machine.
 
 ### Milestones
 
-- [ ] **P0-M1 - Application scaffold:** Create a Tauri 2 application with a Svelte 5, strict TypeScript, Vite, and Bun frontend plus a Rust backend. Configure a stable application identifier and Windows app-data location before persistent data exists.
-- [ ] **P0-M2 - Styling foundation:** Add Tailwind CSS and the semantic CSS-variable layer needed by the Latte and Macchiato themes without embedding raw palette values in feature components.
-- [ ] **P0-M3 - Backend structure:** Establish thin command registration and separate Rust modules for commands, domain types, database access, AniList, backups, and recommendations. Empty modules should be added only when immediately needed.
-- [ ] **P0-M4 - Frontend structure:** Establish focused routes or view composition for Library, Discover, Details, Recommendations, and Settings/Backup using Svelte 5 state primitives and no global state library.
-- [ ] **P0-M5 - Quality tooling:** Configure Prettier, ESLint, `svelte-check`, Vitest, Svelte Testing Library, Rust formatting, Clippy, and Rust tests. Provide all scripts listed in the Quality Gates section.
-- [ ] **P0-M6 - Test isolation:** Provide deterministic fixture locations, a temporary database strategy, and a mock HTTP boundary so tests cannot reach AniList or real user storage.
-- [ ] **P0-M7 - Smoke application:** Render a minimal navigable shell through Tauri, verify frontend-to-Rust command invocation, and return a typed smoke response and structured smoke error.
+- [x] **P0-M1 - Application scaffold:** Create a Tauri 2 application with a Svelte 5, strict TypeScript, Vite, and Bun frontend plus a Rust backend. Configure a stable application identifier and Windows app-data location before persistent data exists.
+- [x] **P0-M2 - Styling foundation:** Add Tailwind CSS and the semantic CSS-variable layer needed by the Latte and Macchiato themes without embedding raw palette values in feature components.
+- [x] **P0-M3 - Backend structure:** Establish thin command registration and separate Rust modules for commands, domain types, database access, AniList, backups, and recommendations. Empty modules should be added only when immediately needed.
+- [x] **P0-M4 - Frontend structure:** Establish focused routes or view composition for Library, Discover, Details, Recommendations, and Settings/Backup using Svelte 5 state primitives and no global state library.
+- [x] **P0-M5 - Quality tooling:** Configure Prettier, ESLint, `svelte-check`, Vitest, Svelte Testing Library, Rust formatting, Clippy, and Rust tests. Provide all scripts listed in the Quality Gates section.
+- [x] **P0-M6 - Test isolation:** Provide deterministic fixture locations, a temporary database strategy, and a mock HTTP boundary so tests cannot reach AniList or real user storage.
+- [x] **P0-M7 - Smoke application:** Render a minimal navigable shell through Tauri, verify frontend-to-Rust command invocation, and return a typed smoke response and structured smoke error.
 
 ### Exit gate
 
-- [ ] **P0-G1** The development application launches on Windows with no console or Rust panic.
-- [ ] **P0-G2** Baseline frontend formatting, linting, type checks, and tests pass.
-- [ ] **P0-G3** Baseline Rust formatting, Clippy, and tests pass with warnings denied.
-- [ ] **P0-G4** No npm, pnpm, or Yarn lockfile exists.
+- [x] **P0-G1** The development application launches on Windows with no console or Rust panic.
+- [x] **P0-G2** Baseline frontend formatting, linting, type checks, and tests pass.
+- [x] **P0-G3** Baseline Rust formatting, Clippy, and tests pass with warnings denied.
+- [x] **P0-G4** No npm, pnpm, or Yarn lockfile exists.
 
-**Evidence:** Pending.
+**Evidence:** Completed 2026-07-16. Entry checks found a clean pre-scaffold repository and verified Bun 1.3.14, Node 24.11.0, Rust/Cargo 1.96.1, the `x86_64-pc-windows-msvc` target, Visual Studio Community 18.1 with the C++ workload, and WebView2 Runtime 150.0.4078.65. `bun run format:check`, `bun run lint`, `bun run check`, and `bun run test` passed (4 frontend tests). `cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check`, `cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings`, and `cargo test --manifest-path src-tauri/Cargo.toml --all-features` passed (7 Rust tests). `bun run build` and `bun run tauri build --debug --no-bundle` produced `src-tauri/target/debug/animi.exe`; a timed Windows process smoke check confirmed the executable remained running without a startup panic. A lockfile scan found only `bun.lock` and `src-tauri/Cargo.lock`.
 
 ## P1 - Local Persistence and Typed IPC
 
