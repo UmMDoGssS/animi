@@ -105,6 +105,31 @@ describe("AppShell", () => {
     ).toBeInTheDocument();
   });
 
+  it("keeps Discover selected while media details open secondarily", async () => {
+    const user = userEvent.setup();
+    render(AppShell, {
+      loadThemePreference: vi.fn().mockResolvedValue("SYSTEM"),
+      saveThemePreference: vi.fn(),
+    });
+
+    const discoverTab = screen.getByRole("tab", { name: "Discover" });
+    await user.click(discoverTab);
+    await user.click(
+      screen.getByRole("button", {
+        name: "Open sample details for Paper Cranes at Dawn",
+      }),
+    );
+
+    expect(discoverTab).toHaveAttribute("aria-selected", "true");
+    expect(
+      screen.getByRole("dialog", { name: "Paper Cranes at Dawn" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Home" })).not.toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  });
+
   it("loads, applies, and persists each theme preference", async () => {
     const saveThemePreference = vi.fn(
       async (preference: ThemePreference) => preference,

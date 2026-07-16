@@ -23,6 +23,7 @@
   --glass-highlight: rgb(255 255 255 / 68%);
   --accent-glass: rgb(136 57 239 / 72%);
   --selection: rgb(136 57 239 / 28%);
+  --scrim: rgb(76 79 105 / 42%);
   --panel-shadow: 0 20px 60px rgb(76 79 105 / 10%);
   --control-shadow: 0 8px 24px rgb(76 79 105 / 7%);
   --radius-panel: 1rem;
@@ -56,6 +57,7 @@
   --glass-highlight: rgb(202 211 245 / 18%);
   --accent-glass: rgb(198 160 246 / 68%);
   --selection: rgb(198 160 246 / 34%);
+  --scrim: rgb(17 17 27 / 62%);
   --panel-shadow: 0 20px 60px rgb(17 17 27 / 24%);
   --control-shadow: 0 8px 24px rgb(17 17 27 / 16%);
 }
@@ -82,6 +84,7 @@
     --glass-highlight: rgb(202 211 245 / 18%);
     --accent-glass: rgb(198 160 246 / 68%);
     --selection: rgb(198 160 246 / 34%);
+    --scrim: rgb(17 17 27 / 62%);
     --panel-shadow: 0 20px 60px rgb(17 17 27 / 24%);
     --control-shadow: 0 8px 24px rgb(17 17 27 / 16%);
   }
@@ -104,6 +107,7 @@
   --color-glass: var(--glass);
   --color-glass-control: var(--glass-control);
   --color-selection: var(--selection);
+  --color-scrim: var(--scrim);
 }
 
 html {
@@ -118,6 +122,10 @@ body {
   background: var(--surface);
   color: var(--text);
   letter-spacing: 0.012em;
+}
+
+html.has-modal {
+  overflow: hidden;
 }
 
 ::selection {
