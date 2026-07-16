@@ -3,9 +3,14 @@ import { invoke } from "@tauri-apps/api/core";
 import type {
   CommandError,
   LibraryEntry,
+  MediaDetailsRequest,
+  MediaDetailsResponse,
+  MediaPageRequest,
+  MediaPageResponse,
   RemoveLibraryEntryRequest,
   RemoveLibraryEntryResponse,
   SmokeResponse,
+  SearchMediaRequest,
   UpsertLibraryEntryRequest,
 } from "./types";
 import { isCommandError } from "./types";
@@ -32,6 +37,24 @@ export async function removeLibraryEntry(
   return invoke<RemoveLibraryEntryResponse>("remove_library_entry", {
     request,
   });
+}
+
+export async function searchMedia(
+  request: SearchMediaRequest,
+): Promise<MediaPageResponse> {
+  return invoke<MediaPageResponse>("search_media", { request });
+}
+
+export async function listTrending(
+  request: MediaPageRequest,
+): Promise<MediaPageResponse> {
+  return invoke<MediaPageResponse>("list_trending", { request });
+}
+
+export async function getMediaDetails(
+  request: MediaDetailsRequest,
+): Promise<MediaDetailsResponse> {
+  return invoke<MediaDetailsResponse>("get_media_details", { request });
 }
 
 export function normalizeCommandError(error: unknown): CommandError {

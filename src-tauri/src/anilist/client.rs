@@ -1,8 +1,9 @@
 use std::collections::BTreeMap;
 use std::future::Future;
 use std::pin::Pin;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
+use chrono::{DateTime, Duration, Utc};
 use serde::de::DeserializeOwned;
 use serde_json::{Value, json};
 
@@ -50,6 +51,19 @@ pub type TransportFuture<'a> =
 /// The transport is injected into the adapter so tests never need network access.
 pub trait AniListTransport: Send + Sync {
     fn send(&self, request: AniListRequest) -> TransportFuture<'_>;
+}
+
+pub trait AniListClock: Send + Sync {
+    fn now(&self) -> DateTime<Utc>;
+}
+
+#[derive(Debug, Default)]
+pub struct SystemClock;
+
+impl AniListClock for SystemClock {
+    fn now(&self) -> DateTime<Utc> {
+        Utc::now()
+    }
 }
 
 /// Safe default for tests and code paths that have not explicitly installed a client.
@@ -152,6 +166,8 @@ impl AniListError {
 #[derive(Clone)]
 pub struct AniListClient {
     transport: Arc<dyn AniListTransport>,
+    clock: Arc<dyn AniListClock>,
+    blocked_until: Arc<Mutex<Option<DateTime<Utc>>>>,
 }
 
 impl std::fmt::Debug for AniListClient {
@@ -164,7 +180,19 @@ impl std::fmt::Debug for AniListClient {
 
 impl AniListClient {
     pub fn new(transport: Arc<dyn AniListTransport>) -> Self {
-        Self { transport }
+        Self::with_clock(transport, Arc::new(SystemClock))
+    }
+
+    pub fn with_clock(transport: Arc<dyn AniListTransport>, clock: Arc<dyn AniListClock>) -> Self {
+        Self {
+            transport,
+            clock,
+            blocked_until: Arc::new(Mutex::new(None)),
+        }
+    }
+
+    pub fn now(&self) -> DateTime<Utc> {
+        self.clock.now()
     }
 
     pub async fn search_media(
@@ -260,6 +288,7 @@ impl AniListClient {
         query: &'static str,
         variables: Value,
     ) -> Result<T, AniListError> {
+        self.check_rate_limit()?;
         let response = self
             .transport
             .send(AniListRequest {
@@ -270,14 +299,14 @@ impl AniListClient {
             .await
             .map_err(|error| AniListError::Offline(error.to_string()))?;
 
+        let header_retry_after = self.observe_rate_limit_headers(&response);
+
         match response.status {
             200..=299 => {}
             403 => return Err(AniListError::Forbidden),
             429 => {
                 return Err(AniListError::RateLimited {
-                    retry_after_seconds: response
-                        .header("Retry-After")
-                        .and_then(|value| value.parse().ok()),
+                    retry_after_seconds: header_retry_after,
                 });
             }
             status => {
@@ -305,6 +334,50 @@ impl AniListClient {
             ))
         } else {
             Err(AniListError::GraphQl(message))
+        }
+    }
+
+    fn check_rate_limit(&self) -> Result<(), AniListError> {
+        let now = self.now();
+        let blocked_until = *self
+            .blocked_until
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if let Some(blocked_until) = blocked_until.filter(|blocked_until| *blocked_until > now) {
+            let seconds = (blocked_until - now).num_seconds().max(1) as u64;
+            return Err(AniListError::RateLimited {
+                retry_after_seconds: Some(seconds),
+            });
+        }
+        Ok(())
+    }
+
+    fn observe_rate_limit_headers(&self, response: &AniListResponse) -> Option<u64> {
+        let now = self.now();
+        let retry_after = response
+            .header("Retry-After")
+            .and_then(|value| value.parse::<u64>().ok());
+        let retry_deadline = retry_after
+            .and_then(|seconds| i64::try_from(seconds).ok())
+            .and_then(|seconds| now.checked_add_signed(Duration::seconds(seconds)));
+        let reset_deadline = (response.header("X-RateLimit-Remaining") == Some("0"))
+            .then(|| response.header("X-RateLimit-Reset"))
+            .flatten()
+            .and_then(|value| value.parse::<i64>().ok())
+            .and_then(|timestamp| DateTime::from_timestamp(timestamp, 0));
+        let deadline = retry_deadline.into_iter().chain(reset_deadline).max();
+
+        if let Some(deadline) = deadline.filter(|deadline| *deadline > now) {
+            let mut blocked_until = self
+                .blocked_until
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            if blocked_until.is_none_or(|current| current < deadline) {
+                *blocked_until = Some(deadline);
+            }
+            Some((deadline - now).num_seconds().max(1) as u64)
+        } else {
+            retry_after
         }
     }
 }

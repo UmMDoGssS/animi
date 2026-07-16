@@ -12,6 +12,7 @@ export interface CommandError {
 
 /** UTC timestamp serialized as an RFC 3339 string, for example 2026-07-16T08:30:00.000Z. */
 export type UtcTimestamp = string;
+export type CalendarDate = string;
 
 export type MediaKind = "ANIME" | "MANGA";
 export type LibraryStatus = "WATCHING" | "COMPLETED" | "PLANNING";
@@ -45,6 +46,66 @@ export interface RemoveLibraryEntryRequest {
 
 export interface RemoveLibraryEntryResponse {
   removed: boolean;
+}
+
+export interface MediaTag {
+  name: string;
+  rank: number;
+}
+
+export interface MediaSummary {
+  anilistId: number;
+  title: string;
+  coverUrl: string | null;
+  mediaFormat: string | null;
+  status: string | null;
+  episodes: number | null;
+  genres: string[];
+  tags: MediaTag[];
+  trending: number;
+}
+
+export interface Sequel {
+  anilistId: number;
+  title: string;
+  releaseDate: CalendarDate | null;
+}
+
+export interface MediaDetails extends MediaSummary {
+  sequels: Sequel[];
+}
+
+export interface Freshness {
+  fetchedAt: UtcTimestamp;
+  expiresAt: UtcTimestamp;
+  isStale: boolean;
+  refreshError: CommandError | null;
+}
+
+export interface MediaPageResponse {
+  items: MediaSummary[];
+  hasNextPage: boolean;
+  freshness: Freshness;
+}
+
+export interface MediaDetailsResponse {
+  media: MediaDetails;
+  freshness: Freshness;
+}
+
+export interface SearchMediaRequest {
+  search: string;
+  page: number;
+  perPage: number;
+}
+
+export interface MediaPageRequest {
+  page: number;
+  perPage: number;
+}
+
+export interface MediaDetailsRequest {
+  anilistId: number;
 }
 
 export function isCommandError(value: unknown): value is CommandError {

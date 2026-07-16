@@ -1,10 +1,15 @@
 mod client;
 mod queries;
+mod service;
 mod types;
 
 pub use client::{
-    AniListClient, AniListError, AniListRequest, AniListResponse, AniListTransport,
-    NetworkDisabledTransport, ReqwestTransport, TransportError, TransportFuture,
+    AniListClient, AniListClock, AniListError, AniListRequest, AniListResponse, AniListTransport,
+    NetworkDisabledTransport, ReqwestTransport, SystemClock, TransportError, TransportFuture,
+};
+pub use service::{
+    AiringScheduleResponse, AniListService, CachePolicy, Freshness, MediaDetailsResponse,
+    MediaPageResponse,
 };
 pub use types::{AiringSchedule, MediaDetails, MediaSummary, MediaTag, Sequel};
 

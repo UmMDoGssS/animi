@@ -2,9 +2,7 @@
   "data": {
     "Page": {
       "pageInfo": { "hasNextPage": false },
-      "airingSchedules": [
-        { "episode": 29, "airingAt": 1784275200 }
-      ]
+      "airingSchedules": [{ "episode": 29, "airingAt": 1784275200 }]
     }
   }
 }

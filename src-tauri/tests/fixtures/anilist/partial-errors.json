@@ -5,7 +5,11 @@
       "media": [
         {
           "id": 99,
-          "title": { "romaji": "Partial Result", "english": null, "native": null },
+          "title": {
+            "romaji": "Partial Result",
+            "english": null,
+            "native": null
+          },
           "coverImage": null,
           "format": null,
           "status": null,
@@ -18,6 +22,9 @@
     }
   },
   "errors": [
-    { "message": "A nonessential field could not be resolved", "path": ["Page", "media", 0, "coverImage"] }
+    {
+      "message": "A nonessential field could not be resolved",
+      "path": ["Page", "media", 0, "coverImage"]
+    }
   ]
 }

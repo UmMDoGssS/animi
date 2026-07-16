@@ -1,10 +1,35 @@
 use std::collections::{BTreeMap, VecDeque};
 use std::sync::{Arc, Mutex};
 
+use chrono::{DateTime, Duration, Utc};
+
 use super::{
-    AniListClient, AniListError, AniListRequest, AniListResponse, AniListTransport,
+    AniListClient, AniListClock, AniListError, AniListRequest, AniListResponse, AniListTransport,
     NetworkDisabledTransport, TransportError, TransportFuture,
 };
+
+struct TestClock {
+    now: Mutex<DateTime<Utc>>,
+}
+
+impl TestClock {
+    fn new() -> Self {
+        Self {
+            now: Mutex::new("2026-07-16T08:00:00Z".parse().expect("test timestamp")),
+        }
+    }
+
+    fn advance(&self, duration: Duration) {
+        let mut now = self.now.lock().expect("clock lock");
+        *now += duration;
+    }
+}
+
+impl AniListClock for TestClock {
+    fn now(&self) -> DateTime<Utc> {
+        *self.now.lock().expect("clock lock")
+    }
+}
 
 #[derive(Default)]
 struct FixtureTransport {
@@ -215,4 +240,77 @@ async fn rate_limit_preserves_retry_after_header() {
         }
     );
     assert!(error.retryable());
+}
+
+#[tokio::test]
+async fn retry_after_cooldown_prevents_a_request_storm() {
+    let mut limited = response(
+        429,
+        include_str!("../../tests/fixtures/anilist/rate-limited.json"),
+    );
+    limited
+        .headers
+        .insert("Retry-After".to_owned(), "30".to_owned());
+    let transport = Arc::new(FixtureTransport {
+        responses: Mutex::new(VecDeque::from([
+            Ok(limited),
+            Ok(response(
+                200,
+                include_str!("../../tests/fixtures/anilist/search-success.json"),
+            )),
+        ])),
+        requests: Mutex::new(Vec::new()),
+    });
+    let clock = Arc::new(TestClock::new());
+    let client = AniListClient::with_clock(transport.clone(), clock.clone());
+
+    assert!(matches!(
+        client.trending_media(1, 20).await,
+        Err(AniListError::RateLimited { .. })
+    ));
+    assert!(matches!(
+        client.trending_media(1, 20).await,
+        Err(AniListError::RateLimited { .. })
+    ));
+    assert_eq!(transport.requests().len(), 1);
+
+    clock.advance(Duration::seconds(31));
+    assert!(client.trending_media(1, 20).await.is_ok());
+    assert_eq!(transport.requests().len(), 2);
+}
+
+#[tokio::test]
+async fn exhausted_remaining_header_honors_the_reset_timestamp() {
+    let clock = Arc::new(TestClock::new());
+    let reset = clock.now() + Duration::seconds(45);
+    let mut success = response(
+        200,
+        include_str!("../../tests/fixtures/anilist/search-success.json"),
+    );
+    success
+        .headers
+        .insert("X-RateLimit-Remaining".to_owned(), "0".to_owned());
+    success.headers.insert(
+        "X-RateLimit-Reset".to_owned(),
+        reset.timestamp().to_string(),
+    );
+    let transport = Arc::new(FixtureTransport::with_response(Ok(success)));
+    let client = AniListClient::with_clock(transport.clone(), clock);
+
+    client
+        .trending_media(1, 20)
+        .await
+        .expect("first response remains usable");
+    let error = client
+        .trending_media(1, 20)
+        .await
+        .expect_err("reset window should block another request");
+
+    assert_eq!(
+        error,
+        AniListError::RateLimited {
+            retry_after_seconds: Some(45)
+        }
+    );
+    assert_eq!(transport.requests().len(), 1);
 }

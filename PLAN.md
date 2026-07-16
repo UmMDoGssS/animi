@@ -194,10 +194,10 @@ Every applicable milestone must satisfy these requirements, even when they are n
 ### Milestones
 
 - [x] **P2-M1 - Typed GraphQL adapter:** Implement narrowly scoped queries and validated response mapping for anime search, details, trending results, airing schedules, and sequel relations. Exclude adult content by default.
-- [ ] **P2-M2 - Discovery commands:** Implement `search_media`, `get_media_details`, and `list_trending` without exposing raw GraphQL responses to the frontend.
-- [ ] **P2-M3 - Cache policy:** Apply 24-hour detail, 6-hour discovery/recommendation, and 30-minute airing TTLs. Cache only on-demand results and retain fetch timestamps needed for stale display.
-- [ ] **P2-M4 - Offline and stale reads:** Return usable cached data with explicit freshness metadata when refresh fails; return a terminal, retryable error when no usable cache exists.
-- [ ] **P2-M5 - Rate limiting:** Honor response rate-limit headers and `Retry-After`, avoid retry storms, and distinguish retryable throttling from non-retryable contract errors.
+- [x] **P2-M2 - Discovery commands:** Implement `search_media`, `get_media_details`, and `list_trending` without exposing raw GraphQL responses to the frontend.
+- [x] **P2-M3 - Cache policy:** Apply 24-hour detail, 6-hour discovery/recommendation, and 30-minute airing TTLs. Cache only on-demand results and retain fetch timestamps needed for stale display.
+- [x] **P2-M4 - Offline and stale reads:** Return usable cached data with explicit freshness metadata when refresh fails; return a terminal, retryable error when no usable cache exists.
+- [x] **P2-M5 - Rate limiting:** Honor response rate-limit headers and `Retry-After`, avoid retry storms, and distinguish retryable throttling from non-retryable contract errors.
 - [ ] **P2-M6 - Library refresh:** Implement `refresh_library_metadata` so it refreshes only relevant tracked records and never holds a database transaction or lock during network work.
 - [x] **P2-M7 - Contract tests:** Cover success, absent episode totals, absent sequel dates, partial GraphQL errors, malformed data, offline failures, `403`, and `429 Retry-After` entirely through mocks.
 
@@ -213,6 +213,11 @@ test default, a production `reqwest` transport, narrow anime-only/non-adult Grap
 media/detail/airing/sequel mapping, and deterministic fixtures for all P2 contract cases. Verified
 with `cargo test --manifest-path src-tauri/Cargo.toml --all-features` (24 unit tests and 4 integration
 tests) and `cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings`.
+The second slice added the three typed discovery commands, shared TypeScript IPC contracts, cache
+policies with explicit freshness/error metadata, stale fallback, deterministic clock coverage, and
+rate-limit cooldowns for `Retry-After` and `X-RateLimit-Reset`. Focused verification passed with 32
+Rust unit tests, 4 Rust integration tests, 6 frontend tests, `svelte-check`, and Clippy with warnings
+denied.
 
 ## P3 - Application Shell and Design System
 

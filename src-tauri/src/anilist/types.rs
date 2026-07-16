@@ -3,14 +3,14 @@ use serde::{Deserialize, Serialize};
 
 use super::AniListError;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MediaTag {
     pub name: String,
     pub rank: u8,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MediaSummary {
     pub anilist_id: i64,
@@ -24,7 +24,7 @@ pub struct MediaSummary {
     pub trending: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Sequel {
     pub anilist_id: i64,
@@ -32,7 +32,7 @@ pub struct Sequel {
     pub release_date: Option<NaiveDate>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MediaDetails {
     #[serde(flatten)]
@@ -40,7 +40,7 @@ pub struct MediaDetails {
     pub sequels: Vec<Sequel>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AiringSchedule {
     pub episode: i64,
