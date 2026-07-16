@@ -22,7 +22,7 @@
     <div class="mx-auto flex max-w-7xl items-center gap-3 px-4 py-4 sm:px-6">
       <div
         aria-hidden="true"
-        class="bg-accent text-surface-raised grid size-10 place-items-center rounded-2xl text-xl"
+        class="bg-accent text-on-accent grid size-10 place-items-center rounded-2xl text-xl"
       >
         =^
       </div>
@@ -46,7 +46,7 @@
             <button
               type="button"
               aria-current={activeView === item.id ? "page" : undefined}
-              class="hover:bg-overlay aria-[current=page]:bg-accent aria-[current=page]:text-surface-raised w-full rounded-2xl px-3 py-3 text-left text-sm font-medium transition"
+              class="hover:bg-overlay aria-[current=page]:bg-accent aria-[current=page]:text-on-accent w-full rounded-2xl px-3 py-3 text-left text-sm font-medium transition"
               onclick={() => (activeView = item.id)}
             >
               {item.label}

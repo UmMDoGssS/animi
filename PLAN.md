@@ -7,7 +7,7 @@
 | Product | Animi |
 | Release | Version 1, Windows desktop |
 | Overall status | In progress |
-| Current phase | P2 complete; P3 is next |
+| Current phase | P3 in progress |
 | Schedule | Dependency-driven; no calendar commitment |
 | Last updated | 2026-07-16 |
 
@@ -232,12 +232,12 @@ warnings denied, 34 Rust unit tests, and 5 Rust integration tests.
 
 ### Entry gate
 
-- [ ] **P3-E1** Semantic design tokens and async-state conventions are agreed in code before feature components consume them.
-- [ ] **P3-E2** Desktop and 390-pixel-wide test viewports are available to component or end-to-end tests.
+- [x] **P3-E1** Semantic design tokens and async-state conventions are agreed in code before feature components consume them.
+- [x] **P3-E2** Desktop and 390-pixel-wide test viewports are available to component or end-to-end tests.
 
 ### Milestones
 
-- [ ] **P3-M1 - Theme system:** Implement Catppuccin Latte and Macchiato through semantic surface, overlay, text, muted-text, accent, success, warning, and danger variables.
+- [x] **P3-M1 - Theme system:** Implement Catppuccin Latte and Macchiato through semantic surface, overlay, text, muted-text, accent, success, warning, and danger variables.
 - [ ] **P3-M2 - Theme preference:** Default to the operating-system preference, persist a manual override through the durable settings boundary, and react predictably when the OS preference changes without an override.
 - [ ] **P3-M3 - Visual foundation:** Add rounded cover-focused layouts and restrained frosted-glass panels with subtle borders, restrained blur, and opaque fallbacks.
 - [ ] **P3-M4 - Navigation shell:** Implement keyboard-operable navigation among Library, Discover, Recommendations, and Settings/Backup plus a consistent details presentation.
@@ -253,7 +253,7 @@ warnings denied, 34 Rust unit tests, and 5 Rust integration tests.
 - [ ] **P3-G3** Every asynchronous placeholder has a defined terminal success, empty, offline, or error state.
 - [ ] **P3-G4** Component accessibility and responsive-layout tests pass.
 
-**Evidence:** Pending.
+**Evidence:** P3 entry gates and P3-M1 completed 2026-07-16. Added explicit Catppuccin Latte and Macchiato selectors behind semantic color tokens, retained system dark-mode selection when no override exists, established a discriminated async-state convention, and added reusable 1280x800 desktop and 390x844 narrow component-test viewports. `bun run format:check`, `bun run lint`, `bun run check`, and `bun run test` passed (10 frontend tests).
 
 ## P4 - Discovery, Details, and Library Workflow
 

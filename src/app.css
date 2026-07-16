@@ -1,15 +1,18 @@
 @import "tailwindcss";
 
-/* Palette values live here so feature components consume only semantic tokens. */
-:root {
+/* Catppuccin palette values live here so components consume only semantic tokens. */
+:root,
+:root[data-theme="latte"] {
   color-scheme: light;
   --surface: #eff1f5;
   --surface-raised: #e6e9ef;
-  --overlay: #dce0e8;
+  --surface-sunken: #dce0e8;
+  --overlay: #ccd0da;
   --text: #4c4f69;
   --text-muted: #6c6f85;
   --accent: #8839ef;
-  --accent-strong: #7287fd;
+  --accent-strong: #1e66f5;
+  --on-accent: #eff1f5;
   --success: #40a02b;
   --warning: #df8e1d;
   --danger: #d20f39;
@@ -27,16 +30,36 @@
   text-rendering: optimizeLegibility;
 }
 
+:root[data-theme="macchiato"] {
+  color-scheme: dark;
+  --surface: #24273a;
+  --surface-raised: #1e2030;
+  --surface-sunken: #181926;
+  --overlay: #363a4f;
+  --text: #cad3f5;
+  --text-muted: #a5adcb;
+  --accent: #c6a0f6;
+  --accent-strong: #8aadf4;
+  --on-accent: #1e2030;
+  --success: #a6da95;
+  --warning: #eed49f;
+  --danger: #ed8796;
+  --border: rgb(202 211 245 / 16%);
+  --glass: rgb(36 39 58 / 84%);
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     color-scheme: dark;
     --surface: #24273a;
     --surface-raised: #1e2030;
+    --surface-sunken: #181926;
     --overlay: #363a4f;
     --text: #cad3f5;
     --text-muted: #a5adcb;
     --accent: #c6a0f6;
     --accent-strong: #8aadf4;
+    --on-accent: #1e2030;
     --success: #a6da95;
     --warning: #eed49f;
     --danger: #ed8796;
@@ -48,11 +71,13 @@
 @theme inline {
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
   --color-overlay: var(--overlay);
   --color-foreground: var(--text);
   --color-muted: var(--text-muted);
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
+  --color-on-accent: var(--on-accent);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);

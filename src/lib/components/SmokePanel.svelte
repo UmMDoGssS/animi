@@ -1,6 +1,7 @@
 <script lang="ts">
   import { checkBackend, normalizeCommandError } from "$lib/ipc/client";
-  import type { CommandError, SmokeResponse } from "$lib/ipc/types";
+  import type { SmokeResponse } from "$lib/ipc/types";
+  import type { AsyncState } from "$lib/state/asyncState";
 
   interface Props {
     runCheck?: () => Promise<SmokeResponse>;
@@ -8,21 +9,15 @@
 
   let { runCheck = checkBackend }: Props = $props();
 
-  let status = $state<"idle" | "checking" | "ready" | "error">("idle");
-  let response = $state<SmokeResponse | null>(null);
-  let error = $state<CommandError | null>(null);
+  let state = $state<AsyncState<SmokeResponse>>({ status: "idle" });
 
   async function verifyBackend() {
-    status = "checking";
-    response = null;
-    error = null;
+    state = { status: "loading" };
 
     try {
-      response = await runCheck();
-      status = "ready";
+      state = { status: "ready", data: await runCheck() };
     } catch (reason) {
-      error = normalizeCommandError(reason);
-      status = "error";
+      state = { status: "error", error: normalizeCommandError(reason) };
     }
   }
 </script>
@@ -36,32 +31,32 @@
       <h2 id="core-status-heading" class="text-foreground font-semibold">
         Local core
       </h2>
-      {#if status === "idle"}
+      {#if state.status === "idle"}
         <p class="text-muted mt-1 text-sm">
           Verify the typed frontend-to-Rust boundary.
         </p>
-      {:else if status === "checking"}
+      {:else if state.status === "loading"}
         <p class="text-muted mt-1 text-sm" role="status">
           Checking the local core…
         </p>
-      {:else if status === "ready" && response}
+      {:else if state.status === "ready"}
         <p class="text-success mt-1 text-sm" role="status">
-          {response.message} · v{response.version}
+          {state.data.message} · v{state.data.version}
         </p>
-      {:else if status === "error" && error}
+      {:else if state.status === "error"}
         <p class="text-danger mt-1 text-sm" role="alert">
-          {error.message} ({error.code})
+          {state.error.message} ({state.error.code})
         </p>
       {/if}
     </div>
 
     <button
       type="button"
-      class="bg-accent text-surface-raised rounded-xl px-4 py-2 text-sm font-semibold transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60"
-      disabled={status === "checking"}
+      class="bg-accent text-on-accent rounded-xl px-4 py-2 text-sm font-semibold transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60"
+      disabled={state.status === "loading"}
       onclick={verifyBackend}
     >
-      {status === "checking" ? "Checking…" : "Check core"}
+      {state.status === "loading" ? "Checking…" : "Check core"}
     </button>
   </div>
 </aside>
