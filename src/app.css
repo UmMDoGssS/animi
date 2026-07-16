@@ -18,9 +18,16 @@
   --danger: #d20f39;
   --border: rgb(76 79 105 / 18%);
   --glass: rgb(239 241 245 / 68%);
+  --glass-control: rgb(255 255 255 / 34%);
+  --glass-control-hover: rgb(255 255 255 / 52%);
   --glass-highlight: rgb(255 255 255 / 58%);
+  --accent-glass: rgb(136 57 239 / 82%);
   --selection: rgb(136 57 239 / 28%);
   --panel-shadow: 0 20px 60px rgb(76 79 105 / 10%);
+  --control-shadow: 0 8px 24px rgb(76 79 105 / 7%);
+  --radius-panel: 1.5rem;
+  --radius-control-group: 1.125rem;
+  --radius-control: 0.75rem;
   font-family:
     "Bahnschrift", "Aptos Narrow", "Segoe UI Variable Text", "Segoe UI",
     sans-serif;
@@ -46,9 +53,13 @@
   --danger: #ed8796;
   --border: rgb(202 211 245 / 16%);
   --glass: rgb(36 39 58 / 70%);
+  --glass-control: rgb(54 58 79 / 46%);
+  --glass-control-hover: rgb(73 77 100 / 58%);
   --glass-highlight: rgb(202 211 245 / 10%);
+  --accent-glass: rgb(198 160 246 / 78%);
   --selection: rgb(198 160 246 / 34%);
   --panel-shadow: 0 20px 60px rgb(17 17 27 / 24%);
+  --control-shadow: 0 8px 24px rgb(17 17 27 / 16%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -68,9 +79,13 @@
     --danger: #ed8796;
     --border: rgb(202 211 245 / 16%);
     --glass: rgb(36 39 58 / 70%);
+    --glass-control: rgb(54 58 79 / 46%);
+    --glass-control-hover: rgb(73 77 100 / 58%);
     --glass-highlight: rgb(202 211 245 / 10%);
+    --accent-glass: rgb(198 160 246 / 78%);
     --selection: rgb(198 160 246 / 34%);
     --panel-shadow: 0 20px 60px rgb(17 17 27 / 24%);
+    --control-shadow: 0 8px 24px rgb(17 17 27 / 16%);
   }
 }
 
@@ -89,6 +104,7 @@
   --color-danger: var(--danger);
   --color-border: var(--border);
   --color-glass: var(--glass);
+  --color-glass-control: var(--glass-control);
   --color-selection: var(--selection);
 }
 
@@ -128,6 +144,35 @@ a {
     var(--panel-shadow);
 }
 
+.glass-control {
+  background: var(--surface-sunken);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    var(--control-shadow);
+}
+
+.glass-interactive:hover {
+  background: var(--overlay);
+}
+
+.glass-accent,
+.glass-tab[aria-selected="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.panel-large {
+  border-radius: var(--radius-panel);
+}
+
+.control-group {
+  border-radius: var(--radius-control-group);
+}
+
+.control-rounded {
+  border-radius: var(--radius-control);
+}
+
 @supports (
   (backdrop-filter: blur(16px)) or (-webkit-backdrop-filter: blur(16px))
 ) {
@@ -135,6 +180,23 @@ a {
     background: var(--glass);
     -webkit-backdrop-filter: blur(16px) saturate(118%);
     backdrop-filter: blur(16px) saturate(118%);
+  }
+
+  .glass-control {
+    background: var(--glass-control);
+    -webkit-backdrop-filter: blur(10px) saturate(124%);
+    backdrop-filter: blur(10px) saturate(124%);
+  }
+
+  .glass-interactive:hover {
+    background: var(--glass-control-hover);
+  }
+
+  .glass-accent,
+  .glass-tab[aria-selected="true"] {
+    background: var(--accent-glass);
+    -webkit-backdrop-filter: blur(10px) saturate(124%);
+    backdrop-filter: blur(10px) saturate(124%);
   }
 }
 

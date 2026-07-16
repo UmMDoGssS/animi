@@ -47,14 +47,14 @@
 </script>
 
 <div
-  class="glass-panel border-border flex w-14 flex-col items-center rounded-[1.25rem] border p-1"
+  class="glass-panel control-group border-border flex w-14 flex-col items-center border p-1.5"
 >
   <nav aria-label="Primary navigation" class="w-full">
     <div
       role="tablist"
       aria-label="Primary pages"
       aria-orientation="vertical"
-      class="grid justify-items-center gap-1"
+      class="grid justify-items-center gap-2"
     >
       {#each navigationItems as item, index (item.id)}
         <button
@@ -66,14 +66,14 @@
           aria-selected={activeView === item.id}
           aria-controls={`${item.id}-panel`}
           tabindex={activeView === item.id ? 0 : -1}
-          class="group text-muted hover:bg-overlay hover:text-foreground aria-selected:bg-accent aria-selected:text-on-accent relative grid size-11 place-items-center rounded-[0.875rem] transition-colors"
+          class="glass-control glass-interactive glass-tab control-rounded group text-muted hover:text-foreground relative grid size-10 place-items-center transition-colors"
           onclick={() => selectView(item.id)}
           onkeydown={(event) => handleKeydown(event, index)}
         >
           <NavigationIcon name={item.icon} />
           <span
             aria-hidden="true"
-            class="glass-panel border-border text-foreground pointer-events-none absolute top-1/2 left-[calc(100%+0.75rem)] z-40 translate-x-1 -translate-y-1/2 rounded-lg border px-2.5 py-1.5 text-xs font-medium whitespace-nowrap opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100"
+            class="glass-control control-rounded border-border text-foreground pointer-events-none absolute top-1/2 left-[calc(100%+0.75rem)] z-40 translate-x-1 -translate-y-1/2 border px-2.5 py-1.5 text-xs font-medium whitespace-nowrap opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100"
           >
             {item.label}
           </span>

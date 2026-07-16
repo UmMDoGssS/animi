@@ -20,7 +20,7 @@
 
 <section
   aria-labelledby="theme-preference-heading"
-  class="glass-panel border-border rounded-3xl border p-5 sm:p-6"
+  class="glass-panel panel-large border-border border p-5 sm:p-6"
 >
   <div class="max-w-2xl">
     <h2 id="theme-preference-heading" class="text-foreground font-medium">
@@ -37,7 +37,7 @@
     <div class="grid gap-3 sm:grid-cols-3">
       {#each themeOptions as option (option.value)}
         <label
-          class="border-border bg-surface has-checked:border-accent has-checked:ring-accent/30 hover:bg-overlay flex cursor-pointer gap-3 rounded-2xl border p-4 transition has-checked:ring-2"
+          class="glass-control glass-interactive control-rounded border-border has-checked:border-accent has-checked:ring-accent/30 flex cursor-pointer gap-3 border p-4 transition has-checked:ring-2"
         >
           <input
             type="radio"

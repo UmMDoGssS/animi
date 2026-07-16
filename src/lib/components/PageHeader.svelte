@@ -9,7 +9,7 @@
 </script>
 
 <header
-  class="glass-panel border-border relative overflow-hidden rounded-[2rem] border p-5 sm:p-8 lg:p-10"
+  class="glass-panel panel-large border-border relative overflow-hidden border p-5 sm:p-8 lg:p-10"
 >
   <div
     aria-hidden="true"
