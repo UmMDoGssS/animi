@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
+use std::time::Duration as StdDuration;
 
 use chrono::{DateTime, Duration, Utc};
 use serde::de::DeserializeOwned;
@@ -85,6 +86,8 @@ impl ReqwestTransport {
     pub fn new() -> Result<Self, TransportError> {
         let client = reqwest::Client::builder()
             .user_agent(concat!("Animi/", env!("CARGO_PKG_VERSION")))
+            .connect_timeout(StdDuration::from_secs(10))
+            .timeout(StdDuration::from_secs(30))
             .build()
             .map_err(|error| TransportError::Unavailable(error.to_string()))?;
         Ok(Self { client })
@@ -339,10 +342,10 @@ impl AniListClient {
 
     fn check_rate_limit(&self) -> Result<(), AniListError> {
         let now = self.now();
-        let blocked_until = *self
-            .blocked_until
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let blocked_until = match self.blocked_until.lock() {
+            Ok(blocked_until) => *blocked_until,
+            Err(poisoned) => *poisoned.into_inner(),
+        };
         if let Some(blocked_until) = blocked_until.filter(|blocked_until| *blocked_until > now) {
             let seconds = (blocked_until - now).num_seconds().max(1) as u64;
             return Err(AniListError::RateLimited {
@@ -368,10 +371,10 @@ impl AniListClient {
         let deadline = retry_deadline.into_iter().chain(reset_deadline).max();
 
         if let Some(deadline) = deadline.filter(|deadline| *deadline > now) {
-            let mut blocked_until = self
-                .blocked_until
-                .lock()
-                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            let mut blocked_until = match self.blocked_until.lock() {
+                Ok(blocked_until) => blocked_until,
+                Err(poisoned) => poisoned.into_inner(),
+            };
             if blocked_until.is_none_or(|current| current < deadline) {
                 *blocked_until = Some(deadline);
             }

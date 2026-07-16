@@ -18,31 +18,52 @@ impl MediaRepository {
         &self,
         snapshot: &MediaSnapshotRecord,
     ) -> Result<(), DatabaseError> {
-        let genres = serde_json::to_string(&snapshot.genres)?;
-        let tags = serde_json::to_string(&snapshot.tags)?;
-        sqlx::query(
-            "INSERT INTO media_snapshots (\
-                anilist_id, media_kind, title, cover_url, media_format, genres_json, tags_json, \
-                media_status, total_units, cached_at\
-             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) \
-             ON CONFLICT(anilist_id, media_kind) DO UPDATE SET \
-                title = excluded.title, cover_url = excluded.cover_url, \
-                media_format = excluded.media_format, genres_json = excluded.genres_json, \
-                tags_json = excluded.tags_json, media_status = excluded.media_status, \
-                total_units = excluded.total_units, cached_at = excluded.cached_at",
-        )
-        .bind(snapshot.anilist_id)
-        .bind(snapshot.media_kind.as_str())
-        .bind(&snapshot.title)
-        .bind(&snapshot.cover_url)
-        .bind(&snapshot.media_format)
-        .bind(genres)
-        .bind(tags)
-        .bind(&snapshot.media_status)
-        .bind(snapshot.total_units)
-        .bind(format_utc(snapshot.cached_at))
-        .execute(&self.pool)
-        .await?;
+        self.upsert_snapshots(std::slice::from_ref(snapshot))
+            .await?;
+        Ok(())
+    }
+
+    pub async fn upsert_snapshots(
+        &self,
+        snapshots: &[MediaSnapshotRecord],
+    ) -> Result<(), DatabaseError> {
+        let prepared = snapshots
+            .iter()
+            .map(|snapshot| {
+                Ok((
+                    snapshot,
+                    serde_json::to_string(&snapshot.genres)?,
+                    serde_json::to_string(&snapshot.tags)?,
+                ))
+            })
+            .collect::<Result<Vec<_>, DatabaseError>>()?;
+        let mut transaction = self.pool.begin().await?;
+        for (snapshot, genres, tags) in prepared {
+            sqlx::query(
+                "INSERT INTO media_snapshots (\
+                    anilist_id, media_kind, title, cover_url, media_format, genres_json, tags_json, \
+                    media_status, total_units, cached_at\
+                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) \
+                 ON CONFLICT(anilist_id, media_kind) DO UPDATE SET \
+                    title = excluded.title, cover_url = excluded.cover_url, \
+                    media_format = excluded.media_format, genres_json = excluded.genres_json, \
+                    tags_json = excluded.tags_json, media_status = excluded.media_status, \
+                    total_units = excluded.total_units, cached_at = excluded.cached_at",
+            )
+            .bind(snapshot.anilist_id)
+            .bind(snapshot.media_kind.as_str())
+            .bind(&snapshot.title)
+            .bind(&snapshot.cover_url)
+            .bind(&snapshot.media_format)
+            .bind(genres)
+            .bind(tags)
+            .bind(&snapshot.media_status)
+            .bind(snapshot.total_units)
+            .bind(format_utc(snapshot.cached_at))
+            .execute(&mut *transaction)
+            .await?;
+        }
+        transaction.commit().await?;
         Ok(())
     }
 

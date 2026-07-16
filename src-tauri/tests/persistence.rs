@@ -229,3 +229,29 @@ async fn metadata_settings_and_cache_records_round_trip() {
         Some(cache)
     );
 }
+
+#[tokio::test]
+async fn metadata_snapshot_batches_roll_back_on_any_invalid_record() {
+    let root = tempdir().expect("temporary database root");
+    let paths = DatabasePaths::from_root(root.path()).expect("valid paths");
+    let database = Database::connect(&paths).await.expect("database");
+    let valid = snapshot(Some(12));
+    let mut invalid = snapshot(Some(12));
+    invalid.anilist_id = 0;
+
+    assert!(
+        database
+            .media()
+            .upsert_snapshots(&[valid.clone(), invalid])
+            .await
+            .is_err()
+    );
+    assert!(
+        database
+            .media()
+            .get_snapshot(valid.anilist_id, valid.media_kind)
+            .await
+            .expect("snapshot lookup")
+            .is_none()
+    );
+}

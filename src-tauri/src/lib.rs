@@ -31,7 +31,8 @@ pub fn run() {
             commands::library::remove_library_entry,
             commands::discovery::search_media,
             commands::discovery::get_media_details,
-            commands::discovery::list_trending
+            commands::discovery::list_trending,
+            commands::discovery::refresh_library_metadata
         ])
         .run(tauri::generate_context!());
 

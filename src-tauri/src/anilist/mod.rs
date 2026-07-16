@@ -9,7 +9,7 @@ pub use client::{
 };
 pub use service::{
     AiringScheduleResponse, AniListService, CachePolicy, Freshness, MediaDetailsResponse,
-    MediaPageResponse,
+    MediaPageResponse, MetadataRefreshFailure, RefreshLibraryMetadataResponse,
 };
 pub use types::{AiringSchedule, MediaDetails, MediaSummary, MediaTag, Sequel};
 

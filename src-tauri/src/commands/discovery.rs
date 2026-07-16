@@ -1,7 +1,9 @@
 use serde::Deserialize;
 use tauri::State;
 
-use crate::anilist::{AniListService, MediaDetailsResponse, MediaPageResponse};
+use crate::anilist::{
+    AniListService, MediaDetailsResponse, MediaPageResponse, RefreshLibraryMetadataResponse,
+};
 use crate::domain::CommandError;
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
@@ -49,6 +51,13 @@ pub async fn get_media_details(
     get_media_details_with_service(&service, request).await
 }
 
+#[tauri::command(rename_all = "camelCase")]
+pub async fn refresh_library_metadata(
+    service: State<'_, AniListService>,
+) -> Result<RefreshLibraryMetadataResponse, CommandError> {
+    refresh_library_metadata_with_service(&service).await
+}
+
 pub(crate) async fn search_media_with_service(
     service: &AniListService,
     request: SearchMediaRequest,
@@ -70,4 +79,10 @@ pub(crate) async fn get_media_details_with_service(
     request: MediaDetailsRequest,
 ) -> Result<MediaDetailsResponse, CommandError> {
     service.get_media_details(request.anilist_id).await
+}
+
+pub(crate) async fn refresh_library_metadata_with_service(
+    service: &AniListService,
+) -> Result<RefreshLibraryMetadataResponse, CommandError> {
+    service.refresh_library_metadata().await
 }

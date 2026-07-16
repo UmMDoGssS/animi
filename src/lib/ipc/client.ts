@@ -9,6 +9,7 @@ import type {
   MediaPageResponse,
   RemoveLibraryEntryRequest,
   RemoveLibraryEntryResponse,
+  RefreshLibraryMetadataResponse,
   SmokeResponse,
   SearchMediaRequest,
   UpsertLibraryEntryRequest,
@@ -55,6 +56,10 @@ export async function getMediaDetails(
   request: MediaDetailsRequest,
 ): Promise<MediaDetailsResponse> {
   return invoke<MediaDetailsResponse>("get_media_details", { request });
+}
+
+export async function refreshLibraryMetadata(): Promise<RefreshLibraryMetadataResponse> {
+  return invoke<RefreshLibraryMetadataResponse>("refresh_library_metadata");
 }
 
 export function normalizeCommandError(error: unknown): CommandError {

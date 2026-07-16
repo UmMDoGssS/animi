@@ -7,7 +7,7 @@
 | Product | Animi |
 | Release | Version 1, Windows desktop |
 | Overall status | In progress |
-| Current phase | P2 - AniList integration and caching (in progress) |
+| Current phase | P2 complete; P3 is next |
 | Schedule | Dependency-driven; no calendar commitment |
 | Last updated | 2026-07-16 |
 
@@ -46,7 +46,7 @@ The following remain outside v1:
 |---|---|---|---|---|
 | P0 | Scaffold and engineering foundation | Approved project baseline | Complete | Windows app launches and baseline quality checks pass |
 | P1 | Local persistence and typed IPC | P0 | Complete | Durable library CRUD survives restart safely |
-| P2 | AniList integration and caching | P1 | In progress | Mocked network, cache, offline, and rate-limit behavior passes |
+| P2 | AniList integration and caching | P1 | Complete | Mocked network, cache, offline, and rate-limit behavior passes |
 | P3 | Application shell and design system | P0; coordinate with P1 contracts | Not started | Accessible shell works at desktop and narrow widths |
 | P4 | Discovery, details, and library workflow | P1, P2, P3 | Not started | Core search-to-library flow passes end to end |
 | P5 | Airing information and recommendations | P2, P4 | Not started | Airing and deterministic recommendation behavior passes |
@@ -198,17 +198,17 @@ Every applicable milestone must satisfy these requirements, even when they are n
 - [x] **P2-M3 - Cache policy:** Apply 24-hour detail, 6-hour discovery/recommendation, and 30-minute airing TTLs. Cache only on-demand results and retain fetch timestamps needed for stale display.
 - [x] **P2-M4 - Offline and stale reads:** Return usable cached data with explicit freshness metadata when refresh fails; return a terminal, retryable error when no usable cache exists.
 - [x] **P2-M5 - Rate limiting:** Honor response rate-limit headers and `Retry-After`, avoid retry storms, and distinguish retryable throttling from non-retryable contract errors.
-- [ ] **P2-M6 - Library refresh:** Implement `refresh_library_metadata` so it refreshes only relevant tracked records and never holds a database transaction or lock during network work.
+- [x] **P2-M6 - Library refresh:** Implement `refresh_library_metadata` so it refreshes only relevant tracked records and never holds a database transaction or lock during network work.
 - [x] **P2-M7 - Contract tests:** Cover success, absent episode totals, absent sequel dates, partial GraphQL errors, malformed data, offline failures, `403`, and `429 Retry-After` entirely through mocks.
 
 ### Exit gate
 
-- [ ] **P2-G1** Discovery and detail commands return stable domain DTOs from live-shaped fixtures.
-- [ ] **P2-G2** Fresh cache avoids unnecessary requests and expired cache attempts refresh while retaining stale fallback.
-- [ ] **P2-G3** Rate-limit and offline behavior is deterministic and never corrupts local records.
-- [ ] **P2-G4** The automated suite proves no live AniList access is possible.
+- [x] **P2-G1** Discovery and detail commands return stable domain DTOs from live-shaped fixtures.
+- [x] **P2-G2** Fresh cache avoids unnecessary requests and expired cache attempts refresh while retaining stale fallback.
+- [x] **P2-G3** Rate-limit and offline behavior is deterministic and never corrupts local records.
+- [x] **P2-G4** The automated suite proves no live AniList access is possible.
 
-**Evidence:** In progress. The first slice added a replaceable AniList transport, a network-disabled
+**Evidence:** Completed 2026-07-16. The first slice added a replaceable AniList transport, a network-disabled
 test default, a production `reqwest` transport, narrow anime-only/non-adult GraphQL queries, stable
 media/detail/airing/sequel mapping, and deterministic fixtures for all P2 contract cases. Verified
 with `cargo test --manifest-path src-tauri/Cargo.toml --all-features` (24 unit tests and 4 integration
@@ -218,6 +218,11 @@ policies with explicit freshness/error metadata, stale fallback, deterministic c
 rate-limit cooldowns for `Retry-After` and `X-RateLimit-Reset`. Focused verification passed with 32
 Rust unit tests, 4 Rust integration tests, 6 frontend tests, `svelte-check`, and Clippy with warnings
 denied.
+The final slice added anime-only tracked-library metadata refresh, typed per-title failures, and a
+post-network transactional snapshot batch so database locks never span network requests and a
+write failure cannot leave a partial refresh. P2 completed 2026-07-16 with the full quality gate
+passing: frontend formatting, ESLint, `svelte-check`, 6 Vitest tests, Rust formatting, Clippy with
+warnings denied, 34 Rust unit tests, and 5 Rust integration tests.
 
 ## P3 - Application Shell and Design System
 

@@ -108,6 +108,18 @@ export interface MediaDetailsRequest {
   anilistId: number;
 }
 
+export interface MetadataRefreshFailure {
+  anilistId: number;
+  error: CommandError;
+}
+
+export interface RefreshLibraryMetadataResponse {
+  attempted: number;
+  updated: number;
+  stale: number;
+  failures: MetadataRefreshFailure[];
+}
+
 export function isCommandError(value: unknown): value is CommandError {
   if (typeof value !== "object" || value === null) {
     return false;
