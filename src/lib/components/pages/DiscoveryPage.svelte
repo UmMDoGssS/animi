@@ -255,7 +255,7 @@
           type="button"
           aria-haspopup="dialog"
           aria-label={`Open sample details for ${anime.media.title}`}
-          class="glass-control glass-interactive control-rounded border-border group flex h-full w-full min-w-0 flex-col border p-2 text-left transition-[transform,background-color] hover:-translate-y-0.5 focus-visible:-translate-y-0.5"
+          class="discovery-card glass-control glass-interactive control-rounded border-border group flex h-full w-full min-w-0 flex-col border p-2 text-left transition-[transform,background-color] hover:-translate-y-0.5 focus-visible:-translate-y-0.5"
           onclick={(event) => openDetails(anime, event)}
         >
           <DiscoveryPreviewCover
@@ -392,7 +392,11 @@
           class="glass-control control-rounded border-border text-accent grid min-h-36 place-items-center border p-4"
         >
           <div class="text-center">
-            <p class="text-3xl">ฅ(≈චᆽච≈)ฅ</p>
+            <p
+              class="text-[clamp(1.15rem,7vw,1.875rem)] leading-none tracking-[-0.08em] whitespace-nowrap"
+            >
+              ฅ(≈චᆽච≈)ฅ
+            </p>
             <p
               class="text-muted mt-3 text-[0.62rem] tracking-[0.12em] uppercase"
             >
@@ -610,28 +614,64 @@
 <style>
   .discovery-dialog {
     position: fixed;
-    inset: 1rem 1rem 1rem auto;
-    width: min(34rem, calc(100vw - 2rem));
-    height: calc(100dvh - 2rem);
+    inset: 50% auto auto 50%;
+    width: min(54rem, calc(100vw - 2rem));
+    height: min(46rem, calc(100dvh - 2rem));
     max-width: none;
     max-height: none;
-    margin: 0 0 0 auto;
+    margin: 0;
     padding: 0;
     overflow-y: auto;
+    transform: translate(-50%, -50%);
+    transform-origin: center;
+    animation: dossier-materialize 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   .discovery-dialog::backdrop {
     background: var(--scrim);
     -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
+    animation: dossier-scrim-enter 180ms ease-out;
+  }
+
+  .discovery-card:active {
+    transform: translateY(1px) scale(0.985);
+  }
+
+  @keyframes dossier-materialize {
+    from {
+      opacity: 0;
+      filter: blur(6px);
+      transform: translate(-50%, calc(-50% + 0.75rem)) scale(0.965);
+    }
+
+    to {
+      opacity: 1;
+      filter: blur(0);
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
+  @keyframes dossier-scrim-enter {
+    from {
+      background: transparent;
+      -webkit-backdrop-filter: blur(0);
+      backdrop-filter: blur(0);
+    }
   }
 
   @media (max-width: 639px) {
     .discovery-dialog {
-      inset: 0.5rem;
+      inset: 50% auto auto 50%;
       width: calc(100vw - 1rem);
       height: calc(100dvh - 1rem);
-      margin: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .discovery-dialog,
+    .discovery-dialog::backdrop {
+      animation: none;
     }
   }
 </style>

@@ -124,6 +124,18 @@ body {
   letter-spacing: 0.012em;
 }
 
+/* Keep every region scrollable while removing platform scrollbar chrome. */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 html.has-modal {
   overflow: hidden;
 }
