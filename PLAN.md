@@ -7,7 +7,7 @@
 | Product | Animi |
 | Release | Version 1, Windows desktop |
 | Overall status | In progress |
-| Current phase | P3 complete; P4 next |
+| Current phase | P4 entry gates in progress |
 | Schedule | Dependency-driven; no calendar commitment |
 | Last updated | 2026-07-17 |
 
@@ -48,7 +48,7 @@ The following remain outside v1:
 | P1 | Local persistence and typed IPC | P0 | Complete | Durable library CRUD survives restart safely |
 | P2 | AniList integration and caching | P1 | Complete | Mocked network, cache, offline, and rate-limit behavior passes |
 | P3 | Four-destination application shell and design system | P0; coordinate with P1 contracts | Complete | Home, Discover, Dashboard, and Settings shell works accessibly at desktop and narrow widths |
-| P4 | Discovery, details, Dashboard, and library workflow | P1, P2, P3 | Not started | Core discovery-to-library flow passes end to end |
+| P4 | Discovery, details, Dashboard, and library workflow | P1, P2, P3 | Entry gates in progress | Core discovery-to-library flow passes end to end |
 | P5 | Home airing workflow, insights, and recommendations | P2, P4 | Not started | Home airing/progress, Dashboard insights, and deterministic recommendation behavior pass |
 | P6 | Settings, backup, and recovery | P1, P3, P4 | Not started | Backup round trips and rollback guarantees pass |
 | P7 | Release hardening and Windows packaging | P0-P6 | Not started | Full quality gate and production NSIS acceptance pass |
@@ -82,6 +82,8 @@ All JSON fields crossing the Tauri boundary use camelCase. Rust may use snake_ca
 | Backup | `export_backup`, `preview_import`, `import_backup` | P6 |
 
 Commands remain thin adapters. Validation, database behavior, AniList behavior, recommendation logic, and backup logic live in testable Rust modules.
+
+For P4, `list_library` returns authoritative local entry fields enriched with optional cached media presentation fields and freshness needed by Dashboard and library cards. Missing cached metadata must not hide a local entry, and metadata refreshes never overwrite local status, progress, score, or notes.
 
 ### Backup envelope
 
@@ -285,7 +287,7 @@ P3-V5 and P3 completed 2026-07-17. Settings now combines the persisted appearanc
 - [ ] **P4-M1 - Dashboard and library:** Present status counts and supported genre or tag summaries derived from local records, followed by watching, completed, and planning entries with cover art, progress, freshness, concise metadata, and useful empty states.
 - [ ] **P4-M2 - Discover search and trending:** Implement debounced anime search and a trending cover-card collection without persisting unneeded remote data.
 - [ ] **P4-M3 - Media details:** Present titles, cover, format, genres, tags, status, episode total when known, and cached-data freshness.
-- [ ] **P4-M4 - Add, update, and activity history:** Let users choose a supported status and update progress, score, and notes. Add an append-only activity migration and persist each confirmed progress increase with its best-known episode duration in the same transaction as current progress. Define correction and unknown-duration behavior before releasing the migration.
+- [ ] **P4-M4 - Add, update, and activity history:** Let users choose a supported status and update progress, score, and notes. Add an append-only activity migration. Initial nonzero progress establishes a baseline without activity; progress beyond an existing entry's recorded high-water mark appends one event in the same transaction for only the newly unrecorded delta, with an immutable nullable best-known episode-duration snapshot. Equal or decreased progress appends no event, decreases are corrections that do not rewrite history, restoring progress only to the high-water mark is not counted twice, and library removal preserves user-owned activity.
 - [ ] **P4-M5 - Validation feedback:** Explain progress bounds and malformed input without discarding the user's other edits; handle unknown episode totals explicitly.
 - [ ] **P4-M6 - Removal safety:** Require explicit confirmation before removal and make clear that removal affects the local library record rather than AniList.
 - [ ] **P4-M7 - Refresh behavior:** Refresh relevant metadata on demand while continuing to show cached entries offline or during transient failures.
@@ -298,7 +300,7 @@ P3-V5 and P3 completed 2026-07-17. Settings now combines the persisted appearanc
 - [ ] **P4-G3** Offline, stale, empty, missing-total, validation, and command-error states are covered.
 - [ ] **P4-G4** Removal cannot occur without explicit user confirmation.
 
-**Evidence:** Pending.
+**Evidence:** Entry-gate foundation completed 2026-07-17. `list_library` now joins authoritative local entries to optional cached presentation metadata without hiding entries that lack a snapshot. AniList details carry nullable episode duration, opened details persist snapshots, legacy duration-less detail caches are bypassed with a versioned key, and stale offline details preserve their original freshness. Append-only migration `0002` adds immutable duration snapshots, a persisted correction high-water mark, and retained watch activity; an immutable v0001 database fixture proves upgrade preservation for library, settings, metadata, airing, and legacy cache rows. Baselines, multiple increases, correction/restoration, known and unknown duration, removal retention, rollback, restart persistence, invalid duration, freshness overflow, and mocked details-to-library behavior are covered. `bun run format:check`, `bun run lint`, `bun run check`, `bun run test` (58 tests), `bun run build`, Rust formatting, Clippy with warnings denied, and the full Rust suite (45 unit tests and 6 integration tests) passed. The normal Rust target remained locked by the open review application, so Clippy and the complete suite used an isolated temporary target that was removed afterward. P4-E1 remains open until the Dashboard aggregate/activity read model is renderable; P4-E2 remains open until the command-boundary core-flow harness is complete. All P4 milestones remain unchecked.
 
 ## P5 - Home Airing, Dashboard Insights, and Recommendations
 
@@ -463,3 +465,4 @@ Future phases have no schedule, implementation status, or permission to begin. P
 | 2026-07-16 | Treat Dashboard as a local personal overview rather than an account profile | Preserves Animi's private, account-free v1 boundary |
 | 2026-07-16 | Record watch activity durably instead of inferring it from library timestamps | Accurate monthly and yearly viewing history requires progress events and duration data that the initial schema does not contain |
 | 2026-07-16 | Deliver the P3 frontend rewrite through user-reviewed visual checkpoints | Allows desktop and narrow-layout approval before proceeding to the next page |
+| 2026-07-17 | Treat initial progress as a baseline and retain an activity high-water mark across corrections | Prevents fabricated history and avoids counting corrected then restored progress twice without mutating append-only events |

@@ -11,6 +11,7 @@
       "format": "TV",
       "status": "RELEASING",
       "episodes": null,
+      "duration": null,
       "genres": ["Fantasy"],
       "tags": [],
       "trending": 12,

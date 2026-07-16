@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import type {
   CommandError,
   LibraryEntry,
+  LibraryItem,
   MediaDetailsRequest,
   MediaDetailsResponse,
   MediaPageRequest,
@@ -23,8 +24,8 @@ export async function checkBackend(
   return invoke<SmokeResponse>("smoke_check", { simulateError });
 }
 
-export async function listLibrary(): Promise<LibraryEntry[]> {
-  return invoke<LibraryEntry[]>("list_library");
+export async function listLibrary(): Promise<LibraryItem[]> {
+  return invoke<LibraryItem[]>("list_library");
 }
 
 export async function upsertLibraryEntry(

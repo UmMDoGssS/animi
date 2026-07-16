@@ -42,13 +42,14 @@ impl MediaRepository {
             sqlx::query(
                 "INSERT INTO media_snapshots (\
                     anilist_id, media_kind, title, cover_url, media_format, genres_json, tags_json, \
-                    media_status, total_units, cached_at\
-                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) \
+                    media_status, total_units, duration_minutes, cached_at\
+                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) \
                  ON CONFLICT(anilist_id, media_kind) DO UPDATE SET \
                     title = excluded.title, cover_url = excluded.cover_url, \
                     media_format = excluded.media_format, genres_json = excluded.genres_json, \
                     tags_json = excluded.tags_json, media_status = excluded.media_status, \
-                    total_units = excluded.total_units, cached_at = excluded.cached_at",
+                    total_units = excluded.total_units, \
+                    duration_minutes = excluded.duration_minutes, cached_at = excluded.cached_at",
             )
             .bind(snapshot.anilist_id)
             .bind(snapshot.media_kind.as_str())
@@ -59,6 +60,7 @@ impl MediaRepository {
             .bind(tags)
             .bind(&snapshot.media_status)
             .bind(snapshot.total_units)
+            .bind(snapshot.duration_minutes)
             .bind(format_utc(snapshot.cached_at))
             .execute(&mut *transaction)
             .await?;
@@ -74,7 +76,7 @@ impl MediaRepository {
     ) -> Result<Option<MediaSnapshotRecord>, DatabaseError> {
         let row = sqlx::query_as::<_, SnapshotRow>(
             "SELECT anilist_id, media_kind, title, cover_url, media_format, genres_json, tags_json, \
-             media_status, total_units, cached_at FROM media_snapshots \
+             media_status, total_units, duration_minutes, cached_at FROM media_snapshots \
              WHERE anilist_id = ? AND media_kind = ?",
         )
         .bind(anilist_id)
@@ -131,6 +133,7 @@ struct SnapshotRow {
     tags_json: String,
     media_status: Option<String>,
     total_units: Option<i64>,
+    duration_minutes: Option<i64>,
     cached_at: String,
 }
 
@@ -152,6 +155,7 @@ impl TryFrom<SnapshotRow> for MediaSnapshotRecord {
             tags,
             media_status: row.media_status,
             total_units: row.total_units,
+            duration_minutes: row.duration_minutes,
             cached_at: parse_timestamp(&row.cached_at)?,
         })
     }

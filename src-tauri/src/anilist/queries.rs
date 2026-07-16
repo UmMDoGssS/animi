@@ -9,6 +9,7 @@ query SearchMedia($search: String!, $page: Int!, $perPage: Int!) {
       format
       status
       episodes
+      duration
       genres
       tags { name rank isAdult }
       trending
@@ -28,6 +29,7 @@ query TrendingMedia($page: Int!, $perPage: Int!) {
       format
       status
       episodes
+      duration
       genres
       tags { name rank isAdult }
       trending
@@ -45,6 +47,7 @@ query MediaDetails($id: Int!) {
     format
     status
     episodes
+    duration
     genres
     tags { name rank isAdult }
     trending

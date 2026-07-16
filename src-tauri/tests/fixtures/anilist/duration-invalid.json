@@ -1,0 +1,26 @@
+{
+  "data": {
+    "Page": {
+      "pageInfo": { "hasNextPage": false },
+      "media": [
+        {
+          "id": 404,
+          "title": {
+            "romaji": "Zero Minute Episode",
+            "english": null,
+            "native": null
+          },
+          "coverImage": null,
+          "format": "TV_SHORT",
+          "status": "FINISHED",
+          "episodes": 1,
+          "duration": 0,
+          "genres": [],
+          "tags": [],
+          "trending": 0,
+          "relations": null
+        }
+      ]
+    }
+  }
+}

@@ -16,6 +16,7 @@
           "format": "TV",
           "status": "FINISHED",
           "episodes": 28,
+          "duration": 24,
           "genres": ["Adventure", "Fantasy"],
           "tags": [
             { "name": "Elf", "rank": 95, "isAdult": false },

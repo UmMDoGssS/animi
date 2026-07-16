@@ -32,6 +32,7 @@ fn snapshot(total_units: Option<i64>) -> MediaSnapshotRecord {
         }],
         media_status: Some("FINISHED".to_owned()),
         total_units,
+        duration_minutes: Some(24),
         cached_at: timestamp("2026-07-16T08:00:00.000Z"),
     }
 }
@@ -253,5 +254,103 @@ async fn metadata_snapshot_batches_roll_back_on_any_invalid_record() {
             .await
             .expect("snapshot lookup")
             .is_none()
+    );
+}
+
+#[tokio::test]
+async fn v0001_fixture_upgrades_without_losing_authoritative_records() {
+    let root = tempdir().expect("temporary database root");
+    let paths = DatabasePaths::from_root(root.path()).expect("valid paths");
+    let fixture = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/database/v0001.sqlite3");
+    std::fs::copy(&fixture, paths.database()).expect("copy immutable fixture");
+
+    let database = Database::connect(&paths).await.expect("upgraded database");
+    let items = database
+        .library()
+        .list_items()
+        .await
+        .expect("upgraded library");
+
+    assert_eq!(items.len(), 1);
+    assert_eq!(items[0].entry.anilist_id, 101);
+    assert_eq!(items[0].entry.progress, 3);
+    assert_eq!(
+        items[0].media.as_ref().expect("preserved snapshot").title,
+        "Fixture Anime"
+    );
+    assert_eq!(
+        items[0]
+            .media
+            .as_ref()
+            .expect("preserved snapshot")
+            .duration_minutes,
+        None
+    );
+    assert_eq!(
+        database
+            .settings()
+            .get("theme")
+            .await
+            .expect("setting lookup")
+            .expect("preserved theme")
+            .value,
+        json!("SYSTEM")
+    );
+    assert_eq!(
+        database
+            .media()
+            .list_airing(101, MediaKind::Anime)
+            .await
+            .expect("preserved airing")
+            .len(),
+        1
+    );
+    let legacy_cache = database
+        .cache()
+        .get("details:anime:101")
+        .await
+        .expect("cache lookup")
+        .expect("preserved legacy cache");
+    assert_eq!(legacy_cache.payload["title"], "Fixture Anime");
+    assert!(legacy_cache.payload.get("durationMinutes").is_none());
+    assert!(
+        database
+            .activity()
+            .list()
+            .await
+            .expect("activity")
+            .is_empty()
+    );
+
+    database
+        .library()
+        .upsert(library_request(4, LibraryStatus::Watching))
+        .await
+        .expect("post-upgrade progress");
+    let activity = database.activity().list().await.expect("new activity");
+    assert_eq!(activity.len(), 1);
+    assert_eq!(activity[0].progress_delta, 1);
+    assert_eq!(activity[0].episode_duration_minutes, None);
+
+    database.close().await;
+    let reopened = Database::connect(&paths).await.expect("reopened upgrade");
+    assert_eq!(
+        reopened
+            .activity()
+            .list()
+            .await
+            .expect("persisted activity"),
+        activity
+    );
+    assert_eq!(
+        reopened
+            .library()
+            .list_items()
+            .await
+            .expect("persisted library")[0]
+            .entry
+            .progress,
+        4
     );
 }

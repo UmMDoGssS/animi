@@ -2,14 +2,12 @@ use tauri::State;
 
 use crate::database::Database;
 use crate::domain::{
-    CommandError, LibraryEntry, RemoveLibraryEntryRequest, RemoveLibraryEntryResponse,
+    CommandError, LibraryEntry, LibraryItem, RemoveLibraryEntryRequest, RemoveLibraryEntryResponse,
     UpsertLibraryEntryRequest,
 };
 
 #[tauri::command(rename_all = "camelCase")]
-pub async fn list_library(
-    database: State<'_, Database>,
-) -> Result<Vec<LibraryEntry>, CommandError> {
+pub async fn list_library(database: State<'_, Database>) -> Result<Vec<LibraryItem>, CommandError> {
     list_library_with_database(&database).await
 }
 
@@ -31,10 +29,10 @@ pub async fn remove_library_entry(
 
 pub(crate) async fn list_library_with_database(
     database: &Database,
-) -> Result<Vec<LibraryEntry>, CommandError> {
+) -> Result<Vec<LibraryItem>, CommandError> {
     database
         .library()
-        .list()
+        .list_items()
         .await
         .map_err(|error| error.into_command_error())
 }
@@ -98,13 +96,12 @@ mod tests {
             .await
             .expect("create command");
         assert_eq!(created.anilist_id, 21);
-        assert_eq!(
-            list_library_with_database(&database)
-                .await
-                .expect("list command")
-                .len(),
-            1
-        );
+        let listed = list_library_with_database(&database)
+            .await
+            .expect("list command");
+        assert_eq!(listed.len(), 1);
+        assert_eq!(listed[0].entry.anilist_id, 21);
+        assert!(listed[0].media.is_none());
 
         let response = remove_library_entry_with_database(
             &database,

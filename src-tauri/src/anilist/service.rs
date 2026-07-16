@@ -5,9 +5,11 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
 use crate::database::{CacheRecord, Database, MediaSnapshotRecord, MediaTag as StoredMediaTag};
-use crate::domain::{CommandError, MediaKind, format_utc};
+use crate::domain::{CommandError, MEDIA_DETAILS_CACHE_TTL_HOURS, MediaKind, format_utc};
 
 use super::{AiringSchedule, AniListClient, AniListError, MediaDetails, MediaSummary};
+
+const MEDIA_DETAILS_CACHE_SCHEMA_VERSION: u8 = 2;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CachePolicy {
@@ -20,7 +22,7 @@ pub enum CachePolicy {
 impl CachePolicy {
     pub fn ttl(self) -> Duration {
         match self {
-            Self::Details => Duration::hours(24),
+            Self::Details => Duration::hours(MEDIA_DETAILS_CACHE_TTL_HOURS),
             Self::Discovery | Self::Recommendation => Duration::hours(6),
             Self::Airing => Duration::minutes(30),
         }
@@ -164,13 +166,13 @@ impl AniListService {
         &self,
         anilist_id: i64,
     ) -> Result<MediaDetailsResponse, CommandError> {
-        validate_anilist_id(anilist_id)?;
-        let key = format!("details:anime:{anilist_id}");
-        let cached = self
-            .fetch_cached(&key, CachePolicy::Details, || {
-                self.client.media_details(anilist_id)
-            })
-            .await?;
+        let cached = self.cached_media_details(anilist_id).await?;
+        let snapshot = media_snapshot(&cached.value, &cached.freshness)?;
+        self.database
+            .media()
+            .upsert_snapshot(&snapshot)
+            .await
+            .map_err(|error| error.into_command_error())?;
         Ok(MediaDetailsResponse {
             media: cached.value,
             freshness: cached.freshness,
@@ -228,38 +230,9 @@ impl AniListService {
         // All network/cache reads complete before the snapshot batch starts. This keeps database
         // transactions and locks out of the network request lifetime.
         for anilist_id in tracked_anime {
-            match self.get_media_details(anilist_id).await {
+            match self.cached_media_details(anilist_id).await {
                 Ok(details) => {
-                    let cached_at =
-                        chrono::DateTime::parse_from_rfc3339(&details.freshness.fetched_at)
-                            .map(|timestamp| timestamp.with_timezone(&chrono::Utc))
-                            .map_err(|_| {
-                                CommandError::new(
-                                    "CACHE_TIMESTAMP_INVALID",
-                                    "Animi could not read the cached metadata timestamp.",
-                                    false,
-                                )
-                            })?;
-                    let summary = details.media.summary;
-                    let snapshot = MediaSnapshotRecord {
-                        anilist_id: summary.anilist_id,
-                        media_kind: MediaKind::Anime,
-                        title: summary.title,
-                        cover_url: summary.cover_url,
-                        media_format: summary.media_format,
-                        genres: summary.genres,
-                        tags: summary
-                            .tags
-                            .into_iter()
-                            .map(|tag| StoredMediaTag {
-                                name: tag.name,
-                                rank: i64::from(tag.rank),
-                            })
-                            .collect(),
-                        media_status: summary.status,
-                        total_units: summary.episodes,
-                        cached_at,
-                    };
+                    let snapshot = media_snapshot(&details.value, &details.freshness)?;
                     snapshots.push(snapshot);
                     response.stale += usize::from(details.freshness.is_stale);
                 }
@@ -277,6 +250,18 @@ impl AniListService {
         response.updated = snapshots.len();
 
         Ok(response)
+    }
+
+    async fn cached_media_details(
+        &self,
+        anilist_id: i64,
+    ) -> Result<CachedResult<MediaDetails>, CommandError> {
+        validate_anilist_id(anilist_id)?;
+        let key = format!("details:v{MEDIA_DETAILS_CACHE_SCHEMA_VERSION}:anime:{anilist_id}");
+        self.fetch_cached(&key, CachePolicy::Details, || {
+            self.client.media_details(anilist_id)
+        })
+        .await
     }
 
     async fn fetch_cached<T, Fetch, FetchFuture>(
@@ -350,6 +335,42 @@ impl AniListService {
             }
         }
     }
+}
+
+fn media_snapshot(
+    details: &MediaDetails,
+    freshness: &Freshness,
+) -> Result<MediaSnapshotRecord, CommandError> {
+    let cached_at = chrono::DateTime::parse_from_rfc3339(&freshness.fetched_at)
+        .map(|timestamp| timestamp.with_timezone(&chrono::Utc))
+        .map_err(|_| {
+            CommandError::new(
+                "CACHE_TIMESTAMP_INVALID",
+                "Animi could not read the cached metadata timestamp.",
+                false,
+            )
+        })?;
+    let summary = &details.summary;
+    Ok(MediaSnapshotRecord {
+        anilist_id: summary.anilist_id,
+        media_kind: MediaKind::Anime,
+        title: summary.title.clone(),
+        cover_url: summary.cover_url.clone(),
+        media_format: summary.media_format.clone(),
+        genres: summary.genres.clone(),
+        tags: summary
+            .tags
+            .iter()
+            .map(|tag| StoredMediaTag {
+                name: tag.name.clone(),
+                rank: i64::from(tag.rank),
+            })
+            .collect(),
+        media_status: summary.status.clone(),
+        total_units: summary.episodes,
+        duration_minutes: summary.duration_minutes,
+        cached_at,
+    })
 }
 
 impl AniListError {
@@ -448,7 +469,7 @@ mod tests {
         AniListClock, AniListRequest, AniListResponse, AniListTransport, TransportError,
         TransportFuture,
     };
-    use crate::database::{Database, DatabasePaths};
+    use crate::database::{CacheRecord, Database, DatabasePaths};
     use crate::domain::{LibraryStatus, MediaKind, UpsertLibraryEntryRequest};
 
     use super::{AniListClient, AniListService, CachePolicy};
@@ -649,6 +670,164 @@ mod tests {
         assert_eq!(detail_expiry - detail_fetched, Duration::hours(24));
         assert_eq!(cached_details.media, details.media);
         assert_eq!(airing_expiry - airing_fetched, Duration::minutes(30));
+    }
+
+    #[tokio::test]
+    async fn opened_details_feed_an_enriched_library_that_survives_restart() {
+        let (root, database, service, transport, _clock) = service([response(include_str!(
+            "../../tests/fixtures/anilist/details-known.json"
+        ))])
+        .await;
+
+        let details = service
+            .get_media_details(154_587)
+            .await
+            .expect("mocked details");
+        assert_eq!(details.media.summary.title, "Frieren: Beyond Journey's End");
+        database
+            .library()
+            .upsert(UpsertLibraryEntryRequest {
+                anilist_id: 154_587,
+                media_kind: MediaKind::Anime,
+                status: LibraryStatus::Watching,
+                progress: 3,
+                score: Some(8.0),
+                notes: Some("local note".to_owned()),
+            })
+            .await
+            .expect("tracked entry");
+
+        let first = database
+            .library()
+            .list_items()
+            .await
+            .expect("enriched library");
+        assert_eq!(first.len(), 1);
+        assert_eq!(first[0].entry.progress, 3);
+        assert_eq!(first[0].entry.notes.as_deref(), Some("local note"));
+        let media = first[0].media.as_ref().expect("opened snapshot");
+        assert_eq!(media.title, "Frieren: Beyond Journey's End");
+        assert_eq!(media.episodes, Some(28));
+        assert_eq!(media.duration_minutes, Some(24));
+        assert_eq!(transport.request_count(), 1);
+
+        let paths = DatabasePaths::from_root(root.path()).expect("database paths");
+        database.close().await;
+        let reopened = Database::connect(&paths).await.expect("reopened database");
+        let persisted = reopened
+            .library()
+            .list_items()
+            .await
+            .expect("persisted enriched library");
+        assert_eq!(persisted[0].entry, first[0].entry);
+        assert_eq!(persisted[0].media, first[0].media);
+        assert!(
+            reopened
+                .activity()
+                .list()
+                .await
+                .expect("activity")
+                .is_empty()
+        );
+    }
+
+    #[tokio::test]
+    async fn versioned_detail_cache_ignores_duration_incomplete_legacy_payloads() {
+        let (_root, database, service, transport, clock) = service([response(include_str!(
+            "../../tests/fixtures/anilist/details-known.json"
+        ))])
+        .await;
+        let now = clock.now();
+        database
+            .cache()
+            .upsert(&CacheRecord {
+                cache_key: "details:anime:154587".to_owned(),
+                payload: serde_json::json!({
+                    "anilistId": 154587,
+                    "title": "Legacy cached title",
+                    "coverUrl": null,
+                    "mediaFormat": "TV",
+                    "status": "FINISHED",
+                    "episodes": 28,
+                    "genres": [],
+                    "tags": [],
+                    "trending": 0,
+                    "sequels": []
+                }),
+                fetched_at: now,
+                expires_at: now + Duration::hours(24),
+            })
+            .await
+            .expect("legacy cache");
+
+        let details = service
+            .get_media_details(154_587)
+            .await
+            .expect("versioned detail refresh");
+
+        assert_eq!(details.media.summary.duration_minutes, Some(24));
+        assert_eq!(transport.request_count(), 1);
+        assert!(
+            database
+                .cache()
+                .get("details:v2:anime:154587")
+                .await
+                .expect("v2 cache lookup")
+                .is_some()
+        );
+    }
+
+    #[tokio::test]
+    async fn stale_detail_fallback_persists_truthful_library_freshness() {
+        let (_root, database, service, _transport, clock) = service([
+            response(include_str!(
+                "../../tests/fixtures/anilist/details-known.json"
+            )),
+            Err(TransportError::Unavailable("fixture offline".to_owned())),
+        ])
+        .await;
+        let first = service
+            .get_media_details(154_587)
+            .await
+            .expect("initial details");
+        database
+            .library()
+            .upsert(UpsertLibraryEntryRequest {
+                anilist_id: 154_587,
+                media_kind: MediaKind::Anime,
+                status: LibraryStatus::Planning,
+                progress: 0,
+                score: None,
+                notes: None,
+            })
+            .await
+            .expect("tracked entry");
+        clock.advance(Duration::hours(25));
+
+        let stale = service
+            .get_media_details(154_587)
+            .await
+            .expect("stale fallback");
+        let items = database
+            .library()
+            .list_items_at(clock.now())
+            .await
+            .expect("library freshness");
+
+        assert!(stale.freshness.is_stale);
+        assert_eq!(
+            stale
+                .freshness
+                .refresh_error
+                .as_ref()
+                .expect("refresh error")
+                .code,
+            "ANILIST_OFFLINE"
+        );
+        let media = items[0].media.as_ref().expect("persisted snapshot");
+        assert!(media.is_stale);
+        assert_eq!(media.cached_at, first.freshness.fetched_at);
+        assert_eq!(media.duration_minutes, Some(24));
     }
 
     #[tokio::test]

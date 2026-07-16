@@ -44,6 +44,7 @@ This matches the preference for TypeScript and Rust, produces a lightweight desk
 - A floating segmented navigation rail on the left provides the four primary destinations. It remains keyboard operable and compact at narrow widths without hiding or clipping page content.
 - Frosted-glass surfaces, rounded cover-focused layouts, and restrained cat kaomoji provide the visual character. Kaomoji may reinforce empty or catch-up states, but adjacent text must communicate the same status and decorative characters must not obscure controls.
 - Monthly and yearly watch-time statistics come only from durable UTC watch activity recorded when progress changes, never from mutable library timestamps. Activity records retain the best-known episode-duration snapshot used for their calculation; unknown durations remain excluded and visibly identified. Existing data from before the activity migration is not fabricated retroactively.
+- Progress history uses explicit baseline and correction semantics. Creating a tracked entry with nonzero progress establishes its current baseline without fabricating activity. Progress beyond an existing entry's already-recorded high-water mark appends exactly one activity event in the same transaction, containing only the newly unrecorded delta and an immutable snapshot of the best-known episode duration, which remains nullable when unknown. Equal or decreased progress appends no activity; a decrease is a correction to current state and never rewrites prior events, and restoring progress only up to the high-water mark does not count it twice. Removing a library entry preserves its user-owned activity history.
 
 ## Interfaces and Data
 
@@ -52,9 +53,9 @@ Core types:
 - `MediaKind`: `ANIME | MANGA`
 - `LibraryStatus`: `WATCHING | COMPLETED | PLANNING`
 - `LibraryEntry`: AniList ID, kind, status, progress, timestamps, optional score and notes
-- `MediaSnapshot`: titles, cover URL, format, genres, tags, status, episode/chapter totals and cached timestamp
+- `MediaSnapshot`: titles, cover URL, format, genres, tags, status, episode/chapter totals, nullable episode duration, and cached timestamp
 - `AiringInfo`: episode number, airing timestamp and fetched timestamp
-- `WatchActivity`: AniList ID, media kind, progress delta, best-known episode duration and UTC occurrence time
+- `WatchActivity`: AniList ID, media kind, progress delta, immutable nullable best-known episode-duration snapshot and UTC occurrence time
 - `Recommendation`: media summary, local score and explanation labels
 
 Tauri command boundary:

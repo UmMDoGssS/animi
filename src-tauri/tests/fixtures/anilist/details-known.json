@@ -1,0 +1,26 @@
+{
+  "data": {
+    "Media": {
+      "id": 154587,
+      "title": {
+        "romaji": "Sousou no Frieren",
+        "english": "Frieren: Beyond Journey's End",
+        "native": null
+      },
+      "coverImage": {
+        "large": "https://example.invalid/frieren.jpg"
+      },
+      "format": "TV",
+      "status": "FINISHED",
+      "episodes": 28,
+      "duration": 24,
+      "genres": ["Adventure", "Drama", "Fantasy"],
+      "tags": [
+        { "name": "Elf", "rank": 95, "isAdult": false },
+        { "name": "Adult Cast", "rank": 80, "isAdult": false }
+      ],
+      "trending": 142,
+      "relations": { "edges": [] }
+    }
+  }
+}

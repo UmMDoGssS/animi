@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use super::CommandError;
 
 pub const MAX_NOTES_CHARACTERS: usize = 10_000;
+pub const MEDIA_DETAILS_CACHE_TTL_HOURS: i64 = 24;
 
 /// IPC timestamps are serialized as UTC RFC 3339 strings with millisecond precision.
 pub fn format_utc(timestamp: DateTime<Utc>) -> String {
@@ -195,6 +196,46 @@ pub struct LibraryEntry {
     pub updated_at: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LibraryMediaTag {
+    pub name: String,
+    pub rank: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LibraryMediaSnapshot {
+    pub title: String,
+    pub cover_url: Option<String>,
+    pub media_format: Option<String>,
+    pub genres: Vec<String>,
+    pub tags: Vec<LibraryMediaTag>,
+    pub status: Option<String>,
+    pub episodes: Option<i64>,
+    pub duration_minutes: Option<i64>,
+    pub cached_at: String,
+    pub expires_at: String,
+    pub is_stale: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LibraryItem {
+    pub entry: LibraryEntry,
+    pub media: Option<LibraryMediaSnapshot>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WatchActivity {
+    pub anilist_id: i64,
+    pub media_kind: MediaKind,
+    pub progress_delta: i64,
+    pub episode_duration_minutes: Option<i64>,
+    pub occurred_at: String,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RemoveLibraryEntryResponse {
@@ -289,5 +330,53 @@ mod tests {
         assert_eq!(value["mediaKind"], "ANIME");
         assert_eq!(value["createdAt"], "2026-07-16T08:00:00.000Z");
         assert!(value.get("anilist_id").is_none());
+    }
+
+    #[test]
+    fn serializes_enriched_library_and_activity_contracts_in_camel_case() {
+        let item = super::LibraryItem {
+            entry: super::LibraryEntry {
+                anilist_id: 101,
+                media_kind: MediaKind::Anime,
+                status: LibraryStatus::Watching,
+                progress: 3,
+                score: None,
+                notes: None,
+                created_at: "2026-07-16T08:00:00.000Z".to_owned(),
+                updated_at: "2026-07-16T08:30:00.000Z".to_owned(),
+            },
+            media: Some(super::LibraryMediaSnapshot {
+                title: "A Test Anime".to_owned(),
+                cover_url: None,
+                media_format: Some("TV".to_owned()),
+                genres: vec!["Drama".to_owned()],
+                tags: vec![super::LibraryMediaTag {
+                    name: "Found Family".to_owned(),
+                    rank: 91,
+                }],
+                status: Some("RELEASING".to_owned()),
+                episodes: Some(12),
+                duration_minutes: Some(24),
+                cached_at: "2026-07-16T08:00:00.000Z".to_owned(),
+                expires_at: "2026-07-17T08:00:00.000Z".to_owned(),
+                is_stale: false,
+            }),
+        };
+        let activity = super::WatchActivity {
+            anilist_id: 101,
+            media_kind: MediaKind::Anime,
+            progress_delta: 2,
+            episode_duration_minutes: None,
+            occurred_at: "2026-07-16T08:30:00.000Z".to_owned(),
+        };
+
+        let item_value = serde_json::to_value(item).expect("serializable item");
+        let activity_value = serde_json::to_value(activity).expect("serializable activity");
+
+        assert_eq!(item_value["media"]["durationMinutes"], 24);
+        assert_eq!(item_value["media"]["isStale"], false);
+        assert_eq!(activity_value["progressDelta"], 2);
+        assert!(activity_value["episodeDurationMinutes"].is_null());
+        assert!(activity_value.get("progress_delta").is_none());
     }
 }

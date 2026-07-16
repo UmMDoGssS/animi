@@ -29,6 +29,38 @@ export interface LibraryEntry {
   updatedAt: UtcTimestamp;
 }
 
+export interface LibraryMediaTag {
+  name: string;
+  rank: number;
+}
+
+export interface LibraryMediaSnapshot {
+  title: string;
+  coverUrl: string | null;
+  mediaFormat: string | null;
+  genres: string[];
+  tags: LibraryMediaTag[];
+  status: string | null;
+  episodes: number | null;
+  durationMinutes: number | null;
+  cachedAt: UtcTimestamp;
+  expiresAt: UtcTimestamp;
+  isStale: boolean;
+}
+
+export interface LibraryItem {
+  entry: LibraryEntry;
+  media: LibraryMediaSnapshot | null;
+}
+
+export interface WatchActivity {
+  anilistId: number;
+  mediaKind: MediaKind;
+  progressDelta: number;
+  episodeDurationMinutes: number | null;
+  occurredAt: UtcTimestamp;
+}
+
 export interface UpsertLibraryEntryRequest {
   anilistId: number;
   mediaKind: MediaKind;
@@ -61,6 +93,7 @@ export interface MediaSummary {
   mediaFormat: string | null;
   status: string | null;
   episodes: number | null;
+  durationMinutes: number | null;
   genres: string[];
   tags: MediaTag[];
   trending: number;

@@ -19,6 +19,7 @@ pub struct MediaSummary {
     pub media_format: Option<String>,
     pub status: Option<String>,
     pub episodes: Option<i64>,
+    pub duration_minutes: Option<i64>,
     pub genres: Vec<String>,
     pub tags: Vec<MediaTag>,
     pub trending: i64,
@@ -114,6 +115,7 @@ pub(super) struct RawMedia {
     pub format: Option<String>,
     pub status: Option<String>,
     pub episodes: Option<i64>,
+    pub duration: Option<i64>,
     #[serde(default)]
     pub genres: Vec<String>,
     #[serde(default)]
@@ -189,6 +191,11 @@ impl TryFrom<RawMedia> for MediaSummary {
                 "AniList returned an invalid episode total.",
             ));
         }
+        if media.duration.is_some_and(|duration| duration <= 0) {
+            return Err(AniListError::contract(
+                "AniList returned an invalid episode duration.",
+            ));
+        }
 
         let title = media.title.into_title()?;
         let tags = media
@@ -212,6 +219,7 @@ impl TryFrom<RawMedia> for MediaSummary {
             media_format: media.format,
             status: media.status,
             episodes: media.episodes,
+            duration_minutes: media.duration,
             genres: media.genres,
             tags,
             trending: media.trending,

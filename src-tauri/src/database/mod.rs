@@ -1,3 +1,4 @@
+mod activity;
 mod cache;
 mod error;
 mod library;
@@ -10,6 +11,7 @@ use std::path::{Path, PathBuf};
 use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
 use sqlx::{ConnectOptions, SqlitePool};
 
+pub use activity::ActivityRepository;
 pub use cache::CacheRepository;
 pub use error::DatabaseError;
 pub use library::LibraryRepository;
@@ -92,6 +94,10 @@ impl Database {
 
     pub fn library(&self) -> LibraryRepository {
         LibraryRepository::new(self.pool.clone())
+    }
+
+    pub fn activity(&self) -> ActivityRepository {
+        ActivityRepository::new(self.pool.clone())
     }
 
     pub fn media(&self) -> MediaRepository {

@@ -19,6 +19,7 @@ export const discoveryPreviewAnime = [
       mediaFormat: "TV",
       status: "RELEASING",
       episodes: 12,
+      durationMinutes: 24,
       genres: ["Drama", "Slice of Life"],
       tags: [
         { name: "Found Family", rank: 88 },
@@ -40,6 +41,7 @@ export const discoveryPreviewAnime = [
       mediaFormat: "TV_SHORT",
       status: "NOT_YET_RELEASED",
       episodes: null,
+      durationMinutes: null,
       genres: ["Comedy", "Supernatural"],
       tags: [
         { name: "Urban Fantasy", rank: 84 },
@@ -61,6 +63,7 @@ export const discoveryPreviewAnime = [
       mediaFormat: "MOVIE",
       status: "FINISHED",
       episodes: 1,
+      durationMinutes: 104,
       genres: ["Adventure", "Fantasy"],
       tags: [
         { name: "Space", rank: 91 },
@@ -88,6 +91,7 @@ export const discoveryPreviewAnime = [
       mediaFormat: "ONA",
       status: "RELEASING",
       episodes: 8,
+      durationMinutes: 24,
       genres: ["Mystery", "Sci-Fi"],
       tags: [
         { name: "Archives", rank: 90 },
@@ -115,6 +119,7 @@ export const discoveryPreviewAnime = [
       mediaFormat: "TV",
       status: "FINISHED",
       episodes: 13,
+      durationMinutes: 23,
       genres: ["Romance", "Drama"],
       tags: [
         { name: "Coastal", rank: 87 },
@@ -136,6 +141,7 @@ export const discoveryPreviewAnime = [
       mediaFormat: "TV_SHORT",
       status: "RELEASING",
       episodes: 10,
+      durationMinutes: 12,
       genres: ["Slice of Life", "Comedy"],
       tags: [
         { name: "Food", rank: 89 },

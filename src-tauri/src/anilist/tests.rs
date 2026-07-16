@@ -101,6 +101,11 @@ async fn search_uses_anime_only_non_adult_query_and_maps_stable_types() {
     assert_eq!(media[0].anilist_id, 154587);
     assert_eq!(media[0].title, "Frieren: Beyond Journey's End");
     assert_eq!(media[0].episodes, Some(28));
+    assert_eq!(media[0].duration_minutes, Some(24));
+    assert_eq!(
+        serde_json::to_value(&media[0]).expect("serializable media")["durationMinutes"],
+        24
+    );
     assert_eq!(
         media[0].tags.len(),
         1,
@@ -112,6 +117,7 @@ async fn search_uses_anime_only_non_adult_query_and_maps_stable_types() {
     assert_eq!(requests[0].operation_name, "SearchMedia");
     assert!(requests[0].query.contains("type: ANIME"));
     assert!(requests[0].query.contains("isAdult: false"));
+    assert!(requests[0].query.contains("duration"));
     assert_eq!(requests[0].variables["search"], "Frieren");
 }
 
@@ -126,6 +132,7 @@ async fn details_preserve_unknown_totals_and_never_infer_sequel_dates() {
     let details = client.media_details(21).await.expect("details response");
 
     assert_eq!(details.summary.episodes, None);
+    assert_eq!(details.summary.duration_minutes, None);
     assert_eq!(details.sequels.len(), 1);
     assert_eq!(details.sequels[0].anilist_id, 22);
     assert_eq!(details.sequels[0].release_date, None);
@@ -182,6 +189,23 @@ async fn malformed_data_is_a_non_retryable_contract_error() {
         .trending_media(1, 20)
         .await
         .expect_err("malformed fixture must fail");
+
+    assert!(matches!(error, AniListError::Contract(_)));
+    assert!(!error.retryable());
+}
+
+#[tokio::test]
+async fn non_positive_episode_duration_is_a_contract_error() {
+    let transport = FixtureTransport::with_response(Ok(response(
+        200,
+        include_str!("../../tests/fixtures/anilist/duration-invalid.json"),
+    )));
+    let client = AniListClient::new(Arc::new(transport));
+
+    let error = client
+        .trending_media(1, 20)
+        .await
+        .expect_err("zero duration must fail");
 
     assert!(matches!(error, AniListError::Contract(_)));
     assert!(!error.retryable());
