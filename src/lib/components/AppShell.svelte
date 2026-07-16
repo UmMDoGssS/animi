@@ -118,7 +118,7 @@
 
       <main id="main-content" class="min-w-0 px-1 sm:px-3">
         {#if activeView === "home"}
-          <HomePage />
+          <HomePage openDiscovery={() => selectView("discovery")} />
         {:else if activeView === "discovery"}
           <DiscoveryPage />
         {:else if activeView === "dashboard"}
