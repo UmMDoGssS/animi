@@ -37,6 +37,7 @@
     ) => Promise<RemoveLibraryEntryResponse>;
     trackingError?: CommandError | null;
     onRetryTracking?: () => void | Promise<void>;
+    onDetailsLoaded?: (response: MediaDetailsResponse) => void | Promise<void>;
     onLibraryChanged?: (entry: LibraryEntry | null) => void | Promise<void>;
     onClose: () => void;
   }
@@ -50,6 +51,7 @@
     deleteEntry = removeLibraryEntry,
     trackingError = null,
     onRetryTracking,
+    onDetailsLoaded,
     onLibraryChanged,
     onClose,
   }: Props = $props();
@@ -105,6 +107,7 @@
 
     try {
       detailsResponse = await loadDetails({ anilistId: summary.anilistId });
+      await onDetailsLoaded?.(detailsResponse);
     } catch (reason) {
       detailsError = normalizeCommandError(reason);
     } finally {
