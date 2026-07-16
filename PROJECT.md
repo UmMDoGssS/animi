@@ -26,7 +26,7 @@ This matches the preference for TypeScript and Rust, produces a lightweight desk
 
 ## Implementation Architecture
 
-- Create a Svelte SPA with Library, Discover, Media Details, Recommendations, and Settings/Backup views. Use Svelte state primitives rather than adding a global state library.
+- Create a Svelte SPA with Home, Discover, Dashboard, and Settings as the four primary destinations. Present media details as a secondary view and recommendations within Discover rather than as primary navigation. Use Svelte state primitives rather than adding a global state library.
 - Keep all durable operations behind typed Tauri commands. Rust owns SQLite migrations, transactions, AniList requests, caching, throttling, and backup handling; the UI never executes SQL directly.
 - Model anime and manga through a shared `MediaKind` schema from the start, but expose only anime workflows in v1. Manga becomes a later UI/API addition without redesigning storage.
 - Store only locally meaningful records and metadata for titles the user searches, opens, or tracks. Do not bulk-copy AniList.
@@ -34,6 +34,16 @@ This matches the preference for TypeScript and Rust, produces a lightweight desk
 - Show sequel dates only when AniList contains an official sequel relation and release information. Never predict an unannounced season.
 - Cache media details for 24 hours, discovery/recommendation results for 6 hours, and airing data for 30 minutes. Honor AniList rate-limit headers and `Retry-After`; its documented temporary limit is currently 30 requests/minute. ([AniList rate limits](https://docs.anilist.co/guide/rate-limiting))
 - Generate recommendations locally: build a preference vector from genres and weighted AniList tags in completed/watching entries, rank untracked trending candidates using 55% tag similarity, 25% genre similarity, and 20% normalized trending score, and show the strongest matching tags as the explanation. Fall back to trending when history is insufficient.
+
+## Primary Experience
+
+- Home is the launch view. It prioritizes airing anime in the local `WATCHING` library through a keyboard-operable cover carousel. Each item shows local progress, the next known airing countdown, cached-data freshness, and a catch-up count derived from the next known episode and local progress. A bounded quick action advances watched progress. Missing schedules remain explicitly unknown.
+- Discover provides anime search, trending, and recommendation sections as cover-focused card collections. Opening a card uses the shared secondary media-details presentation.
+- Dashboard is a local personal overview, not an account profile. It presents library and status totals, supported genre and tag preferences, monthly and yearly watch activity, and the watching, completed, and planning library sections.
+- Settings owns theme, cache information, backup, recovery, and destructive local-data controls.
+- A floating segmented navigation rail on the left provides the four primary destinations. It remains keyboard operable and compact at narrow widths without hiding or clipping page content.
+- Frosted-glass surfaces, rounded cover-focused layouts, and restrained cat kaomoji provide the visual character. Kaomoji may reinforce empty or catch-up states, but adjacent text must communicate the same status and decorative characters must not obscure controls.
+- Monthly and yearly watch-time statistics come only from durable UTC watch activity recorded when progress changes, never from mutable library timestamps. Activity records retain the best-known episode-duration snapshot used for their calculation; unknown durations remain excluded and visibly identified. Existing data from before the activity migration is not fabricated retroactively.
 
 ## Interfaces and Data
 
@@ -44,16 +54,18 @@ Core types:
 - `LibraryEntry`: AniList ID, kind, status, progress, timestamps, optional score and notes
 - `MediaSnapshot`: titles, cover URL, format, genres, tags, status, episode/chapter totals and cached timestamp
 - `AiringInfo`: episode number, airing timestamp and fetched timestamp
+- `WatchActivity`: AniList ID, media kind, progress delta, best-known episode duration and UTC occurrence time
 - `Recommendation`: media summary, local score and explanation labels
 
 Tauri command boundary:
 
 - `search_media`, `get_media_details`, `list_trending`
-- `list_library`, `upsert_library_entry`, `remove_library_entry`
+- `list_library`, `upsert_library_entry`, `advance_library_progress`, `remove_library_entry`
 - `refresh_library_metadata`, `get_recommendations`
+- `get_dashboard_insights`
 - `export_backup`, `preview_import`, `import_backup`
 
-Backups use versioned JSON containing `schemaVersion`, `exportedAt`, settings, and local library entries. Cached discovery data and images are excluded. Imports validate the entire file before one SQLite transaction; duplicates merge by `updatedAt`, the newest entry wins, and import never deletes unrelated local entries.
+Backups use versioned JSON containing `schemaVersion`, `exportedAt`, settings, local library entries, and user-owned watch activity. Cached discovery data and images are excluded. Imports validate the entire file before one SQLite transaction; duplicates merge by `updatedAt`, the newest entry wins, and import never deletes unrelated local entries.
 
 There is no HTTP server, login, cloud database, analytics, or AniList OAuth in v1. Public AniList metadata does not require authentication. ([AniList authentication](https://docs.anilist.co/guide/auth/))
 
@@ -61,8 +73,8 @@ There is no HTTP server, login, cloud database, analytics, or AniList OAuth in v
 
 - Rust unit and integration tests for migrations, library transitions, progress bounds, caching, recommendation scoring, rate-limit handling, and transactional backup imports.
 - Mock AniList contract tests for missing episode counts, unknown sequels, offline responses, `403`, malformed GraphQL data, and `429 Retry-After`.
-- Svelte component tests for empty/loading/error/offline states and each library status.
-- End-to-end flows: search and add an anime, update progress, restart and verify persistence, display next airing time, produce recommendations, export, clear a test database, and restore.
+- Svelte component tests for the four-destination navigation, Home carousel states and progress actions, Discover cover grids, Dashboard summaries and library sections, Settings, and loading, empty, offline, stale, and error states.
+- End-to-end flows: search and add an anime, update progress from details and Home, restart and verify persistence, display next airing time and catch-up count, produce recommendations within Discover, render recorded watch activity, export, clear a test database, and restore.
 - Acceptance requires a Windows NSIS build that retains data across upgrades and remains usable offline for previously cached titles.
 
 ## Assumptions and Prerequisites

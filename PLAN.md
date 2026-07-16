@@ -47,9 +47,9 @@ The following remain outside v1:
 | P0 | Scaffold and engineering foundation | Approved project baseline | Complete | Windows app launches and baseline quality checks pass |
 | P1 | Local persistence and typed IPC | P0 | Complete | Durable library CRUD survives restart safely |
 | P2 | AniList integration and caching | P1 | Complete | Mocked network, cache, offline, and rate-limit behavior passes |
-| P3 | Application shell and design system | P0; coordinate with P1 contracts | Not started | Accessible shell works at desktop and narrow widths |
-| P4 | Discovery, details, and library workflow | P1, P2, P3 | Not started | Core search-to-library flow passes end to end |
-| P5 | Airing information and recommendations | P2, P4 | Not started | Airing and deterministic recommendation behavior passes |
+| P3 | Four-destination application shell and design system | P0; coordinate with P1 contracts | In progress | Home, Discover, Dashboard, and Settings shell works accessibly at desktop and narrow widths |
+| P4 | Discovery, details, Dashboard, and library workflow | P1, P2, P3 | Not started | Core discovery-to-library flow passes end to end |
+| P5 | Home airing workflow, insights, and recommendations | P2, P4 | Not started | Home airing/progress, Dashboard insights, and deterministic recommendation behavior pass |
 | P6 | Settings, backup, and recovery | P1, P3, P4 | Not started | Backup round trips and rollback guarantees pass |
 | P7 | Release hardening and Windows packaging | P0-P6 | Not started | Full quality gate and production NSIS acceptance pass |
 
@@ -64,6 +64,7 @@ These are implementation targets, not interfaces already present in the reposito
 - `LibraryEntry`: AniList ID, media kind, status, progress, timestamps, optional score, and optional notes.
 - `MediaSnapshot`: titles, cover URL, format, genres, weighted tags, status, episode or chapter total, and cache timestamp.
 - `AiringInfo`: episode number, airing timestamp, and fetch timestamp.
+- `WatchActivity`: AniList ID, media kind, progress delta, best-known episode duration, and UTC occurrence time.
 - `Recommendation`: media summary, local score, and concise explanation labels.
 - `CommandError`: `code`, `message`, and `retryable` at the IPC boundary.
 
@@ -74,16 +75,17 @@ All JSON fields crossing the Tauri boundary use camelCase. Rust may use snake_ca
 | Area | Commands | Planned phase |
 |---|---|---|
 | Discovery | `search_media`, `get_media_details`, `list_trending` | P2, surfaced in P4 |
-| Library | `list_library`, `upsert_library_entry`, `remove_library_entry` | P1, surfaced in P4 |
+| Library | `list_library`, `upsert_library_entry`, `advance_library_progress`, `remove_library_entry` | P1, extended and surfaced in P4-P5 |
 | Metadata | `refresh_library_metadata` | P2, surfaced in P4-P5 |
 | Recommendations | `get_recommendations` | P5 |
+| Dashboard | `get_dashboard_insights` | P5 |
 | Backup | `export_backup`, `preview_import`, `import_backup` | P6 |
 
 Commands remain thin adapters. Validation, database behavior, AniList behavior, recommendation logic, and backup logic live in testable Rust modules.
 
 ### Backup envelope
 
-Backups use versioned JSON containing `schemaVersion`, `exportedAt`, settings, and local library entries. Cache records and downloaded images are excluded. Import validates the complete file before opening one write transaction. For duplicate entries, the greatest `updatedAt` wins; import never deletes unrelated local entries.
+Backups use versioned JSON containing `schemaVersion`, `exportedAt`, settings, local library entries, and user-owned watch activity. Cache records and downloaded images are excluded. Import validates the complete file before opening one write transaction. For duplicate entries, the greatest `updatedAt` wins; import never deletes unrelated local entries.
 
 ## Cross-Cutting Definition of Done
 
@@ -226,7 +228,7 @@ warnings denied, 34 Rust unit tests, and 5 Rust integration tests.
 
 ## P3 - Application Shell and Design System
 
-**Goal:** Build the accessible, responsive interface foundation shared by every feature.
+**Goal:** Build the accessible, responsive four-destination interface foundation shared by every feature.
 
 **Dependencies:** P0 complete. Coordinate state and error adapters with P1 before feature integration.
 
@@ -235,60 +237,70 @@ warnings denied, 34 Rust unit tests, and 5 Rust integration tests.
 - [x] **P3-E1** Semantic design tokens and async-state conventions are agreed in code before feature components consume them.
 - [x] **P3-E2** Desktop and 390-pixel-wide test viewports are available to component or end-to-end tests.
 
+### Visual approval checkpoints
+
+Complete these checkpoints in order. After each checkpoint, launch the Tauri development application, provide a focused desktop and narrow-width test list, and wait for the user's visual report before beginning the next checkpoint.
+
+- [ ] **P3-V1 - Shell and navigation:** Replace the placeholder shell with the four primary page frames, floating vertical navigation rail, compact narrow layout, and shared frosted-glass visual language.
+- [ ] **P3-V2 - Home presentation:** Establish the cover-carousel composition and distinct on-time, catch-up, unknown-schedule, and no-active-anime presentations without claiming live airing integration before P5.
+- [ ] **P3-V3 - Discover presentation:** Establish search, cover-card collections, result states, and the secondary details presentation; live command integration remains P4.
+- [ ] **P3-V4 - Dashboard presentation:** Establish overview totals, preference summaries, truthful monthly and yearly activity-chart states, and the library-list region. Never fabricate history from mutable timestamps.
+- [ ] **P3-V5 - Settings and cross-view polish:** Consolidate Settings, kaomoji, async states, responsive behavior, reduced motion, and accessibility across all four destinations.
+
 ### Milestones
 
 - [x] **P3-M1 - Theme system:** Implement Catppuccin Latte and Macchiato through semantic surface, overlay, text, muted-text, accent, success, warning, and danger variables.
 - [x] **P3-M2 - Theme preference:** Default to the operating-system preference, persist a manual override through the durable settings boundary, and react predictably when the OS preference changes without an override.
-- [ ] **P3-M3 - Visual foundation:** Add rounded cover-focused layouts and restrained frosted-glass panels with subtle borders, restrained blur, and opaque fallbacks.
-- [ ] **P3-M4 - Navigation shell:** Implement keyboard-operable navigation among Library, Discover, Recommendations, and Settings/Backup plus a consistent details presentation.
+- [ ] **P3-M3 - Visual foundation:** Add rounded, cover-focused page frames for Home, Discover, Dashboard, and Settings plus restrained frosted-glass panels with subtle borders, restrained blur, and opaque fallbacks.
+- [ ] **P3-M4 - Navigation shell:** Implement a keyboard-operable floating vertical segmented control for Home, Discover, Dashboard, and Settings, keep it compact at narrow widths, and retain media details as a consistent secondary presentation.
 - [ ] **P3-M5 - Async state components:** Provide focused loading, empty, offline, stale, and error presentations with retry actions where the underlying error is retryable.
 - [ ] **P3-M6 - Accessibility:** Add visible focus, meaningful labels and alternative text, logical heading order, sufficient contrast, reduced-motion behavior, and non-color-only status communication.
-- [ ] **P3-M7 - Cat character:** Add tasteful iconography or microcopy only where it supports orientation or warmth; keep motifs secondary to content and controls.
-- [ ] **P3-M8 - Layout tests:** Cover the main shell and state presentations in both themes at desktop and narrow widths, including keyboard navigation and reduced motion.
+- [ ] **P3-M7 - Cat character:** Use restrained cat iconography or kaomoji for orientation, no-active-anime, catch-up, and other supportive states; provide equivalent status text and keep decoration secondary.
+- [ ] **P3-M8 - Layout tests:** Cover all four page frames, the navigation rail, Home carousel shell, Discover cover grid, Dashboard summaries and library region, Settings, and async states in both themes at desktop and narrow widths, including keyboard navigation and reduced motion.
 
 ### Exit gate
 
-- [ ] **P3-G1** Every primary view is reachable and operable without a mouse.
+- [ ] **P3-G1** Home, Discover, Dashboard, and Settings are each reachable and operable without a mouse.
 - [ ] **P3-G2** Both themes are readable and retain visible focus at desktop and narrow widths.
 - [ ] **P3-G3** Every asynchronous placeholder has a defined terminal success, empty, offline, or error state.
 - [ ] **P3-G4** Component accessibility and responsive-layout tests pass.
 
 **Evidence:** P3 entry gates and P3-M1 completed 2026-07-16. Added explicit Catppuccin Latte and Macchiato selectors behind semantic color tokens, retained system dark-mode selection when no override exists, established a discriminated async-state convention, and added reusable 1280x800 desktop and 390x844 narrow component-test viewports. The user manually confirmed both palettes and the responsive shell at desktop and narrow widths. P3-M2 added accessible System, Light, and Dark controls; typed Tauri commands persist the preference in SQLite, System mode remains driven by the OS media query, failed saves retain the active palette, and themed text selection replaces the browser default. The frontend quality gate passed with 13 tests; Rust formatting, Clippy with warnings denied, 36 unit tests, and 5 integration tests passed.
 
-## P4 - Discovery, Details, and Library Workflow
+## P4 - Discovery, Details, Dashboard, and Library Workflow
 
-**Goal:** Deliver the core search-to-tracking workflow backed by local authoritative state.
+**Goal:** Deliver the core discovery-to-tracking workflow and local Dashboard/library experience backed by authoritative state.
 
 **Dependencies:** P1, P2, and P3 complete.
 
 ### Entry gate
 
-- [ ] **P4-E1** Library and discovery command contracts are stable enough for UI integration.
+- [ ] **P4-E1** Library and discovery read models are stable enough to render cover cards, Dashboard sections, aggregates, duration metadata, and watch activity from authoritative records without inferred history.
 - [ ] **P4-E2** Core user-flow tests run against isolated storage and mocked AniList responses.
 
 ### Milestones
 
-- [ ] **P4-M1 - Library view:** Present watching, completed, and planning entries with cover art, progress, freshness, concise metadata, and useful empty states.
-- [ ] **P4-M2 - Search and trending:** Implement debounced anime search and a trending discovery view without persisting unneeded remote data.
+- [ ] **P4-M1 - Dashboard and library:** Present status counts and supported genre or tag summaries derived from local records, followed by watching, completed, and planning entries with cover art, progress, freshness, concise metadata, and useful empty states.
+- [ ] **P4-M2 - Discover search and trending:** Implement debounced anime search and a trending cover-card collection without persisting unneeded remote data.
 - [ ] **P4-M3 - Media details:** Present titles, cover, format, genres, tags, status, episode total when known, and cached-data freshness.
-- [ ] **P4-M4 - Add and update:** Let users choose a supported status, update progress, score, and notes, and persist changes through typed commands.
+- [ ] **P4-M4 - Add, update, and activity history:** Let users choose a supported status and update progress, score, and notes. Add an append-only activity migration and persist each confirmed progress increase with its best-known episode duration in the same transaction as current progress. Define correction and unknown-duration behavior before releasing the migration.
 - [ ] **P4-M5 - Validation feedback:** Explain progress bounds and malformed input without discarding the user's other edits; handle unknown episode totals explicitly.
 - [ ] **P4-M6 - Removal safety:** Require explicit confirmation before removal and make clear that removal affects the local library record rather than AniList.
 - [ ] **P4-M7 - Refresh behavior:** Refresh relevant metadata on demand while continuing to show cached entries offline or during transient failures.
-- [ ] **P4-M8 - Core end-to-end flow:** Cover search, open details, add, change status and progress, restart, verify persistence, use cached data offline, and confirm removal.
+- [ ] **P4-M8 - Core end-to-end flow:** Cover Discover search, details, add, status and progress changes, Dashboard/library presentation, activity recording, restart persistence, cached offline use, and confirmed removal.
 
 ### Exit gate
 
-- [ ] **P4-G1** The complete search-to-library flow works from the packaged application boundary using mocks and isolated data.
+- [ ] **P4-G1** The complete discovery-to-library and Dashboard flow works from the packaged application boundary using mocks and isolated data.
 - [ ] **P4-G2** Local edits remain authoritative across metadata refreshes and application restarts.
 - [ ] **P4-G3** Offline, stale, empty, missing-total, validation, and command-error states are covered.
 - [ ] **P4-G4** Removal cannot occur without explicit user confirmation.
 
 **Evidence:** Pending.
 
-## P5 - Airing Information and Recommendations
+## P5 - Home Airing, Dashboard Insights, and Recommendations
 
-**Goal:** Add timely airing context and explainable local recommendations without predicting unavailable information.
+**Goal:** Add the Home airing and catch-up workflow, truthful Dashboard insights, and explainable local recommendations without predicting unavailable information.
 
 **Dependencies:** P2 and P4 complete.
 
@@ -300,14 +312,15 @@ warnings denied, 34 Rust unit tests, and 5 Rust integration tests.
 ### Milestones
 
 - [ ] **P5-M1 - Airing refresh scheduler:** Refresh relevant airing data at application launch and every 30 minutes while the application remains open, respecting cache and rate limits.
-- [ ] **P5-M2 - Airing presentation:** Show the next known episode and airing time with a last-updated or stale indicator; do not imply a schedule when AniList provides none.
+- [ ] **P5-M2 - Home airing carousel:** Join `WATCHING` entries with next-known airing data. Show the countdown, stale or last-updated state, and catch-up count `max(0, nextEpisode - 1 - progress)`, with a bounded quick action that advances local progress. Treat missing schedules as unknown and provide an explicit no-active-anime state.
 - [ ] **P5-M3 - Sequel presentation:** Show dates only for official sequel relations with release information. Label unknown sequels as unknown rather than estimating them.
 - [ ] **P5-M4 - Preference profile:** Build the local recommendation input from genres and weighted AniList tags in completed and watching entries without uploading library data.
 - [ ] **P5-M5 - Ranking algorithm:** Apply the `PROJECT.md` weighting of 55% tag similarity, 25% genre similarity, and 20% normalized trending score. Define normalization, tie-breaking, and the insufficient-history threshold as deterministic domain behavior before UI integration.
 - [ ] **P5-M6 - Candidate rules:** Rank untracked trending candidates, exclude already tracked titles, and fall back to trending when local history is insufficient.
 - [ ] **P5-M7 - Explanations:** Return the strongest matching tags as concise explanation labels without implying opaque certainty.
-- [ ] **P5-M8 - Recommendation view:** Present ranked, explainable results with loading, empty, offline, stale, and fallback states.
-- [ ] **P5-M9 - Deterministic tests:** Cover scoring weights, normalization edges, ties, exclusion, fallback, missing metadata, unknown sequels, cache expiry, and refresh scheduling using a controllable clock.
+- [ ] **P5-M8 - Recommendation section:** Present ranked, explainable results within Discover with loading, empty, offline, stale, and fallback states.
+- [ ] **P5-M9 - Deterministic tests:** Cover scoring weights, normalization edges, ties, exclusion, fallback, missing metadata, unknown sequels, cache expiry, refresh scheduling, Home catch-up counts, bounded quick progress, and activity aggregation using a controllable clock.
+- [ ] **P5-M10 - Dashboard activity insights:** Present recorded watch time as accessible monthly and yearly summaries, using a heatmap or bar treatment selected during visual review. Show the covered date range and unknown-duration exclusions, and provide useful empty states for users without recorded history.
 
 ### Exit gate
 
@@ -331,13 +344,13 @@ warnings denied, 34 Rust unit tests, and 5 Rust integration tests.
 
 ### Milestones
 
-- [ ] **P6-M1 - Settings view:** Surface theme selection, cache freshness information, backup actions, and destructive local-data actions through accessible controls.
-- [ ] **P6-M2 - Versioned export:** Implement `export_backup` with `schemaVersion`, UTC `exportedAt`, settings, and library entries while excluding caches and images.
-- [ ] **P6-M3 - Import validation:** Validate file readability, JSON shape, schema version, enums, timestamps, identifiers, progress, and duplicate records before opening a write transaction.
+- [ ] **P6-M1 - Settings page:** Complete the Settings primary destination with theme selection, cache freshness information, backup actions, and destructive local-data actions through accessible controls.
+- [ ] **P6-M2 - Versioned export:** Implement `export_backup` with `schemaVersion`, UTC `exportedAt`, settings, library entries, and user-owned watch activity while excluding caches and images.
+- [ ] **P6-M3 - Import validation:** Validate file readability, JSON shape, schema version, enums, timestamps, identifiers, progress, watch activity, and duplicate records before opening a write transaction.
 - [ ] **P6-M4 - Import preview:** Implement `preview_import` with counts, conflicts, validation errors, and a clear statement that unrelated local entries will remain.
 - [ ] **P6-M5 - Transactional import:** Implement `import_backup` in one write transaction, resolve duplicates by greatest `updatedAt`, and roll back every write if any application step fails.
 - [ ] **P6-M6 - Destructive confirmation:** Require explicit, specific confirmation before clearing local data and keep backup/import actions visually distinct from deletion.
-- [ ] **P6-M7 - Backup tests:** Cover empty and populated round trips, malformed JSON, unsupported versions, invalid records, duplicate conflicts, equal or newer local records, unrelated local entries, forced mid-import failure, and rollback.
+- [ ] **P6-M7 - Backup tests:** Cover empty and populated round trips including watch activity, malformed JSON, unsupported versions, invalid records, duplicate conflicts, equal or newer local records, unrelated local entries, forced mid-import failure, and rollback.
 - [ ] **P6-M8 - Recovery flow:** Add end-to-end coverage for export, clearing an isolated test database, previewing import, restoring, and verifying library and settings.
 
 ### Exit gate
@@ -373,7 +386,7 @@ warnings denied, 34 Rust unit tests, and 5 Rust integration tests.
 
 ### Version 1 acceptance gate
 
-- [ ] **P7-G1** Search, details, library management, progress updates, airing information, recommendations, settings, export, preview, and import pass their critical user flows.
+- [ ] **P7-G1** Home airing and quick progress, Discover search and recommendations, details, Dashboard/library management and activity, Settings, export, preview, and import pass their critical user flows.
 - [ ] **P7-G2** Previously cached tracked titles remain usable offline with accurate freshness indicators.
 - [ ] **P7-G3** The production NSIS build retains local data across a tested upgrade.
 - [ ] **P7-G4** The complete frontend and Rust quality gate passes from a clean checkout.
@@ -444,3 +457,7 @@ Future phases have no schedule, implementation status, or permission to begin. P
 | 2026-07-16 | Plan by dependencies without dates or effort estimates | Avoids speculative commitments before the application is scaffolded |
 | 2026-07-16 | Track stable milestone IDs, phase gates, and evidence | Makes progress reviewable and prevents partial work from appearing complete |
 | 2026-07-16 | Detail v1 and keep later platforms as an unapproved outline | Preserves future direction without expanding the current product scope |
+| 2026-07-16 | Use Home, Discover, Dashboard, and Settings as the four primary destinations; keep details secondary and recommendations within Discover | Matches the approved information architecture without introducing accounts or additional backend ownership |
+| 2026-07-16 | Treat Dashboard as a local personal overview rather than an account profile | Preserves Animi's private, account-free v1 boundary |
+| 2026-07-16 | Record watch activity durably instead of inferring it from library timestamps | Accurate monthly and yearly viewing history requires progress events and duration data that the initial schema does not contain |
+| 2026-07-16 | Deliver the P3 frontend rewrite through user-reviewed visual checkpoints | Allows desktop and narrow-layout approval before proceeding to the next page |
