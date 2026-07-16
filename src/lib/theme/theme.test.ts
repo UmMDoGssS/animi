@@ -7,17 +7,136 @@ import { applyThemePreference, semanticColorTokens, themeIds } from "./theme";
 
 const appStyles = readFileSync(resolve("src/app.css"), "utf8");
 
+type ThemeId = (typeof themeIds)[number];
+type Rgb = readonly [number, number, number];
+
+const surfaces = ["surface", "surface-raised", "surface-sunken"] as const;
+const textColors = [
+  "text",
+  "text-muted",
+  "accent",
+  "success",
+  "warning",
+  "danger",
+] as const;
+
+function cssBlock(marker: string): string {
+  const markerStart = appStyles.indexOf(marker);
+  if (markerStart < 0) {
+    throw new Error(`Missing CSS marker: ${marker}`);
+  }
+
+  const blockStart = appStyles.indexOf("{", markerStart);
+  if (blockStart < 0) {
+    throw new Error(`Missing CSS block: ${marker}`);
+  }
+
+  let depth = 0;
+  for (let index = blockStart; index < appStyles.length; index += 1) {
+    if (appStyles[index] === "{") {
+      depth += 1;
+    } else if (appStyles[index] === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        return appStyles.slice(blockStart + 1, index);
+      }
+    }
+  }
+
+  throw new Error(`Unclosed CSS block: ${marker}`);
+}
+
+function themeBlock(themeId: ThemeId): string {
+  return cssBlock(`:root[data-theme="${themeId}"]`);
+}
+
+function solidHexToken(block: string, token: string): string {
+  const value = block.match(
+    new RegExp(`--${token}:\\s*(#[0-9a-f]{6})\\s*;`, "i"),
+  )?.[1];
+  if (!value) {
+    throw new Error(`Token --${token} must be a six-digit solid hex color.`);
+  }
+
+  return value;
+}
+
+function rgb(hex: string): Rgb {
+  return [
+    Number.parseInt(hex.slice(1, 3), 16),
+    Number.parseInt(hex.slice(3, 5), 16),
+    Number.parseInt(hex.slice(5, 7), 16),
+  ];
+}
+
+function relativeLuminance(hex: string): number {
+  function linearize(channel: number): number {
+    const normalized = channel / 255;
+    return normalized <= 0.04045
+      ? normalized / 12.92
+      : ((normalized + 0.055) / 1.055) ** 2.4;
+  }
+
+  const [red, green, blue] = rgb(hex);
+
+  return (
+    0.2126 * linearize(red) +
+    0.7152 * linearize(green) +
+    0.0722 * linearize(blue)
+  );
+}
+
+function contrastRatio(first: string, second: string): number {
+  const lighter = Math.max(relativeLuminance(first), relativeLuminance(second));
+  const darker = Math.min(relativeLuminance(first), relativeLuminance(second));
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
 describe("theme contract", () => {
   it.each(themeIds)("defines every semantic token for %s", (themeId) => {
-    const selector = `:root[data-theme="${themeId}"]`;
-    const selectorStart = appStyles.indexOf(selector);
-    const blockStart = appStyles.indexOf("{", selectorStart);
-    const blockEnd = appStyles.indexOf("}", blockStart);
-    const themeBlock = appStyles.slice(blockStart, blockEnd);
+    const block = themeBlock(themeId);
 
-    expect(selectorStart).toBeGreaterThanOrEqual(0);
     for (const token of semanticColorTokens) {
-      expect(themeBlock).toContain(`--${token}:`);
+      expect(block).toContain(`--${token}:`);
+    }
+  });
+
+  it.each(themeIds)("keeps %s text colors readable", (themeId) => {
+    const block = themeBlock(themeId);
+
+    for (const textColor of textColors) {
+      for (const surface of surfaces) {
+        const ratio = contrastRatio(
+          solidHexToken(block, textColor),
+          solidHexToken(block, surface),
+        );
+        expect(
+          ratio,
+          `${themeId} --${textColor} on --${surface}`,
+        ).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+
+    expect(
+      contrastRatio(
+        solidHexToken(block, "on-accent"),
+        solidHexToken(block, "accent"),
+      ),
+      `${themeId} --on-accent on --accent`,
+    ).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it.each(themeIds)("keeps %s control boundaries visible", (themeId) => {
+    const block = themeBlock(themeId);
+    for (const surface of surfaces) {
+      const ratio = contrastRatio(
+        solidHexToken(block, "control-border"),
+        solidHexToken(block, surface),
+      );
+      expect(
+        ratio,
+        `${themeId} --control-border on --${surface}`,
+      ).toBeGreaterThanOrEqual(3);
     }
   });
 
@@ -37,5 +156,26 @@ describe("theme contract", () => {
 
     applyThemePreference("SYSTEM", root);
     expect(root).not.toHaveAttribute("data-theme");
+  });
+
+  it("globally reduces animation and transition motion", () => {
+    const block = cssBlock("@media (prefers-reduced-motion: reduce)");
+
+    expect(block).toContain("*::before");
+    expect(block).toContain("*::after");
+    expect(block).toContain("scroll-behavior: auto !important;");
+    expect(block).toContain("transition-duration: 0.01ms !important;");
+    expect(block).toContain("animation-duration: 0.01ms !important;");
+    expect(block).toContain("animation-iteration-count: 1 !important;");
+  });
+
+  it("keeps global scrollbars visible", () => {
+    expect(appStyles).not.toMatch(/scrollbar-width\s*:\s*none\b/i);
+
+    const webkitScrollbar = cssBlock("*::-webkit-scrollbar");
+    expect(webkitScrollbar).not.toMatch(/display:\s*none\b/i);
+    expect(webkitScrollbar).not.toMatch(
+      /(?:width|height)\s*:\s*0(?:[a-z%]+)?(?:\s*!important)?\s*;/i,
+    );
   });
 });

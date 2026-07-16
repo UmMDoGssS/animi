@@ -9,20 +9,21 @@
   --surface-sunken: #dce0e8;
   --overlay: #ccd0da;
   --text: #4c4f69;
-  --text-muted: #6c6f85;
-  --accent: #8839ef;
-  --accent-strong: #1e66f5;
+  --text-muted: #5c5f77;
+  --accent: #7726d3;
+  --accent-strong: #174ea6;
   --on-accent: #eff1f5;
-  --success: #40a02b;
-  --warning: #df8e1d;
-  --danger: #d20f39;
-  --border: rgb(136 57 239 / 48%);
+  --success: #28701c;
+  --warning: #855500;
+  --danger: #b80d32;
+  --border: rgb(119 38 211 / 48%);
+  --control-border: #6c6f85;
   --glass: rgb(239 241 245 / 50%);
   --glass-control: rgb(255 255 255 / 22%);
   --glass-control-hover: rgb(255 255 255 / 36%);
   --glass-highlight: rgb(255 255 255 / 68%);
-  --accent-glass: rgb(136 57 239 / 72%);
-  --selection: rgb(136 57 239 / 28%);
+  --accent-glass: rgb(119 38 211 / 94%);
+  --selection: rgb(119 38 211 / 28%);
   --scrim: rgb(76 79 105 / 42%);
   --panel-shadow: 0 20px 60px rgb(76 79 105 / 10%);
   --control-shadow: 0 8px 24px rgb(76 79 105 / 7%);
@@ -51,11 +52,12 @@
   --warning: #eed49f;
   --danger: #ed8796;
   --border: rgb(198 160 246 / 44%);
+  --control-border: #6e738d;
   --glass: rgb(36 39 58 / 52%);
   --glass-control: rgb(54 58 79 / 28%);
   --glass-control-hover: rgb(73 77 100 / 42%);
   --glass-highlight: rgb(202 211 245 / 18%);
-  --accent-glass: rgb(198 160 246 / 68%);
+  --accent-glass: rgb(198 160 246 / 76%);
   --selection: rgb(198 160 246 / 34%);
   --scrim: rgb(17 17 27 / 62%);
   --panel-shadow: 0 20px 60px rgb(17 17 27 / 24%);
@@ -78,11 +80,12 @@
     --warning: #eed49f;
     --danger: #ed8796;
     --border: rgb(198 160 246 / 44%);
+    --control-border: #6e738d;
     --glass: rgb(36 39 58 / 52%);
     --glass-control: rgb(54 58 79 / 28%);
     --glass-control-hover: rgb(73 77 100 / 42%);
     --glass-highlight: rgb(202 211 245 / 18%);
-    --accent-glass: rgb(198 160 246 / 68%);
+    --accent-glass: rgb(198 160 246 / 76%);
     --selection: rgb(198 160 246 / 34%);
     --scrim: rgb(17 17 27 / 62%);
     --panel-shadow: 0 20px 60px rgb(17 17 27 / 24%);
@@ -104,6 +107,7 @@
   --color-warning: var(--warning);
   --color-danger: var(--danger);
   --color-border: var(--border);
+  --color-control-border: var(--control-border);
   --color-glass: var(--glass);
   --color-glass-control: var(--glass-control);
   --color-selection: var(--selection);
@@ -124,16 +128,26 @@ body {
   letter-spacing: 0.012em;
 }
 
-/* Keep every region scrollable while removing platform scrollbar chrome. */
+/* Keep scroll position visible without letting platform chrome dominate. */
 * {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--control-border) transparent;
 }
 
 *::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
+  width: 0.55rem;
+  height: 0.55rem;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: var(--control-border);
+  background-clip: content-box;
 }
 
 html.has-modal {
@@ -164,7 +178,7 @@ a {
 }
 
 .glass-control {
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--control-border);
   background: var(--surface-sunken);
   box-shadow:
     inset 0 1px 0 var(--glass-highlight),

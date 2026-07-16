@@ -920,7 +920,7 @@
     width: 1.75rem;
     aspect-ratio: 1;
     overflow: hidden;
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: 0.25rem;
     background: var(--glass-control);
     box-shadow: inset 0 1px 0 var(--glass-highlight);

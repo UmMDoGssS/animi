@@ -52,6 +52,7 @@ export const semanticColorTokens = [
   "warning",
   "danger",
   "border",
+  "control-border",
   "glass",
   "selection",
 ] as const;
