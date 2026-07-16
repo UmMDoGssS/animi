@@ -24,11 +24,11 @@
 
 <aside
   aria-labelledby="core-status-heading"
-  class="border-border bg-surface-raised rounded-2xl border p-4"
+  class="glass-panel panel-large border-border border p-4"
 >
   <div class="flex flex-wrap items-center justify-between gap-3">
     <div>
-      <h2 id="core-status-heading" class="text-foreground font-semibold">
+      <h2 id="core-status-heading" class="text-foreground font-medium">
         Local core
       </h2>
       {#if state.status === "idle"}
@@ -52,7 +52,7 @@
 
     <button
       type="button"
-      class="bg-accent text-on-accent rounded-xl px-4 py-2 text-sm font-semibold transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60"
+      class="glass-accent control-rounded text-on-accent px-4 py-2 text-sm font-medium transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60"
       disabled={state.status === "loading"}
       onclick={verifyBackend}
     >

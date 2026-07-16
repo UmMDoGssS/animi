@@ -16,23 +16,21 @@
   --success: #40a02b;
   --warning: #df8e1d;
   --danger: #d20f39;
-  --border: rgb(76 79 105 / 18%);
-  --glass: rgb(239 241 245 / 68%);
-  --glass-control: rgb(255 255 255 / 34%);
-  --glass-control-hover: rgb(255 255 255 / 52%);
-  --glass-highlight: rgb(255 255 255 / 58%);
-  --accent-glass: rgb(136 57 239 / 82%);
+  --border: rgb(136 57 239 / 48%);
+  --glass: rgb(239 241 245 / 50%);
+  --glass-control: rgb(255 255 255 / 22%);
+  --glass-control-hover: rgb(255 255 255 / 36%);
+  --glass-highlight: rgb(255 255 255 / 68%);
+  --accent-glass: rgb(136 57 239 / 72%);
   --selection: rgb(136 57 239 / 28%);
   --panel-shadow: 0 20px 60px rgb(76 79 105 / 10%);
   --control-shadow: 0 8px 24px rgb(76 79 105 / 7%);
-  --radius-panel: 1.5rem;
-  --radius-control-group: 1.125rem;
-  --radius-control: 0.75rem;
+  --radius-panel: 1rem;
+  --radius-control-group: 0.75rem;
+  --radius-control: 0.5rem;
   font-family:
-    "Bahnschrift", "Aptos Narrow", "Segoe UI Variable Text", "Segoe UI",
-    sans-serif;
+    "Cascadia Mono", "Cascadia Code", Consolas, "Lucida Console", monospace;
   font-weight: 300;
-  font-stretch: semi-condensed;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -51,12 +49,12 @@
   --success: #a6da95;
   --warning: #eed49f;
   --danger: #ed8796;
-  --border: rgb(202 211 245 / 16%);
-  --glass: rgb(36 39 58 / 70%);
-  --glass-control: rgb(54 58 79 / 46%);
-  --glass-control-hover: rgb(73 77 100 / 58%);
-  --glass-highlight: rgb(202 211 245 / 10%);
-  --accent-glass: rgb(198 160 246 / 78%);
+  --border: rgb(198 160 246 / 44%);
+  --glass: rgb(36 39 58 / 52%);
+  --glass-control: rgb(54 58 79 / 28%);
+  --glass-control-hover: rgb(73 77 100 / 42%);
+  --glass-highlight: rgb(202 211 245 / 18%);
+  --accent-glass: rgb(198 160 246 / 68%);
   --selection: rgb(198 160 246 / 34%);
   --panel-shadow: 0 20px 60px rgb(17 17 27 / 24%);
   --control-shadow: 0 8px 24px rgb(17 17 27 / 16%);
@@ -77,12 +75,12 @@
     --success: #a6da95;
     --warning: #eed49f;
     --danger: #ed8796;
-    --border: rgb(202 211 245 / 16%);
-    --glass: rgb(36 39 58 / 70%);
-    --glass-control: rgb(54 58 79 / 46%);
-    --glass-control-hover: rgb(73 77 100 / 58%);
-    --glass-highlight: rgb(202 211 245 / 10%);
-    --accent-glass: rgb(198 160 246 / 78%);
+    --border: rgb(198 160 246 / 44%);
+    --glass: rgb(36 39 58 / 52%);
+    --glass-control: rgb(54 58 79 / 28%);
+    --glass-control-hover: rgb(73 77 100 / 42%);
+    --glass-highlight: rgb(202 211 245 / 18%);
+    --accent-glass: rgb(198 160 246 / 68%);
     --selection: rgb(198 160 246 / 34%);
     --panel-shadow: 0 20px 60px rgb(17 17 27 / 24%);
     --control-shadow: 0 8px 24px rgb(17 17 27 / 16%);
@@ -133,11 +131,12 @@ a {
 }
 
 :focus-visible {
-  outline: 3px solid var(--accent-strong);
-  outline-offset: 3px;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .glass-panel {
+  border: 2px solid var(--border);
   background: var(--surface-raised);
   box-shadow:
     inset 0 1px 0 var(--glass-highlight),
@@ -145,6 +144,7 @@ a {
 }
 
 .glass-control {
+  border: 1.5px solid var(--border);
   background: var(--surface-sunken);
   box-shadow:
     inset 0 1px 0 var(--glass-highlight),
@@ -161,6 +161,11 @@ a {
   color: var(--on-accent);
 }
 
+.glass-accent {
+  border: 1.5px solid var(--border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
 .panel-large {
   border-radius: var(--radius-panel);
 }
@@ -174,18 +179,18 @@ a {
 }
 
 @supports (
-  (backdrop-filter: blur(16px)) or (-webkit-backdrop-filter: blur(16px))
+  (backdrop-filter: blur(24px)) or (-webkit-backdrop-filter: blur(24px))
 ) {
   .glass-panel {
     background: var(--glass);
-    -webkit-backdrop-filter: blur(16px) saturate(118%);
-    backdrop-filter: blur(16px) saturate(118%);
+    -webkit-backdrop-filter: blur(24px) saturate(112%);
+    backdrop-filter: blur(24px) saturate(112%);
   }
 
   .glass-control {
     background: var(--glass-control);
-    -webkit-backdrop-filter: blur(10px) saturate(124%);
-    backdrop-filter: blur(10px) saturate(124%);
+    -webkit-backdrop-filter: blur(14px) saturate(114%);
+    backdrop-filter: blur(14px) saturate(114%);
   }
 
   .glass-interactive:hover {
@@ -195,8 +200,8 @@ a {
   .glass-accent,
   .glass-tab[aria-selected="true"] {
     background: var(--accent-glass);
-    -webkit-backdrop-filter: blur(10px) saturate(124%);
-    backdrop-filter: blur(10px) saturate(124%);
+    -webkit-backdrop-filter: blur(14px) saturate(114%);
+    backdrop-filter: blur(14px) saturate(114%);
   }
 }
 

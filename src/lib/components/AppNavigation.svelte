@@ -47,7 +47,7 @@
 </script>
 
 <div
-  class="glass-panel control-group border-border flex w-14 flex-col items-center border p-1.5"
+  class="glass-panel control-group border-border flex w-14 flex-col items-center border px-1.5 py-2.5"
 >
   <nav aria-label="Primary navigation" class="w-full">
     <div

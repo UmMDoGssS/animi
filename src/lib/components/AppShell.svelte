@@ -11,6 +11,7 @@
   import { applyThemePreference } from "$lib/theme/theme";
 
   import AppNavigation from "./AppNavigation.svelte";
+  import BackgroundCat from "./BackgroundCat.svelte";
   import DashboardPage from "./pages/DashboardPage.svelte";
   import DiscoveryPage from "./pages/DiscoveryPage.svelte";
   import HomePage from "./pages/HomePage.svelte";
@@ -72,7 +73,7 @@
 
 <a
   href="#main-content"
-  class="bg-accent text-on-accent fixed top-3 left-3 z-50 -translate-y-20 rounded-xl px-4 py-2 text-sm font-medium transition focus:translate-y-0"
+  class="control-rounded bg-accent text-on-accent fixed top-3 left-3 z-50 -translate-y-20 px-4 py-2 text-sm font-medium transition focus:translate-y-0"
 >
   Skip to content
 </a>
@@ -91,6 +92,7 @@
     <span
       class="bg-overlay absolute bottom-[-10rem] left-[24%] size-[22rem] rounded-full opacity-35 blur-[64px]"
     ></span>
+    <BackgroundCat />
   </div>
 
   <div

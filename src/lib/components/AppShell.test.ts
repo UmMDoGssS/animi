@@ -40,6 +40,9 @@ describe("AppShell", () => {
         within(screen.getByRole("tab", { name: "Home" })).getByText("Home"),
       ).toHaveAttribute("aria-hidden", "true");
       expect(screen.queryByText("Private & local")).not.toBeInTheDocument();
+      const backgroundCat = document.querySelector('pre[aria-hidden="true"]');
+      expect(backgroundCat).toHaveTextContent("__..--''``---....___");
+      expect(backgroundCat).toHaveTextContent("``--...____..-' /// / //");
       expect(
         screen.getByRole("heading", { level: 1, name: "Home" }),
       ).toBeInTheDocument();
