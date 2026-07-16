@@ -1,0 +1,74 @@
+# Animi Desktop-First Plan
+
+## Summary
+
+Build Animi as a private, local-first Windows application:
+
+- **Tauri 2** desktop shell
+- **Svelte 5 + TypeScript + Vite** SPA
+- **Rust** application and persistence layer
+- **SQLite with `sqlx`** as the source of truth
+- **`reqwest` + AniList GraphQL** for on-demand metadata
+- **Tailwind CSS** for a responsive UI
+- **Bun** for package management and frontend scripts
+
+This matches the preference for TypeScript and Rust, produces a lightweight desktop application, and preserves a later Tauri mobile path. Tauri supports static web frontends across desktop and mobile without bundling Chromium. ([Tauri overview](https://v2.tauri.app/start/), [frontend configuration](https://v2.tauri.app/start/frontend/))
+
+## Stack Decision
+
+| Option | Advantages | Disadvantages | Decision |
+|---|---|---|---|
+| Tauri + Svelte + Rust + SQLite | Lightweight, genuinely local, TS/Rust, desktop and future mobile targets | More setup; requires learning web UI and Tauri IPC | **Selected** |
+| TypeScript PWA + IndexedDB | Simplest phone/browser access and deployment | Per-browser storage, weaker backups, less-native desktop experience | Best runner-up |
+| Flutter + SQLite | Strong native desktop/mobile UI from one codebase | Requires Dart; less web-native | Choose only if mobile becomes the immediate priority |
+| Expo + React Native | Excellent TypeScript mobile development | No first-class Windows desktop target; SQLite web support remains alpha ([Expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/)) | Not desktop-first |
+| Electron + React + SQLite | Mature and easy JS/TS desktop ecosystem | Bundles Chromium; typical zipped apps are around 80-100 MB; no mobile route ([Electron](https://www.electronjs.org/docs/latest/why-electron)) | Unnecessarily heavy |
+
+## Implementation Architecture
+
+- Create a Svelte SPA with Library, Discover, Media Details, Recommendations, and Settings/Backup views. Use Svelte state primitives rather than adding a global state library.
+- Keep all durable operations behind typed Tauri commands. Rust owns SQLite migrations, transactions, AniList requests, caching, throttling, and backup handling; the UI never executes SQL directly.
+- Model anime and manga through a shared `MediaKind` schema from the start, but expose only anime workflows in v1. Manga becomes a later UI/API addition without redesigning storage.
+- Store only locally meaningful records and metadata for titles the user searches, opens, or tracks. Do not bulk-copy AniList.
+- Refresh airing information at application launch and every 30 minutes while open. Display cached data offline with a "last updated" indicator. Closed-app notifications are outside v1.
+- Show sequel dates only when AniList contains an official sequel relation and release information. Never predict an unannounced season.
+- Cache media details for 24 hours, discovery/recommendation results for 6 hours, and airing data for 30 minutes. Honor AniList rate-limit headers and `Retry-After`; its documented temporary limit is currently 30 requests/minute. ([AniList rate limits](https://docs.anilist.co/guide/rate-limiting))
+- Generate recommendations locally: build a preference vector from genres and weighted AniList tags in completed/watching entries, rank untracked trending candidates using 55% tag similarity, 25% genre similarity, and 20% normalized trending score, and show the strongest matching tags as the explanation. Fall back to trending when history is insufficient.
+
+## Interfaces and Data
+
+Core types:
+
+- `MediaKind`: `ANIME | MANGA`
+- `LibraryStatus`: `WATCHING | COMPLETED | PLANNING`
+- `LibraryEntry`: AniList ID, kind, status, progress, timestamps, optional score and notes
+- `MediaSnapshot`: titles, cover URL, format, genres, tags, status, episode/chapter totals and cached timestamp
+- `AiringInfo`: episode number, airing timestamp and fetched timestamp
+- `Recommendation`: media summary, local score and explanation labels
+
+Tauri command boundary:
+
+- `search_media`, `get_media_details`, `list_trending`
+- `list_library`, `upsert_library_entry`, `remove_library_entry`
+- `refresh_library_metadata`, `get_recommendations`
+- `export_backup`, `preview_import`, `import_backup`
+
+Backups use versioned JSON containing `schemaVersion`, `exportedAt`, settings, and local library entries. Cached discovery data and images are excluded. Imports validate the entire file before one SQLite transaction; duplicates merge by `updatedAt`, the newest entry wins, and import never deletes unrelated local entries.
+
+There is no HTTP server, login, cloud database, analytics, or AniList OAuth in v1. Public AniList metadata does not require authentication. ([AniList authentication](https://docs.anilist.co/guide/auth/))
+
+## Test Plan
+
+- Rust unit and integration tests for migrations, library transitions, progress bounds, caching, recommendation scoring, rate-limit handling, and transactional backup imports.
+- Mock AniList contract tests for missing episode counts, unknown sequels, offline responses, `403`, malformed GraphQL data, and `429 Retry-After`.
+- Svelte component tests for empty/loading/error/offline states and each library status.
+- End-to-end flows: search and add an anime, update progress, restart and verify persistence, display next airing time, produce recommendations, export, clear a test database, and restore.
+- Acceptance requires a Windows NSIS build that retains data across upgrades and remains usable offline for previously cached titles.
+
+## Assumptions and Prerequisites
+
+- Animi remains private and local-only in v1. AniList's terms restrict competing noncomplementary tracker services and prohibit using its API as backup storage; public distribution must first obtain permission or introduce meaningful AniList account integration. ([AniList terms](https://docs.anilist.co/guide/terms-of-use))
+- Phone support and live cross-device sync are deferred. Responsive layouts and platform-neutral DTOs must be maintained so a later Tauri mobile client can reuse them; manual transfer will use the versioned backup format.
+- Adult content is excluded by default.
+- Bun 1.3.14, Node 24, Rust 1.96, and Cargo are already installed. Use Bun for dependency installation, lockfile management, and frontend scripts.
+- Before scaffolding, confirm or install Microsoft C++ Build Tools and WebView2, which Tauri requires on Windows. ([Tauri prerequisites](https://v2.tauri.app/start/prerequisites/))
