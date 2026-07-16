@@ -72,7 +72,7 @@
 
 <a
   href="#main-content"
-  class="bg-accent text-on-accent fixed top-3 left-3 z-50 -translate-y-20 rounded-xl px-4 py-2 text-sm font-semibold transition focus:translate-y-0"
+  class="bg-accent text-on-accent fixed top-3 left-3 z-50 -translate-y-20 rounded-xl px-4 py-2 text-sm font-medium transition focus:translate-y-0"
 >
   Skip to content
 </a>
@@ -83,39 +83,34 @@
     class="pointer-events-none fixed inset-0 overflow-hidden"
   >
     <span
-      class="bg-accent absolute top-[8%] -left-24 size-72 rounded-full opacity-[0.08] blur-3xl"
+      class="bg-accent absolute -top-24 left-[12%] size-[24rem] rounded-full opacity-[0.14] blur-[72px]"
     ></span>
     <span
-      class="bg-accent-strong absolute right-[-8rem] bottom-[4%] size-96 rounded-full opacity-[0.07] blur-3xl"
+      class="bg-accent-strong absolute top-[38%] -right-28 size-[28rem] rounded-full opacity-[0.12] blur-[88px]"
+    ></span>
+    <span
+      class="bg-overlay absolute bottom-[-10rem] left-[24%] size-[22rem] rounded-full opacity-35 blur-[64px]"
     ></span>
   </div>
 
   <div
-    class="relative mx-auto grid min-h-screen max-w-[96rem] grid-cols-[4rem_minmax(0,1fr)] gap-2 p-2 sm:grid-cols-[5.5rem_minmax(0,1fr)] sm:gap-4 sm:p-4"
+    class="relative mx-auto grid min-h-screen max-w-[96rem] grid-cols-[3.5rem_minmax(0,1fr)] gap-2 p-2 sm:gap-3 sm:p-4"
   >
-    <aside class="sticky top-0 flex h-screen items-center py-2 sm:py-4">
+    <aside class="sticky top-0 z-30 flex h-screen items-center py-2 sm:py-4">
       <AppNavigation {activeView} {selectView} />
     </aside>
 
     <div class="min-w-0">
-      <header
-        class="flex min-h-20 items-center justify-between gap-3 px-2 py-3 sm:min-h-24 sm:px-3"
-      >
+      <header class="flex min-h-20 items-center px-2 py-3 sm:min-h-24 sm:px-3">
         <div class="min-w-0">
-          <p class="text-foreground truncate text-lg font-black tracking-tight">
+          <p
+            class="text-foreground truncate text-lg font-light tracking-[0.18em]"
+          >
             animi
           </p>
-          <p class="text-muted truncate text-xs">Your quiet anime corner</p>
-        </div>
-        <div
-          class="glass-panel border-border flex shrink-0 items-center gap-2 rounded-full border px-3 py-2"
-          title="Your library stays on this device"
-        >
-          <span class="bg-success size-2 rounded-full"></span>
-          <span class="text-muted hidden text-xs font-semibold sm:inline">
-            Private & local
-          </span>
-          <span class="text-muted text-xs font-semibold sm:hidden">Local</span>
+          <p class="text-muted truncate text-xs tracking-wide">
+            Your quiet anime corner
+          </p>
         </div>
       </header>
 

@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -27,6 +33,13 @@ describe("AppShell", () => {
         "aria-selected",
         "true",
       );
+      expect(screen.getByRole("tab", { name: "Home" })).not.toHaveAttribute(
+        "title",
+      );
+      expect(
+        within(screen.getByRole("tab", { name: "Home" })).getByText("Home"),
+      ).toHaveAttribute("aria-hidden", "true");
+      expect(screen.queryByText("Private & local")).not.toBeInTheDocument();
       expect(
         screen.getByRole("heading", { level: 1, name: "Home" }),
       ).toBeInTheDocument();

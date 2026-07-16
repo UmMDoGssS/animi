@@ -23,7 +23,7 @@
   class="glass-panel border-border rounded-3xl border p-5 sm:p-6"
 >
   <div class="max-w-2xl">
-    <h2 id="theme-preference-heading" class="text-foreground font-semibold">
+    <h2 id="theme-preference-heading" class="text-foreground font-medium">
       Appearance
     </h2>
     <p class="text-muted mt-1 text-sm">
@@ -48,7 +48,7 @@
             onchange={() => void choosePreference(option.value)}
           />
           <span>
-            <span class="text-foreground block text-sm font-semibold">
+            <span class="text-foreground block text-sm font-medium">
               {option.label}
             </span>
             <span class="text-muted mt-1 block text-xs leading-5">

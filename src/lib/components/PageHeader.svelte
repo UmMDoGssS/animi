@@ -17,11 +17,13 @@
   ></div>
   <div class="relative max-w-3xl">
     <p
-      class="text-accent mb-3 text-xs font-bold tracking-[0.18em] uppercase sm:text-sm"
+      class="text-accent mb-3 text-xs font-medium tracking-[0.2em] uppercase sm:text-sm"
     >
       {eyebrow}
     </p>
-    <h1 class="text-foreground text-3xl font-bold tracking-tight sm:text-5xl">
+    <h1
+      class="text-foreground text-3xl font-light tracking-[0.04em] sm:text-5xl"
+    >
       {title}
     </h1>
     <p

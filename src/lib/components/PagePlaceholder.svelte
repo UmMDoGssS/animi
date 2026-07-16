@@ -13,12 +13,12 @@
   class="glass-panel border-border grid gap-5 rounded-[2rem] border p-5 sm:grid-cols-[minmax(0,1fr)_12rem] sm:items-center sm:p-7"
 >
   <div>
-    <p class="text-accent text-xs font-bold tracking-[0.16em] uppercase">
+    <p class="text-accent text-xs font-medium tracking-[0.18em] uppercase">
       {checkpoint}
     </p>
     <h2
       id="page-placeholder-heading"
-      class="text-foreground mt-2 text-xl font-semibold tracking-tight"
+      class="text-foreground mt-2 text-xl font-light tracking-[0.03em]"
     >
       {title}
     </h2>
