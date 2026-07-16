@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { tick } from "svelte";
+
   import type { LibraryStatus } from "$lib/ipc/types";
 
   import {
@@ -6,10 +8,12 @@
     buildTagSampler,
     dashboardPreviewLibrary,
     libraryEntriesForStatus,
+    monthlyActivityDays,
     monthlyActivityPreview,
     summarizeDashboardLibrary,
     yearlyActivityPreview,
     type DashboardPreviewActivityBucket,
+    type DashboardPreviewActivityDay,
     type DashboardPreviewLibraryEntry,
   } from "../dashboardPreview";
   import DiscoveryPreviewCover from "../DiscoveryPreviewCover.svelte";
@@ -28,6 +32,23 @@
   const manifest = summarizeDashboardLibrary(dashboardPreviewLibrary);
   const genreSignals = buildGenreSignals(dashboardPreviewLibrary);
   const tagSampler = buildTagSampler(dashboardPreviewLibrary);
+  const heatmapWeekLabels = ["W1", "W2", "W3", "W4", "W5"] as const;
+  const heatmapWeekdays = [
+    { shortLabel: "M", label: "Monday" },
+    { shortLabel: "T", label: "Tuesday" },
+    { shortLabel: "W", label: "Wednesday" },
+    { shortLabel: "T", label: "Thursday" },
+    { shortLabel: "F", label: "Friday" },
+    { shortLabel: "S", label: "Saturday" },
+    { shortLabel: "S", label: "Sunday" },
+  ] as const;
+  const heatmapLegend = [
+    { level: 0, label: "0m" },
+    { level: 1, label: "1–24m" },
+    { level: 2, label: "25–48m" },
+    { level: 3, label: "49–72m" },
+    { level: 4, label: "73m+" },
+  ] as const;
   const librarySections: readonly LibrarySection[] = [
     {
       status: "WATCHING",
@@ -51,9 +72,15 @@
 
   let activityRange = $state<ActivityRange>("month");
   let historyPreview = $state<HistoryPreview>("sample");
+  let selectedActivityDay = $state(29);
+  let heatmapTable = $state<HTMLTableElement | undefined>(undefined);
 
   const selectedActivity = $derived(
     activityRange === "month" ? monthlyActivityPreview : yearlyActivityPreview,
+  );
+  const inspectedActivityDay = $derived(
+    monthlyActivityDays.find((day) => day.dayOfMonth === selectedActivityDay) ??
+      null,
   );
   const activityTotalMinutes = $derived(
     selectedActivity.buckets.reduce(
@@ -101,6 +128,95 @@
     }
 
     return `${bucket.label}: ${formatDuration(bucket.minutes)} across ${bucket.episodes} sample ${bucket.episodes === 1 ? "episode" : "episodes"}.`;
+  }
+
+  function activityDayAt(
+    weekIndex: number,
+    weekdayIndex: number,
+  ): DashboardPreviewActivityDay | null {
+    return (
+      monthlyActivityDays.find(
+        (day) =>
+          day.weekIndex === weekIndex && day.weekdayIndex === weekdayIndex,
+      ) ?? null
+    );
+  }
+
+  function activityDayAccessibleLabel(
+    day: DashboardPreviewActivityDay,
+  ): string {
+    if (day.minutes === 0) {
+      return `${day.label}: no recorded sample watch time.`;
+    }
+
+    return `${day.label}: ${formatDuration(day.minutes)} across ${day.episodes} sample ${day.episodes === 1 ? "episode" : "episodes"}.`;
+  }
+
+  function contributionLevel(minutes: number): number {
+    if (minutes === 0) {
+      return 0;
+    }
+
+    if (minutes <= 24) {
+      return 1;
+    }
+
+    if (minutes <= 48) {
+      return 2;
+    }
+
+    if (minutes <= 72) {
+      return 3;
+    }
+
+    return 4;
+  }
+
+  async function selectActivityDay(
+    dayOfMonth: number,
+    moveFocus = false,
+  ): Promise<void> {
+    selectedActivityDay = Math.min(
+      monthlyActivityDays.length,
+      Math.max(1, dayOfMonth),
+    );
+
+    if (!moveFocus) {
+      return;
+    }
+
+    await tick();
+    heatmapTable
+      ?.querySelector<HTMLButtonElement>(`[data-day="${selectedActivityDay}"]`)
+      ?.focus();
+  }
+
+  function handleActivityDayKeydown(
+    event: KeyboardEvent,
+    day: DashboardPreviewActivityDay,
+  ): void {
+    let nextDay: number | null = null;
+
+    if (event.key === "ArrowDown") {
+      nextDay = day.dayOfMonth + 1;
+    } else if (event.key === "ArrowUp") {
+      nextDay = day.dayOfMonth - 1;
+    } else if (event.key === "ArrowRight") {
+      nextDay = day.dayOfMonth + 7;
+    } else if (event.key === "ArrowLeft") {
+      nextDay = day.dayOfMonth - 7;
+    } else if (event.key === "Home") {
+      nextDay = 1;
+    } else if (event.key === "End") {
+      nextDay = monthlyActivityDays.length;
+    }
+
+    if (nextDay === null) {
+      return;
+    }
+
+    event.preventDefault();
+    void selectActivityDay(nextDay, true);
   }
 
   function barHeight(minutes: number): number {
@@ -409,46 +525,180 @@
             </p>
           </div>
 
-          <div
-            class="ledger-chart control-rounded border-border bg-glass-control grid min-w-0 grid-cols-[2.25rem_minmax(0,1fr)] gap-2 border p-3 sm:grid-cols-[3rem_minmax(0,1fr)] sm:gap-3 sm:p-4"
-          >
+          {#if activityRange === "month"}
             <div
-              aria-hidden="true"
-              class="text-muted flex min-h-48 flex-col justify-between py-1 text-[0.58rem] tabular-nums sm:min-h-56 sm:text-[0.65rem]"
+              class="heatmap-frame control-rounded border-border bg-glass-control flex min-w-0 flex-col gap-5 border p-3 sm:flex-row sm:items-center sm:justify-center sm:gap-8 sm:p-5"
             >
-              <span>{formatDuration(peakBucket.minutes)}</span>
-              <span>0m</span>
-            </div>
-
-            <ol
-              aria-label={`Fictional sample activity for ${selectedActivity.label}`}
-              class="ledger-bars min-h-48 min-w-0 gap-1.5 sm:min-h-56 sm:gap-2"
-              class:ledger-bars-month={activityRange === "month"}
-              class:ledger-bars-year={activityRange === "year"}
-            >
-              {#each selectedActivity.buckets as bucket (bucket.label)}
-                <li
-                  aria-label={bucketAccessibleLabel(bucket)}
-                  title={bucketAccessibleLabel(bucket)}
-                  class="ledger-bucket min-w-0"
+              <div class="min-w-0 overflow-hidden">
+                <table
+                  bind:this={heatmapTable}
+                  aria-label="Fictional daily sample activity for July 2026"
+                  aria-describedby="monthly-heatmap-help monthly-heatmap-readout"
+                  class="heatmap-table mx-auto"
                 >
-                  <span aria-hidden="true" class="ledger-bar-track">
-                    <span
-                      class="ledger-bar"
-                      class:ledger-bar-empty={bucket.minutes === 0}
-                      style:height={`${barHeight(bucket.minutes)}%`}
-                    ></span>
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    class="text-muted overflow-hidden text-center text-[0.56rem] tracking-[0.05em] text-ellipsis whitespace-nowrap sm:text-[0.64rem]"
+                  <caption class="sr-only">
+                    Daily fictional watch-time contributions for July 2026,
+                    arranged by week and weekday.
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">
+                        <span class="sr-only">Weekday</span>
+                      </th>
+                      {#each heatmapWeekLabels as week (week)}
+                        <th
+                          scope="col"
+                          class="text-muted pb-1 text-center text-[0.58rem] font-light tracking-[0.08em] sm:text-[0.64rem]"
+                        >
+                          {week}
+                        </th>
+                      {/each}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {#each heatmapWeekdays as weekday, weekdayIndex (weekday.label)}
+                      <tr>
+                        <th
+                          scope="row"
+                          title={weekday.label}
+                          class="text-muted pr-1 text-center text-[0.58rem] font-light sm:text-[0.64rem]"
+                        >
+                          <span aria-hidden="true">{weekday.shortLabel}</span>
+                          <span class="sr-only">{weekday.label}</span>
+                        </th>
+                        {#each heatmapWeekLabels as week, weekIndex (week)}
+                          {@const day = activityDayAt(weekIndex, weekdayIndex)}
+                          <td>
+                            {#if day}
+                              <button
+                                type="button"
+                                aria-label={activityDayAccessibleLabel(day)}
+                                aria-pressed={selectedActivityDay ===
+                                  day.dayOfMonth}
+                                title={activityDayAccessibleLabel(day)}
+                                tabindex={selectedActivityDay === day.dayOfMonth
+                                  ? 0
+                                  : -1}
+                                data-day={day.dayOfMonth}
+                                data-level={contributionLevel(day.minutes)}
+                                class="heatmap-cell"
+                                onclick={() =>
+                                  selectActivityDay(day.dayOfMonth)}
+                                onfocus={() =>
+                                  selectActivityDay(day.dayOfMonth)}
+                                onmouseenter={() =>
+                                  selectActivityDay(day.dayOfMonth)}
+                                onkeydown={(event) =>
+                                  handleActivityDayKeydown(event, day)}
+                              ></button>
+                            {:else}
+                              <span
+                                aria-hidden="true"
+                                class="heatmap-cell heatmap-placeholder"
+                              ></span>
+                            {/if}
+                          </td>
+                        {/each}
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
+              </div>
+
+              <aside
+                aria-label="Monthly contribution graph legend"
+                class="border-border min-w-0 border-t pt-4 sm:max-w-52 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-6"
+              >
+                <p
+                  class="text-accent text-[0.65rem] tracking-[0.12em] uppercase"
+                >
+                  daily contribution map
+                </p>
+                <p class="text-muted mt-2 text-xs leading-5">
+                  Each square is one calendar day. Deeper mauve means more
+                  fictional watch time was recorded.
+                </p>
+                <p
+                  id="monthly-heatmap-help"
+                  class="text-muted mt-2 text-[0.65rem] leading-5"
+                >
+                  Focus a day, then use the arrow keys to inspect the ledger.
+                </p>
+                <p
+                  id="monthly-heatmap-readout"
+                  aria-live="polite"
+                  class="border-border text-foreground mt-4 border-l-2 pl-3 text-xs leading-5 tabular-nums"
+                >
+                  {#if inspectedActivityDay}
+                    <span class="text-accent">
+                      JUL {padCount(inspectedActivityDay.dayOfMonth)}
+                    </span>
+                    // {formatDuration(inspectedActivityDay.minutes)} //
+                    {inspectedActivityDay.episodes}
+                    {inspectedActivityDay.episodes === 1 ? "ep" : "eps"}
+                  {/if}
+                </p>
+                <ul
+                  aria-label="Monthly activity intensity legend"
+                  class="mt-4 grid grid-cols-5 gap-2 sm:grid-cols-1"
+                >
+                  {#each heatmapLegend as item (item.level)}
+                    <li class="flex min-w-0 items-center gap-2">
+                      <span
+                        aria-hidden="true"
+                        data-level={item.level}
+                        class="heatmap-cell heatmap-legend-cell shrink-0"
+                      ></span>
+                      <span
+                        class="text-muted overflow-hidden text-[0.58rem] text-ellipsis whitespace-nowrap sm:text-[0.64rem]"
+                      >
+                        {item.label}
+                      </span>
+                    </li>
+                  {/each}
+                </ul>
+              </aside>
+            </div>
+          {:else}
+            <div
+              class="ledger-chart control-rounded border-border bg-glass-control grid min-w-0 grid-cols-[2.25rem_minmax(0,1fr)] gap-2 border p-3 sm:grid-cols-[3rem_minmax(0,1fr)] sm:gap-3 sm:p-4"
+            >
+              <div
+                aria-hidden="true"
+                class="text-muted flex min-h-48 flex-col justify-between py-1 text-[0.58rem] tabular-nums sm:min-h-56 sm:text-[0.65rem]"
+              >
+                <span>{formatDuration(peakBucket.minutes)}</span>
+                <span>0m</span>
+              </div>
+
+              <ol
+                aria-label={`Fictional sample activity for ${selectedActivity.label}`}
+                class="ledger-bars ledger-bars-year min-h-48 min-w-0 gap-1.5 sm:min-h-56 sm:gap-2"
+              >
+                {#each selectedActivity.buckets as bucket (bucket.label)}
+                  <li
+                    aria-label={bucketAccessibleLabel(bucket)}
+                    title={bucketAccessibleLabel(bucket)}
+                    class="ledger-bucket min-w-0"
                   >
-                    {bucket.shortLabel}
-                  </span>
-                </li>
-              {/each}
-            </ol>
-          </div>
+                    <span aria-hidden="true" class="ledger-bar-track">
+                      <span
+                        class="ledger-bar"
+                        class:ledger-bar-empty={bucket.minutes === 0}
+                        style:height={`${barHeight(bucket.minutes)}%`}
+                      ></span>
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      class="text-muted overflow-hidden text-center text-[0.56rem] tracking-[0.05em] text-ellipsis whitespace-nowrap sm:text-[0.64rem]"
+                    >
+                      {bucket.shortLabel}
+                    </span>
+                  </li>
+                {/each}
+              </ol>
+            </div>
+          {/if}
 
           <dl
             role="group"
@@ -654,12 +904,86 @@
     align-items: stretch;
   }
 
-  .ledger-bars-month {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-
   .ledger-bars-year {
     grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  .heatmap-table {
+    border-spacing: 0.35rem;
+    border-collapse: separate;
+    table-layout: fixed;
+  }
+
+  .heatmap-cell {
+    position: relative;
+    display: block;
+    width: 1.75rem;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 0.25rem;
+    background: var(--glass-control);
+    box-shadow: inset 0 1px 0 var(--glass-highlight);
+    color: inherit;
+    padding: 0;
+    appearance: none;
+    transition:
+      transform 160ms ease-out,
+      border-color 160ms ease-out;
+  }
+
+  .heatmap-cell::before {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--accent);
+    content: "";
+    opacity: var(--heat-opacity, 0);
+  }
+
+  .heatmap-cell[data-level="0"] {
+    --heat-opacity: 0;
+  }
+
+  .heatmap-cell[data-level="1"] {
+    --heat-opacity: 0.22;
+  }
+
+  .heatmap-cell[data-level="2"] {
+    --heat-opacity: 0.42;
+  }
+
+  .heatmap-cell[data-level="3"] {
+    --heat-opacity: 0.65;
+  }
+
+  .heatmap-cell[data-level="4"] {
+    --heat-opacity: 0.9;
+  }
+
+  .heatmap-cell:not(.heatmap-placeholder):hover {
+    transform: translateY(-1px) scale(1.04);
+    border-color: var(--accent);
+  }
+
+  button.heatmap-cell {
+    cursor: pointer;
+  }
+
+  button.heatmap-cell[aria-pressed="true"] {
+    border-color: var(--accent);
+    box-shadow:
+      0 0 0 1px var(--accent),
+      inset 0 1px 0 var(--glass-highlight);
+  }
+
+  .heatmap-placeholder {
+    visibility: hidden;
+  }
+
+  .heatmap-legend-cell {
+    width: 0.8rem;
+    border-radius: 0.14rem;
   }
 
   .ledger-bucket {
@@ -703,6 +1027,16 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @media (min-width: 640px) {
+    .heatmap-cell {
+      width: 2.25rem;
+    }
+
+    .heatmap-legend-cell {
+      width: 0.85rem;
     }
   }
 

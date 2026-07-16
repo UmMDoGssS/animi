@@ -27,6 +27,17 @@ export interface DashboardPreviewActivityRange {
   buckets: readonly DashboardPreviewActivityBucket[];
 }
 
+export interface DashboardPreviewActivityDay {
+  kind: "fictional-sample";
+  date: string;
+  label: string;
+  dayOfMonth: number;
+  weekIndex: number;
+  weekdayIndex: number;
+  minutes: number;
+  episodes: number;
+}
+
 export interface DashboardLibrarySummary {
   tracked: number;
   watching: number;
@@ -117,6 +128,58 @@ export const monthlyActivityPreview = {
     },
   ],
 } as const satisfies DashboardPreviewActivityRange;
+
+const julyDailyActivity = [
+  [24, 1],
+  [72, 3],
+  [0, 0],
+  [0, 0],
+  [0, 0],
+  [48, 2],
+  [0, 0],
+  [24, 1],
+  [0, 0],
+  [96, 4],
+  [0, 0],
+  [0, 0],
+  [24, 1],
+  [0, 0],
+  [72, 3],
+  [0, 0],
+  [0, 0],
+  [48, 2],
+  [0, 0],
+  [0, 0],
+  [24, 1],
+  [72, 3],
+  [0, 0],
+  [0, 0],
+  [24, 1],
+  [0, 0],
+  [24, 1],
+  [0, 0],
+  [48, 2],
+  [0, 0],
+  [0, 0],
+] as const;
+
+export const monthlyActivityDays = julyDailyActivity.map(
+  ([minutes, episodes], index): DashboardPreviewActivityDay => {
+    const dayOfMonth = index + 1;
+    const calendarOffset = index + 2;
+
+    return {
+      kind: "fictional-sample",
+      date: `2026-07-${dayOfMonth.toString().padStart(2, "0")}`,
+      label: `July ${dayOfMonth}`,
+      dayOfMonth,
+      weekIndex: Math.floor(calendarOffset / 7),
+      weekdayIndex: calendarOffset % 7,
+      minutes,
+      episodes,
+    };
+  },
+);
 
 export const yearlyActivityPreview = {
   kind: "fictional-sample",

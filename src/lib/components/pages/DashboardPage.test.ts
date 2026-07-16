@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/svelte";
+import { render, screen, waitFor, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
@@ -61,7 +61,7 @@ describe("DashboardPage", () => {
     },
   );
 
-  it("switches between accessible monthly and yearly bar ledgers", async () => {
+  it("switches between a monthly contribution graph and yearly bars", async () => {
     const user = userEvent.setup();
     render(DashboardPage);
 
@@ -70,14 +70,37 @@ describe("DashboardPage", () => {
     expect(monthButton).toHaveAttribute("aria-pressed", "true");
     expect(yearButton).toHaveAttribute("aria-pressed", "false");
 
-    const monthlyChart = screen.getByRole("list", {
-      name: "Fictional sample activity for July 2026",
+    const monthlyChart = screen.getByRole("table", {
+      name: "Fictional daily sample activity for July 2026",
     });
-    expect(within(monthlyChart).getAllByRole("listitem")).toHaveLength(5);
+    expect(within(monthlyChart).getAllByRole("button")).toHaveLength(31);
     expect(
-      within(monthlyChart).getByRole("listitem", {
-        name: "July 1–5: 1h 36m across 4 sample episodes.",
+      within(monthlyChart).getByRole("button", {
+        name: "July 1: 24m across 1 sample episode.",
       }),
+    ).toHaveAttribute("data-level", "1");
+    expect(
+      within(monthlyChart).getByRole("button", {
+        name: "July 3: no recorded sample watch time.",
+      }),
+    ).toHaveAttribute("data-level", "0");
+    expect(
+      within(monthlyChart).getByRole("button", {
+        name: "July 6: 48m across 2 sample episodes.",
+      }),
+    ).toHaveAttribute("data-level", "2");
+    expect(
+      within(monthlyChart).getByRole("button", {
+        name: "July 2: 1h 12m across 3 sample episodes.",
+      }),
+    ).toHaveAttribute("data-level", "3");
+    expect(
+      within(monthlyChart).getByRole("button", {
+        name: "July 10: 1h 36m across 4 sample episodes.",
+      }),
+    ).toHaveAttribute("data-level", "4");
+    expect(
+      screen.getByRole("list", { name: "Monthly activity intensity legend" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("group", { name: "Fictional activity summary" }),
@@ -102,6 +125,50 @@ describe("DashboardPage", () => {
     expect(
       screen.getByText(/7 episodes \/\/ duration unknown/i),
     ).toBeInTheDocument();
+
+    await user.click(monthButton);
+    expect(
+      screen.getByRole("table", {
+        name: "Fictional daily sample activity for July 2026",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("supports roving keyboard inspection across monthly activity days", async () => {
+    const user = userEvent.setup();
+    render(DashboardPage);
+
+    const monthlyChart = screen.getByRole("table", {
+      name: "Fictional daily sample activity for July 2026",
+    });
+    const julyFirst = within(monthlyChart).getByRole("button", {
+      name: "July 1: 24m across 1 sample episode.",
+    });
+    await user.click(julyFirst);
+
+    expect(julyFirst).toHaveAttribute("aria-pressed", "true");
+    expect(julyFirst).toHaveAttribute("tabindex", "0");
+    expect(screen.getByText(/JUL 01/).closest("p")).toHaveTextContent(
+      /JUL 01\s*\/\/ 24m \/\/\s*1 ep/i,
+    );
+
+    await user.keyboard("{ArrowRight}");
+    const julyEighth = within(monthlyChart).getByRole("button", {
+      name: "July 8: 24m across 1 sample episode.",
+    });
+    await waitFor(() => expect(julyEighth).toHaveFocus());
+    expect(julyEighth).toHaveAttribute("aria-pressed", "true");
+
+    await user.keyboard("{ArrowDown}");
+    const julyNinth = within(monthlyChart).getByRole("button", {
+      name: "July 9: no recorded sample watch time.",
+    });
+    await waitFor(() => expect(julyNinth).toHaveFocus());
+    expect(
+      within(monthlyChart)
+        .getAllByRole("button")
+        .filter((button) => button.getAttribute("tabindex") === "0"),
+    ).toHaveLength(1);
   });
 
   it("keeps the populated library while showing truthful no-history copy", async () => {
@@ -123,7 +190,7 @@ describe("DashboardPage", () => {
       screen.queryByRole("group", { name: "Activity range" }),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("list", { name: /Fictional sample activity/ }),
+      screen.queryByRole("table", { name: /Fictional daily sample activity/ }),
     ).not.toBeInTheDocument();
     expect(screen.queryByText("illustrative total")).not.toBeInTheDocument();
 
