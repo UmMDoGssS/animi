@@ -1,0 +1,10 @@
+node_modules
+build
+.svelte-kit
+src-tauri/target
+src-tauri/gen
+coverage
+bun.lock
+AGENTS.md
+PLAN.md
+PROJECT.md
