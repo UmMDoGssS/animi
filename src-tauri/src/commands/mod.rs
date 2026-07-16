@@ -1,3 +1,4 @@
+pub mod dashboard;
 pub mod discovery;
 pub mod library;
 pub mod settings;

@@ -1,5 +1,6 @@
 mod activity;
 mod cache;
+mod dashboard;
 mod error;
 mod library;
 mod metadata;
@@ -13,6 +14,7 @@ use sqlx::{ConnectOptions, SqlitePool};
 
 pub use activity::ActivityRepository;
 pub use cache::CacheRepository;
+pub use dashboard::DashboardRepository;
 pub use error::DatabaseError;
 pub use library::LibraryRepository;
 pub use metadata::MediaRepository;
@@ -98,6 +100,10 @@ impl Database {
 
     pub fn activity(&self) -> ActivityRepository {
         ActivityRepository::new(self.pool.clone())
+    }
+
+    pub fn dashboard(&self) -> DashboardRepository {
+        DashboardRepository::new(self.pool.clone())
     }
 
     pub fn media(&self) -> MediaRepository {

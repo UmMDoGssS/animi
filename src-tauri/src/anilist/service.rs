@@ -469,8 +469,18 @@ mod tests {
         AniListClock, AniListRequest, AniListResponse, AniListTransport, TransportError,
         TransportFuture,
     };
+    use crate::commands::discovery::{
+        MediaDetailsRequest, SearchMediaRequest, get_media_details_with_service,
+        search_media_with_service,
+    };
+    use crate::commands::library::{
+        list_library_with_database, remove_library_entry_with_database,
+        upsert_library_entry_with_database,
+    };
     use crate::database::{CacheRecord, Database, DatabasePaths};
-    use crate::domain::{LibraryStatus, MediaKind, UpsertLibraryEntryRequest};
+    use crate::domain::{
+        LibraryStatus, MediaKind, RemoveLibraryEntryRequest, UpsertLibraryEntryRequest,
+    };
 
     use super::{AniListClient, AniListService, CachePolicy};
 
@@ -673,33 +683,52 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn opened_details_feed_an_enriched_library_that_survives_restart() {
-        let (root, database, service, transport, _clock) = service([response(include_str!(
-            "../../tests/fixtures/anilist/details-known.json"
-        ))])
+    async fn command_boundary_flow_survives_restart_and_requires_confirmed_removal() {
+        let (root, database, service, transport, _clock) = service([
+            response(include_str!(
+                "../../tests/fixtures/anilist/search-success.json"
+            )),
+            response(include_str!(
+                "../../tests/fixtures/anilist/details-known.json"
+            )),
+        ])
         .await;
 
-        let details = service
-            .get_media_details(154_587)
-            .await
-            .expect("mocked details");
+        let search = search_media_with_service(
+            &service,
+            SearchMediaRequest {
+                search: "Frieren".to_owned(),
+                page: 1,
+                per_page: 20,
+            },
+        )
+        .await
+        .expect("mocked search");
+        assert_eq!(search.items[0].anilist_id, 154_587);
+        let details = get_media_details_with_service(
+            &service,
+            MediaDetailsRequest {
+                anilist_id: search.items[0].anilist_id,
+            },
+        )
+        .await
+        .expect("mocked details");
         assert_eq!(details.media.summary.title, "Frieren: Beyond Journey's End");
-        database
-            .library()
-            .upsert(UpsertLibraryEntryRequest {
+        upsert_library_entry_with_database(
+            &database,
+            UpsertLibraryEntryRequest {
                 anilist_id: 154_587,
                 media_kind: MediaKind::Anime,
                 status: LibraryStatus::Watching,
                 progress: 3,
                 score: Some(8.0),
                 notes: Some("local note".to_owned()),
-            })
-            .await
-            .expect("tracked entry");
+            },
+        )
+        .await
+        .expect("tracked entry");
 
-        let first = database
-            .library()
-            .list_items()
+        let first = list_library_with_database(&database)
             .await
             .expect("enriched library");
         assert_eq!(first.len(), 1);
@@ -709,14 +738,13 @@ mod tests {
         assert_eq!(media.title, "Frieren: Beyond Journey's End");
         assert_eq!(media.episodes, Some(28));
         assert_eq!(media.duration_minutes, Some(24));
-        assert_eq!(transport.request_count(), 1);
+        assert_eq!(transport.request_count(), 2);
 
         let paths = DatabasePaths::from_root(root.path()).expect("database paths");
+        drop(service);
         database.close().await;
         let reopened = Database::connect(&paths).await.expect("reopened database");
-        let persisted = reopened
-            .library()
-            .list_items()
+        let persisted = list_library_with_database(&reopened)
             .await
             .expect("persisted enriched library");
         assert_eq!(persisted[0].entry, first[0].entry);
@@ -727,6 +755,43 @@ mod tests {
                 .list()
                 .await
                 .expect("activity")
+                .is_empty()
+        );
+
+        let error = remove_library_entry_with_database(
+            &reopened,
+            RemoveLibraryEntryRequest {
+                anilist_id: 154_587,
+                media_kind: MediaKind::Anime,
+                confirmed: false,
+            },
+        )
+        .await
+        .expect_err("unconfirmed removal must fail");
+        assert_eq!(error.code, "CONFIRMATION_REQUIRED");
+        assert_eq!(
+            list_library_with_database(&reopened)
+                .await
+                .expect("retained library")
+                .len(),
+            1
+        );
+
+        let removed = remove_library_entry_with_database(
+            &reopened,
+            RemoveLibraryEntryRequest {
+                anilist_id: 154_587,
+                media_kind: MediaKind::Anime,
+                confirmed: true,
+            },
+        )
+        .await
+        .expect("confirmed removal");
+        assert!(removed.removed);
+        assert!(
+            list_library_with_database(&reopened)
+                .await
+                .expect("empty library")
                 .is_empty()
         );
     }

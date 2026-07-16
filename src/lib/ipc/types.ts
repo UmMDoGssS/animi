@@ -61,6 +61,51 @@ export interface WatchActivity {
   occurredAt: UtcTimestamp;
 }
 
+export interface DashboardLibraryTotals {
+  tracked: number;
+  watching: number;
+  completed: number;
+  planning: number;
+  currentProgress: number;
+}
+
+export interface DashboardGenreSignal {
+  label: string;
+  titleCount: number;
+}
+
+export interface DashboardTagSignal {
+  label: string;
+  titleCount: number;
+  weightedRank: number;
+}
+
+export interface DashboardPreferenceSignals {
+  eligibleTitles: number;
+  metadataTitles: number;
+  missingMetadataTitles: number;
+  staleMetadataTitles: number;
+  genres: DashboardGenreSignal[];
+  tags: DashboardTagSignal[];
+}
+
+export interface DashboardActivitySummary {
+  eventCount: number;
+  recordedEpisodes: number;
+  knownDurationEpisodes: number;
+  recordedMinutes: number;
+  unknownDurationEpisodes: number;
+  events: WatchActivity[];
+}
+
+export interface DashboardInsights {
+  mediaKind: MediaKind;
+  libraryItems: LibraryItem[];
+  libraryTotals: DashboardLibraryTotals;
+  preferenceSignals: DashboardPreferenceSignals;
+  activity: DashboardActivitySummary;
+}
+
 export interface UpsertLibraryEntryRequest {
   anilistId: number;
   mediaKind: MediaKind;

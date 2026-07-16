@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { isCommandError } from "./types";
 
 import type {
+  DashboardInsights,
   LibraryEntry,
   LibraryItem,
   MediaDetailsResponse,
@@ -132,5 +133,51 @@ describe("library IPC contracts", () => {
     expect(activity.progressDelta).toBe(2);
     expect(activity.episodeDurationMinutes).toBeNull();
     expect(activity.occurredAt.endsWith("Z")).toBe(true);
+  });
+
+  it("keeps Dashboard aggregates tied to the authoritative items and events", () => {
+    const insights: DashboardInsights = {
+      mediaKind: "ANIME",
+      libraryItems: [],
+      libraryTotals: {
+        tracked: 0,
+        watching: 0,
+        completed: 0,
+        planning: 0,
+        currentProgress: 0,
+      },
+      preferenceSignals: {
+        eligibleTitles: 0,
+        metadataTitles: 0,
+        missingMetadataTitles: 0,
+        staleMetadataTitles: 0,
+        genres: [],
+        tags: [],
+      },
+      activity: {
+        eventCount: 1,
+        recordedEpisodes: 3,
+        knownDurationEpisodes: 0,
+        recordedMinutes: 0,
+        unknownDurationEpisodes: 3,
+        events: [
+          {
+            anilistId: 101,
+            mediaKind: "ANIME",
+            progressDelta: 3,
+            episodeDurationMinutes: null,
+            occurredAt: "2026-07-16T08:30:00.000Z",
+          },
+        ],
+      },
+    };
+
+    expect(insights.activity.eventCount).toBe(insights.activity.events.length);
+    expect(insights.activity.unknownDurationEpisodes).toBe(3);
+    expect(insights.preferenceSignals.eligibleTitles).toBe(
+      insights.preferenceSignals.metadataTitles +
+        insights.preferenceSignals.missingMetadataTitles,
+    );
+    expect(insights.preferenceSignals.tags).toHaveLength(0);
   });
 });

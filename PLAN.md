@@ -7,7 +7,7 @@
 | Product | Animi |
 | Release | Version 1, Windows desktop |
 | Overall status | In progress |
-| Current phase | P4 entry gates in progress |
+| Current phase | P4 in progress |
 | Schedule | Dependency-driven; no calendar commitment |
 | Last updated | 2026-07-17 |
 
@@ -48,7 +48,7 @@ The following remain outside v1:
 | P1 | Local persistence and typed IPC | P0 | Complete | Durable library CRUD survives restart safely |
 | P2 | AniList integration and caching | P1 | Complete | Mocked network, cache, offline, and rate-limit behavior passes |
 | P3 | Four-destination application shell and design system | P0; coordinate with P1 contracts | Complete | Home, Discover, Dashboard, and Settings shell works accessibly at desktop and narrow widths |
-| P4 | Discovery, details, Dashboard, and library workflow | P1, P2, P3 | Entry gates in progress | Core discovery-to-library flow passes end to end |
+| P4 | Discovery, details, Dashboard, and library workflow | P1, P2, P3 | In progress | Core discovery-to-library flow passes end to end |
 | P5 | Home airing workflow, insights, and recommendations | P2, P4 | Not started | Home airing/progress, Dashboard insights, and deterministic recommendation behavior pass |
 | P6 | Settings, backup, and recovery | P1, P3, P4 | Not started | Backup round trips and rollback guarantees pass |
 | P7 | Release hardening and Windows packaging | P0-P6 | Not started | Full quality gate and production NSIS acceptance pass |
@@ -78,7 +78,7 @@ All JSON fields crossing the Tauri boundary use camelCase. Rust may use snake_ca
 | Library | `list_library`, `upsert_library_entry`, `advance_library_progress`, `remove_library_entry` | P1, extended and surfaced in P4-P5 |
 | Metadata | `refresh_library_metadata` | P2, surfaced in P4-P5 |
 | Recommendations | `get_recommendations` | P5 |
-| Dashboard | `get_dashboard_insights` | P5 |
+| Dashboard | `get_dashboard_insights` | P4 base aggregates/events; P5 monthly/yearly series |
 | Backup | `export_backup`, `preview_import`, `import_backup` | P6 |
 
 Commands remain thin adapters. Validation, database behavior, AniList behavior, recommendation logic, and backup logic live in testable Rust modules.
@@ -279,8 +279,8 @@ P3-V5 and P3 completed 2026-07-17. Settings now combines the persisted appearanc
 
 ### Entry gate
 
-- [ ] **P4-E1** Library and discovery read models are stable enough to render cover cards, Dashboard sections, aggregates, duration metadata, and watch activity from authoritative records without inferred history.
-- [ ] **P4-E2** Core user-flow tests run against isolated storage and mocked AniList responses.
+- [x] **P4-E1** Library and discovery read models are stable enough to render cover cards, Dashboard sections, aggregates, duration metadata, and watch activity from authoritative records without inferred history.
+- [x] **P4-E2** Core user-flow tests run against isolated storage and mocked AniList responses.
 
 ### Milestones
 
@@ -300,7 +300,7 @@ P3-V5 and P3 completed 2026-07-17. Settings now combines the persisted appearanc
 - [ ] **P4-G3** Offline, stale, empty, missing-total, validation, and command-error states are covered.
 - [ ] **P4-G4** Removal cannot occur without explicit user confirmation.
 
-**Evidence:** Entry-gate foundation completed 2026-07-17. `list_library` now joins authoritative local entries to optional cached presentation metadata without hiding entries that lack a snapshot. AniList details carry nullable episode duration, opened details persist snapshots, legacy duration-less detail caches are bypassed with a versioned key, and stale offline details preserve their original freshness. Append-only migration `0002` adds immutable duration snapshots, a persisted correction high-water mark, and retained watch activity; an immutable v0001 database fixture proves upgrade preservation for library, settings, metadata, airing, and legacy cache rows. Baselines, multiple increases, correction/restoration, known and unknown duration, removal retention, rollback, restart persistence, invalid duration, freshness overflow, and mocked details-to-library behavior are covered. `bun run format:check`, `bun run lint`, `bun run check`, `bun run test` (58 tests), `bun run build`, Rust formatting, Clippy with warnings denied, and the full Rust suite (45 unit tests and 6 integration tests) passed. The normal Rust target remained locked by the open review application, so Clippy and the complete suite used an isolated temporary target that was removed afterward. P4-E1 remains open until the Dashboard aggregate/activity read model is renderable; P4-E2 remains open until the command-boundary core-flow harness is complete. All P4 milestones remain unchecked.
+**Evidence:** P4 entry gates completed 2026-07-17. `list_library` joins authoritative local entries to optional cached presentation metadata without hiding entries that lack a snapshot. AniList details carry nullable episode duration, opened details persist snapshots, legacy duration-less detail caches are bypassed with a versioned key, and stale offline details preserve their original freshness. Append-only migration `0002` adds immutable duration snapshots, a persisted correction high-water mark, and retained watch activity; an immutable v0001 database fixture proves upgrade preservation for library, settings, metadata, airing, and legacy cache rows. The typed `get_dashboard_insights` base contract returns one SQLite read snapshot containing anime-only library totals and items, deterministic watching/completed genre and weighted-tag signals with missing/stale coverage, plus retained activity events and known/unknown-duration totals without inferring history. A temporary-database flow now crosses the mocked search/details and library command helpers through add, enriched list, restart, rejected unconfirmed removal, and confirmed removal. Empty state, concurrent snapshot consistency, baselines, multiple increases, correction/restoration, known and unknown duration, removal retention, rollback, invalid duration, freshness overflow, stale fallback, deterministic aggregation, manga exclusion, and aggregate overflow are covered. The cumulative gate after entry-gate completion passed with `bun run format:check`, `bun run lint`, `bun run check`, `bun run test` (59 tests), `bun run build`, Rust formatting, Clippy with warnings denied, and the full Rust suite (51 unit tests and 6 integration tests). The normal Rust target remained locked by the open review application, so Clippy and the complete suite used an isolated temporary target that was removed afterward. All P4 milestones remain unchecked pending their complete UI and flow behavior.
 
 ## P5 - Home Airing, Dashboard Insights, and Recommendations
 
@@ -466,3 +466,4 @@ Future phases have no schedule, implementation status, or permission to begin. P
 | 2026-07-16 | Record watch activity durably instead of inferring it from library timestamps | Accurate monthly and yearly viewing history requires progress events and duration data that the initial schema does not contain |
 | 2026-07-16 | Deliver the P3 frontend rewrite through user-reviewed visual checkpoints | Allows desktop and narrow-layout approval before proceeding to the next page |
 | 2026-07-17 | Treat initial progress as a baseline and retain an activity high-water mark across corrections | Prevents fabricated history and avoids counting corrected then restored progress twice without mutating append-only events |
+| 2026-07-17 | Establish anime-only Dashboard base insights during P4 and add time series in P5 | Lets the P4 Dashboard render authoritative totals, preference coverage, and raw activity while keeping calendar bucketing in its planned phase |

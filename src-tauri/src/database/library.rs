@@ -1,5 +1,5 @@
 use chrono::{DateTime, Duration, Utc};
-use sqlx::{FromRow, SqlitePool};
+use sqlx::{FromRow, SqliteConnection, SqlitePool};
 
 use crate::domain::{
     CommandError, LibraryEntry, LibraryItem, LibraryMediaSnapshot, LibraryMediaTag, LibraryStatus,
@@ -7,6 +7,18 @@ use crate::domain::{
 };
 
 use super::{DatabaseError, MediaTag as StoredMediaTag, parse_timestamp};
+
+const LIST_ITEMS_QUERY: &str = "SELECT \
+    library.anilist_id, library.media_kind, library.status, library.progress, \
+    library.score, library.notes, library.created_at, library.updated_at, \
+    media.title, media.cover_url, media.media_format, media.genres_json, \
+    media.tags_json, media.media_status, media.total_units, media.duration_minutes, \
+    media.cached_at \
+ FROM library_entries AS library \
+ LEFT JOIN media_snapshots AS media \
+    ON media.anilist_id = library.anilist_id \
+    AND media.media_kind = library.media_kind \
+ ORDER BY library.updated_at DESC, library.anilist_id ASC";
 
 #[derive(Debug, Clone)]
 pub struct LibraryRepository {
@@ -37,21 +49,20 @@ impl LibraryRepository {
         &self,
         now: DateTime<Utc>,
     ) -> Result<Vec<LibraryItem>, DatabaseError> {
-        let rows = sqlx::query_as::<_, LibraryItemRow>(
-            "SELECT \
-                library.anilist_id, library.media_kind, library.status, library.progress, \
-                library.score, library.notes, library.created_at, library.updated_at, \
-                media.title, media.cover_url, media.media_format, media.genres_json, \
-                media.tags_json, media.media_status, media.total_units, media.duration_minutes, \
-                media.cached_at \
-             FROM library_entries AS library \
-             LEFT JOIN media_snapshots AS media \
-                ON media.anilist_id = library.anilist_id \
-                AND media.media_kind = library.media_kind \
-             ORDER BY library.updated_at DESC, library.anilist_id ASC",
-        )
-        .fetch_all(&self.pool)
-        .await?;
+        let rows = sqlx::query_as::<_, LibraryItemRow>(LIST_ITEMS_QUERY)
+            .fetch_all(&self.pool)
+            .await?;
+
+        rows.into_iter().map(|row| row.into_item(now)).collect()
+    }
+
+    pub(super) async fn list_items_on(
+        connection: &mut SqliteConnection,
+        now: DateTime<Utc>,
+    ) -> Result<Vec<LibraryItem>, DatabaseError> {
+        let rows = sqlx::query_as::<_, LibraryItemRow>(LIST_ITEMS_QUERY)
+            .fetch_all(connection)
+            .await?;
 
         rows.into_iter().map(|row| row.into_item(now)).collect()
     }

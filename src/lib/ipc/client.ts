@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 
 import type {
   CommandError,
+  DashboardInsights,
   LibraryEntry,
   LibraryItem,
   MediaDetailsRequest,
@@ -26,6 +27,10 @@ export async function checkBackend(
 
 export async function listLibrary(): Promise<LibraryItem[]> {
   return invoke<LibraryItem[]>("list_library");
+}
+
+export async function getDashboardInsights(): Promise<DashboardInsights> {
+  return invoke<DashboardInsights>("get_dashboard_insights");
 }
 
 export async function upsertLibraryEntry(

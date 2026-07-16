@@ -1,8 +1,11 @@
-use sqlx::{FromRow, SqlitePool};
+use sqlx::{FromRow, SqliteConnection, SqlitePool};
 
-use crate::domain::{MediaKind, WatchActivity};
+use crate::domain::{MediaKind, WatchActivity, format_utc};
 
-use super::DatabaseError;
+use super::{DatabaseError, parse_timestamp};
+
+const LIST_ACTIVITY_QUERY: &str = "SELECT anilist_id, media_kind, progress_delta, episode_duration_minutes, occurred_at \
+     FROM watch_activity ORDER BY occurred_at DESC, id DESC";
 
 #[derive(Debug, Clone)]
 pub struct ActivityRepository {
@@ -15,12 +18,19 @@ impl ActivityRepository {
     }
 
     pub async fn list(&self) -> Result<Vec<WatchActivity>, DatabaseError> {
-        let rows = sqlx::query_as::<_, WatchActivityRow>(
-            "SELECT anilist_id, media_kind, progress_delta, episode_duration_minutes, occurred_at \
-             FROM watch_activity ORDER BY occurred_at DESC, id DESC",
-        )
-        .fetch_all(&self.pool)
-        .await?;
+        let rows = sqlx::query_as::<_, WatchActivityRow>(LIST_ACTIVITY_QUERY)
+            .fetch_all(&self.pool)
+            .await?;
+
+        rows.into_iter().map(WatchActivity::try_from).collect()
+    }
+
+    pub(super) async fn list_on(
+        connection: &mut SqliteConnection,
+    ) -> Result<Vec<WatchActivity>, DatabaseError> {
+        let rows = sqlx::query_as::<_, WatchActivityRow>(LIST_ACTIVITY_QUERY)
+            .fetch_all(connection)
+            .await?;
 
         rows.into_iter().map(WatchActivity::try_from).collect()
     }
@@ -46,7 +56,7 @@ impl TryFrom<WatchActivityRow> for WatchActivity {
             media_kind,
             progress_delta: row.progress_delta,
             episode_duration_minutes: row.episode_duration_minutes,
-            occurred_at: row.occurred_at,
+            occurred_at: format_utc(parse_timestamp(&row.occurred_at)?),
         })
     }
 }

@@ -1,8 +1,13 @@
+mod dashboard;
 mod error;
 mod library;
 mod settings;
 mod smoke;
 
+pub use dashboard::{
+    DashboardActivitySummary, DashboardGenreSignal, DashboardInsights, DashboardLibraryTotals,
+    DashboardPreferenceSignals, DashboardTagSignal,
+};
 pub use error::CommandError;
 pub use library::{
     LibraryEntry, LibraryItem, LibraryMediaSnapshot, LibraryMediaTag, LibraryStatus,

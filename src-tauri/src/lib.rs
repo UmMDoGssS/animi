@@ -31,6 +31,7 @@ pub fn run() {
             commands::library::remove_library_entry,
             commands::settings::get_theme_preference,
             commands::settings::set_theme_preference,
+            commands::dashboard::get_dashboard_insights,
             commands::discovery::search_media,
             commands::discovery::get_media_details,
             commands::discovery::list_trending,
