@@ -7,9 +7,9 @@
 | Product | Animi |
 | Release | Version 1, Windows desktop |
 | Overall status | In progress |
-| Current phase | P3 in progress |
+| Current phase | P3 complete; P4 next |
 | Schedule | Dependency-driven; no calendar commitment |
-| Last updated | 2026-07-16 |
+| Last updated | 2026-07-17 |
 
 This document is the living execution roadmap for Animi. [`PROJECT.md`](PROJECT.md) is authoritative for product scope, architecture, fixed behavior, and technical decisions. This plan is authoritative for implementation order, milestone status, dependencies, and release readiness.
 
@@ -47,7 +47,7 @@ The following remain outside v1:
 | P0 | Scaffold and engineering foundation | Approved project baseline | Complete | Windows app launches and baseline quality checks pass |
 | P1 | Local persistence and typed IPC | P0 | Complete | Durable library CRUD survives restart safely |
 | P2 | AniList integration and caching | P1 | Complete | Mocked network, cache, offline, and rate-limit behavior passes |
-| P3 | Four-destination application shell and design system | P0; coordinate with P1 contracts | In progress | Home, Discover, Dashboard, and Settings shell works accessibly at desktop and narrow widths |
+| P3 | Four-destination application shell and design system | P0; coordinate with P1 contracts | Complete | Home, Discover, Dashboard, and Settings shell works accessibly at desktop and narrow widths |
 | P4 | Discovery, details, Dashboard, and library workflow | P1, P2, P3 | Not started | Core discovery-to-library flow passes end to end |
 | P5 | Home airing workflow, insights, and recommendations | P2, P4 | Not started | Home airing/progress, Dashboard insights, and deterministic recommendation behavior pass |
 | P6 | Settings, backup, and recovery | P1, P3, P4 | Not started | Backup round trips and rollback guarantees pass |
@@ -245,7 +245,7 @@ Complete these checkpoints in order. After each checkpoint, launch the Tauri dev
 - [x] **P3-V2 - Home presentation:** Establish the cover-carousel composition and distinct on-time, catch-up, unknown-schedule, and no-active-anime presentations without claiming live airing integration before P5.
 - [x] **P3-V3 - Discover presentation:** Establish search, cover-card collections, result states, and the secondary details presentation; live command integration remains P4.
 - [x] **P3-V4 - Dashboard presentation:** Establish overview totals, preference summaries, truthful monthly and yearly activity-chart states, and the library-list region. Never fabricate history from mutable timestamps.
-- [ ] **P3-V5 - Settings and cross-view polish:** Consolidate Settings, kaomoji, async states, responsive behavior, reduced motion, and accessibility across all four destinations.
+- [x] **P3-V5 - Settings and cross-view polish:** Consolidate Settings, kaomoji, async states, responsive behavior, reduced motion, and accessibility across all four destinations.
 
 ### Milestones
 
@@ -253,19 +253,21 @@ Complete these checkpoints in order. After each checkpoint, launch the Tauri dev
 - [x] **P3-M2 - Theme preference:** Default to the operating-system preference, persist a manual override through the durable settings boundary, and react predictably when the OS preference changes without an override.
 - [x] **P3-M3 - Visual foundation:** Add rounded, cover-focused page frames for Home, Discover, Dashboard, and Settings plus restrained frosted-glass panels with subtle borders, restrained blur, and opaque fallbacks.
 - [x] **P3-M4 - Navigation shell:** Implement a keyboard-operable floating vertical segmented control for Home, Discover, Dashboard, and Settings, keep it compact at narrow widths, and retain media details as a consistent secondary presentation.
-- [ ] **P3-M5 - Async state components:** Provide focused loading, empty, offline, stale, and error presentations with retry actions where the underlying error is retryable.
-- [ ] **P3-M6 - Accessibility:** Add visible focus, meaningful labels and alternative text, logical heading order, sufficient contrast, reduced-motion behavior, and non-color-only status communication.
+- [x] **P3-M5 - Async state components:** Provide focused loading, empty, offline, stale, and error presentations with retry actions where the underlying error is retryable.
+- [x] **P3-M6 - Accessibility:** Add visible focus, meaningful labels and alternative text, logical heading order, sufficient contrast, reduced-motion behavior, and non-color-only status communication.
 - [x] **P3-M7 - Cat character:** Use restrained cat iconography or kaomoji for orientation, no-active-anime, catch-up, and other supportive states; provide equivalent status text and keep decoration secondary.
-- [ ] **P3-M8 - Layout tests:** Cover all four page frames, the navigation rail, Home carousel shell, Discover cover grid, Dashboard summaries and library region, Settings, and async states in both themes at desktop and narrow widths, including keyboard navigation and reduced motion.
+- [x] **P3-M8 - Layout tests:** Cover all four page frames, the navigation rail, Home carousel shell, Discover cover grid, Dashboard summaries and library region, Settings, and async states in both themes at desktop and narrow widths, including keyboard navigation and reduced motion.
 
 ### Exit gate
 
-- [ ] **P3-G1** Home, Discover, Dashboard, and Settings are each reachable and operable without a mouse.
-- [ ] **P3-G2** Both themes are readable and retain visible focus at desktop and narrow widths.
-- [ ] **P3-G3** Every asynchronous placeholder has a defined terminal success, empty, offline, or error state.
-- [ ] **P3-G4** Component accessibility and responsive-layout tests pass.
+- [x] **P3-G1** Home, Discover, Dashboard, and Settings are each reachable and operable without a mouse.
+- [x] **P3-G2** Both themes are readable and retain visible focus at desktop and narrow widths.
+- [x] **P3-G3** Every asynchronous placeholder has a defined terminal success, empty, offline, or error state.
+- [x] **P3-G4** Component accessibility and responsive-layout tests pass.
 
 **Evidence:** P3 entry gates and P3-M1 completed 2026-07-16. Added explicit Catppuccin Latte and Macchiato selectors behind semantic color tokens, retained system dark-mode selection when no override exists, established a discriminated async-state convention, and added reusable 1280x800 desktop and 390x844 narrow component-test viewports. The user manually confirmed both palettes and the responsive shell at desktop and narrow widths. P3-M2 added accessible System, Light, and Dark controls; typed Tauri commands persist the preference in SQLite, System mode remains driven by the OS media query, failed saves retain the active palette, and themed text selection replaces the browser default. P3-M3, P3-M4, and P3-M7 were completed through the approved visual checkpoints: the four page frames share a terminal-frosted, translucent surface system with consistent reduced radii and mauve borders; the compact floating icon rail supports roving keyboard focus and activation at desktop and narrow widths; details remain a centered secondary presentation; and decorative cat ASCII and kaomoji accompany equivalent status text without obscuring controls. P3-V1 replaced the placeholder shell with the four primary page frames, a keyboard-operable icon rail, compact desktop and 390-pixel layouts, and that user-approved terminal-frosted visual language. The frontend quality gate passed with 14 tests; Rust formatting, Clippy with warnings denied, 36 unit tests, and 5 integration tests passed. P3-V2 added a cover-led Home carousel with distinct on-time, bounded catch-up, unknown-schedule, and no-active-anime sample states. The user manually approved its desktop and narrow layouts, carousel controls and keyboard behavior, preview-only progress interaction, empty-state route, both themes, and terminal-frosted styling; the frontend gate passed with 20 tests. P3-V3 added bundled fictional search and cover collections, explicit no-result recovery, a centered animated details dialog with unknown-data states, keyboard focus restoration, hidden scrollbar chrome, and a responsive contained cat empty state. The user manually approved the Discover presentation at desktop and narrow widths; the frontend gate passed with 27 tests. P3-V4 added a fictional local ledger with derived library totals, preference signals, truthful empty history, a keyboard-inspectable monthly contribution heatmap, yearly bars, unknown-duration exclusions, and three responsive library shelves. The user manually approved the Dashboard presentation at desktop and narrow widths; the frontend gate passed with 32 tests.
+
+P3-V5 and P3 completed 2026-07-17. Settings now combines the persisted appearance control with a truthful local-state manifest plus preview-only cache-policy, backup, recovery, and destructive-data regions without claiming unfinished P6 behavior. A reusable async-state notice covers loading, empty, offline, stale, and error states; retryable theme load and save failures retain and retry the failed operation. Cross-view polish added accessible Latte text and control contrast, visible scroll affordances, focusable skip-link targeting, reduced-motion contracts, and deterministic scroll-to-top behavior when changing primary destinations. Component coverage increased to 56 frontend tests, including Settings at 1280x800 and 390x844, all async presentations, keyboard interactions, both theme token sets, contrast thresholds, and reduced-motion rules. Real-browser checks found no document-level horizontal overflow across all four destinations at either viewport and caught the fixed cross-view scroll carryover. `bun run format:check`, `bun run lint`, `bun run check`, `bun run test`, `bun run build`, Rust formatting, Clippy with warnings denied, and the full Rust suite passed (36 unit tests and 5 integration tests); the Rust suite used an isolated temporary target because the approved Tauri review process already held the normal debug executable open. The user manually approved the final Settings and cross-view checkpoint in both themes at desktop and narrow widths.
 
 ## P4 - Discovery, Details, Dashboard, and Library Workflow
 
