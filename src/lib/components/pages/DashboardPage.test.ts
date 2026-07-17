@@ -124,7 +124,7 @@ function media(
 const libraryItems: LibraryItem[] = [
   {
     entry: entry(101, "WATCHING", 3),
-    media: media("Paper Cranes at Dawn"),
+    media: media("Paper Cranes at Dawn", { releaseDate: "2026-04-03" }),
   },
   {
     entry: entry(202, "COMPLETED", 1, 9),
@@ -136,6 +136,7 @@ const libraryItems: LibraryItem[] = [
       status: "FINISHED",
       episodes: 1,
       durationMinutes: 104,
+      releaseDate: "2025-09-12",
       isStale: true,
     }),
   },
@@ -610,6 +611,49 @@ describe("DashboardPage", () => {
     ]);
   });
 
+  it("backfills upgraded snapshots before relying on the release-date sort", async () => {
+    const legacyInsights: DashboardInsights = {
+      ...indexedInsights,
+      libraryItems: [
+        indexedItem(601, "Alphabetically First", "WATCHING", 1, null, 1, null),
+        indexedItem(602, "Alphabetically Last", "WATCHING", 1, null, 2, null),
+      ],
+    };
+    const refreshedInsights: DashboardInsights = {
+      ...legacyInsights,
+      libraryItems: [
+        indexedItem(601, "Alphabetically First", "WATCHING", 1, null, 1, 1),
+        indexedItem(602, "Alphabetically Last", "WATCHING", 1, null, 2, 2),
+      ],
+    };
+    const loadInsights = vi
+      .fn()
+      .mockResolvedValueOnce(legacyInsights)
+      .mockResolvedValueOnce(refreshedInsights);
+    const refreshMetadata = vi.fn().mockResolvedValue({
+      attempted: 2,
+      updated: 2,
+      stale: 0,
+      failures: [],
+    });
+
+    render(DashboardPage, { loadInsights, refreshMetadata });
+
+    await waitFor(() => expect(refreshMetadata).toHaveBeenCalledOnce());
+    await waitFor(() => expect(loadInsights).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(
+        within(screen.getByRole("list", { name: "Library index results" }))
+          .getAllByRole("button")
+          .map((button) =>
+            button
+              .getAttribute("aria-label")
+              ?.replace("Open library details for ", ""),
+          ),
+      ).toEqual(["Alphabetically Last", "Alphabetically First"]),
+    );
+  });
+
   it("retries a terminal initial load failure", async () => {
     const loadInsights = vi
       .fn()
@@ -815,6 +859,7 @@ describe("DashboardPage", () => {
       genres: ["Mystery"],
       tags: [{ name: "Archives", rank: 86 }],
       episodes: 24,
+      releaseDate: "2024-01-08",
     });
     const recoveredInsights: DashboardInsights = {
       ...populatedInsights,

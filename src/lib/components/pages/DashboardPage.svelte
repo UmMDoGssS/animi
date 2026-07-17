@@ -89,6 +89,7 @@
   let libraryStatusFilter = $state<LibraryStatusFilter>("ALL");
   let librarySort = $state<LibrarySort>("RELEASE_DESC");
   let libraryRail = $state<HTMLElement | null>(null);
+  let releaseDateBackfillChecked = false;
 
   const selectedSummary = $derived.by<MediaSummary | null>(() => {
     if (selectedItem === null) {
@@ -128,6 +129,18 @@
 
     try {
       insights = await loadInsights();
+      if (
+        !releaseDateBackfillChecked &&
+        insights.libraryItems.some(
+          (item) =>
+            item.media !== null &&
+            item.media.releaseDate === null &&
+            item.media.status !== "NOT_YET_RELEASED",
+        )
+      ) {
+        releaseDateBackfillChecked = true;
+        void checkTrackedMetadata();
+      }
     } catch (reason) {
       loadError = normalizeCommandError(reason);
     } finally {

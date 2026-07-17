@@ -12,7 +12,9 @@ use crate::recommendations::{Recommendation, rank_recommendations};
 
 use super::{AiringSchedule, AniListClient, AniListError, MediaDetails, MediaSummary};
 
-const MEDIA_DETAILS_CACHE_SCHEMA_VERSION: u8 = 2;
+// Bump this whenever a persisted detail payload gains a field that library snapshots need.
+// Older payloads deserialize safely, but reusing them would leave the new snapshot field empty.
+const MEDIA_DETAILS_CACHE_SCHEMA_VERSION: u8 = 3;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CachePolicy {
@@ -1053,7 +1055,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn versioned_detail_cache_ignores_duration_incomplete_legacy_payloads() {
+    async fn versioned_detail_cache_refetches_payloads_without_release_dates() {
         let (_root, database, service, transport, clock) = service([response(include_str!(
             "../../tests/fixtures/anilist/details-known.json"
         ))])
@@ -1062,7 +1064,7 @@ mod tests {
         database
             .cache()
             .upsert(&CacheRecord {
-                cache_key: "details:anime:154587".to_owned(),
+                cache_key: "details:v2:anime:154587".to_owned(),
                 payload: serde_json::json!({
                     "anilistId": 154587,
                     "title": "Legacy cached title",
@@ -1070,6 +1072,7 @@ mod tests {
                     "mediaFormat": "TV",
                     "status": "FINISHED",
                     "episodes": 28,
+                    "durationMinutes": 24,
                     "genres": [],
                     "tags": [],
                     "trending": 0,
@@ -1084,16 +1087,20 @@ mod tests {
         let details = service
             .get_media_details(154_587)
             .await
-            .expect("versioned detail refresh");
+            .expect("release-date detail refresh");
 
         assert_eq!(details.media.summary.duration_minutes, Some(24));
+        assert_eq!(
+            details.media.summary.release_date,
+            chrono::NaiveDate::from_ymd_opt(2023, 9, 29)
+        );
         assert_eq!(transport.request_count(), 1);
         assert!(
             database
                 .cache()
-                .get("details:v2:anime:154587")
+                .get("details:v3:anime:154587")
                 .await
-                .expect("v2 cache lookup")
+                .expect("v3 cache lookup")
                 .is_some()
         );
     }
