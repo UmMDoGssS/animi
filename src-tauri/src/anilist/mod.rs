@@ -8,8 +8,9 @@ pub use client::{
     NetworkDisabledTransport, ReqwestTransport, SystemClock, TransportError, TransportFuture,
 };
 pub use service::{
-    AiringScheduleResponse, AniListService, CachePolicy, Freshness, MediaDetailsResponse,
-    MediaPageResponse, MetadataRefreshFailure, RefreshLibraryMetadataResponse,
+    AiringScheduleResponse, AniListService, CachePolicy, Freshness, HomeAiringItem,
+    HomeAiringResponse, MediaDetailsResponse, MediaPageResponse, MetadataRefreshFailure,
+    RecommendationsResponse, RefreshLibraryMetadataResponse,
 };
 pub use types::{AiringSchedule, MediaDetails, MediaSummary, MediaTag, Sequel};
 

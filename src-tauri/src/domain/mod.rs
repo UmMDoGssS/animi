@@ -5,15 +5,15 @@ mod settings;
 mod smoke;
 
 pub use dashboard::{
-    DashboardActivitySummary, DashboardGenreSignal, DashboardInsights, DashboardLibraryTotals,
-    DashboardPreferenceSignals, DashboardTagSignal,
+    DashboardActivityBucket, DashboardActivitySummary, DashboardGenreSignal, DashboardInsights,
+    DashboardLibraryTotals, DashboardPreferenceSignals, DashboardTagSignal,
 };
 pub use error::CommandError;
 pub use library::{
-    LibraryEntry, LibraryItem, LibraryMediaSnapshot, LibraryMediaTag, LibraryStatus,
-    MAX_NOTES_CHARACTERS, MEDIA_DETAILS_CACHE_TTL_HOURS, MediaKind, RemoveLibraryEntryRequest,
-    RemoveLibraryEntryResponse, UpsertLibraryEntryRequest, ValidatedLibraryEntry, WatchActivity,
-    format_utc,
+    AdvanceLibraryProgressRequest, LibraryEntry, LibraryItem, LibraryMediaSnapshot,
+    LibraryMediaTag, LibraryStatus, MAX_NOTES_CHARACTERS, MEDIA_DETAILS_CACHE_TTL_HOURS, MediaKind,
+    RemoveLibraryEntryRequest, RemoveLibraryEntryResponse, UpsertLibraryEntryRequest,
+    ValidatedLibraryEntry, WatchActivity, format_utc,
 };
 pub use settings::ThemePreference;
 pub use smoke::SmokeResponse;

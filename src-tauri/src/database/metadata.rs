@@ -104,6 +104,44 @@ impl MediaRepository {
         Ok(())
     }
 
+    pub async fn replace_airing(
+        &self,
+        anilist_id: i64,
+        media_kind: MediaKind,
+        schedules: &[AiringDataRecord],
+    ) -> Result<(), DatabaseError> {
+        if schedules
+            .iter()
+            .any(|schedule| schedule.anilist_id != anilist_id || schedule.media_kind != media_kind)
+        {
+            return Err(DatabaseError::CorruptData(
+                "Airing replacement contains a mismatched media identifier.".to_owned(),
+            ));
+        }
+        let mut transaction = self.pool.begin().await?;
+        sqlx::query("DELETE FROM airing_data WHERE anilist_id = ? AND media_kind = ?")
+            .bind(anilist_id)
+            .bind(media_kind.as_str())
+            .execute(&mut *transaction)
+            .await?;
+        for airing in schedules {
+            sqlx::query(
+                "INSERT INTO airing_data (\
+                    anilist_id, media_kind, episode_number, airing_at, fetched_at\
+                 ) VALUES (?, ?, ?, ?, ?)",
+            )
+            .bind(airing.anilist_id)
+            .bind(airing.media_kind.as_str())
+            .bind(airing.episode_number)
+            .bind(format_utc(airing.airing_at))
+            .bind(format_utc(airing.fetched_at))
+            .execute(&mut *transaction)
+            .await?;
+        }
+        transaction.commit().await?;
+        Ok(())
+    }
+
     pub async fn list_airing(
         &self,
         anilist_id: i64,

@@ -2,7 +2,8 @@ use serde::Deserialize;
 use tauri::State;
 
 use crate::anilist::{
-    AniListService, MediaDetailsResponse, MediaPageResponse, RefreshLibraryMetadataResponse,
+    AniListService, HomeAiringResponse, MediaDetailsResponse, MediaPageResponse,
+    RecommendationsResponse, RefreshLibraryMetadataResponse,
 };
 use crate::domain::CommandError;
 
@@ -25,6 +26,12 @@ pub struct MediaPageRequest {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct MediaDetailsRequest {
     pub anilist_id: i64,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct RecommendationsRequest {
+    pub per_page: u8,
 }
 
 #[tauri::command(rename_all = "camelCase")]
@@ -58,6 +65,21 @@ pub async fn refresh_library_metadata(
     refresh_library_metadata_with_service(&service).await
 }
 
+#[tauri::command(rename_all = "camelCase")]
+pub async fn get_recommendations(
+    service: State<'_, AniListService>,
+    request: RecommendationsRequest,
+) -> Result<RecommendationsResponse, CommandError> {
+    get_recommendations_with_service(&service, request).await
+}
+
+#[tauri::command(rename_all = "camelCase")]
+pub async fn get_home_airing(
+    service: State<'_, AniListService>,
+) -> Result<HomeAiringResponse, CommandError> {
+    get_home_airing_with_service(&service).await
+}
+
 pub(crate) async fn search_media_with_service(
     service: &AniListService,
     request: SearchMediaRequest,
@@ -85,4 +107,17 @@ pub(crate) async fn refresh_library_metadata_with_service(
     service: &AniListService,
 ) -> Result<RefreshLibraryMetadataResponse, CommandError> {
     service.refresh_library_metadata().await
+}
+
+pub(crate) async fn get_recommendations_with_service(
+    service: &AniListService,
+    request: RecommendationsRequest,
+) -> Result<RecommendationsResponse, CommandError> {
+    service.recommendations(request.per_page).await
+}
+
+pub(crate) async fn get_home_airing_with_service(
+    service: &AniListService,
+) -> Result<HomeAiringResponse, CommandError> {
+    service.home_airing().await
 }

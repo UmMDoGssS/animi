@@ -163,6 +163,12 @@ pub struct RemoveLibraryEntryRequest {
     pub confirmed: bool,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct AdvanceLibraryProgressRequest {
+    pub anilist_id: i64,
+}
+
 impl RemoveLibraryEntryRequest {
     pub fn validate(&self) -> Result<(), CommandError> {
         if !(1..=i64::from(i32::MAX)).contains(&self.anilist_id) {

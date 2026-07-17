@@ -1,8 +1,9 @@
 use std::collections::{BTreeMap, BTreeSet};
 
+use chrono::{DateTime, Datelike, Months, NaiveDate, Utc};
 use serde::Serialize;
 
-use super::{CommandError, LibraryItem, LibraryStatus, MediaKind, WatchActivity};
+use super::{CommandError, LibraryItem, LibraryStatus, MediaKind, WatchActivity, format_utc};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -48,7 +49,20 @@ pub struct DashboardActivitySummary {
     pub known_duration_episodes: i64,
     pub recorded_minutes: i64,
     pub unknown_duration_episodes: i64,
+    pub covered_from: Option<String>,
+    pub covered_to: Option<String>,
+    pub monthly: Vec<DashboardActivityBucket>,
+    pub yearly: Vec<DashboardActivityBucket>,
     pub events: Vec<WatchActivity>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DashboardActivityBucket {
+    pub period: String,
+    pub recorded_episodes: i64,
+    pub recorded_minutes: i64,
+    pub unknown_duration_episodes: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -63,8 +77,16 @@ pub struct DashboardInsights {
 
 impl DashboardInsights {
     pub fn build(
+        library_items: Vec<LibraryItem>,
+        events: Vec<WatchActivity>,
+    ) -> Result<Self, CommandError> {
+        Self::build_at(library_items, events, Utc::now())
+    }
+
+    pub fn build_at(
         mut library_items: Vec<LibraryItem>,
         mut events: Vec<WatchActivity>,
+        now: DateTime<Utc>,
     ) -> Result<Self, CommandError> {
         library_items.retain(|item| item.entry.media_kind == MediaKind::Anime);
         events.retain(|event| event.media_kind == MediaKind::Anime);
@@ -178,7 +200,7 @@ impl DashboardInsights {
             genres: genre_signals,
             tags: tag_signals,
         };
-        let activity = DashboardActivitySummary::build(events)?;
+        let activity = DashboardActivitySummary::build(events, now)?;
         Ok(Self {
             media_kind: MediaKind::Anime,
             library_items,
@@ -190,11 +212,27 @@ impl DashboardInsights {
 }
 
 impl DashboardActivitySummary {
-    fn build(events: Vec<WatchActivity>) -> Result<Self, CommandError> {
+    fn build(events: Vec<WatchActivity>, now: DateTime<Utc>) -> Result<Self, CommandError> {
         let mut recorded_episodes = 0_i64;
         let mut known_duration_episodes = 0_i64;
         let mut recorded_minutes = 0_i64;
         let mut unknown_duration_episodes = 0_i64;
+        let current_month = NaiveDate::from_ymd_opt(now.year(), now.month(), 1)
+            .ok_or_else(invalid_dashboard_data)?;
+        let first_month = current_month
+            .checked_sub_months(Months::new(11))
+            .ok_or_else(invalid_dashboard_data)?;
+        let mut monthly = BTreeMap::<String, DashboardActivityBucket>::new();
+        for offset in 0..12 {
+            let month = first_month
+                .checked_add_months(Months::new(offset))
+                .ok_or_else(invalid_dashboard_data)?;
+            let period = format!("{:04}-{:02}", month.year(), month.month());
+            monthly.insert(period.clone(), DashboardActivityBucket::empty(period));
+        }
+        let mut yearly = BTreeMap::<String, DashboardActivityBucket>::new();
+        let mut covered_from: Option<DateTime<Utc>> = None;
+        let mut covered_to: Option<DateTime<Utc>> = None;
 
         for event in &events {
             if event.progress_delta <= 0
@@ -204,6 +242,11 @@ impl DashboardActivitySummary {
             {
                 return Err(invalid_dashboard_data());
             }
+            let occurred_at = DateTime::parse_from_rfc3339(&event.occurred_at)
+                .map(|timestamp| timestamp.with_timezone(&Utc))
+                .map_err(|_| invalid_dashboard_data())?;
+            covered_from = Some(covered_from.map_or(occurred_at, |value| value.min(occurred_at)));
+            covered_to = Some(covered_to.map_or(occurred_at, |value| value.max(occurred_at)));
             recorded_episodes = recorded_episodes
                 .checked_add(event.progress_delta)
                 .ok_or_else(invalid_dashboard_data)?;
@@ -223,6 +266,17 @@ impl DashboardActivitySummary {
                     .checked_add(event.progress_delta)
                     .ok_or_else(invalid_dashboard_data)?;
             }
+            let year_period = format!("{:04}", occurred_at.year());
+            accumulate_bucket(
+                yearly
+                    .entry(year_period.clone())
+                    .or_insert_with(|| DashboardActivityBucket::empty(year_period)),
+                event,
+            )?;
+            let month_period = format!("{:04}-{:02}", occurred_at.year(), occurred_at.month());
+            if let Some(bucket) = monthly.get_mut(&month_period) {
+                accumulate_bucket(bucket, event)?;
+            }
         }
 
         Ok(Self {
@@ -231,9 +285,51 @@ impl DashboardActivitySummary {
             known_duration_episodes,
             recorded_minutes,
             unknown_duration_episodes,
+            covered_from: covered_from.map(format_utc),
+            covered_to: covered_to.map(format_utc),
+            monthly: monthly.into_values().collect(),
+            yearly: yearly.into_values().collect(),
             events,
         })
     }
+}
+
+impl DashboardActivityBucket {
+    fn empty(period: String) -> Self {
+        Self {
+            period,
+            recorded_episodes: 0,
+            recorded_minutes: 0,
+            unknown_duration_episodes: 0,
+        }
+    }
+}
+
+fn accumulate_bucket(
+    bucket: &mut DashboardActivityBucket,
+    event: &WatchActivity,
+) -> Result<(), CommandError> {
+    bucket.recorded_episodes = bucket
+        .recorded_episodes
+        .checked_add(event.progress_delta)
+        .ok_or_else(invalid_dashboard_data)?;
+    if let Some(duration) = event.episode_duration_minutes {
+        bucket.recorded_minutes = bucket
+            .recorded_minutes
+            .checked_add(
+                event
+                    .progress_delta
+                    .checked_mul(duration)
+                    .ok_or_else(invalid_dashboard_data)?,
+            )
+            .ok_or_else(invalid_dashboard_data)?;
+    } else {
+        bucket.unknown_duration_episodes = bucket
+            .unknown_duration_episodes
+            .checked_add(event.progress_delta)
+            .ok_or_else(invalid_dashboard_data)?;
+    }
+    Ok(())
 }
 
 fn checked_increment(value: i64) -> Result<i64, CommandError> {
@@ -250,6 +346,8 @@ fn invalid_dashboard_data() -> CommandError {
 
 #[cfg(test)]
 mod tests {
+    use chrono::{TimeZone, Utc};
+
     use super::DashboardInsights;
     use crate::domain::{
         LibraryEntry, LibraryItem, LibraryMediaSnapshot, LibraryMediaTag, LibraryStatus, MediaKind,
@@ -306,6 +404,18 @@ mod tests {
             progress_delta,
             episode_duration_minutes: duration,
             occurred_at: "2026-07-16T09:00:00.000Z".to_owned(),
+        }
+    }
+
+    fn activity_at(
+        anilist_id: i64,
+        progress_delta: i64,
+        duration: Option<i64>,
+        occurred_at: &str,
+    ) -> WatchActivity {
+        WatchActivity {
+            occurred_at: occurred_at.to_owned(),
+            ..activity(anilist_id, progress_delta, duration)
         }
     }
 
@@ -426,5 +536,52 @@ mod tests {
         let overflow = DashboardInsights::build(Vec::new(), vec![activity(1, i64::MAX, Some(2))])
             .expect_err("minute overflow must fail");
         assert_eq!(overflow.code, "DASHBOARD_DATA_INVALID");
+    }
+
+    #[test]
+    fn buckets_monthly_and_yearly_activity_with_a_controllable_clock() {
+        let now = Utc
+            .with_ymd_and_hms(2026, 7, 17, 12, 0, 0)
+            .single()
+            .expect("test time");
+        let insights = DashboardInsights::build_at(
+            Vec::new(),
+            vec![
+                activity_at(1, 2, Some(24), "2026-07-16T09:00:00.000Z"),
+                activity_at(2, 1, None, "2026-06-01T09:00:00.000Z"),
+                activity_at(3, 3, Some(20), "2025-12-31T23:00:00.000Z"),
+            ],
+            now,
+        )
+        .expect("bucketed insights");
+
+        assert_eq!(insights.activity.monthly.len(), 12);
+        let july = insights
+            .activity
+            .monthly
+            .iter()
+            .find(|bucket| bucket.period == "2026-07")
+            .expect("July bucket");
+        assert_eq!((july.recorded_episodes, july.recorded_minutes), (2, 48));
+        let june = insights
+            .activity
+            .monthly
+            .iter()
+            .find(|bucket| bucket.period == "2026-06")
+            .expect("June bucket");
+        assert_eq!(june.unknown_duration_episodes, 1);
+        assert_eq!(insights.activity.yearly.len(), 2);
+        assert_eq!(insights.activity.yearly[0].period, "2025");
+        assert_eq!(insights.activity.yearly[0].recorded_minutes, 60);
+        assert_eq!(insights.activity.yearly[1].period, "2026");
+        assert_eq!(insights.activity.yearly[1].recorded_minutes, 48);
+        assert_eq!(
+            insights.activity.covered_from.as_deref(),
+            Some("2025-12-31T23:00:00.000Z")
+        );
+        assert_eq!(
+            insights.activity.covered_to.as_deref(),
+            Some("2026-07-16T09:00:00.000Z")
+        );
     }
 }

@@ -28,6 +28,7 @@ pub fn register_commands<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri
         commands::backups::clear_local_data,
         commands::library::list_library,
         commands::library::upsert_library_entry,
+        commands::library::advance_library_progress,
         commands::library::remove_library_entry,
         commands::settings::get_theme_preference,
         commands::settings::set_theme_preference,
@@ -35,6 +36,8 @@ pub fn register_commands<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri
         commands::discovery::search_media,
         commands::discovery::get_media_details,
         commands::discovery::list_trending,
+        commands::discovery::get_recommendations,
+        commands::discovery::get_home_airing,
         commands::discovery::refresh_library_metadata
     ])
 }

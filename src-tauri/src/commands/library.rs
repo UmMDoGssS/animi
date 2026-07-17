@@ -2,8 +2,8 @@ use tauri::State;
 
 use crate::database::Database;
 use crate::domain::{
-    CommandError, LibraryEntry, LibraryItem, RemoveLibraryEntryRequest, RemoveLibraryEntryResponse,
-    UpsertLibraryEntryRequest,
+    AdvanceLibraryProgressRequest, CommandError, LibraryEntry, LibraryItem,
+    RemoveLibraryEntryRequest, RemoveLibraryEntryResponse, UpsertLibraryEntryRequest,
 };
 
 #[tauri::command(rename_all = "camelCase")]
@@ -25,6 +25,14 @@ pub async fn remove_library_entry(
     request: RemoveLibraryEntryRequest,
 ) -> Result<RemoveLibraryEntryResponse, CommandError> {
     remove_library_entry_with_database(&database, request).await
+}
+
+#[tauri::command(rename_all = "camelCase")]
+pub async fn advance_library_progress(
+    database: State<'_, Database>,
+    request: AdvanceLibraryProgressRequest,
+) -> Result<LibraryEntry, CommandError> {
+    advance_library_progress_with_database(&database, request).await
 }
 
 pub(crate) async fn list_library_with_database(
@@ -57,18 +65,33 @@ pub(crate) async fn remove_library_entry_with_database(
     Ok(RemoveLibraryEntryResponse { removed })
 }
 
+pub(crate) async fn advance_library_progress_with_database(
+    database: &Database,
+    request: AdvanceLibraryProgressRequest,
+) -> Result<LibraryEntry, CommandError> {
+    database
+        .library()
+        .advance_home_progress(request.anilist_id)
+        .await
+}
+
 #[cfg(test)]
 mod tests {
     use tempfile::tempdir;
 
-    use crate::database::{Database, DatabasePaths};
+    use chrono::{Duration, Utc};
+
+    use crate::database::{
+        AiringDataRecord, Database, DatabasePaths, MediaSnapshotRecord, MediaTag,
+    };
     use crate::domain::{
-        LibraryStatus, MediaKind, RemoveLibraryEntryRequest, UpsertLibraryEntryRequest,
+        AdvanceLibraryProgressRequest, LibraryStatus, MediaKind, RemoveLibraryEntryRequest,
+        UpsertLibraryEntryRequest,
     };
 
     use super::{
-        list_library_with_database, remove_library_entry_with_database,
-        upsert_library_entry_with_database,
+        advance_library_progress_with_database, list_library_with_database,
+        remove_library_entry_with_database, upsert_library_entry_with_database,
     };
 
     async fn test_database() -> (tempfile::TempDir, Database) {
@@ -153,5 +176,84 @@ mod tests {
             .expect_err("a closed database should fail");
         assert_eq!(error.code, "DATABASE_UNAVAILABLE");
         assert!(error.retryable);
+    }
+
+    #[tokio::test]
+    async fn home_progress_advances_only_confirmed_available_episodes() {
+        let (_root, database) = test_database().await;
+        let now = Utc::now();
+        database
+            .media()
+            .upsert_snapshot(&MediaSnapshotRecord {
+                anilist_id: 21,
+                media_kind: MediaKind::Anime,
+                title: "Airing Test".to_owned(),
+                cover_url: None,
+                media_format: Some("TV".to_owned()),
+                genres: vec!["Drama".to_owned()],
+                tags: vec![MediaTag {
+                    name: "Time".to_owned(),
+                    rank: 80,
+                }],
+                media_status: Some("RELEASING".to_owned()),
+                total_units: Some(12),
+                duration_minutes: Some(24),
+                cached_at: now,
+            })
+            .await
+            .expect("snapshot");
+        let mut tracked = request();
+        tracked.status = LibraryStatus::Watching;
+        tracked.progress = 1;
+        database
+            .library()
+            .upsert(tracked)
+            .await
+            .expect("tracked entry");
+        database
+            .media()
+            .upsert_airing(&AiringDataRecord {
+                anilist_id: 21,
+                media_kind: MediaKind::Anime,
+                episode_number: 4,
+                airing_at: now + Duration::hours(2),
+                fetched_at: now,
+            })
+            .await
+            .expect("airing row");
+
+        let request = AdvanceLibraryProgressRequest { anilist_id: 21 };
+        let first = advance_library_progress_with_database(&database, request)
+            .await
+            .expect("episode 2");
+        let second = advance_library_progress_with_database(&database, request)
+            .await
+            .expect("episode 3");
+        assert_eq!((first.progress, second.progress), (2, 3));
+        let error = advance_library_progress_with_database(&database, request)
+            .await
+            .expect_err("episode 4 has not aired");
+        assert_eq!(error.code, "PROGRESS_NOT_ADVANCEABLE");
+        assert_eq!(database.activity().list().await.expect("activity").len(), 2);
+    }
+
+    #[tokio::test]
+    async fn home_progress_requires_a_known_future_schedule() {
+        let (_root, database) = test_database().await;
+        let mut tracked = request();
+        tracked.status = LibraryStatus::Watching;
+        database
+            .library()
+            .upsert(tracked)
+            .await
+            .expect("tracked entry");
+
+        let error = advance_library_progress_with_database(
+            &database,
+            AdvanceLibraryProgressRequest { anilist_id: 21 },
+        )
+        .await
+        .expect_err("unknown schedules are not guessed");
+        assert_eq!(error.code, "AIRING_SCHEDULE_UNKNOWN");
     }
 }

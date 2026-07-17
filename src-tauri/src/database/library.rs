@@ -164,6 +164,119 @@ impl LibraryRepository {
         LibraryEntry::try_from(row).map_err(DatabaseError::into_command_error)
     }
 
+    pub async fn advance_home_progress(
+        &self,
+        anilist_id: i64,
+    ) -> Result<LibraryEntry, CommandError> {
+        self.advance_home_progress_at(anilist_id, Utc::now()).await
+    }
+
+    pub(crate) async fn advance_home_progress_at(
+        &self,
+        anilist_id: i64,
+        now: DateTime<Utc>,
+    ) -> Result<LibraryEntry, CommandError> {
+        if !(1..=i64::from(i32::MAX)).contains(&anilist_id) {
+            return Err(CommandError::new(
+                "INVALID_ANILIST_ID",
+                "The AniList identifier is outside the supported range.",
+                false,
+            ));
+        }
+        let timestamp = format_utc(now);
+        let mut transaction = self.pool.begin().await.map_err(map_database_error)?;
+        let row = sqlx::query_as::<_, HomeProgressRow>(
+            "SELECT library.status, library.progress, library.activity_progress, library.score, \
+                library.notes, library.created_at, media.total_units, media.duration_minutes, \
+                (SELECT MIN(airing.episode_number) FROM airing_data AS airing \
+                 WHERE airing.anilist_id = library.anilist_id \
+                   AND airing.media_kind = library.media_kind AND airing.airing_at > ?) \
+                AS next_episode \
+             FROM library_entries AS library \
+             LEFT JOIN media_snapshots AS media \
+               ON media.anilist_id = library.anilist_id \
+              AND media.media_kind = library.media_kind \
+             WHERE library.anilist_id = ? AND library.media_kind = 'ANIME'",
+        )
+        .bind(&timestamp)
+        .bind(anilist_id)
+        .fetch_optional(&mut *transaction)
+        .await
+        .map_err(map_database_error)?
+        .ok_or_else(|| {
+            CommandError::new(
+                "LIBRARY_ENTRY_NOT_FOUND",
+                "This anime is not in the local library.",
+                false,
+            )
+        })?;
+        let status = LibraryStatus::parse(&row.status)?;
+        if status != LibraryStatus::Watching {
+            return Err(CommandError::new(
+                "PROGRESS_NOT_ADVANCEABLE",
+                "Home quick progress is available only for Watching anime.",
+                false,
+            ));
+        }
+        let next_episode = row.next_episode.ok_or_else(|| {
+            CommandError::new(
+                "AIRING_SCHEDULE_UNKNOWN",
+                "The next episode is unknown, so Home did not change progress.",
+                false,
+            )
+        })?;
+        let available_progress = next_episode.saturating_sub(1);
+        let maximum_progress = row
+            .total_units
+            .map_or(available_progress, |total| total.min(available_progress));
+        if row.progress >= maximum_progress {
+            return Err(CommandError::new(
+                "PROGRESS_NOT_ADVANCEABLE",
+                "No confirmed aired episode is waiting to be marked watched.",
+                false,
+            ));
+        }
+        let progress = row.progress + 1;
+        sqlx::query(
+            "UPDATE library_entries SET progress = ?, activity_progress = MAX(activity_progress, ?), \
+             updated_at = ? WHERE anilist_id = ? AND media_kind = 'ANIME'",
+        )
+        .bind(progress)
+        .bind(progress)
+        .bind(&timestamp)
+        .bind(anilist_id)
+        .execute(&mut *transaction)
+        .await
+        .map_err(map_database_error)?;
+        if progress > row.activity_progress {
+            sqlx::query(
+                "INSERT INTO watch_activity (\
+                    event_id, anilist_id, media_kind, progress_delta, \
+                    episode_duration_minutes, occurred_at\
+                 ) VALUES (?, ?, 'ANIME', ?, ?, ?)",
+            )
+            .bind(Uuid::new_v4().to_string())
+            .bind(anilist_id)
+            .bind(progress - row.activity_progress)
+            .bind(row.duration_minutes)
+            .bind(&timestamp)
+            .execute(&mut *transaction)
+            .await
+            .map_err(map_database_error)?;
+        }
+        transaction.commit().await.map_err(map_database_error)?;
+        Ok(LibraryEntry {
+            anilist_id,
+            media_kind: MediaKind::Anime,
+            status,
+            progress,
+            score: row.score,
+            notes: row.notes,
+            created_at: row.created_at,
+            updated_at: timestamp,
+        })
+    }
+
     pub async fn remove(
         &self,
         anilist_id: i64,
@@ -200,6 +313,19 @@ struct LibraryEntryRow {
 struct SnapshotProgressRow {
     total_units: Option<i64>,
     duration_minutes: Option<i64>,
+}
+
+#[derive(Debug, FromRow)]
+struct HomeProgressRow {
+    status: String,
+    progress: i64,
+    activity_progress: i64,
+    score: Option<f64>,
+    notes: Option<String>,
+    created_at: String,
+    total_units: Option<i64>,
+    duration_minutes: Option<i64>,
+    next_episode: Option<i64>,
 }
 
 #[derive(Debug, FromRow)]
@@ -307,10 +433,12 @@ impl TryFrom<LibraryEntryRow> for LibraryEntry {
 
 #[cfg(test)]
 mod tests {
-    use chrono::{DateTime, Utc};
+    use chrono::{DateTime, Duration, Utc};
     use tempfile::tempdir;
 
-    use crate::database::{Database, DatabasePaths, MediaSnapshotRecord, MediaTag};
+    use crate::database::{
+        AiringDataRecord, Database, DatabasePaths, MediaSnapshotRecord, MediaTag,
+    };
     use crate::domain::{LibraryStatus, MediaKind, UpsertLibraryEntryRequest, format_utc};
 
     fn request(progress: i64, status: LibraryStatus) -> UpsertLibraryEntryRequest {
@@ -423,6 +551,48 @@ mod tests {
             .await
             .expect_err("freshness overflow must not panic");
         assert!(matches!(error, super::DatabaseError::CorruptData(_)));
+    }
+
+    #[tokio::test]
+    async fn home_progress_uses_one_transaction_and_a_supplied_clock() {
+        let root = tempdir().expect("temporary database root");
+        let paths = DatabasePaths::from_root(root.path()).expect("valid paths");
+        let database = Database::connect(&paths).await.expect("database");
+        let repository = database.library();
+        let now: DateTime<Utc> = "2026-07-17T08:00:00Z".parse().expect("clock");
+        database
+            .media()
+            .upsert_snapshot(&snapshot(Some(24)))
+            .await
+            .expect("snapshot");
+        repository
+            .upsert_at(request(1, LibraryStatus::Watching), now)
+            .await
+            .expect("baseline");
+        database
+            .media()
+            .upsert_airing(&AiringDataRecord {
+                anilist_id: 1,
+                media_kind: MediaKind::Anime,
+                episode_number: 3,
+                airing_at: now + Duration::hours(1),
+                fetched_at: now,
+            })
+            .await
+            .expect("airing");
+
+        let advanced = repository
+            .advance_home_progress_at(1, now)
+            .await
+            .expect("episode 2");
+        assert_eq!(advanced.progress, 2);
+        assert_eq!(advanced.updated_at, "2026-07-17T08:00:00.000Z");
+        assert_eq!(database.activity().list().await.expect("activity").len(), 1);
+        let error = repository
+            .advance_home_progress_at(1, now)
+            .await
+            .expect_err("episode 3 is unaired");
+        assert_eq!(error.code, "PROGRESS_NOT_ADVANCEABLE");
     }
 
     #[tokio::test]

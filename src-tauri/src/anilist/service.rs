@@ -5,7 +5,10 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
 use crate::database::{CacheRecord, Database, MediaSnapshotRecord, MediaTag as StoredMediaTag};
-use crate::domain::{CommandError, MEDIA_DETAILS_CACHE_TTL_HOURS, MediaKind, format_utc};
+use crate::domain::{
+    CommandError, LibraryItem, LibraryStatus, MEDIA_DETAILS_CACHE_TTL_HOURS, MediaKind, format_utc,
+};
+use crate::recommendations::{Recommendation, rank_recommendations};
 
 use super::{AiringSchedule, AniListClient, AniListError, MediaDetails, MediaSummary};
 
@@ -53,12 +56,37 @@ pub struct MediaDetailsResponse {
     pub freshness: Freshness,
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RecommendationsResponse {
+    pub items: Vec<Recommendation>,
+    pub is_fallback: bool,
+    pub eligible_profile_titles: usize,
+    pub freshness: Freshness,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AiringScheduleResponse {
     pub items: Vec<AiringSchedule>,
     pub has_next_page: bool,
     pub freshness: Freshness,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HomeAiringItem {
+    pub library: LibraryItem,
+    pub next_airing: Option<AiringSchedule>,
+    pub schedule_freshness: Option<Freshness>,
+    pub schedule_error: Option<CommandError>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HomeAiringResponse {
+    pub items: Vec<HomeAiringItem>,
+    pub checked_at: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -162,6 +190,38 @@ impl AniListService {
         })
     }
 
+    pub async fn recommendations(
+        &self,
+        per_page: u8,
+    ) -> Result<RecommendationsResponse, CommandError> {
+        validate_page(1, per_page)?;
+        let library = self
+            .database
+            .library()
+            .list_items()
+            .await
+            .map_err(|error| error.into_command_error())?;
+        let key = format!("recommendation:candidates:anime:1:{per_page}");
+        let cached = self
+            .fetch_cached(&key, CachePolicy::Recommendation, || async {
+                self.client
+                    .trending_media(1, per_page)
+                    .await
+                    .map(|(items, has_next_page)| CachedPage {
+                        items,
+                        has_next_page,
+                    })
+            })
+            .await?;
+        let ranked = rank_recommendations(&library, cached.value.items);
+        Ok(RecommendationsResponse {
+            items: ranked.items,
+            is_fallback: ranked.is_fallback,
+            eligible_profile_titles: ranked.eligible_profile_titles,
+            freshness: cached.freshness,
+        })
+    }
+
     pub async fn get_media_details(
         &self,
         anilist_id: i64,
@@ -199,10 +259,73 @@ impl AniListService {
                     })
             })
             .await?;
+        if self
+            .database
+            .media()
+            .get_snapshot(anilist_id, MediaKind::Anime)
+            .await
+            .map_err(|error| error.into_command_error())?
+            .is_some()
+        {
+            let fetched_at = self.client.now();
+            let schedules = cached
+                .value
+                .items
+                .iter()
+                .map(|schedule| crate::database::AiringDataRecord {
+                    anilist_id,
+                    media_kind: MediaKind::Anime,
+                    episode_number: schedule.episode,
+                    airing_at: schedule.airing_at,
+                    fetched_at,
+                })
+                .collect::<Vec<_>>();
+            self.database
+                .media()
+                .replace_airing(anilist_id, MediaKind::Anime, &schedules)
+                .await
+                .map_err(|error| error.into_command_error())?;
+        }
         Ok(AiringScheduleResponse {
             items: cached.value.items,
             has_next_page: cached.value.has_next_page,
             freshness: cached.freshness,
+        })
+    }
+
+    pub async fn home_airing(&self) -> Result<HomeAiringResponse, CommandError> {
+        let watching = self
+            .database
+            .library()
+            .list_items()
+            .await
+            .map_err(|error| error.into_command_error())?
+            .into_iter()
+            .filter(|item| {
+                item.entry.media_kind == MediaKind::Anime
+                    && item.entry.status == LibraryStatus::Watching
+            })
+            .collect::<Vec<_>>();
+        let mut items = Vec::with_capacity(watching.len());
+        for library in watching {
+            match self.airing_schedule(library.entry.anilist_id, 1, 1).await {
+                Ok(response) => items.push(HomeAiringItem {
+                    library,
+                    next_airing: response.items.into_iter().next(),
+                    schedule_freshness: Some(response.freshness),
+                    schedule_error: None,
+                }),
+                Err(error) => items.push(HomeAiringItem {
+                    library,
+                    next_airing: None,
+                    schedule_freshness: None,
+                    schedule_error: Some(error),
+                }),
+            }
+        }
+        Ok(HomeAiringResponse {
+            items,
+            checked_at: format_utc(self.client.now()),
         })
     }
 
@@ -477,7 +600,9 @@ mod tests {
         list_library_with_database, remove_library_entry_with_database,
         upsert_library_entry_with_database,
     };
-    use crate::database::{CacheRecord, Database, DatabasePaths};
+    use crate::database::{
+        CacheRecord, Database, DatabasePaths, MediaSnapshotRecord, MediaTag as StoredMediaTag,
+    };
     use crate::domain::{
         LibraryStatus, MediaKind, RemoveLibraryEntryRequest, UpsertLibraryEntryRequest,
     };
@@ -570,6 +695,50 @@ mod tests {
         (root, database, service, transport, clock)
     }
 
+    async fn seed_profile_title(
+        database: &Database,
+        anilist_id: i64,
+        status: LibraryStatus,
+        genres: &[&str],
+        tags: &[(&str, i64)],
+    ) {
+        database
+            .media()
+            .upsert_snapshot(&MediaSnapshotRecord {
+                anilist_id,
+                media_kind: MediaKind::Anime,
+                title: format!("Tracked {anilist_id}"),
+                cover_url: None,
+                media_format: Some("TV".to_owned()),
+                genres: genres.iter().map(|value| (*value).to_owned()).collect(),
+                tags: tags
+                    .iter()
+                    .map(|(name, rank)| StoredMediaTag {
+                        name: (*name).to_owned(),
+                        rank: *rank,
+                    })
+                    .collect(),
+                media_status: Some("RELEASING".to_owned()),
+                total_units: Some(12),
+                duration_minutes: Some(24),
+                cached_at: "2026-07-16T08:00:00Z".parse().expect("seed time"),
+            })
+            .await
+            .expect("seed snapshot");
+        database
+            .library()
+            .upsert(UpsertLibraryEntryRequest {
+                anilist_id,
+                media_kind: MediaKind::Anime,
+                status,
+                progress: 1,
+                score: None,
+                notes: None,
+            })
+            .await
+            .expect("seed library entry");
+    }
+
     #[test]
     fn cache_ttls_match_the_product_contract() {
         assert_eq!(CachePolicy::Details.ttl(), Duration::hours(24));
@@ -639,6 +808,94 @@ mod tests {
         assert_eq!(error.code, "ANILIST_OFFLINE");
         assert!(error.retryable);
         assert_eq!(transport.request_count(), 1);
+    }
+
+    #[tokio::test]
+    async fn home_airing_checks_use_the_thirty_minute_cache_and_keep_empty_schedules_unknown() {
+        let (_root, database, service, transport, clock) = service([
+            response(include_str!(
+                "../../tests/fixtures/anilist/airing-success.json"
+            )),
+            response(include_str!(
+                "../../tests/fixtures/anilist/airing-empty.json"
+            )),
+        ])
+        .await;
+        seed_profile_title(
+            &database,
+            21,
+            LibraryStatus::Watching,
+            &["Drama"],
+            &[("Time", 80)],
+        )
+        .await;
+
+        let first = service.home_airing().await.expect("launch check");
+        let cached = service.home_airing().await.expect("cached check");
+        clock.advance(Duration::minutes(29));
+        service.home_airing().await.expect("still cached");
+        assert_eq!(transport.request_count(), 1);
+        assert_eq!(
+            first.items[0].next_airing.as_ref().map(|item| item.episode),
+            Some(29)
+        );
+        assert_eq!(cached.items[0].next_airing, first.items[0].next_airing);
+
+        clock.advance(Duration::minutes(2));
+        let refreshed = service.home_airing().await.expect("interval refresh");
+        assert_eq!(transport.request_count(), 2);
+        assert!(refreshed.items[0].next_airing.is_none());
+        assert!(refreshed.items[0].schedule_error.is_none());
+        assert!(
+            database
+                .media()
+                .list_airing(21, MediaKind::Anime)
+                .await
+                .expect("cleared schedule rows")
+                .is_empty()
+        );
+    }
+
+    #[tokio::test]
+    async fn recommendations_recompute_from_local_history_and_use_stale_candidates_offline() {
+        let (_root, database, service, transport, clock) = service([
+            response(include_str!(
+                "../../tests/fixtures/anilist/recommendation-success.json"
+            )),
+            Err(TransportError::Unavailable("fixture offline".to_owned())),
+        ])
+        .await;
+        seed_profile_title(
+            &database,
+            1,
+            LibraryStatus::Watching,
+            &["Drama"],
+            &[("Found Family", 90)],
+        )
+        .await;
+        seed_profile_title(
+            &database,
+            2,
+            LibraryStatus::Completed,
+            &["Fantasy"],
+            &[("Found Family", 80)],
+        )
+        .await;
+
+        let first = service.recommendations(18).await.expect("recommendations");
+        assert!(!first.is_fallback);
+        assert_eq!(first.eligible_profile_titles, 2);
+        assert_eq!(first.items[0].media.anilist_id, 301);
+        assert_eq!(first.items[0].explanation_labels, vec!["Found Family"]);
+
+        clock.advance(Duration::hours(6) + Duration::seconds(1));
+        let offline = service
+            .recommendations(18)
+            .await
+            .expect("stale offline recommendations");
+        assert!(offline.freshness.is_stale);
+        assert_eq!(offline.items, first.items);
+        assert_eq!(transport.request_count(), 2);
     }
 
     #[tokio::test]
