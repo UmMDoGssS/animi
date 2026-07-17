@@ -162,11 +162,11 @@ describe("MediaDetailsDialog", () => {
       await screen.findByRole("dialog", { name: summary.title }),
     ).toHaveAttribute("open");
     const fallbackNotice = (
-      await screen.findByText("Showing the saved snapshot")
+      await screen.findByText("Showing available details")
     ).closest("[data-status]");
     expect(fallbackNotice).toHaveAttribute("data-status", "offline");
     expect(screen.getByRole("heading", { name: summary.title })).toBeVisible();
-    expect(screen.getByText("cached // stale")).toBeInTheDocument();
+    expect(screen.getByText("may be out of date")).toBeInTheDocument();
     expect(screen.getByText("12 episodes")).toBeInTheDocument();
     expect(screen.getByText("Found Family")).toBeInTheDocument();
 
@@ -175,11 +175,11 @@ describe("MediaDetailsDialog", () => {
     expect(
       await screen.findByRole("dialog", { name: freshDetails.media.title }),
     ).toBeInTheDocument();
-    expect(screen.getByText("cached // current")).toBeInTheDocument();
+    expect(screen.queryByText("may be out of date")).not.toBeInTheDocument();
     expect(screen.getByText("13 episodes")).toBeInTheDocument();
     expect(screen.getByText("Reunion")).toBeInTheDocument();
     expect(
-      screen.queryByText("Showing the saved snapshot"),
+      screen.queryByText("Showing available details"),
     ).not.toBeInTheDocument();
     expect(loadDetails).toHaveBeenCalledTimes(2);
     expect(loadDetails).toHaveBeenNthCalledWith(1, { anilistId: 101 });
@@ -216,9 +216,7 @@ describe("MediaDetailsDialog", () => {
     await screen.findByRole("dialog", { name: unknownDetails.media.title });
     expect(screen.getByText("Episode total unknown")).toBeInTheDocument();
     expect(screen.getByText("Duration unknown")).toBeInTheDocument();
-    expect(
-      screen.getByText("Genre metadata is unavailable."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Genres are unavailable.")).toBeInTheDocument();
     expect(
       screen.getByText("Ranked tags are unavailable."),
     ).toBeInTheDocument();
@@ -288,7 +286,7 @@ describe("MediaDetailsDialog", () => {
     });
 
     expect(
-      await screen.findByText("Reading your local library"),
+      await screen.findByText("Loading your library entry"),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "Add to library" }),
@@ -353,14 +351,14 @@ describe("MediaDetailsDialog", () => {
     ).toBeInTheDocument();
     expect(onLibraryChanged).toHaveBeenNthCalledWith(1, saved);
     expect(
-      within(dialog).getByText("Saved to your local library."),
+      within(dialog).getByText("Added to your library."),
     ).toBeInTheDocument();
 
     await user.click(
       within(dialog).getByRole("button", { name: "Remove from library" }),
     );
     await user.click(
-      within(dialog).getByRole("button", { name: "Confirm local removal" }),
+      within(dialog).getByRole("button", { name: "Remove from library" }),
     );
 
     expect(
@@ -376,7 +374,7 @@ describe("MediaDetailsDialog", () => {
     expect(onLibraryChanged).toHaveBeenNthCalledWith(2, null);
     expect(
       within(dialog).getByText(
-        "Removed from your local library. Recorded activity was kept.",
+        "Removed from your library. Watch history was kept.",
       ),
     ).toBeInTheDocument();
   });

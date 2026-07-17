@@ -50,9 +50,6 @@
   const unknownCount = $derived(
     items.filter((item) => item.nextAiring === null).length,
   );
-  const staleCount = $derived(
-    items.filter((item) => item.scheduleFreshness?.isStale).length,
-  );
 
   onMount(() => {
     void refreshAiring();
@@ -182,15 +179,6 @@
     return `${Math.max(1, remainder)}m`;
   }
 
-  function formatTimestamp(value: string): string {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return value;
-    return new Intl.DateTimeFormat(undefined, {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(date);
-  }
-
   function scheduleState(
     item: HomeAiringItem,
   ): "catch-up" | "on-time" | "unknown" {
@@ -215,30 +203,19 @@
     <header
       class="border-border flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-end sm:justify-between"
     >
-      <div>
-        <p class="text-accent text-xs tracking-[0.18em] uppercase">
-          airing queue // local library
-        </p>
-        <h2
-          id="airing-queue-heading"
-          class="text-foreground mt-2 text-xl font-light tracking-[0.03em] sm:text-2xl"
-        >
-          Your week, one episode at a time.
-        </h2>
-        {#if response}
-          <p class="text-muted mt-2 text-xs leading-5">
-            Schedule check {formatTimestamp(response.checkedAt)}. Cached data is
-            reused for 30 minutes.
-          </p>
-        {/if}
-      </div>
+      <h2
+        id="airing-queue-heading"
+        class="text-foreground text-xl font-light tracking-[0.03em] sm:text-2xl"
+      >
+        Airing this week
+      </h2>
       <button
         type="button"
         disabled={loading}
         class="glass-control glass-interactive control-rounded min-h-10 px-4 py-2 text-xs tracking-[0.08em] disabled:opacity-55"
         onclick={refreshAiring}
       >
-        {loading ? "checking schedules…" : "check schedules"}
+        {loading ? "refreshing…" : "refresh"}
       </button>
     </header>
 
@@ -246,16 +223,15 @@
       <div class="py-6">
         <AsyncStateNotice
           status="loading"
-          title="Checking your airing desk"
-          description="Animi is joining Watching entries to locally cached schedules."
+          title="Loading upcoming episodes"
+          description="Checking the anime on your Watching shelf."
         />
       </div>
     {:else if loadError && response === null}
       <div class="py-6">
         <AsyncStateNotice
           status={loadError.code.includes("OFFLINE") ? "offline" : "error"}
-          title="The airing desk is unavailable"
-          description="No library progress was changed."
+          title="Upcoming episodes could not load"
           error={loadError}
           onRetry={loadError.retryable ? refreshAiring : undefined}
           retryLabel="Check again"
@@ -310,11 +286,6 @@
           <p class="text-muted text-xs tracking-[0.1em] uppercase">
             <span class="text-foreground text-base">{unknownCount}</span> unknown
           </p>
-          {#if staleCount > 0}
-            <p class="text-warning text-xs tracking-[0.1em] uppercase">
-              {staleCount} stale
-            </p>
-          {/if}
         </div>
         <div class="flex items-center gap-2">
           <span
@@ -387,14 +358,6 @@
               >
                 {title(item)}
               </h3>
-              <p
-                class="text-muted mt-2 text-[0.68rem] tracking-[0.08em] uppercase"
-              >
-                {item.scheduleFreshness
-                  ? `${item.scheduleFreshness.isStale ? "stale schedule" : "schedule cached"} // ${formatTimestamp(item.scheduleFreshness.fetchedAt)}`
-                  : (item.scheduleError?.message ?? "schedule not available")}
-              </p>
-
               <div class="border-border mt-6 border-l-2 pl-4">
                 {#if scheduleState(item) === "catch-up"}
                   <p class="text-warning text-2xl font-light sm:text-3xl">
@@ -419,8 +382,7 @@
                     schedule unknown
                   </p>
                   <p class="text-muted mt-2 text-xs leading-5">
-                    Animi will not estimate the next episode or change progress
-                    from Home.
+                    No upcoming episode date is available.
                   </p>
                 {/if}
               </div>
@@ -515,8 +477,8 @@
         <div class="mt-4">
           <AsyncStateNotice
             status={loadError.code.includes("OFFLINE") ? "offline" : "error"}
-            title="The latest schedule check failed"
-            description="The prior local airing desk remains visible."
+            title="Schedules could not be refreshed"
+            description="Your current schedule is still shown."
             error={loadError}
             onRetry={loadError.retryable ? refreshAiring : undefined}
             compact

@@ -56,7 +56,7 @@
     {
       value: "COMPLETED",
       label: "Completed",
-      description: "Finished on this device.",
+      description: "All episodes finished.",
     },
     {
       value: "PLANNING",
@@ -208,9 +208,7 @@
         notes: notesDraft,
       });
       busyOperation = "idle";
-      successMessage = wasEditing
-        ? "Library changes saved on this device."
-        : "Added to your local library.";
+      successMessage = wasEditing ? "Changes saved." : "Added to your library.";
       onSaved?.(savedEntry);
     } catch (reason) {
       busyOperation = "idle";
@@ -254,7 +252,7 @@
       if (!response.removed) {
         operationError = {
           code: "LIBRARY_ENTRY_NOT_FOUND",
-          message: "This title is no longer in the local library.",
+          message: "This title is no longer in your library.",
           retryable: false,
         };
         failedOperation = "remove";
@@ -262,7 +260,7 @@
       }
 
       removalConfirmationVisible = false;
-      successMessage = "Removed from the local library.";
+      successMessage = "Removed from your library.";
       onRemoved?.();
     } catch (reason) {
       busyOperation = "idle";
@@ -278,18 +276,12 @@
   class="glass-panel panel-large border-border min-w-0 border p-4 sm:p-6"
 >
   <header class="border-border border-b pb-4">
-    <p class="text-accent text-[0.68rem] tracking-[0.14em] uppercase">
-      local shelf // {entry === null ? "new record" : "edit record"}
-    </p>
     <h2
       id={headingId}
-      class="text-foreground mt-1 text-lg font-light tracking-[0.03em] sm:text-xl"
+      class="text-foreground text-lg font-light tracking-[0.03em] sm:text-xl"
     >
       {entry === null ? "Add to your library" : "Edit library entry"}
     </h2>
-    <p class="text-muted mt-2 text-xs leading-5 sm:text-sm sm:leading-6">
-      Status, progress, score, and notes stay on this device.
-    </p>
   </header>
 
   <form class="mt-5 grid min-w-0 gap-5" novalidate onsubmit={submitEntry}>
@@ -415,7 +407,7 @@
           class:border-danger={fieldErrors.notes !== undefined}
           oninput={() => clearFeedback("notes")}></textarea>
         <p id={notesHelpId} class="text-muted mt-2 text-xs leading-5">
-          Notes are stored locally and can contain up to 10,000 characters.
+          Up to 10,000 characters.
         </p>
         {#if fieldErrors.notes}
           <p id={notesErrorId} class="text-danger mt-1 text-xs leading-5">
@@ -441,8 +433,9 @@
         class="control-rounded border-danger/60 bg-danger/10 min-w-0 border p-3"
       >
         <p class="text-danger text-[0.65rem] tracking-[0.12em] uppercase">
-          {failedOperation === "save" ? "save failed" : "removal failed"} //
-          {operationError.code}
+          {failedOperation === "save"
+            ? "changes could not be saved"
+            : "anime could not be removed"}
         </p>
         <p class="text-foreground mt-1 text-sm leading-6">
           {operationError.message}
@@ -499,7 +492,7 @@
         class="control-rounded border-danger/70 bg-danger/10 min-w-0 border p-4"
       >
         <p class="text-danger text-[0.65rem] tracking-[0.14em] uppercase">
-          confirm local removal
+          confirm removal
         </p>
         <h3
           id={removalConfirmationHeadingId}
@@ -508,8 +501,7 @@
           Remove this library entry?
         </h3>
         <p class="text-muted mt-2 text-sm leading-6">
-          This removes only the local library record. AniList is unaffected.
-          Recorded watch activity is retained.
+          This removes the title from your library. Your watch history remains.
         </p>
         <div class="mt-4 grid gap-2 sm:flex sm:flex-wrap">
           <button
@@ -519,9 +511,7 @@
             disabled={isBusy}
             onclick={() => void confirmRemoval()}
           >
-            {busyOperation === "removing"
-              ? "Removing…"
-              : "Confirm local removal"}
+            {busyOperation === "removing" ? "Removing…" : "Remove from library"}
           </button>
           <button
             type="button"

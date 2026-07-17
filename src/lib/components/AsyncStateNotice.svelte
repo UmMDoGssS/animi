@@ -17,26 +17,24 @@
     { title: string; description: string }
   > = {
     loading: {
-      title: "Loading this view",
-      description: "Animi is gathering the information this view needs.",
+      title: "Loading",
+      description: "This may take a moment.",
     },
     empty: {
       title: "Nothing here yet",
-      description: "There is no local information to show here yet.",
+      description: "There is nothing to show yet.",
     },
     offline: {
-      title: "Working offline",
-      description:
-        "Live data is unavailable. Cached information remains available when Animi has it.",
+      title: "You're offline",
+      description: "Some anime may be unavailable until you reconnect.",
     },
     stale: {
-      title: "Showing cached data",
-      description:
-        "This information may be out of date because the latest refresh did not finish.",
+      title: "This may be out of date",
+      description: "Reconnect or try again to update it.",
     },
     error: {
-      title: "This view could not load",
-      description: "Animi could not finish this request.",
+      title: "This could not load",
+      description: "Try again.",
     },
   };
 
@@ -58,11 +56,6 @@
         : defaultCopy[status].description),
   );
   let noticeRole = $derived(status === "error" ? "alert" : "status");
-  let showErrorDetail = $derived(
-    error !== null &&
-      status !== "error" &&
-      error.message !== resolvedDescription,
-  );
   let canRetry = $derived(
     error !== null && error.retryable && onRetry !== undefined,
   );
@@ -90,15 +83,6 @@
 
     <div class="min-w-0 flex-1">
       <p
-        class="text-xs font-medium tracking-[0.14em] uppercase"
-        class:text-accent={status === "loading"}
-        class:text-muted={status === "empty"}
-        class:text-warning={status === "offline" || status === "stale"}
-        class:text-danger={status === "error"}
-      >
-        status // {status}
-      </p>
-      <p
         class="text-foreground mt-1 font-medium"
         class:text-sm={compact}
         class:text-base={!compact}
@@ -106,13 +90,6 @@
         {resolvedTitle}
       </p>
       <p class="text-muted mt-1 text-sm leading-6">{resolvedDescription}</p>
-
-      {#if showErrorDetail && error}
-        <p class="text-muted mt-2 text-xs leading-5">
-          <span class="text-foreground">Refresh detail:</span>
-          {error.message}
-        </p>
-      {/if}
 
       {#if canRetry}
         <button

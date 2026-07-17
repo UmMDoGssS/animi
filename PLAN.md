@@ -106,7 +106,7 @@ Every applicable milestone must satisfy these requirements, even when they are n
 
 - AniList requests are on demand and do not bulk-collect metadata.
 - Cache TTLs, stale presentation, rate-limit headers, and `Retry-After` follow `PROJECT.md`.
-- Previously cached data remains usable offline and visibly identifies its age or stale state.
+- Previously cached data remains usable offline and identifies stale data when it affects the current view.
 - Automated tests never contact the live AniList API.
 
 ### User experience and safety
@@ -360,7 +360,7 @@ Verification covers fixed-clock cache expiry and scheduling, empty schedules, st
 
 ### Milestones
 
-- [x] **P6-M1 - Settings page:** Complete the Settings primary destination with theme selection, cache freshness information, backup actions, and destructive local-data actions through accessible controls.
+- [x] **P6-M1 - Settings page:** Complete the Settings primary destination with theme selection, backup actions, and destructive local-data actions through accessible controls.
 - [x] **P6-M2 - Versioned export:** Implement `export_backup` with `schemaVersion`, UTC `exportedAt`, settings, library entries, and user-owned watch activity while excluding caches and images.
 - [x] **P6-M3 - Import validation:** Validate file readability, JSON shape, schema version, enums, timestamps, identifiers, progress, watch activity, duplicate records, and conflicting payloads that reuse an activity event ID before opening a write transaction.
 - [x] **P6-M4 - Import preview:** Implement `preview_import` with counts, conflicts, validation errors, and a clear statement that unrelated local entries will remain.
@@ -376,7 +376,7 @@ Verification covers fixed-clock cache expiry and scheduling, empty schedules, st
 - [x] **P6-G3** Conflict previews match the final transactional result.
 - [x] **P6-G4** No destructive action can silently discard library entries.
 
-**Evidence:** Complete. Backup schema v1 and the supported import-version set are documented beside the Rust DTOs. Append-only migration `0004_watch_activity_identity.sql` gives activity events portable UUID identities while preserving local ordering, and the immutable v0003 fixture proves both the upgrade and the next post-upgrade event identity. Rust-owned native source and destination pickers keep filesystem paths out of IPC. `export_backup` reads one coherent SQLite snapshot and atomically writes only user-owned state. `preview_import` validates the complete bounded file, reports record counts and merge outcomes, and stores the validated payload behind an opaque in-memory token. `import_backup` recomputes that plan inside one write transaction, rejects stale previews, applies the documented timestamp and incarnation rules, treats identical activity events as no-ops, and rolls back on every failure. Settings presents live cache freshness, the accessible recovery ledger, and an isolated clear-data flow requiring `CLEAR MY LOCAL DATA`. Empty and populated round trips, malformed and unsupported backups, invalid and duplicate records, activity identity conflicts, equal/newer local state, both high-water incarnation paths, unrelated retention, injected mid-apply rollback, picker cancellation, cache freshness, and export-clear-preview-restore all have deterministic coverage. The cumulative phase gate passes 91 frontend tests across 13 files, 71 Rust unit tests, and 15 Rust integration tests; final formatting, lint, type, build, Clippy, and production Tauri build evidence was refreshed at phase completion.
+**Evidence:** Complete. Backup schema v1 and the supported import-version set are documented beside the Rust DTOs. Append-only migration `0004_watch_activity_identity.sql` gives activity events portable UUID identities while preserving local ordering, and the immutable v0003 fixture proves both the upgrade and the next post-upgrade event identity. Rust-owned native source and destination pickers keep filesystem paths out of IPC. `export_backup` reads one coherent SQLite snapshot and atomically writes only user-owned state. `preview_import` validates the complete bounded file, reports record counts and merge outcomes, and stores the validated payload behind an opaque in-memory token. `import_backup` recomputes that plan inside one write transaction, rejects stale previews, applies the documented timestamp and incarnation rules, treats identical activity events as no-ops, and rolls back on every failure. Settings presents theme, backup, an accessible restore preview, and an isolated clear-data flow requiring `CLEAR MY LOCAL DATA`. Empty and populated round trips, malformed and unsupported backups, invalid and duplicate records, activity identity conflicts, equal/newer local state, both high-water incarnation paths, unrelated retention, injected mid-apply rollback, picker cancellation, cache freshness, and export-clear-preview-restore all have deterministic coverage. The cumulative phase gate passes 91 frontend tests across 13 files, 71 Rust unit tests, and 15 Rust integration tests; final formatting, lint, type, build, Clippy, and production Tauri build evidence was refreshed at phase completion.
 
 ## P7 - Release Hardening and Windows Packaging
 

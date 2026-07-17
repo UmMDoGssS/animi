@@ -317,7 +317,7 @@ describe("DashboardPage", () => {
         screen.getByRole("heading", { level: 1, name: "Dashboard" }),
       ).toBeInTheDocument();
       const totals = await screen.findByRole("group", {
-        name: "Local library totals",
+        name: "Library totals",
       });
       expect(totals).toHaveClass("grid-cols-2");
       expect(totals).not.toHaveClass("sm:grid-cols-4");
@@ -329,7 +329,7 @@ describe("DashboardPage", () => {
       expect(totals).toHaveTextContent(/completed\s*01/i);
       expect(totals).toHaveTextContent(/planning\s*01/i);
       expect(screen.getByText(/8 episodes/i)).toBeInTheDocument();
-      expect(screen.getByText(/2 of 3 eligible titles/i)).toBeInTheDocument();
+      expect(screen.queryByText(/eligible titles/i)).not.toBeInTheDocument();
       expect(
         screen.getByRole("list", { name: "Genre preference signals" }),
       ).toBeInTheDocument();
@@ -340,10 +340,10 @@ describe("DashboardPage", () => {
       const activity = screen.getByRole("group", {
         name: "Recorded activity summary",
       });
-      expect(activity).toHaveTextContent(/events\s*2/i);
+      expect(activity).toHaveTextContent(/updates\s*2/i);
       expect(activity).toHaveTextContent(/recorded episodes\s*3/i);
       expect(activity).toHaveTextContent(/known watch time\s*48m/i);
-      expect(activity).toHaveTextContent(/duration excluded\s*1 episode/i);
+      expect(activity).toHaveTextContent(/time unknown\s*1 episode/i);
       const monthlyActivity = screen.getByRole("list", {
         name: "Monthly recorded watch activity",
       });
@@ -378,7 +378,7 @@ describe("DashboardPage", () => {
       expect(
         screen.getByRole("list", { name: "Yearly recorded watch activity" }),
       ).toHaveTextContent(/2026.*48m.*3 episodes/i);
-      expect(screen.getByText(/Ledger coverage/i)).toBeInTheDocument();
+      expect(screen.queryByText(/Ledger coverage/i)).not.toBeInTheDocument();
       expect(
         screen.getByRole("list", { name: "Recent recorded progress events" }),
       ).toHaveTextContent(/Paper Cranes at Dawn.*\+2 episodes.*48m/i);
@@ -410,7 +410,7 @@ describe("DashboardPage", () => {
       expect(screen.getAllByText("AniList #404")).toHaveLength(2);
       expect(screen.getAllByText("episode total unknown")).toHaveLength(2);
       expect(screen.getByText(/score \/\/ 7 \/ 10/i)).toBeInTheDocument();
-      expect(screen.getByText(/stale cache/i)).toBeInTheDocument();
+      expect(screen.queryByText(/stale cache/i)).not.toBeInTheDocument();
     },
   );
 
@@ -432,14 +432,14 @@ describe("DashboardPage", () => {
     expect(
       screen.getByRole("heading", {
         level: 3,
-        name: "No progress activity has been recorded yet.",
+        name: "Your watch history is empty.",
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/establish a baseline without fabricating watch time/i),
+      screen.getByText(/update its progress to start your history/i),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "check tracked metadata" }),
+      screen.getByRole("button", { name: "refresh anime details" }),
     ).toBeDisabled();
 
     await user.click(screen.getByRole("button", { name: "open Discover" }));
@@ -587,7 +587,7 @@ describe("DashboardPage", () => {
     await user.click(screen.getByRole("button", { name: "Retry Dashboard" }));
 
     expect(
-      await screen.findByRole("group", { name: "Local library totals" }),
+      await screen.findByRole("group", { name: "Library totals" }),
     ).toHaveTextContent(/tracked\s*00/i);
     expect(loadInsights).toHaveBeenCalledTimes(2);
   });
@@ -613,11 +613,11 @@ describe("DashboardPage", () => {
     render(DashboardPage, { loadInsights, refreshMetadata });
 
     await user.click(
-      await screen.findByRole("button", { name: "check tracked metadata" }),
+      await screen.findByRole("button", { name: "refresh anime details" }),
     );
 
     expect(await screen.findByRole("status")).toHaveTextContent(
-      /1 title updated, 2 titles stale, 1 title failed out of 4 tracked titles/i,
+      /Updated 1 title; 1 title could not be refreshed/i,
     );
     expect(
       screen.getByRole("list", { name: "Library index results" }),
@@ -638,11 +638,11 @@ describe("DashboardPage", () => {
     });
 
     await user.click(
-      await screen.findByRole("button", { name: "check tracked metadata" }),
+      await screen.findByRole("button", { name: "refresh anime details" }),
     );
 
     expect(await screen.findByRole("status")).toHaveTextContent(
-      /Your local edits and saved metadata remain unchanged/i,
+      /Your library is still available/i,
     );
     expect(
       screen.getByRole("list", { name: "Library index results" }),
@@ -669,9 +669,7 @@ describe("DashboardPage", () => {
       name: "Paper Cranes at Dawn",
     });
     expect(dialog).toHaveAttribute("open");
-    expect(
-      within(dialog).getByText("Update your local entry"),
-    ).toBeInTheDocument();
+    expect(within(dialog).getByText("Edit library entry")).toBeInTheDocument();
     expect(loadDetails).toHaveBeenCalledWith({ anilistId: 101 });
 
     await user.click(
@@ -724,7 +722,7 @@ describe("DashboardPage", () => {
     );
 
     expect(
-      await screen.findByText(/saved library rows are updated/i),
+      await screen.findByText(/previous dashboard is still shown/i),
     ).toBeInTheDocument();
     const movedCard = within(
       screen.getByRole("list", { name: "Library index results" }),
@@ -747,7 +745,7 @@ describe("DashboardPage", () => {
     );
     expect(deleteEntry).not.toHaveBeenCalled();
     await user.click(
-      within(dialog).getByRole("button", { name: "Confirm local removal" }),
+      within(dialog).getByRole("button", { name: "Remove from library" }),
     );
     await waitFor(() =>
       expect(
@@ -757,7 +755,7 @@ describe("DashboardPage", () => {
       ).not.toBeInTheDocument(),
     );
     expect(
-      screen.getByRole("group", { name: "Local library totals" }),
+      screen.getByRole("group", { name: "Library totals" }),
     ).toHaveTextContent(/tracked\s*03/i);
     await user.click(
       within(dialog).getByRole("button", { name: "Close details" }),
@@ -765,7 +763,7 @@ describe("DashboardPage", () => {
     await waitFor(() =>
       expect(
         screen.getByRole("heading", {
-          name: "Five titles at a time, the full library in reach.",
+          name: "Your library",
         }),
       ).toHaveFocus(),
     );
@@ -820,7 +818,7 @@ describe("DashboardPage", () => {
       name: "Open library details for Recovered Metadata",
     });
     expect(refreshedCard).toHaveTextContent(/4 \/ 24 eps/);
-    expect(refreshedCard).toHaveTextContent(/cached/i);
+    expect(refreshedCard).not.toHaveTextContent(/cached/i);
     expect(loadInsights).toHaveBeenCalledTimes(2);
   });
 });

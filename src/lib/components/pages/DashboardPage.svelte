@@ -45,7 +45,6 @@
     openDiscovery?: () => void;
   }
 
-  type ReloadContext = "initial" | "mutation" | "details" | "refresh";
   type LibraryStatusFilter = "ALL" | LibraryStatus;
   type LibrarySort =
     "UPDATED_DESC" | "TITLE_ASC" | "PROGRESS_DESC" | "SCORE_DESC";
@@ -76,7 +75,6 @@
   let insights = $state<DashboardInsights | null>(null);
   let loading = $state(true);
   let loadError = $state<CommandError | null>(null);
-  let reloadContext = $state<ReloadContext>("initial");
   let refreshing = $state(false);
   let refreshResult = $state<RefreshLibraryMetadataResponse | null>(null);
   let refreshError = $state<CommandError | null>(null);
@@ -141,9 +139,7 @@
     void loadDashboard();
   });
 
-  async function loadDashboard(
-    context: ReloadContext = "initial",
-  ): Promise<void> {
+  async function loadDashboard(): Promise<void> {
     if (insights === null) {
       loading = true;
     }
@@ -151,10 +147,8 @@
 
     try {
       insights = await loadInsights();
-      reloadContext = "initial";
     } catch (reason) {
       loadError = normalizeCommandError(reason);
-      reloadContext = context;
     } finally {
       loading = false;
     }
@@ -167,7 +161,7 @@
 
     try {
       refreshResult = await refreshMetadata();
-      await loadDashboard("refresh");
+      await loadDashboard();
     } catch (reason) {
       refreshError = normalizeCommandError(reason);
     } finally {
@@ -308,7 +302,7 @@
     entry: LibraryEntry | null,
   ): Promise<void> {
     if (selectedItem === null || insights === null) {
-      await loadDashboard("mutation");
+      await loadDashboard();
       return;
     }
 
@@ -319,7 +313,7 @@
       selectedItem = { ...selectedItem, entry };
       optimisticallyUpdateEntry(previousEntry, entry);
     }
-    await loadDashboard("mutation");
+    await loadDashboard();
   }
 
   async function handleDetailsLoaded(
@@ -350,7 +344,7 @@
           : item,
       ),
     };
-    await loadDashboard("details");
+    await loadDashboard();
   }
 
   function optimisticallyUpdateEntry(
@@ -531,13 +525,13 @@
   {#if loading && insights === null}
     <AsyncStateNotice
       status="loading"
-      title="Opening your local ledger"
-      description="Animi is reading the library and activity stored on this device."
+      title="Loading your dashboard"
+      description="Gathering your library and watch history."
     />
   {:else if loadError && insights === null}
     <AsyncStateNotice
       status="error"
-      title="The local ledger could not load"
+      title="Your dashboard could not load"
       error={loadError}
       onRetry={loadError.retryable ? loadDashboard : undefined}
       retryLabel="Retry Dashboard"
@@ -550,15 +544,12 @@
       <div class="min-w-0 p-4 sm:p-6 lg:p-7">
         <div class="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p class="text-accent text-xs tracking-[0.18em] uppercase">
-              library manifest
-            </p>
             <h2
               id="library-manifest-heading"
-              class="text-foreground mt-2 text-xl font-light tracking-[0.03em] sm:text-2xl"
+              class="text-foreground text-xl font-light tracking-[0.03em] sm:text-2xl"
             >
               {insights.libraryTotals.tracked === 0
-                ? "Your local shelves are quiet."
+                ? "Your shelves are quiet."
                 : `${insights.libraryTotals.tracked} ${insights.libraryTotals.tracked === 1 ? "title" : "titles"}, filed by what comes next.`}
             </h2>
           </div>
@@ -568,13 +559,13 @@
             disabled={refreshing || insights.libraryTotals.tracked === 0}
             onclick={() => void checkTrackedMetadata()}
           >
-            {refreshing ? "checking metadata..." : "check tracked metadata"}
+            {refreshing ? "refreshing…" : "refresh anime details"}
           </button>
         </div>
 
         <dl
           role="group"
-          aria-label="Local library totals"
+          aria-label="Library totals"
           class="border-border mt-6 grid grid-cols-2 border-y"
         >
           <div class="border-border border-r p-3 sm:p-4">
@@ -623,22 +614,15 @@
           <span class="text-foreground tabular-nums">
             {insights.libraryTotals.currentProgress} episodes
           </span>
-          are marked in current entries. This is current library progress, not inferred
-          lifetime history.
+          currently marked watched.
         </p>
 
         {#if loadError}
           <div class="mt-4">
             <AsyncStateNotice
               status="error"
-              title="The latest Dashboard reload failed"
-              description={reloadContext === "mutation"
-                ? "The saved library rows are updated, but totals, preference signals, and activity may lag until reload succeeds."
-                : reloadContext === "details"
-                  ? "The refreshed card metadata is visible, but aggregate signals may lag until reload succeeds."
-                  : reloadContext === "refresh"
-                    ? "Saved library data remains visible, but the metadata summary may lag until reload succeeds."
-                    : "The prior local snapshot remains visible."}
+              title="The dashboard could not be refreshed"
+              description="Your previous dashboard is still shown."
               error={loadError}
               onRetry={loadError.retryable ? loadDashboard : undefined}
               retryLabel="Retry reload"
@@ -653,8 +637,8 @@
               status={refreshError.code.toLocaleUpperCase().includes("OFFLINE")
                 ? "offline"
                 : "error"}
-              title="Tracked metadata was not refreshed"
-              description="Your local edits and saved metadata remain unchanged."
+              title="Anime details could not be refreshed"
+              description="Your library is still available."
               error={refreshError}
               onRetry={refreshError.retryable
                 ? checkTrackedMetadata
@@ -667,16 +651,17 @@
           <p
             role="status"
             class="control-rounded border-border bg-glass-control mt-4 border px-3 py-2 text-xs leading-5"
-            class:text-warning={refreshResult.failures.length > 0 ||
-              refreshResult.stale > 0}
-            class:text-success={refreshResult.failures.length === 0 &&
-              refreshResult.stale === 0}
+            class:text-warning={refreshResult.failures.length > 0}
+            class:text-success={refreshResult.failures.length === 0}
           >
-            Metadata check: {countLabel(refreshResult.updated, "title")} updated,
-            {countLabel(refreshResult.stale, "title")} stale,
-            {countLabel(refreshResult.failures.length, "title")} failed out of
-            {countLabel(refreshResult.attempted, "tracked title")}. Local
-            status, progress, score, and notes were not changed.
+            {#if refreshResult.failures.length > 0}
+              Updated {countLabel(refreshResult.updated, "title")}; {countLabel(
+                refreshResult.failures.length,
+                "title",
+              )} could not be refreshed.
+            {:else}
+              Anime details refreshed.
+            {/if}
           </p>
         {/if}
       </div>
@@ -684,24 +669,14 @@
       <div
         class="border-border min-w-0 border-t p-4 sm:p-6 lg:border-t-0 lg:border-l lg:p-7"
       >
-        <p class="text-accent text-xs tracking-[0.18em] uppercase">
-          preference signals
-        </p>
-        <h2 class="text-foreground mt-2 text-xl font-light tracking-[0.03em]">
-          Watching and Completed metadata.
+        <h2 class="text-foreground text-xl font-light tracking-[0.03em]">
+          Your favorite genres and tags
         </h2>
-        <p class="text-muted mt-2 text-xs leading-5">
-          {insights.preferenceSignals.metadataTitles} of {insights
-            .preferenceSignals.eligibleTitles}
-          eligible titles have metadata. {insights.preferenceSignals
-            .missingMetadataTitles}
-          missing; {insights.preferenceSignals.staleMetadataTitles} stale.
-        </p>
 
         {#if insights.preferenceSignals.genres.length > 0}
           <div class="mt-5">
             <h3 class="text-muted text-[0.65rem] tracking-[0.12em] uppercase">
-              genre frequency
+              favorite genres
             </h3>
             <ul aria-label="Genre preference signals" class="mt-3 grid gap-3">
               {#each insights.preferenceSignals.genres.slice(0, 5) as signal (signal.label)}
@@ -728,15 +703,14 @@
           </div>
         {:else}
           <p class="text-muted mt-5 text-xs leading-5">
-            Track Watching or Completed titles with cached metadata to build
-            genre signals.
+            Genres will appear as you watch and complete anime.
           </p>
         {/if}
 
         {#if insights.preferenceSignals.tags.length > 0}
           <div class="mt-5">
             <h3 class="text-muted text-[0.65rem] tracking-[0.12em] uppercase">
-              strongest ranked tags
+              favorite tags
             </h3>
             <ul
               aria-label="Tag preference signals"
@@ -748,7 +722,7 @@
                 >
                   <span class="block">{tag.label}</span>
                   <span class="text-muted mt-0.5 block text-[0.58rem]">
-                    {countLabel(tag.titleCount, "title")} // rank weight {tag.weightedRank}
+                    {countLabel(tag.titleCount, "title")}
                   </span>
                 </li>
               {/each}
@@ -756,8 +730,7 @@
           </div>
         {:else}
           <p class="text-muted mt-5 text-xs leading-5">
-            Ranked tag signals will appear when eligible cached metadata
-            includes tags.
+            Tags will appear as you watch and complete anime.
           </p>
         {/if}
       </div>
@@ -771,20 +744,13 @@
         class="border-border flex flex-col gap-3 border-b pb-5 sm:flex-row sm:items-end sm:justify-between"
       >
         <div>
-          <p class="text-accent text-xs tracking-[0.18em] uppercase">
-            recorded activity
-          </p>
           <h2
             id="activity-ledger-heading"
-            class="text-foreground mt-2 text-xl font-light tracking-[0.03em] sm:text-2xl"
+            class="text-foreground text-xl font-light tracking-[0.03em] sm:text-2xl"
           >
-            Progress events, never inferred history.
+            Your watch history
           </h2>
         </div>
-        <p class="text-muted max-w-md text-xs leading-5 sm:text-right">
-          Initial progress is a baseline. Only newly recorded progress beyond
-          the high-water mark appears here.
-        </p>
       </header>
 
       {#if insights.activity.eventCount === 0}
@@ -800,17 +766,16 @@
               <p
                 class="text-muted mt-3 text-[0.62rem] tracking-[0.12em] uppercase"
               >
-                ledger quiet
+                no history yet
               </p>
             </div>
           </div>
           <div>
             <h3 class="text-foreground text-lg font-light">
-              No progress activity has been recorded yet.
+              Your watch history is empty.
             </h3>
             <p class="text-muted mt-2 text-sm leading-6">
-              Additions with existing progress establish a baseline without
-              fabricating watch time. A later increase begins this ledger.
+              Watch an episode and update its progress to start your history.
             </p>
           </div>
         </div>
@@ -822,7 +787,7 @@
         >
           <div class="border-border border-l-2 pl-3">
             <dt class="text-muted text-[0.62rem] tracking-[0.1em] uppercase">
-              events
+              updates
             </dt>
             <dd class="text-foreground mt-1 text-lg tabular-nums">
               {insights.activity.eventCount}
@@ -846,7 +811,7 @@
           </div>
           <div class="border-warning border-l-2 pl-3">
             <dt class="text-muted text-[0.62rem] tracking-[0.1em] uppercase">
-              duration excluded
+              time unknown
             </dt>
             <dd class="text-warning mt-1 text-sm tabular-nums">
               {countLabel(insights.activity.unknownDurationEpisodes, "episode")}
@@ -863,33 +828,17 @@
           >
             <div class="flex flex-wrap items-end justify-between gap-2">
               <div>
-                <p
-                  class="text-accent text-[0.62rem] tracking-[0.12em] uppercase"
-                >
-                  12 monthly totals
-                </p>
                 <h3
                   id="monthly-activity-heading"
-                  class="text-foreground mt-1 text-base font-light"
+                  class="text-foreground text-base font-light"
                 >
                   Time spent watching anime each month
                 </h3>
-                <p
-                  id="monthly-activity-description"
-                  class="text-muted mt-2 max-w-lg text-[0.62rem] leading-4"
-                >
+                <p id="monthly-activity-description" class="sr-only">
                   Each bar totals known watch time recorded during one calendar
                   month.
                 </p>
               </div>
-              <p class="text-muted text-[0.62rem] leading-4 sm:text-right">
-                {#if insights.activity.coveredFrom && insights.activity.coveredTo}
-                  Ledger coverage {formatTimestamp(
-                    insights.activity.coveredFrom,
-                  )}<br />
-                  through {formatTimestamp(insights.activity.coveredTo)}
-                {/if}
-              </p>
             </div>
             <div class="mt-4 min-w-0 overflow-x-auto pb-1">
               <ol
@@ -939,12 +888,9 @@
             aria-labelledby="yearly-activity-heading"
             class="glass-control control-rounded border-border border p-3 sm:p-4"
           >
-            <p class="text-accent text-[0.62rem] tracking-[0.12em] uppercase">
-              lifetime ledger
-            </p>
             <h3
               id="yearly-activity-heading"
-              class="text-foreground mt-1 text-base font-light"
+              class="text-foreground text-base font-light"
             >
               Yearly totals
             </h3>
@@ -1006,11 +952,6 @@
             </li>
           {/each}
         </ol>
-        {#if insights.activity.eventCount > 8}
-          <p class="text-muted mt-3 text-xs leading-5">
-            Showing the latest 8 of {insights.activity.eventCount} recorded events.
-          </p>
-        {/if}
       {/if}
     </section>
 
@@ -1022,22 +963,15 @@
         class="border-border flex flex-col gap-3 border-b pb-5 sm:flex-row sm:items-end sm:justify-between"
       >
         <div>
-          <p class="text-accent text-xs tracking-[0.18em] uppercase">
-            library index
-          </p>
           <h2
             bind:this={libraryIndexHeading}
             id="library-index-heading"
             tabindex="-1"
-            class="text-foreground mt-2 text-xl font-light tracking-[0.03em] sm:text-2xl"
+            class="text-foreground text-xl font-light tracking-[0.03em] sm:text-2xl"
           >
-            Five titles at a time, the full library in reach.
+            Your library
           </h2>
         </div>
-        <p class="text-muted max-w-md text-xs leading-5 sm:text-right">
-          Open any entry to edit status, progress, score, notes, or remove it
-          from this device.
-        </p>
       </header>
 
       {#if insights.libraryTotals.tracked === 0}
@@ -1048,8 +982,7 @@
               Your library has no anime yet.
             </h3>
             <p class="text-muted mt-2 text-sm leading-6">
-              Discover a title, open its dossier, and choose a local tracking
-              status to start a shelf.
+              Open a title in Discover and add it to your library.
             </p>
             {#if openDiscovery}
               <button
@@ -1136,9 +1069,6 @@
               >
               matching {filteredLibraryItems.length === 1 ? "title" : "titles"}.
             </p>
-            <p class="text-muted text-[0.65rem] tracking-[0.1em] uppercase">
-              5 titles per page
-            </p>
           </div>
 
           {#if filteredLibraryItems.length === 0}
@@ -1151,7 +1081,7 @@
                 </h3>
                 <p class="text-muted mt-2 text-xs leading-5">
                   Try another title or status, or clear the filters to restore
-                  the complete local index.
+                  your full library.
                 </p>
                 <button
                   type="button"
@@ -1185,11 +1115,6 @@
                     >
                       {item.entry.status.toLocaleLowerCase()}.
                       {progressLabel(item)}.
-                      {item.media === null
-                        ? "Metadata missing."
-                        : item.media.isStale
-                          ? `Stale metadata cached ${formatTimestamp(item.media.cachedAt)}.`
-                          : `Metadata cached ${formatTimestamp(item.media.cachedAt)}.`}
                       {item.entry.score === null
                         ? "No personal score."
                         : `Personal score ${item.entry.score} out of 10.`}
@@ -1215,18 +1140,8 @@
                       <span
                         class="text-muted mt-1 text-[0.62rem] tracking-[0.08em] uppercase"
                       >
-                        {formatMediaFormat(item.media?.mediaFormat ?? null)} //
-                        {item.media === null
-                          ? "metadata missing"
-                          : item.media.isStale
-                            ? "stale cache"
-                            : "cached"}
+                        {formatMediaFormat(item.media?.mediaFormat ?? null)}
                       </span>
-                      {#if item.media}
-                        <span class="text-muted mt-1 text-[0.6rem] leading-4">
-                          Cached {formatTimestamp(item.media.cachedAt)}
-                        </span>
-                      {/if}
                       <span class="mt-3">
                         <span
                           class="text-foreground block text-xs tabular-nums"
@@ -1241,10 +1156,6 @@
                         {#if item.entry.score !== null}
                           <span class="text-muted mt-1 block text-[0.62rem]">
                             score // {item.entry.score} / 10
-                          </span>
-                        {:else}
-                          <span class="text-muted mt-1 block text-[0.62rem]">
-                            no score
                           </span>
                         {/if}
                       </span>

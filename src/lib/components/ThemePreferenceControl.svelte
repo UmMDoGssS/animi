@@ -37,10 +37,7 @@
     <h2 id="theme-preference-heading" class="text-foreground font-medium">
       Appearance
     </h2>
-    <p class="text-muted mt-1 text-sm">
-      Choose how Animi picks its Catppuccin palette. Your choice stays on this
-      device.
-    </p>
+    <p class="text-muted mt-1 text-sm">Choose light, dark, or system colors.</p>
   </div>
 
   <fieldset class="mt-5" disabled={status === "loading" || status === "saving"}>
@@ -75,8 +72,8 @@
     <div class="mt-4">
       <AsyncStateNotice
         status="loading"
-        title="Loading your saved palette"
-        description="System colors stay active while Animi checks this device."
+        title="Loading your theme"
+        description="System colors stay active for now."
         compact
       />
     </div>
@@ -84,8 +81,8 @@
     <div class="mt-4">
       <AsyncStateNotice
         status="loading"
-        title="Saving the palette on this device"
-        description="The current palette stays active until the local save finishes."
+        title="Saving your theme"
+        description="The current colors stay active for now."
         compact
       />
     </div>
@@ -103,7 +100,7 @@
   {:else}
     <p class="text-muted mt-4 text-sm leading-6">
       <span class="text-foreground">{activeOption.label} is active.</span>
-      {activeOption.description} The preference is stored only on this device.
+      {activeOption.description}
     </p>
     {#if hasRequestedChange}
       <p class="sr-only" role="status">

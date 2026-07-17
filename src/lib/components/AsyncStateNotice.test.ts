@@ -22,32 +22,32 @@ describe("AsyncStateNotice", () => {
   it.each([
     {
       status: "loading" as const,
-      title: "Loading this view",
-      description: /gathering the information/i,
+      title: "Loading",
+      description: /may take a moment/i,
       role: "status" as const,
     },
     {
       status: "empty" as const,
       title: "Nothing here yet",
-      description: /no local information/i,
+      description: /nothing to show/i,
       role: "status" as const,
     },
     {
       status: "offline" as const,
-      title: "Working offline",
-      description: /cached information remains available/i,
+      title: "You're offline",
+      description: /until you reconnect/i,
       role: "status" as const,
     },
     {
       status: "stale" as const,
-      title: "Showing cached data",
-      description: /may be out of date/i,
+      title: "This may be out of date",
+      description: /try again to update/i,
       role: "status" as const,
     },
     {
       status: "error" as const,
-      title: "This view could not load",
-      description: /could not finish this request/i,
+      title: "This could not load",
+      description: /try again/i,
       role: "alert" as const,
     },
   ])(
@@ -57,7 +57,6 @@ describe("AsyncStateNotice", () => {
 
       const notice = screen.getByRole(role);
       expect(notice).toHaveAttribute("data-status", status);
-      expect(notice).toHaveTextContent(`status // ${status}`);
       expect(notice).toHaveTextContent(title);
       expect(notice).toHaveTextContent(description);
       expect(notice).toHaveAttribute(
@@ -67,23 +66,13 @@ describe("AsyncStateNotice", () => {
     },
   );
 
-  it.each([
-    {
-      status: "offline" as const,
-      expected: /cached information remains available/i,
-    },
-    {
-      status: "stale" as const,
-      expected: /showing cached data/i,
-    },
-  ])(
-    "keeps cached-data language in the $status state",
-    ({ status, expected }) => {
+  it.each(["offline", "stale"] as const)(
+    "does not expose refresh diagnostics in the %s state",
+    (status) => {
       render(AsyncStateNotice, { status, error: retryableError });
 
       const notice = screen.getByRole("status");
-      expect(notice).toHaveTextContent(expected);
-      expect(notice).toHaveTextContent("AniList could not be reached.");
+      expect(notice).not.toHaveTextContent("AniList could not be reached.");
     },
   );
 
@@ -125,7 +114,7 @@ describe("AsyncStateNotice", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
-  it("supports custom compact copy without losing the state label", () => {
+  it("supports custom compact copy", () => {
     render(AsyncStateNotice, {
       status: "empty",
       title: "No recommendations yet",
@@ -135,7 +124,6 @@ describe("AsyncStateNotice", () => {
 
     const notice = screen.getByRole("status");
     expect(notice).toHaveClass("p-3");
-    expect(notice).toHaveTextContent("status // empty");
     expect(notice).toHaveTextContent("No recommendations yet");
     expect(notice).toHaveTextContent(
       "Complete a few anime to shape this list.",

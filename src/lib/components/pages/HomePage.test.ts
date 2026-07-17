@@ -122,7 +122,7 @@ describe("HomePage", () => {
       expect(screen.getByText("3").closest("p")).toHaveTextContent("watching");
       expect(screen.getByText("2").closest("p")).toHaveTextContent("waiting");
       expect(screen.getByText("1").closest("p")).toHaveTextContent("unknown");
-      expect(screen.getByText("1 stale")).toBeInTheDocument();
+      expect(screen.queryByText(/stale/i)).not.toBeInTheDocument();
       expect(props.loadAiring).toHaveBeenCalledOnce();
     },
   );
@@ -145,7 +145,9 @@ describe("HomePage", () => {
     expect(
       within(unknown).getAllByText("schedule unknown").length,
     ).toBeGreaterThan(0);
-    expect(within(unknown).getByText(/will not estimate/i)).toBeInTheDocument();
+    expect(
+      within(unknown).getByText(/no upcoming episode date/i),
+    ).toBeInTheDocument();
     expect(
       within(unknown).getByRole("button", { name: "schedule unavailable" }),
     ).toBeDisabled();
@@ -188,9 +190,7 @@ describe("HomePage", () => {
     await vi.advanceTimersByTimeAsync(30 * 60 * 1000);
     expect(props.loadAiring).toHaveBeenCalledTimes(2);
 
-    await fireEvent.click(
-      screen.getByRole("button", { name: "check schedules" }),
-    );
+    await fireEvent.click(screen.getByRole("button", { name: "refresh" }));
     expect(props.loadAiring).toHaveBeenCalledTimes(3);
   });
 

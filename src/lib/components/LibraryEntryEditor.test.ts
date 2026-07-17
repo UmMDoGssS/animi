@@ -85,7 +85,7 @@ describe("LibraryEntryEditor", () => {
       expect.objectContaining({ progress: 14, score: 9.25 }),
     );
     expect(screen.getByRole("status")).toHaveTextContent(
-      "Added to your local library.",
+      "Added to your library.",
     );
   });
 
@@ -129,9 +129,7 @@ describe("LibraryEntryEditor", () => {
       score: 10,
       notes: "A keeper.",
     });
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "Library changes saved on this device.",
-    );
+    expect(screen.getByRole("status")).toHaveTextContent("Changes saved.");
   });
 
   it("keeps malformed drafts visible and reports every client-side error", async () => {
@@ -226,7 +224,7 @@ describe("LibraryEntryEditor", () => {
 
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveAttribute("data-error-code", "DATABASE_UNAVAILABLE");
-    expect(alert).toHaveTextContent("DATABASE_UNAVAILABLE");
+    expect(alert).not.toHaveTextContent("DATABASE_UNAVAILABLE");
     expect(alert).toHaveTextContent("The local library could not be saved.");
     expect(screen.getByRole("radio", { name: /planning/i })).toBeChecked();
     expect(screen.getByLabelText("Episodes watched")).toHaveValue("7");
@@ -261,14 +259,11 @@ describe("LibraryEntryEditor", () => {
     }).parentElement;
     expect(confirmation).not.toBeNull();
     expect(confirmation).toHaveTextContent(
-      "This removes only the local library record.",
+      "This removes the title from your library.",
     );
-    expect(confirmation).toHaveTextContent("AniList is unaffected.");
-    expect(confirmation).toHaveTextContent(
-      "Recorded watch activity is retained.",
-    );
+    expect(confirmation).toHaveTextContent("Your watch history remains.");
     expect(
-      screen.getByRole("button", { name: "Confirm local removal" }),
+      screen.getByRole("button", { name: "Remove from library" }),
     ).toHaveFocus();
 
     await user.click(screen.getByRole("button", { name: "Keep entry" }));
@@ -285,7 +280,7 @@ describe("LibraryEntryEditor", () => {
     expect(confirmationRegion).not.toBeNull();
     await user.click(
       within(confirmationRegion as HTMLElement).getByRole("button", {
-        name: "Confirm local removal",
+        name: "Remove from library",
       }),
     );
 
@@ -320,15 +315,15 @@ describe("LibraryEntryEditor", () => {
       screen.getByRole("button", { name: "Remove from library" }),
     );
     await user.click(
-      screen.getByRole("button", { name: "Confirm local removal" }),
+      screen.getByRole("button", { name: "Remove from library" }),
     );
 
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveAttribute("data-error-code", "DATABASE_UNAVAILABLE");
-    expect(alert).toHaveTextContent("removal failed");
+    expect(alert).toHaveTextContent("anime could not be removed");
     expect(screen.getByLabelText(/private notes/i)).toHaveValue("Unsaved note");
     expect(
-      screen.getByRole("button", { name: "Confirm local removal" }),
+      screen.getByRole("button", { name: "Remove from library" }),
     ).toBeInTheDocument();
   });
 });

@@ -316,17 +316,6 @@
       : genres.slice(0, 2).join(" · ");
   }
 
-  function formatTimestamp(value: string): string {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      return value;
-    }
-    return new Intl.DateTimeFormat(undefined, {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(date);
-  }
-
   function isOfflineError(error: CommandError | null): boolean {
     return error?.code.toLocaleUpperCase().includes("OFFLINE") ?? false;
   }
@@ -345,7 +334,7 @@
     <AsyncStateNotice
       status="error"
       title="Tracking controls are unavailable"
-      description="Browsing still works, but Animi could not safely determine what is already in your local library."
+      description="Browsing still works, but library badges and editing are unavailable."
       error={libraryError}
       onRetry={libraryError.retryable ? fetchLibrary : undefined}
       retryLabel="Retry library"
@@ -359,21 +348,13 @@
   >
     <div class="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <p class="text-accent text-[0.68rem] tracking-[0.14em] uppercase">
-          search://anime
-        </p>
         <h2
           id="discover-search-heading"
-          class="text-foreground mt-1 text-lg font-light tracking-[0.03em] sm:text-xl"
+          class="text-foreground text-lg font-light tracking-[0.03em] sm:text-xl"
         >
           Find an anime by title
         </h2>
       </div>
-      <span
-        class="control-rounded border-border bg-glass-control text-muted border px-2 py-1 text-[0.62rem] tracking-[0.12em] uppercase"
-      >
-        AniList metadata
-      </span>
     </div>
 
     <form
@@ -427,14 +408,6 @@
         Search now
       </button>
     </form>
-
-    <div class="border-border border-t pt-3">
-      <p class="text-muted text-xs leading-5">
-        Results update after a short pause. Press Enter to search immediately.
-        Opening a title saves only its useful metadata snapshot; browsing alone
-        does not add it to your library.
-      </p>
-    </div>
   </section>
 
   {#snippet mediaGrid(
@@ -482,13 +455,13 @@
                 class:text-muted={entry === null}
               >
                 {#if libraryLoading}
-                  checking local library
+                  checking library
                 {:else if libraryError}
                   tracking unavailable
                 {:else if entry}
-                  tracked // {entry.status.toLocaleLowerCase()}
+                  {entry.status.toLocaleLowerCase()}
                 {:else}
-                  not tracked
+                  not in library
                 {/if}
               </span>
             </span>
@@ -507,7 +480,7 @@
       aria-label="Recommended anime"
       class="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3"
     >
-      {#each recommendations.slice(0, 6) as recommendation, index (recommendation.media.anilistId)}
+      {#each recommendations.slice(0, 6) as recommendation (recommendation.media.anilistId)}
         {@const media = recommendation.media}
         {@const entry = entryFor(media.anilistId)}
         <li class="min-w-0">
@@ -523,9 +496,7 @@
               <span
                 class="text-muted text-[0.62rem] tracking-[0.1em] uppercase"
               >
-                signal {String(index + 1).padStart(2, "0")} // {formatLabel(
-                  media.mediaFormat,
-                )}
+                {formatLabel(media.mediaFormat)}
               </span>
               <span
                 class="text-foreground mt-1.5 line-clamp-2 text-sm leading-5 font-light"
@@ -534,7 +505,7 @@
               </span>
               {#if fallback}
                 <span class="text-muted mt-2 text-xs leading-5">
-                  Trending while your local taste profile grows.
+                  Popular now.
                 </span>
               {:else if recommendation.explanationLabels.length > 0}
                 <span class="text-muted mt-2 text-xs leading-5">
@@ -542,7 +513,7 @@
                 </span>
               {:else}
                 <span class="text-muted mt-2 text-xs leading-5">
-                  Ranked from local genre and trending signals.
+                  A popular pick.
                 </span>
               {/if}
               <span
@@ -550,9 +521,7 @@
                 class:text-accent={entry !== null}
                 class:text-muted={entry === null}
               >
-                {entry
-                  ? `tracked // ${entry.status.toLocaleLowerCase()}`
-                  : "not tracked"}
+                {entry ? entry.status.toLocaleLowerCase() : "not in library"}
               </span>
             </span>
           </button>
@@ -568,12 +537,9 @@
     >
       <header class="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <p class="text-accent text-[0.66rem] tracking-[0.14em] uppercase">
-            query // {searchTerm}
-          </p>
           <h2
             id="search-results-heading"
-            class="text-foreground mt-1 text-xl font-light tracking-[0.03em]"
+            class="text-foreground text-xl font-light tracking-[0.03em]"
           >
             Search results
           </h2>
@@ -581,8 +547,7 @@
         {#if searchResponse}
           <p class="text-muted text-xs" aria-live="polite">
             {searchResponse.items.length}
-            {searchResponse.items.length === 1 ? "title" : "titles"} // cached
-            {formatTimestamp(searchResponse.freshness.fetchedAt)}
+            {searchResponse.items.length === 1 ? "title" : "titles"}
           </p>
         {/if}
       </header>
@@ -591,7 +556,7 @@
         <AsyncStateNotice
           status="loading"
           title={`Searching for "${searchTerm}"`}
-          description="Animi is checking its cache and AniList when needed."
+          description="Looking for matching anime."
           compact
         />
       {/if}
@@ -609,7 +574,7 @@
             ? "Keeping the last search results"
             : "Search could not finish"}
           description={searchResponse
-            ? "The latest search failed, so the previous results remain visible."
+            ? "Your previous results are still shown."
             : searchError.message}
           error={searchError}
           onRetry={searchError.retryable
@@ -623,8 +588,8 @@
           status={isOfflineError(searchResponse.freshness.refreshError)
             ? "offline"
             : "stale"}
-          title="Showing cached search results"
-          description={`Saved ${formatTimestamp(searchResponse.freshness.fetchedAt)}. The latest refresh did not replace them.`}
+          title="Search results may be out of date"
+          description="Reconnect or try again to update them."
           error={searchResponse.freshness.refreshError}
           onRetry={searchResponse.freshness.refreshError?.retryable
             ? () => executeSearch(searchTerm)
@@ -658,12 +623,9 @@
     >
       <header class="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p class="text-accent text-[0.66rem] tracking-[0.14em] uppercase">
-            local signal // explainable picks
-          </p>
           <h2
             id="recommendations-heading"
-            class="text-foreground mt-1 text-xl font-light tracking-[0.03em]"
+            class="text-foreground text-xl font-light tracking-[0.03em]"
           >
             For your next watch
           </h2>
@@ -671,8 +633,8 @@
         {#if recommendationsResponse}
           <p class="text-muted max-w-sm text-xs leading-5 sm:text-right">
             {recommendationsResponse.isFallback
-              ? `Trending fallback // ${recommendationsResponse.eligibleProfileTitles} eligible local titles`
-              : `Personalized from ${recommendationsResponse.eligibleProfileTitles} local titles`}
+              ? "Popular picks"
+              : "Based on your watchlist"}
           </p>
         {/if}
       </header>
@@ -680,8 +642,8 @@
       {#if recommendationsLoading}
         <AsyncStateNotice
           status="loading"
-          title="Building local recommendations"
-          description="Animi is comparing cached tags and genres on this device."
+          title="Finding anime for you"
+          description="Comparing genres and tags from your watchlist."
           compact
         />
       {/if}
@@ -699,7 +661,7 @@
             ? "Keeping the saved recommendation set"
             : "Recommendations could not load"}
           description={recommendationsResponse
-            ? "The previous explainable results remain visible."
+            ? "Your previous recommendations are still shown."
             : "Search and the separate trending catalog remain available."}
           error={recommendationsError}
           onRetry={recommendationsError.retryable
@@ -713,8 +675,8 @@
           status={isOfflineError(recommendationsResponse.freshness.refreshError)
             ? "offline"
             : "stale"}
-          title="Showing cached recommendations"
-          description={`Candidate data saved ${formatTimestamp(recommendationsResponse.freshness.fetchedAt)}.`}
+          title="Recommendations may be out of date"
+          description="Reconnect or try again to update them."
           error={recommendationsResponse.freshness.refreshError}
           onRetry={recommendationsResponse.freshness.refreshError?.retryable
             ? fetchRecommendations
@@ -735,7 +697,7 @@
           <AsyncStateNotice
             status="empty"
             title="No untracked candidates are available"
-            description="Every cached candidate is already in your library. Check again when trending titles change."
+            description="Everything here is already in your library. Check again later."
             compact
           />
         {/if}
@@ -748,30 +710,20 @@
     >
       <header class="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <p class="text-accent text-[0.66rem] tracking-[0.14em] uppercase">
-            catalog // trending now
-          </p>
           <h2
             id="trending-heading"
-            class="text-foreground mt-1 text-xl font-light tracking-[0.03em]"
+            class="text-foreground text-xl font-light tracking-[0.03em]"
           >
             Trending anime
           </h2>
         </div>
-        {#if trendingResponse}
-          <p class="text-muted text-xs">
-            {trendingResponse.items.length}
-            {trendingResponse.items.length === 1 ? "title" : "titles"} // cached
-            {formatTimestamp(trendingResponse.freshness.fetchedAt)}
-          </p>
-        {/if}
       </header>
 
       {#if trendingLoading}
         <AsyncStateNotice
           status="loading"
           title="Loading trending anime"
-          description="Animi is checking its discovery cache and AniList when needed."
+          description="Finding popular anime."
           compact
         />
       {/if}
@@ -789,7 +741,7 @@
             ? "Keeping the saved trending list"
             : "Trending anime could not load"}
           description={trendingResponse
-            ? "The latest refresh failed, so the previous trending list remains visible."
+            ? "Your previous trending list is still shown."
             : trendingError.message}
           error={trendingError}
           onRetry={trendingError.retryable ? fetchTrending : undefined}
@@ -801,8 +753,8 @@
           status={isOfflineError(trendingResponse.freshness.refreshError)
             ? "offline"
             : "stale"}
-          title="Showing cached trending anime"
-          description={`Saved ${formatTimestamp(trendingResponse.freshness.fetchedAt)}. The latest refresh did not replace this list.`}
+          title="Trending anime may be out of date"
+          description="Reconnect or try again to update this list."
           error={trendingResponse.freshness.refreshError}
           onRetry={trendingResponse.freshness.refreshError?.retryable
             ? fetchTrending

@@ -2,20 +2,10 @@ import { render, screen, waitFor, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import type { ImportPreviewResponse, SettingsOverview } from "$lib/ipc/types";
+import type { ImportPreviewResponse } from "$lib/ipc/types";
 import { setTestViewport, testViewports } from "../../../test/viewports";
 
 import SettingsPage from "./SettingsPage.svelte";
-
-const overview: SettingsOverview = {
-  cachedMediaCount: 8,
-  staleMediaCount: 2,
-  airingRecordCount: 3,
-  staleAiringCount: 1,
-  responseCacheCount: 4,
-  staleResponseCacheCount: 0,
-  latestCacheUpdateAt: "2026-07-17T09:00:00.000Z",
-};
 
 const preview: ImportPreviewResponse = {
   fileName: "animi-recovery.json",
@@ -44,7 +34,6 @@ const preview: ImportPreviewResponse = {
 
 function services() {
   return {
-    loadOverview: vi.fn().mockResolvedValue(overview),
     saveBackup: vi.fn().mockResolvedValue({
       schemaVersion: 1,
       exportedAt: "2026-07-17T10:00:00.000Z",
@@ -98,8 +87,6 @@ describe("SettingsPage", () => {
       ).toBeInTheDocument();
       for (const sectionHeading of [
         "Appearance",
-        "Local by design",
-        "Cache freshness",
         "Backup & recovery",
         "Clear local data",
       ]) {
@@ -107,12 +94,7 @@ describe("SettingsPage", () => {
           screen.getByRole("heading", { level: 2, name: sectionHeading }),
         ).toBeInTheDocument();
       }
-      expect(
-        screen.getByRole("note", { name: "Local settings disclosure" }),
-      ).toHaveTextContent(/no account, cloud copy, or analytics/i);
-      expect(
-        screen.getByRole("group", { name: "Local-only manifest" }),
-      ).toHaveTextContent(/storage\s*this Windows device/i);
+      expect(screen.queryByText(/cache freshness/i)).not.toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: "Export backup" }),
       ).toBeEnabled();
@@ -122,13 +104,6 @@ describe("SettingsPage", () => {
       expect(
         screen.getByText("ฅ^•ﻌ•^ฅ").closest('[aria-hidden="true"]'),
       ).not.toBeNull();
-
-      const cache = await screen.findByRole("group", {
-        name: "Local cache freshness",
-      });
-      expect(cache).toHaveTextContent(/8 cached\s*2 stale/i);
-      expect(cache).toHaveTextContent(/3 cached\s*1 stale/i);
-      expect(cache).toHaveTextContent(/4 cached\s*0 stale/i);
     },
   );
 
@@ -149,7 +124,7 @@ describe("SettingsPage", () => {
     await user.click(screen.getByRole("button", { name: "Export backup" }));
     expect(recoveryServices.saveBackup).toHaveBeenCalledTimes(1);
     expect(await screen.findByRole("status")).toHaveTextContent(
-      /4 library entries and 7 activity events/i,
+      /4 library titles and 7 watch history updates/i,
     );
   });
 
@@ -162,12 +137,12 @@ describe("SettingsPage", () => {
 
     expect(await screen.findByText("animi-recovery.json")).toBeInTheDocument();
     const ledger = screen.getByRole("group", { name: "Import change preview" });
-    expect(ledger).toHaveTextContent(/library added\s*2/i);
-    expect(ledger).toHaveTextContent(/library merged\s*1/i);
-    expect(ledger).toHaveTextContent(/unrelated retained\s*3/i);
+    expect(ledger).toHaveTextContent(/new titles\s*2/i);
+    expect(ledger).toHaveTextContent(/updated titles\s*1/i);
+    expect(ledger).toHaveTextContent(/history updates\s*5/i);
     expect(
       screen.getByRole("note", { name: "Recovery safety guarantee" }),
-    ).toHaveTextContent(/commits all changes together or keeps none/i);
+    ).toHaveTextContent(/will stay in your library/i);
 
     await user.click(
       screen.getByRole("button", { name: "Restore this backup" }),
@@ -203,8 +178,10 @@ describe("SettingsPage", () => {
       screen.getByRole("button", { name: "Choose backup to restore" }),
     );
     const alert = await screen.findByRole("alert");
-    expect(alert).toHaveTextContent("BACKUP_SCHEMA_VERSION_UNSUPPORTED");
-    expect(alert).toHaveTextContent("schemaVersion");
+    expect(alert).toHaveTextContent(
+      "Backup schema version 9 is not supported.",
+    );
+    expect(alert).not.toHaveTextContent("BACKUP_SCHEMA_VERSION_UNSUPPORTED");
     expect(
       screen.queryByRole("button", { name: "Restore this backup" }),
     ).not.toBeInTheDocument();
@@ -239,7 +216,7 @@ describe("SettingsPage", () => {
       confirmation: "CLEAR MY LOCAL DATA",
     });
     expect(await screen.findByRole("status")).toHaveTextContent(
-      /local data cleared/i,
+      /Removed 4 library titles and 7 watch history updates/i,
     );
     expect(recoveryServices.localStateChanged).toHaveBeenCalledTimes(1);
   });

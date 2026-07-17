@@ -101,15 +101,6 @@ function p4Services() {
 
 function p6Services() {
   return {
-    loadOverview: vi.fn().mockResolvedValue({
-      cachedMediaCount: 0,
-      staleMediaCount: 0,
-      airingRecordCount: 0,
-      staleAiringCount: 0,
-      responseCacheCount: 0,
-      staleResponseCacheCount: 0,
-      latestCacheUpdateAt: null,
-    }),
     saveBackup: vi.fn().mockResolvedValue(null),
     chooseImport: vi.fn().mockResolvedValue(null),
     restoreBackup: vi.fn(),

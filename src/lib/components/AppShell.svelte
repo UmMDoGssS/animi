@@ -4,7 +4,6 @@
   import {
     clearLocalData,
     exportBackup,
-    getSettingsOverview,
     getThemePreference,
     importBackup,
     normalizeCommandError,
@@ -34,7 +33,6 @@
     RemoveLibraryEntryRequest,
     RemoveLibraryEntryResponse,
     SearchMediaRequest,
-    SettingsOverview,
     ThemePreference,
     UpsertLibraryEntryRequest,
   } from "$lib/ipc/types";
@@ -73,7 +71,6 @@
   }
 
   interface P6ServiceOverrides {
-    loadOverview?: () => Promise<SettingsOverview>;
     saveBackup?: () => Promise<ExportBackupResponse | null>;
     chooseImport?: () => Promise<ImportPreviewResponse | null>;
     restoreBackup?: (
@@ -249,7 +246,6 @@
             {themeError}
             {selectThemePreference}
             {retryThemePreference}
-            loadOverview={p6Services.loadOverview ?? getSettingsOverview}
             saveBackup={p6Services.saveBackup ?? exportBackup}
             chooseImport={p6Services.chooseImport ?? previewImport}
             restoreBackup={p6Services.restoreBackup ?? importBackup}

@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-
   import { normalizeCommandError } from "$lib/ipc/client";
   import type {
     ClearLocalDataRequest,
@@ -10,7 +8,6 @@
     ImportBackupRequest,
     ImportBackupResponse,
     ImportPreviewResponse,
-    SettingsOverview,
     ThemePreference,
   } from "$lib/ipc/types";
 
@@ -24,7 +21,6 @@
     themeError: CommandError | null;
     selectThemePreference: (preference: ThemePreference) => Promise<void>;
     retryThemePreference: () => Promise<void>;
-    loadOverview: () => Promise<SettingsOverview>;
     saveBackup: () => Promise<ExportBackupResponse | null>;
     chooseImport: () => Promise<ImportPreviewResponse | null>;
     restoreBackup: (
@@ -42,7 +38,6 @@
     themeError,
     selectThemePreference,
     retryThemePreference,
-    loadOverview,
     saveBackup,
     chooseImport,
     restoreBackup,
@@ -50,9 +45,6 @@
     localStateChanged,
   }: Props = $props();
 
-  let overview = $state<SettingsOverview | null>(null);
-  let overviewStatus = $state<"loading" | "ready" | "error">("loading");
-  let overviewError = $state<CommandError | null>(null);
   let exportStatus = $state<"idle" | "working" | "success" | "error">("idle");
   let exportResult = $state<ExportBackupResponse | null>(null);
   let exportError = $state<CommandError | null>(null);
@@ -69,22 +61,6 @@
   let clearError = $state<CommandError | null>(null);
 
   const clearIsConfirmed = $derived(clearConfirmation === CLEAR_CONFIRMATION);
-
-  onMount(() => {
-    void refreshOverview();
-  });
-
-  async function refreshOverview() {
-    overviewStatus = "loading";
-    overviewError = null;
-    try {
-      overview = await loadOverview();
-      overviewStatus = "ready";
-    } catch (reason) {
-      overviewError = normalizeCommandError(reason);
-      overviewStatus = "error";
-    }
-  }
 
   async function exportNow() {
     exportStatus = "working";
@@ -134,7 +110,7 @@
       importResult = await restoreBackup({ importToken: token });
       importStatus = "success";
       importPreview = null;
-      await Promise.all([refreshOverview(), localStateChanged()]);
+      await localStateChanged();
     } catch (reason) {
       importError = normalizeCommandError(reason);
       importStatus = "error";
@@ -152,22 +128,11 @@
       clearExpanded = false;
       clearConfirmation = "";
       importPreview = null;
-      await Promise.all([refreshOverview(), localStateChanged()]);
+      await localStateChanged();
     } catch (reason) {
       clearError = normalizeCommandError(reason);
       clearStatus = "error";
     }
-  }
-
-  function formatTimestamp(value: string | null): string {
-    if (value === null) return "No cached data yet";
-    const timestamp = new Date(value);
-    return Number.isNaN(timestamp.getTime())
-      ? "Unknown cache time"
-      : timestamp.toLocaleString(undefined, {
-          dateStyle: "medium",
-          timeStyle: "short",
-        });
   }
 </script>
 
@@ -180,204 +145,28 @@
 >
   <h1 class="sr-only">Settings</h1>
 
-  <aside
-    role="note"
-    aria-label="Local settings disclosure"
-    class="glass-control control-rounded border-border flex min-w-0 flex-col gap-3 border p-4 sm:flex-row sm:items-center sm:p-5"
-  >
-    <span
-      class="control-rounded border-success/45 bg-success/10 text-success w-fit shrink-0 border px-2.5 py-1 text-[0.65rem] tracking-[0.14em] uppercase"
-    >
-      device only
-    </span>
-    <p class="text-muted text-xs leading-5 sm:text-sm sm:leading-6">
-      Settings, backups, and recovery run through Animi's local Rust core. No
-      account, cloud copy, or analytics service receives this data.
-    </p>
-  </aside>
-
-  <div
-    class="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(17rem,0.65fr)] lg:gap-5"
-  >
-    <ThemePreferenceControl
-      preference={themePreference}
-      status={themeStatus}
-      error={themeError}
-      selectPreference={selectThemePreference}
-      retryPreference={retryThemePreference}
-    />
-
-    <section
-      aria-labelledby="local-boundary-heading"
-      class="glass-panel panel-large border-border min-w-0 overflow-hidden border p-5 sm:p-6"
-    >
-      <p class="text-accent text-xs tracking-[0.18em] uppercase">
-        local-state manifest
-      </p>
-      <h2
-        id="local-boundary-heading"
-        class="text-foreground mt-2 text-xl font-light tracking-[0.03em]"
-      >
-        Local by design
-      </h2>
-      <p class="text-muted mt-3 text-xs leading-5">
-        Your library is authoritative on this device. A backup is the only
-        portable copy Animi creates.
-      </p>
-      <dl
-        role="group"
-        aria-label="Local-only manifest"
-        class="border-border mt-5 divide-y border-y"
-      >
-        <div class="flex items-baseline justify-between gap-4 py-3">
-          <dt class="text-muted text-[0.65rem] tracking-[0.12em] uppercase">
-            storage
-          </dt>
-          <dd class="text-foreground text-right text-xs">
-            this Windows device
-          </dd>
-        </div>
-        <div class="flex items-baseline justify-between gap-4 py-3">
-          <dt class="text-muted text-[0.65rem] tracking-[0.12em] uppercase">
-            account
-          </dt>
-          <dd class="text-foreground text-right text-xs">none</dd>
-        </div>
-        <div class="flex items-baseline justify-between gap-4 py-3">
-          <dt class="text-muted text-[0.65rem] tracking-[0.12em] uppercase">
-            cloud sync
-          </dt>
-          <dd class="text-foreground text-right text-xs">none</dd>
-        </div>
-        <div class="flex items-baseline justify-between gap-4 py-3">
-          <dt class="text-muted text-[0.65rem] tracking-[0.12em] uppercase">
-            analytics
-          </dt>
-          <dd class="text-foreground text-right text-xs">none</dd>
-        </div>
-      </dl>
-    </section>
-  </div>
-
-  <section
-    aria-labelledby="cache-policy-heading"
-    aria-busy={overviewStatus === "loading"}
-    class="glass-panel panel-large border-border min-w-0 overflow-hidden border p-5 sm:p-6"
-  >
-    <div
-      class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
-    >
-      <div class="max-w-2xl">
-        <p class="text-accent text-xs tracking-[0.18em] uppercase">
-          cache observatory // local metadata
-        </p>
-        <h2
-          id="cache-policy-heading"
-          class="text-foreground mt-2 text-xl font-light tracking-[0.03em]"
-        >
-          Cache freshness
-        </h2>
-        <p class="text-muted mt-2 text-xs leading-5 sm:text-sm sm:leading-6">
-          Cached AniList data keeps tracked titles useful offline. Stale records
-          remain visible and are refreshed on an allowed request.
-        </p>
-      </div>
-      <button
-        type="button"
-        onclick={refreshOverview}
-        disabled={overviewStatus === "loading"}
-        class="glass-control glass-interactive control-rounded border-border min-h-10 border px-3 py-2 text-xs transition disabled:cursor-wait disabled:opacity-60"
-      >
-        {overviewStatus === "loading"
-          ? "Inspecting cache…"
-          : "Refresh cache view"}
-      </button>
-    </div>
-
-    {#if overviewStatus === "error" && overviewError}
-      <div
-        role="alert"
-        class="control-rounded border-danger/60 bg-danger/10 text-danger mt-5 border p-3 text-xs leading-5"
-      >
-        {overviewError.message}
-      </div>
-    {:else if overview}
-      <dl
-        role="group"
-        aria-label="Local cache freshness"
-        class="border-border mt-5 grid border-y sm:grid-cols-3"
-      >
-        <div class="border-border p-4 sm:border-r sm:px-5">
-          <dt class="text-muted text-[0.65rem] tracking-[0.12em] uppercase">
-            media details // 24h
-          </dt>
-          <dd class="text-foreground mt-2 text-lg font-light tabular-nums">
-            {overview.cachedMediaCount} cached
-          </dd>
-          <dd
-            class:text-warning={overview.staleMediaCount > 0}
-            class="text-muted mt-1 text-xs"
-          >
-            {overview.staleMediaCount} stale
-          </dd>
-        </div>
-        <div
-          class="border-border border-t p-4 sm:border-t-0 sm:border-r sm:px-5"
-        >
-          <dt class="text-muted text-[0.65rem] tracking-[0.12em] uppercase">
-            airing // 30m
-          </dt>
-          <dd class="text-foreground mt-2 text-lg font-light tabular-nums">
-            {overview.airingRecordCount} cached
-          </dd>
-          <dd
-            class:text-warning={overview.staleAiringCount > 0}
-            class="text-muted mt-1 text-xs"
-          >
-            {overview.staleAiringCount} stale
-          </dd>
-        </div>
-        <div class="border-border border-t p-4 sm:border-t-0 sm:px-5">
-          <dt class="text-muted text-[0.65rem] tracking-[0.12em] uppercase">
-            discover // 6h
-          </dt>
-          <dd class="text-foreground mt-2 text-lg font-light tabular-nums">
-            {overview.responseCacheCount} cached
-          </dd>
-          <dd
-            class:text-warning={overview.staleResponseCacheCount > 0}
-            class="text-muted mt-1 text-xs"
-          >
-            {overview.staleResponseCacheCount} stale
-          </dd>
-        </div>
-      </dl>
-      <p class="text-muted mt-4 text-xs leading-5">
-        Latest cache update: <span class="text-foreground"
-          >{formatTimestamp(overview.latestCacheUpdateAt)}</span
-        >
-      </p>
-    {/if}
-  </section>
+  <ThemePreferenceControl
+    preference={themePreference}
+    status={themeStatus}
+    error={themeError}
+    selectPreference={selectThemePreference}
+    retryPreference={retryThemePreference}
+  />
 
   <section
     aria-labelledby="backup-recovery-heading"
     class="glass-panel panel-large border-border grid min-w-0 overflow-hidden border lg:grid-cols-[minmax(0,0.78fr)_minmax(20rem,1.22fr)]"
   >
     <div class="min-w-0 p-5 sm:p-6 lg:p-7">
-      <p class="text-accent text-xs tracking-[0.18em] uppercase">
-        recovery desk // schema v1
-      </p>
       <h2
         id="backup-recovery-heading"
-        class="text-foreground mt-2 text-xl font-light tracking-[0.03em]"
+        class="text-foreground text-xl font-light tracking-[0.03em]"
       >
         Backup &amp; recovery
       </h2>
       <p class="text-muted mt-3 text-xs leading-5 sm:text-sm sm:leading-6">
-        Export settings, library entries, and watch activity. Restore first
-        validates the entire file, then shows exactly how local state will
-        merge.
+        Export a backup or restore one. You'll review the changes before
+        anything is updated.
       </p>
       <div class="mt-5 grid gap-3">
         <button
@@ -405,8 +194,8 @@
           role="status"
           class="control-rounded border-success/50 bg-success/10 text-success mt-4 border p-3 text-xs leading-5"
         >
-          Backup exported: {exportResult.libraryEntryCount} library entries and {exportResult.watchActivityCount}
-          activity events.
+          Backup exported: {exportResult.libraryEntryCount} library titles and {exportResult.watchActivityCount}
+          watch history updates.
         </p>
       {:else if exportStatus === "error" && exportError}
         <p
@@ -428,8 +217,8 @@
           role="status"
           class="control-rounded border-success/50 bg-success/10 text-success mt-4 border p-3 text-xs leading-5"
         >
-          Recovery complete. Added {importResult.changes.libraryAdded} and merged
-          {importResult.changes.libraryMerged} library entries.
+          Recovery complete. Added {importResult.changes.libraryAdded} and updated
+          {importResult.changes.libraryMerged} library titles.
         </p>
       {/if}
     </div>
@@ -440,7 +229,7 @@
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-accent text-[0.65rem] tracking-[0.14em] uppercase">
-            recovery ledger
+            restore preview
           </p>
           <h3
             class="text-foreground mt-2 text-sm font-medium tracking-[0.03em]"
@@ -457,8 +246,8 @@
             {importPreview.fileName}
           </p>
           <p class="text-muted mt-1 text-xs">
-            {importPreview.settingsCount} settings · {importPreview.libraryEntryCount}
-            library · {importPreview.watchActivityCount} activity
+            {importPreview.libraryEntryCount} library titles · {importPreview.watchActivityCount}
+            watch history updates
           </p>
           {#if importPreview.validationErrors.length > 0}
             <div
@@ -470,11 +259,7 @@
               </p>
               <ul class="text-danger mt-2 grid gap-2 text-xs leading-5">
                 {#each importPreview.validationErrors as issue (issue.code + (issue.path ?? issue.message))}
-                  <li>
-                    <span class="font-medium">{issue.code}</span> — {issue.message}{issue.path
-                      ? ` (${issue.path})`
-                      : ""}
-                  </li>
+                  <li>{issue.message}</li>
                 {/each}
               </ul>
             </div>
@@ -485,55 +270,25 @@
               class="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-lg bg-[var(--border)] sm:grid-cols-3"
             >
               <div class="bg-surface/85 p-3">
-                <dt class="text-muted text-[0.62rem] uppercase">
-                  library added
-                </dt>
+                <dt class="text-muted text-[0.62rem] uppercase">new titles</dt>
                 <dd class="text-success mt-1 text-xl font-light tabular-nums">
                   {importPreview.changes.libraryAdded}
                 </dd>
               </div>
               <div class="bg-surface/85 p-3">
                 <dt class="text-muted text-[0.62rem] uppercase">
-                  library merged
+                  updated titles
                 </dt>
                 <dd class="text-accent mt-1 text-xl font-light tabular-nums">
                   {importPreview.changes.libraryMerged}
                 </dd>
               </div>
               <div class="bg-surface/85 p-3">
-                <dt class="text-muted text-[0.62rem] uppercase">kept local</dt>
-                <dd
-                  class="text-foreground mt-1 text-xl font-light tabular-nums"
-                >
-                  {importPreview.changes.libraryKeptLocal}
-                </dd>
-              </div>
-              <div class="bg-surface/85 p-3">
                 <dt class="text-muted text-[0.62rem] uppercase">
-                  activity added
+                  history updates
                 </dt>
                 <dd class="text-success mt-1 text-xl font-light tabular-nums">
                   {importPreview.changes.activityAdded}
-                </dd>
-              </div>
-              <div class="bg-surface/85 p-3">
-                <dt class="text-muted text-[0.62rem] uppercase">
-                  activity unchanged
-                </dt>
-                <dd
-                  class="text-foreground mt-1 text-xl font-light tabular-nums"
-                >
-                  {importPreview.changes.activityUnchanged}
-                </dd>
-              </div>
-              <div class="bg-surface/85 p-3">
-                <dt class="text-muted text-[0.62rem] uppercase">
-                  unrelated retained
-                </dt>
-                <dd
-                  class="text-foreground mt-1 text-xl font-light tabular-nums"
-                >
-                  {importPreview.changes.unrelatedLocalLibraryEntriesRetained}
                 </dd>
               </div>
             </dl>
@@ -542,9 +297,7 @@
               aria-label="Recovery safety guarantee"
               class="control-rounded border-border bg-glass-control text-muted mt-4 border p-3 text-xs leading-5"
             >
-              Unrelated local library entries remain in place. Equal timestamps
-              keep local data. Restore commits all changes together or keeps
-              none.
+              Titles that are not in this backup will stay in your library.
             </p>
             <button
               type="button"
@@ -562,8 +315,7 @@
         <div
           class="control-rounded border-border bg-glass-control text-muted mt-4 border p-4 text-xs leading-5"
         >
-          Choose a backup to populate this ledger. Cached AniList responses and
-          images are never included.
+          Choose a backup to preview its anime library and watch history.
         </div>
       {/if}
     </div>
@@ -575,21 +327,17 @@
   >
     <div class="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
       <div class="min-w-0">
-        <p class="text-danger text-xs tracking-[0.18em] uppercase">
-          destructive action // irreversible
-        </p>
         <h2
           id="clear-local-data-heading"
-          class="text-foreground mt-2 text-xl font-light tracking-[0.03em]"
+          class="text-foreground text-xl font-light tracking-[0.03em]"
         >
           Clear local data
         </h2>
         <p
           class="text-muted mt-3 max-w-3xl text-xs leading-5 sm:text-sm sm:leading-6"
         >
-          Removes the library, preferences, watch activity, and cached metadata
-          from this device. Export a backup first if you may want this state
-          again.
+          Permanently removes your library, preferences, and watch history.
+          Export a backup first if you may want them again.
         </p>
       </div>
       <button
@@ -652,8 +400,8 @@
       </p>
     {:else if clearStatus === "success" && clearResult}
       <p role="status" class="text-success mt-4 text-xs leading-5">
-        Local data cleared: {clearResult.libraryEntriesRemoved} library entries and
-        {clearResult.watchActivityRemoved} activity events removed.
+        Removed {clearResult.libraryEntriesRemoved} library titles and {clearResult.watchActivityRemoved}
+        watch history updates.
       </p>
     {/if}
   </section>

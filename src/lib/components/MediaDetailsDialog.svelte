@@ -150,16 +150,15 @@
   }
 
   async function handleSaved(savedEntry: LibraryEntry): Promise<void> {
+    const wasNew = currentEntry === null;
     currentEntry = savedEntry;
-    libraryMessage =
-      currentEntry === null ? null : "Saved to your local library.";
+    libraryMessage = wasNew ? "Added to your library." : "Changes saved.";
     await onLibraryChanged?.(savedEntry);
   }
 
   async function handleRemoved(): Promise<void> {
     currentEntry = null;
-    libraryMessage =
-      "Removed from your local library. Recorded activity was kept.";
+    libraryMessage = "Removed from your library. Watch history was kept.";
     await onLibraryChanged?.(null);
   }
 
@@ -180,17 +179,6 @@
     return minutes === null ? "Duration unknown" : `${minutes} min per episode`;
   }
 
-  function formatTimestamp(value: string): string {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      return value;
-    }
-    return new Intl.DateTimeFormat(undefined, {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(date);
-  }
-
   function formatCalendarDate(value: string): string {
     return new Intl.DateTimeFormat(undefined, {
       year: "numeric",
@@ -208,7 +196,6 @@
 <dialog
   bind:this={dialog}
   aria-labelledby="media-details-title"
-  aria-describedby="media-details-description"
   aria-modal="true"
   class="media-details-dialog glass-panel panel-large border-border text-foreground border"
   onclose={finishClosing}
@@ -219,18 +206,7 @@
     <header
       class="bg-glass border-border sticky top-0 z-20 flex min-h-14 items-center justify-between gap-3 border-b px-4 py-2 backdrop-blur-xl"
     >
-      <div class="min-w-0">
-        <p
-          class="text-accent truncate text-[0.66rem] tracking-[0.12em] uppercase"
-        >
-          media dossier // anilist {summary.anilistId}
-        </p>
-        {#if freshness}
-          <p class="text-muted mt-0.5 truncate text-[0.62rem]">
-            Cached {formatTimestamp(freshness.fetchedAt)}
-          </p>
-        {/if}
-      </div>
+      <span class="text-muted text-xs">Anime details</span>
       <button
         bind:this={closeButton}
         type="button"
@@ -258,13 +234,7 @@
             <span
               class="control-rounded border-warning/45 bg-warning/10 text-warning border px-2 py-1 text-[0.6rem] tracking-[0.1em] uppercase"
             >
-              cached // stale
-            </span>
-          {:else if freshness}
-            <span
-              class="control-rounded border-success/45 bg-success/10 text-success border px-2 py-1 text-[0.6rem] tracking-[0.1em] uppercase"
-            >
-              cached // current
+              may be out of date
             </span>
           {/if}
         </div>
@@ -274,13 +244,6 @@
         >
           {media.title}
         </h2>
-        <p
-          id="media-details-description"
-          class="text-muted mt-2 text-xs leading-5"
-        >
-          AniList metadata with your private, device-local tracking controls.
-        </p>
-
         <dl class="border-border mt-5 grid grid-cols-2 gap-4 border-y py-4">
           <div>
             <dt class="text-muted text-[0.62rem] tracking-[0.12em] uppercase">
@@ -306,8 +269,8 @@
       {#if detailsLoading}
         <AsyncStateNotice
           status="loading"
-          title="Opening the full dossier"
-          description="Animi is checking the details cache and AniList when needed."
+          title="Loading anime details"
+          description="This may take a moment."
           compact
         />
       {:else if detailsError}
@@ -316,10 +279,10 @@
             ? "offline"
             : "error"}
           title={fallbackFreshness
-            ? "Showing the saved snapshot"
+            ? "Showing available details"
             : "Full details could not load"}
           description={fallbackFreshness
-            ? "The latest refresh failed, so this dossier is using metadata already saved on this device."
+            ? "Some details may be out of date."
             : detailsError.message}
           error={detailsError}
           onRetry={detailsError.retryable ? fetchDetails : undefined}
@@ -332,8 +295,8 @@
           isOfflineError(freshness.refreshError)
             ? "offline"
             : "stale"}
-          title="Showing cached details"
-          description={`Saved ${formatTimestamp(freshness.fetchedAt)}. The latest refresh did not replace this snapshot.`}
+          title="Details may be out of date"
+          description="Reconnect or try again to update them."
           error={freshness.refreshError}
           onRetry={freshness.refreshError?.retryable ? fetchDetails : undefined}
           retryLabel="Retry details"
@@ -360,9 +323,7 @@
               {/each}
             </ul>
           {:else}
-            <p class="text-muted mt-2 text-xs">
-              Genre metadata is unavailable.
-            </p>
+            <p class="text-muted mt-2 text-xs">Genres are unavailable.</p>
           {/if}
         </section>
 
@@ -371,16 +332,15 @@
             id="media-tags-heading"
             class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
           >
-            ranked tags
+            tags
           </h3>
           {#if media.tags.length > 0}
             <ul class="mt-2 grid gap-2">
               {#each media.tags as tag (tag.name)}
                 <li
-                  class="glass-control control-rounded border-border flex items-center justify-between gap-3 border px-3 py-2 text-xs"
+                  class="glass-control control-rounded border-border border px-3 py-2 text-xs"
                 >
                   <span>{tag.name}</span>
-                  <span class="text-accent">rank {tag.rank}</span>
                 </li>
               {/each}
             </ul>
@@ -420,7 +380,7 @@
           </p>
         {:else}
           <p class="text-muted mt-2 text-xs leading-5">
-            Sequel relations require the full details response.
+            Sequel information is unavailable.
           </p>
         {/if}
       </section>
@@ -428,23 +388,13 @@
       <section aria-labelledby="local-tracking-heading">
         <div class="flex flex-wrap items-end justify-between gap-2">
           <div>
-            <p class="text-accent text-[0.65rem] tracking-[0.12em] uppercase">
-              private tracking
-            </p>
             <h3
               id="local-tracking-heading"
-              class="text-foreground mt-1 text-lg font-light tracking-[0.03em]"
+              class="text-foreground text-lg font-light tracking-[0.03em]"
             >
-              {currentEntry
-                ? "Update your local entry"
-                : "Add to your local library"}
+              Library
             </h3>
           </div>
-          {#if currentEntry}
-            <span class="text-muted text-xs">
-              Last edited {formatTimestamp(currentEntry.updatedAt)}
-            </span>
-          {/if}
         </div>
 
         {#if libraryMessage && trackingError === null}
@@ -461,11 +411,11 @@
             <AsyncStateNotice
               status={trackingLoading ? "loading" : "error"}
               title={trackingLoading
-                ? "Reading your local library"
-                : "Tracking controls are unavailable"}
+                ? "Loading your library entry"
+                : "Library controls are unavailable"}
               description={trackingLoading
-                ? "Editing will become available after Animi confirms the current local entry."
-                : "Animi could not safely determine the current local entry, so editing is paused."}
+                ? "Editing will be available in a moment."
+                : "Try again to edit this anime."}
               error={trackingLoading ? null : trackingError}
               onRetry={!trackingLoading && trackingError.retryable
                 ? onRetryTracking

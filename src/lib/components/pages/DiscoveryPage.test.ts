@@ -243,12 +243,12 @@ describe("DiscoveryPage", () => {
         within(trending).getByRole("button", {
           name: "Open details for Violet Evergreen",
         }),
-      ).toHaveTextContent("tracked // watching");
+      ).toHaveTextContent("watching");
       expect(
         within(trending).getByRole("button", {
           name: "Open details for Orbital Cats",
         }),
-      ).toHaveTextContent("not tracked");
+      ).toHaveTextContent("not in library");
       expect(trending).toHaveClass("min-w-0", "grid-cols-2", "sm:grid-cols-3");
       expect(
         screen.queryByText(/recommendation layout preview/i),
@@ -268,9 +268,7 @@ describe("DiscoveryPage", () => {
     expect(
       within(recommendations).getByText("Matches Space"),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Personalized from 3 local titles/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Based on your watchlist/i)).toBeInTheDocument();
     unmount();
 
     render(
@@ -281,14 +279,8 @@ describe("DiscoveryPage", () => {
           .mockResolvedValue(recommendationsResponse([orbitalCats], true)),
       }),
     );
-    expect(
-      await screen.findByText(
-        /Trending fallback \/\/ 1 eligible local titles/i,
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Trending while your local taste profile grows/i),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/Popular picks/i)).toBeInTheDocument();
+    expect(screen.getByText(/Popular now/i)).toBeInTheDocument();
   });
 
   it("debounces trimmed searches and lets form submission search immediately", async () => {
@@ -457,15 +449,13 @@ describe("DiscoveryPage", () => {
     );
 
     const staleHeading = await screen.findByText(
-      "Showing cached search results",
+      "Search results may be out of date",
     );
     expect(staleHeading.closest('[data-status="offline"]')).not.toBeNull();
     expect(
       screen.getByRole("button", { name: "Open details for Orbital Cats" }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/the latest refresh did not replace them/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/try again to update them/i)).toBeInTheDocument();
   });
 
   it("fetches details secondarily and restores focus when they close", async () => {
@@ -517,7 +507,7 @@ describe("DiscoveryPage", () => {
     const opener = await screen.findByRole("button", {
       name: "Open details for Violet Evergreen",
     });
-    expect(opener).toHaveTextContent("not tracked");
+    expect(opener).toHaveTextContent("not in library");
     await user.click(opener);
 
     const dialog = await screen.findByRole("dialog", {
@@ -526,9 +516,7 @@ describe("DiscoveryPage", () => {
     await user.click(
       within(dialog).getByRole("button", { name: "Add to library" }),
     );
-    await waitFor(() =>
-      expect(opener).toHaveTextContent("tracked // planning"),
-    );
+    await waitFor(() => expect(opener).toHaveTextContent("planning"));
     expect(
       within(dialog).getByRole("heading", { name: "Edit library entry" }),
     ).toBeInTheDocument();
@@ -537,10 +525,10 @@ describe("DiscoveryPage", () => {
       within(dialog).getByRole("button", { name: "Remove from library" }),
     );
     await user.click(
-      within(dialog).getByRole("button", { name: "Confirm local removal" }),
+      within(dialog).getByRole("button", { name: "Remove from library" }),
     );
 
-    await waitFor(() => expect(opener).toHaveTextContent("not tracked"));
+    await waitFor(() => expect(opener).toHaveTextContent("not in library"));
     expect(deleteEntry).toHaveBeenCalledWith({
       anilistId: violetEvergreen.anilistId,
       mediaKind: "ANIME",
@@ -574,7 +562,9 @@ describe("DiscoveryPage", () => {
     const dialog = await screen.findByRole("dialog", {
       name: "Violet Evergreen",
     });
-    expect(within(dialog).getByText(/editing is paused/i)).toBeInTheDocument();
+    expect(
+      within(dialog).getByText(/Try again to edit this anime/i),
+    ).toBeInTheDocument();
     expect(
       within(dialog).queryByRole("button", { name: "Add to library" }),
     ).not.toBeInTheDocument();

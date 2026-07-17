@@ -296,7 +296,7 @@ describe("P4 discovery-to-library flow", () => {
       within(dialog).getByRole("button", { name: "Add to library" }),
     );
     expect(await within(dialog).findByRole("status")).toHaveTextContent(
-      /Saved to your local library/i,
+      /Added to your library/i,
     );
     expect(state.activity).toHaveLength(0);
     await user.click(
@@ -315,7 +315,7 @@ describe("P4 discovery-to-library flow", () => {
     expect(libraryIndex).toHaveTextContent(/3 \/ 12 eps/);
     expect(
       screen.getByRole("heading", {
-        name: "No progress activity has been recorded yet.",
+        name: "Your watch history is empty.",
       }),
     ).toBeInTheDocument();
 
@@ -379,7 +379,7 @@ describe("P4 discovery-to-library flow", () => {
       name: "Paper Cranes at Dawn",
     });
     expect(
-      await within(dialog).findByText("Showing the saved snapshot"),
+      await within(dialog).findByText("Showing available details"),
     ).toBeInTheDocument();
     expect(within(dialog).getByText("12 episodes")).toBeInTheDocument();
 
@@ -388,10 +388,10 @@ describe("P4 discovery-to-library flow", () => {
     );
     expect(state.deleteEntry).not.toHaveBeenCalled();
     expect(
-      within(dialog).getByText(/AniList is unaffected/i),
+      within(dialog).getByText(/Your watch history remains/i),
     ).toBeInTheDocument();
     await user.click(
-      within(dialog).getByRole("button", { name: "Confirm local removal" }),
+      within(dialog).getByRole("button", { name: "Remove from library" }),
     );
     await waitFor(() => expect(state.deleteEntry).toHaveBeenCalledOnce());
     await user.click(
@@ -405,6 +405,6 @@ describe("P4 discovery-to-library flow", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("group", { name: "Recorded activity summary" }),
-    ).toHaveTextContent(/events\s*1/i);
+    ).toHaveTextContent(/updates\s*1/i);
   });
 });
