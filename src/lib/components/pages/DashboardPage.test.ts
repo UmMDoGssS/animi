@@ -280,6 +280,8 @@ describe("DashboardPage", () => {
       const totals = await screen.findByRole("group", {
         name: "Local library totals",
       });
+      expect(totals).toHaveClass("grid-cols-2");
+      expect(totals).not.toHaveClass("sm:grid-cols-4");
       expect(totals).toHaveTextContent(/tracked\s*04/i);
       expect(totals).toHaveTextContent(/watching\s*02/i);
       expect(totals).toHaveTextContent(/completed\s*01/i);

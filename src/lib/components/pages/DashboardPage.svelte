@@ -476,7 +476,7 @@
         <dl
           role="group"
           aria-label="Local library totals"
-          class="border-border mt-6 grid grid-cols-2 border-y sm:grid-cols-4"
+          class="border-border mt-6 grid grid-cols-2 border-y"
         >
           <div class="border-border border-r p-3 sm:p-4">
             <dt class="text-muted text-[0.65rem] tracking-[0.12em] uppercase">
@@ -488,7 +488,7 @@
               {padCount(insights.libraryTotals.tracked)}
             </dd>
           </div>
-          <div class="border-border p-3 sm:border-r sm:p-4">
+          <div class="border-border p-3 sm:p-4">
             <dt class="text-muted text-[0.65rem] tracking-[0.12em] uppercase">
               watching
             </dt>
@@ -498,7 +498,7 @@
               {padCount(insights.libraryTotals.watching)}
             </dd>
           </div>
-          <div class="border-border border-t border-r p-3 sm:border-t-0 sm:p-4">
+          <div class="border-border border-t border-r p-3 sm:p-4">
             <dt class="text-muted text-[0.65rem] tracking-[0.12em] uppercase">
               completed
             </dt>
@@ -508,7 +508,7 @@
               {padCount(insights.libraryTotals.completed)}
             </dd>
           </div>
-          <div class="border-border border-t p-3 sm:border-t-0 sm:p-4">
+          <div class="border-border border-t p-3 sm:p-4">
             <dt class="text-muted text-[0.65rem] tracking-[0.12em] uppercase">
               planning
             </dt>
