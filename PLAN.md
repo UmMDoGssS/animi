@@ -6,8 +6,8 @@
 |---|---|
 | Product | Animi |
 | Release | Version 1, Windows desktop |
-| Overall status | In progress |
-| Current phase | P7 ready; P5 and P6 complete |
+| Overall status | Version 1 complete; private distribution only |
+| Current phase | P7 complete |
 | Schedule | Dependency-driven; no calendar commitment |
 | Last updated | 2026-07-17 |
 
@@ -51,7 +51,7 @@ The following remain outside v1:
 | P4 | Discovery, details, Dashboard, and library workflow | P1, P2, P3 | Complete | Core discovery-to-library flow passes end to end |
 | P5 | Home airing workflow, insights, and recommendations | P2, P4 | Complete | Home airing/progress, Dashboard insights, and deterministic recommendation behavior pass |
 | P6 | Settings, backup, and recovery | P1, P3, P4 | Complete | Backup round trips and rollback guarantees pass |
-| P7 | Release hardening and Windows packaging | P0-P6 | Not started | Full quality gate and production NSIS acceptance pass |
+| P7 | Release hardening and Windows packaging | P0-P6 | Complete | Full quality gate and production NSIS acceptance pass |
 
 ## Planned Contracts
 
@@ -388,30 +388,34 @@ Verification covers fixed-clock cache expiry and scheduling, empty schedules, st
 
 ### Entry gate
 
-- [ ] **P7-E1** Every earlier phase gate is checked with current evidence and has no unresolved release blocker.
-- [ ] **P7-E2** Public distribution remains disabled unless the AniList terms and permission prerequisite in `PROJECT.md` has been resolved and documented.
+- [x] **P7-E1** Every earlier phase gate is checked with current evidence and has no unresolved release blocker.
+- [x] **P7-E2** Public distribution remains disabled unless the AniList terms and permission prerequisite in `PROJECT.md` has been resolved and documented.
 
 ### Milestones
 
-- [ ] **P7-M1 - Regression matrix:** Run critical flows on a fresh profile and an upgraded profile in light and dark themes, online and offline, at desktop and narrow widths.
-- [ ] **P7-M2 - Upgrade safety:** Test every released migration path, application data-directory continuity, settings preservation, and library persistence across an application upgrade.
-- [ ] **P7-M3 - Accessibility review:** Verify keyboard-only use, focus order, focus visibility, accessible names, alternative text, contrast, reduced motion, and status announcements on critical flows.
-- [ ] **P7-M4 - Failure review:** Exercise unavailable network, stale cache, `403`, `429`, malformed GraphQL, database failure, invalid backup, and interrupted recovery paths without indefinite spinners or partial writes.
-- [ ] **P7-M5 - Privacy and scope audit:** Confirm there is no server, analytics, cloud storage, OAuth, hidden synchronization, bulk AniList collection, closed-app notification behavior, or real user/test data in artifacts.
-- [ ] **P7-M6 - Dependency and configuration audit:** Review maintained dependencies, licenses, Tauri permissions/capabilities, production URLs, application identity, icons, versioning, and Bun lockfile integrity.
-- [ ] **P7-M7 - Windows package:** Produce the production Tauri NSIS installer and smoke-test installation, launch, persistence, upgrade, uninstall behavior, and documented data-location expectations.
-- [ ] **P7-M8 - Release notes:** Record delivered features, known limitations, backup compatibility, migration expectations, verification evidence, and any justified dependency additions.
+- [x] **P7-M1 - Regression matrix:** Run critical flows on a fresh profile and an upgraded profile in light and dark themes, online and offline, at desktop and narrow widths.
+- [x] **P7-M2 - Upgrade safety:** Test every released migration path, application data-directory continuity, settings preservation, and library persistence across an application upgrade.
+- [x] **P7-M3 - Accessibility review:** Verify keyboard-only use, focus order, focus visibility, accessible names, alternative text, contrast, reduced motion, and status announcements on critical flows.
+- [x] **P7-M4 - Failure review:** Exercise unavailable network, stale cache, `403`, `429`, malformed GraphQL, database failure, invalid backup, and interrupted recovery paths without indefinite spinners or partial writes.
+- [x] **P7-M5 - Privacy and scope audit:** Confirm there is no server, analytics, cloud storage, OAuth, hidden synchronization, bulk AniList collection, closed-app notification behavior, or real user/test data in artifacts.
+- [x] **P7-M6 - Dependency and configuration audit:** Review maintained dependencies, licenses, Tauri permissions/capabilities, production URLs, application identity, icons, versioning, and Bun lockfile integrity.
+- [x] **P7-M7 - Windows package:** Produce the production Tauri NSIS installer and smoke-test installation, launch, persistence, upgrade, uninstall behavior, and documented data-location expectations.
+- [x] **P7-M8 - Release notes:** Record delivered features, known limitations, backup compatibility, migration expectations, verification evidence, and any justified dependency additions.
 
 ### Version 1 acceptance gate
 
-- [ ] **P7-G1** Home airing and quick progress, Discover search and recommendations, details, Dashboard/library management and activity, Settings, export, preview, and import pass their critical user flows.
-- [ ] **P7-G2** Previously cached tracked titles remain usable offline with accurate freshness indicators.
-- [ ] **P7-G3** The production NSIS build retains local data across a tested upgrade.
-- [ ] **P7-G4** The complete frontend and Rust quality gate passes from a clean checkout.
-- [ ] **P7-G5** The final diff and packaged artifacts contain no secrets, real user data, unrelated changes, or non-Bun lockfiles.
-- [ ] **P7-G6** Any limitation that remains is documented and does not violate `PROJECT.md` or an earlier gate.
+- [x] **P7-G1** Home airing and quick progress, Discover search and recommendations, details, Dashboard/library management and activity, Settings, export, preview, and import pass their critical user flows.
+- [x] **P7-G2** Previously cached tracked titles remain usable offline with accurate freshness indicators.
+- [x] **P7-G3** The production NSIS build retains local data across a tested upgrade.
+- [x] **P7-G4** The complete frontend and Rust quality gate passes from a clean checkout.
+- [x] **P7-G5** The final diff and packaged artifacts contain no secrets, real user data, unrelated changes, or non-Bun lockfiles.
+- [x] **P7-G6** Any limitation that remains is documented and does not violate `PROJECT.md` or an earlier gate.
 
-**Evidence:** Pending.
+**Evidence:** Complete 2026-07-17. The P0-P6 evidence and gates were re-audited with no release blocker; public distribution remains explicitly disabled by `package.json`, Cargo publishing metadata, the proprietary repository license, updater configuration, release notes, and the unresolved AniList permission prerequisite. `docs/RELEASE_AUDIT.md` records the fresh/upgraded, online/offline, Latte/Macchiato, desktop/narrow regression matrix; critical-flow, failure, accessibility, privacy, dependency-license, capability, URL, identity, version, icon, lockfile, backup, migration, and data-location findings. Component coverage and a live 1280 × 800 / 390 × 844 browser pass verified semantic navigation, no narrow horizontal overflow, keyboard focus/selection, terminal IPC failure presentation, and the user-approved neutral cat icon with circular rainbow frame at 512 px and 32 px. Automated contrast checks keep semantic text at WCAG AA or better on both opaque fallback palettes, and reduced-motion, alternative-text, focus, live-region, dialog, and destructive-control behavior remain covered.
+
+Every immutable v0001, v0002, and v0003 profile fixture upgrades to schema 7, preserves its `SYSTEM` theme and library progress, and reopens cleanly. A guarded packaged-smoke data-root override requires both `ANIMI_RELEASE_SMOKE=1` and a nonempty `ANIMI_RELEASE_SMOKE_DATA_DIR`; the exact-guard test proves normal startup ignores incomplete or malformed overrides. Against an isolated copied v0003 profile, the final package migrated all seven schemas and preserved AniList ID 101 at progress 3, its theme, and two activity events. Silent current-user installation, packaged launch, same-identity in-place reinstall, and uninstall passed; the profile hash stayed stable across reinstall, user data remained after uninstall as documented, installed files were removed, and no Animi uninstall registration remained.
+
+The final clean-tree gate passes `bun run format:check`, `bun run lint`, `bun run check` with zero diagnostics, `bun run test` (110 tests across 14 files), `bun run build`, `bun run release:audit`, Cargo formatting, Clippy with warnings denied, and `cargo test --all-features` (84 unit tests plus 18 integration/persistence tests). No dependency was added. `bun run release:build` produced the private unsigned NSIS installer `src-tauri/target/release/bundle/nsis/Animi_1.0.0_x64-setup.exe` at 4,184,139 bytes with SHA-256 `0393694EC30906839646C7A61D2CA9D720E1A07BB7169F00E7E2993652209BEA`. The artifact audit found no updater, secret, real user data, bundled database/backup/cache, non-Bun frontend lockfile, or expanded Tauri capability; the only committed SQLite files are synthetic immutable migration fixtures.
 
 ## Quality Gates
 
@@ -484,3 +488,5 @@ Future phases have no schedule, implementation status, or permission to begin. P
 | 2026-07-17 | Record explicit nonzero progress on a title's initial save and repair skipped initial progress in existing profiles | User testing showed that treating a first save as an uncounted baseline left completed titles and their watch time out of Dashboard history |
 | 2026-07-17 | Preserve activity high-water marks and stable event IDs in backup schema v1 | Recovery must not count corrected progress twice, and repeated imports need portable watch-event identity |
 | 2026-07-17 | Bound Home quick progress by known episode totals independently of airing schedules | Users may record watched episodes even when AniList has no future schedule; release state and viewing progress are separate concerns |
+| 2026-07-17 | Keep version 1 private and package only current-user NSIS with no updater | AniList permission remains unresolved, while a stable identity, downgrade protection, and documented retained app data make private upgrades recoverable |
+| 2026-07-17 | Guard the packaged release-smoke data root behind two explicit environment values | Windows known-folder resolution ignores a simple `APPDATA` override; the paired guard enables isolated installer QA without changing normal profile resolution |

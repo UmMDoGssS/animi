@@ -28,6 +28,7 @@ This matches the preference for TypeScript and Rust, produces a lightweight desk
 
 - Create a Svelte SPA with Home, Discover, Dashboard, and Settings as the four primary destinations. Present media details as a secondary view and recommendations within Discover rather than as primary navigation. Use Svelte state primitives rather than adding a global state library.
 - Keep all durable operations behind typed Tauri commands. Rust owns SQLite migrations, transactions, AniList requests, caching, throttling, and backup handling; the UI never executes SQL directly.
+- Resolve production storage from the stable Windows per-user application-data directory. Packaged release QA may redirect only the database root when both the exact `ANIMI_RELEASE_SMOKE=1` guard and a nonempty `ANIMI_RELEASE_SMOKE_DATA_DIR` are present; the directory value alone has no effect.
 - Model anime and manga through a shared `MediaKind` schema from the start, but expose only anime workflows in v1. Manga becomes a later UI/API addition without redesigning storage.
 - Store only locally meaningful records and metadata for titles the user searches, opens, or tracks. Do not bulk-copy AniList.
 - Refresh airing information at application launch and every 30 minutes while open. Keep cached data usable offline and warn only when information may be out of date. Closed-app notifications are outside v1.
