@@ -34,6 +34,7 @@ function item(
   nextEpisode: number | null,
   stale = false,
   mediaStatus = "RELEASING",
+  episodes = 12,
 ): HomeAiringItem {
   return {
     library: {
@@ -45,7 +46,7 @@ function item(
         genres: ["Drama"],
         tags: [{ name: "Time", rank: 80 }],
         status: mediaStatus,
-        episodes: 12,
+        episodes,
         durationMinutes: 24,
         cachedAt: checkedAt,
         expiresAt: "2026-07-18T08:00:00.000Z",
@@ -245,6 +246,28 @@ describe("HomePage", () => {
     expect(caughtUp).toBeDisabled();
     expect(caughtUp).toHaveClass("glass-control", "text-muted");
     expect(caughtUp).not.toHaveClass("glass-accent", "opacity-55");
+  });
+
+  it("shows all caught up when every currently aired episode is watched", async () => {
+    const props = homeProps([
+      item(6, "Two Episodes into Summer", 2, 3, false, "RELEASING", 12),
+    ]);
+    render(HomePage, props);
+
+    const slide = await screen.findByRole("group", {
+      name: /Two Episodes into Summer/i,
+    });
+    expect(
+      within(slide).getByText(/you are right on time/i),
+    ).toBeInTheDocument();
+    const caughtUp = within(slide).getByRole("button", {
+      name: "all caught up",
+    });
+    expect(caughtUp).toBeDisabled();
+    expect(
+      within(slide).queryByRole("button", { name: "watch ep 3" }),
+    ).not.toBeInTheDocument();
+    expect(props.advanceProgress).not.toHaveBeenCalled();
   });
 
   it("persists bounded catch-up progress through the quick command", async () => {

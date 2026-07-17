@@ -185,7 +185,14 @@
   }
 
   function canAdvance(item: HomeAiringItem): boolean {
-    return remainingEpisodes(item) > 0;
+    const total = item.library.media?.episodes;
+    if (total === null || total === undefined) return false;
+
+    const availableEpisodes =
+      item.library.media?.status !== "FINISHED" && item.nextAiring !== null
+        ? Math.min(total, Math.max(0, item.nextAiring.episode - 1))
+        : total;
+    return item.library.entry.progress < availableEpisodes;
   }
 
   function remainingEpisodes(item: HomeAiringItem): number {
