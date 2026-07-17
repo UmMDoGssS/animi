@@ -11,7 +11,7 @@ pub use dashboard::{
 pub use error::CommandError;
 pub use library::{
     LibraryEntry, LibraryItem, LibraryMediaSnapshot, LibraryMediaTag, LibraryStatus,
-    MEDIA_DETAILS_CACHE_TTL_HOURS, MediaKind, RemoveLibraryEntryRequest,
+    MAX_NOTES_CHARACTERS, MEDIA_DETAILS_CACHE_TTL_HOURS, MediaKind, RemoveLibraryEntryRequest,
     RemoveLibraryEntryResponse, UpsertLibraryEntryRequest, ValidatedLibraryEntry, WatchActivity,
     format_utc,
 };

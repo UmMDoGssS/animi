@@ -2,7 +2,7 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use chrono::{DateTime, Utc};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tempfile::NamedTempFile;
 
@@ -11,6 +11,18 @@ use crate::database::{
     Database, DatabaseError,
 };
 use crate::domain::{CommandError, LibraryStatus, MediaKind, format_utc};
+
+mod import;
+
+#[doc(hidden)]
+pub use import::ImportSessionStore;
+pub use import::{
+    ClearLocalDataRequest, ClearLocalDataResponse, ImportBackupRequest, ImportBackupResponse,
+    ImportChangeSummary, ImportPreviewResponse, ImportValidationIssue, SettingsOverview,
+};
+pub(crate) use import::{
+    clear_local_data, get_settings_overview, import_backup, preview_import_from_path,
+};
 
 /// Every export currently uses backup schema v1.
 pub const CURRENT_SCHEMA_VERSION: u32 = 1;
@@ -30,7 +42,7 @@ pub const SUPPORTED_IMPORT_SCHEMA_VERSIONS: &[u32] = &[1];
 /// an identical existing event is a no-op, while a reused ID with a different
 /// payload is invalid.
 /// All timestamps are canonical UTC RFC 3339 strings with millisecond precision.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct BackupEnvelopeV1 {
     pub schema_version: u32,
@@ -40,7 +52,7 @@ pub struct BackupEnvelopeV1 {
     pub watch_activity: Vec<BackupWatchActivityV1>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct BackupSettingV1 {
     pub key: String,
@@ -48,7 +60,7 @@ pub struct BackupSettingV1 {
     pub updated_at: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct BackupLibraryEntryV1 {
     pub anilist_id: i64,
@@ -62,7 +74,7 @@ pub struct BackupLibraryEntryV1 {
     pub updated_at: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct BackupWatchActivityV1 {
     pub event_id: String,

@@ -150,6 +150,10 @@ impl Database {
         &self.storage_root
     }
 
+    pub(crate) fn pool(&self) -> &SqlitePool {
+        &self.pool
+    }
+
     pub async fn foreign_keys_enabled(&self) -> Result<bool, DatabaseError> {
         let enabled = sqlx::query_scalar::<_, i64>("PRAGMA foreign_keys")
             .fetch_one(&self.pool)

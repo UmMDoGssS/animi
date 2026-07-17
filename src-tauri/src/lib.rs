@@ -22,6 +22,10 @@ pub fn register_commands<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri
     builder.invoke_handler(tauri::generate_handler![
         commands::smoke::smoke_check,
         commands::backups::export_backup,
+        commands::backups::preview_import,
+        commands::backups::import_backup,
+        commands::backups::get_settings_overview,
+        commands::backups::clear_local_data,
         commands::library::list_library,
         commands::library::upsert_library_entry,
         commands::library::remove_library_entry,
@@ -48,9 +52,13 @@ pub fn run() {
                     AniListService::new(database.clone(), AniListClient::new(Arc::new(transport)));
                 let backup_destination_picker =
                     commands::backups::BackupDestinationPicker::for_app(app.handle().clone());
+                let backup_source_picker =
+                    commands::backups::BackupSourcePicker::for_app(app.handle().clone());
                 app.manage(database);
                 app.manage(anilist);
                 app.manage(backup_destination_picker);
+                app.manage(backup_source_picker);
+                app.manage(backups::ImportSessionStore::default());
                 Ok(())
             }),
     )
