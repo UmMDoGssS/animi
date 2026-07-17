@@ -381,9 +381,28 @@
     if (Number.isNaN(date.getTime())) return period;
     return new Intl.DateTimeFormat(undefined, {
       month: "short",
-      year: "2-digit",
       timeZone: "UTC",
     }).format(date);
+  }
+
+  function formatMonthName(period: string): string {
+    const date = new Date(`${period}-01T00:00:00.000Z`);
+    if (Number.isNaN(date.getTime())) return period;
+    return new Intl.DateTimeFormat(undefined, {
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(date);
+  }
+
+  function monthlyBucketLabel(bucket: DashboardActivityBucket): string {
+    const known = formatDuration(bucket.recordedMinutes);
+    const excluded = countLabel(
+      bucket.unknownDurationEpisodes,
+      "episode with unknown duration",
+      "episodes with unknown duration",
+    );
+    return `${formatMonthName(bucket.period)}: ${known} of recorded watch time from ${countLabel(bucket.recordedEpisodes, "episode")}; ${excluded}.`;
   }
 
   function bucketLabel(bucket: DashboardActivityBucket): string {
@@ -748,14 +767,21 @@
                 <p
                   class="text-accent text-[0.62rem] tracking-[0.12em] uppercase"
                 >
-                  last 12 calendar months
+                  12 monthly totals
                 </p>
                 <h3
                   id="monthly-activity-heading"
                   class="text-foreground mt-1 text-base font-light"
                 >
-                  Watch-time rhythm
+                  Time spent watching anime each month
                 </h3>
+                <p
+                  id="monthly-activity-description"
+                  class="text-muted mt-2 max-w-lg text-[0.62rem] leading-4"
+                >
+                  Each bar totals known watch time recorded during one calendar
+                  month.
+                </p>
               </div>
               <p class="text-muted text-[0.62rem] leading-4 sm:text-right">
                 {#if insights.activity.coveredFrom && insights.activity.coveredTo}
@@ -769,11 +795,12 @@
             <div class="mt-4 min-w-0 overflow-x-auto pb-1">
               <ol
                 aria-label="Monthly recorded watch activity"
+                aria-describedby="monthly-activity-description"
                 class="grid min-w-[36rem] grid-cols-12 gap-2"
               >
                 {#each insights.activity.monthly as bucket (bucket.period)}
                   <li
-                    aria-label={bucketLabel(bucket)}
+                    aria-label={monthlyBucketLabel(bucket)}
                     class="grid min-w-0 gap-2"
                   >
                     <div
@@ -795,9 +822,13 @@
                             ? "?"
                             : "—"}
                       </p>
-                      <p class="text-muted mt-1 text-[0.55rem] uppercase">
+                      <time
+                        datetime={`${bucket.period}-01`}
+                        aria-label={formatMonthName(bucket.period)}
+                        class="text-muted mt-1 block text-[0.55rem] uppercase"
+                      >
                         {formatMonthPeriod(bucket.period)}
-                      </p>
+                      </time>
                     </div>
                   </li>
                 {/each}

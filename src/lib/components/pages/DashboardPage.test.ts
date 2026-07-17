@@ -306,8 +306,29 @@ describe("DashboardPage", () => {
       expect(monthlyActivity).toHaveTextContent(/48m/i);
       expect(within(monthlyActivity).getAllByRole("listitem")).toHaveLength(12);
       expect(
+        Array.from(monthlyActivity.querySelectorAll("time"), (month) =>
+          month.textContent?.trim(),
+        ),
+      ).toEqual([
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+      ]);
+      expect(
+        within(monthlyActivity).getByLabelText("August 2025"),
+      ).toHaveTextContent("Aug");
+      expect(
         screen.getByRole("listitem", {
-          name: /2026-07: 48m recorded from 3 episodes; 1 episode with unknown duration/i,
+          name: /July 2026: 48m of recorded watch time from 3 episodes; 1 episode with unknown duration/i,
         }),
       ).toBeInTheDocument();
       expect(
