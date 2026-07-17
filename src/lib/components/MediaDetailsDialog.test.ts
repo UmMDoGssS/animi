@@ -227,6 +227,38 @@ describe("MediaDetailsDialog", () => {
     expect(onDetailsLoaded).toHaveBeenCalledWith(unknownDetails);
   });
 
+  it("renders genres and tags as compact wrapping badges", async () => {
+    const badgeDetails: MediaDetailsResponse = {
+      media: {
+        ...summary,
+        genres: ["Drama", "Fantasy"],
+        tags: [
+          { name: "Found Family", rank: 90 },
+          { name: "Slow Burn", rank: 84 },
+        ],
+        sequels: [],
+      },
+      freshness: currentFreshness,
+    };
+
+    render(MediaDetailsDialog, {
+      summary,
+      entry: null,
+      loadDetails: vi.fn().mockResolvedValue(badgeDetails),
+      saveEntry: vi.fn(),
+      deleteEntry: vi.fn(),
+      onClose: vi.fn(),
+    });
+
+    await screen.findByText("Fantasy");
+
+    for (const label of ["Drama", "Fantasy", "Found Family", "Slow Burn"]) {
+      const badge = screen.getByText(label).closest("li");
+      expect(badge).toHaveClass("px-2", "py-1", "text-xs");
+      expect(badge?.parentElement).toHaveClass("flex", "flex-wrap");
+    }
+  });
+
   it("shows only official sequel dates and labels incomplete dates as unknown", async () => {
     const sequelDetails: MediaDetailsResponse = {
       media: {

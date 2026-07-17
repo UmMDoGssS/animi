@@ -335,10 +335,10 @@
             tags
           </h3>
           {#if media.tags.length > 0}
-            <ul class="mt-2 grid gap-2">
+            <ul class="mt-2 flex flex-wrap gap-2">
               {#each media.tags as tag (tag.name)}
                 <li
-                  class="glass-control control-rounded border-border border px-3 py-2 text-xs"
+                  class="control-rounded border-border bg-glass-control border px-2 py-1 text-xs"
                 >
                   <span>{tag.name}</span>
                 </li>
