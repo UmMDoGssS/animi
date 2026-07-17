@@ -3,7 +3,12 @@ import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { applyThemePreference, semanticColorTokens, themeIds } from "./theme";
+import {
+  applyThemePreference,
+  pageAccentTokens,
+  semanticColorTokens,
+  themeIds,
+} from "./theme";
 
 const appStyles = readFileSync(resolve("src/app.css"), "utf8");
 
@@ -15,9 +20,15 @@ const textColors = [
   "text",
   "text-muted",
   "accent",
+  "info",
   "success",
   "warning",
   "danger",
+  "stat-tracked",
+  "stat-watching",
+  "stat-completed",
+  "stat-planning",
+  ...pageAccentTokens,
 ] as const;
 
 function cssBlock(marker: string): string {
@@ -124,6 +135,16 @@ describe("theme contract", () => {
       ),
       `${themeId} --on-accent on --accent`,
     ).toBeGreaterThanOrEqual(4.5);
+
+    for (const pageAccent of pageAccentTokens) {
+      expect(
+        contrastRatio(
+          solidHexToken(block, "on-accent"),
+          solidHexToken(block, pageAccent),
+        ),
+        `${themeId} --on-accent on --${pageAccent}`,
+      ).toBeGreaterThanOrEqual(4.5);
+    }
   });
 
   it.each(themeIds)("keeps %s control boundaries visible", (themeId) => {
@@ -170,7 +191,9 @@ describe("theme contract", () => {
   });
 
   it("keeps global scrollbars visible", () => {
-    expect(appStyles).not.toMatch(/scrollbar-width\s*:\s*none\b/i);
+    const universal = cssBlock("* {");
+    expect(universal).toContain("scrollbar-width: thin;");
+    expect(universal).not.toMatch(/scrollbar-width\s*:\s*none\b/i);
 
     const webkitScrollbar = cssBlock("*::-webkit-scrollbar");
     expect(webkitScrollbar).not.toMatch(/display:\s*none\b/i);

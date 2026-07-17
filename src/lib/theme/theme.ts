@@ -48,11 +48,23 @@ export const semanticColorTokens = [
   "accent",
   "accent-strong",
   "on-accent",
+  "info",
   "success",
   "warning",
   "danger",
+  "stat-tracked",
+  "stat-watching",
+  "stat-completed",
+  "stat-planning",
   "border",
   "control-border",
   "glass",
   "selection",
+] as const;
+
+export const pageAccentTokens = [
+  "page-home-accent",
+  "page-discovery-accent",
+  "page-dashboard-accent",
+  "page-settings-accent",
 ] as const;

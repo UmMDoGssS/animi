@@ -66,6 +66,7 @@
           aria-selected={activeView === item.id}
           aria-controls={`${item.id}-panel`}
           tabindex={activeView === item.id ? 0 : -1}
+          data-page={item.id}
           class="glass-control glass-interactive glass-tab control-rounded text-muted hover:text-foreground flex h-10 items-center justify-center gap-2 px-2.5 transition-colors sm:px-3"
           onclick={() => selectView(item.id)}
           onkeydown={(event) => handleKeydown(event, index)}

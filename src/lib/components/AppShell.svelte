@@ -175,7 +175,10 @@
   Skip to content
 </a>
 
-<div class="bg-surface text-foreground relative min-h-screen overflow-clip">
+<div
+  class="app-chrome bg-surface text-foreground relative min-h-screen overflow-clip"
+  data-page={activeView}
+>
   <div
     aria-hidden="true"
     class="pointer-events-none fixed inset-0 overflow-hidden"

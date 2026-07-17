@@ -328,6 +328,18 @@ describe("DashboardPage", () => {
       expect(totals).toHaveTextContent(/watching\s*02/i);
       expect(totals).toHaveTextContent(/completed\s*01/i);
       expect(totals).toHaveTextContent(/planning\s*01/i);
+      expect(totals.querySelector('[data-stat="tracked"]')).toHaveClass(
+        "text-stat-tracked",
+      );
+      expect(totals.querySelector('[data-stat="watching"]')).toHaveClass(
+        "text-stat-watching",
+      );
+      expect(totals.querySelector('[data-stat="completed"]')).toHaveClass(
+        "text-stat-completed",
+      );
+      expect(totals.querySelector('[data-stat="planning"]')).toHaveClass(
+        "text-stat-planning",
+      );
       expect(screen.getByText(/8 episodes/i)).toBeInTheDocument();
       expect(screen.queryByText(/eligible titles/i)).not.toBeInTheDocument();
       expect(

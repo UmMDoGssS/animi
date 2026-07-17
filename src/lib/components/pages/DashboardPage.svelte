@@ -582,7 +582,8 @@
               tracked
             </dt>
             <dd
-              class="text-foreground mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
+              class="text-stat-tracked mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
+              data-stat="tracked"
             >
               {padCount(insights.libraryTotals.tracked)}
             </dd>
@@ -592,7 +593,8 @@
               watching
             </dt>
             <dd
-              class="text-accent mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
+              class="text-stat-watching mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
+              data-stat="watching"
             >
               {padCount(insights.libraryTotals.watching)}
             </dd>
@@ -602,7 +604,8 @@
               completed
             </dt>
             <dd
-              class="text-success mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
+              class="text-stat-completed mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
+              data-stat="completed"
             >
               {padCount(insights.libraryTotals.completed)}
             </dd>
@@ -612,7 +615,8 @@
               planning
             </dt>
             <dd
-              class="text-foreground mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
+              class="text-stat-planning mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
+              data-stat="planning"
             >
               {padCount(insights.libraryTotals.planning)}
             </dd>

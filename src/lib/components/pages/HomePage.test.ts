@@ -129,6 +129,15 @@ describe("HomePage", () => {
       expect(screen.getByText("3").closest("p")).toHaveTextContent("watching");
       expect(screen.getByText("2").closest("p")).toHaveTextContent("waiting");
       expect(screen.getByText("1").closest("p")).toHaveTextContent("unknown");
+      expect(document.querySelector('[data-stat="watching"]')).toHaveClass(
+        "text-info",
+      );
+      expect(document.querySelector('[data-stat="waiting"]')).toHaveClass(
+        "text-warning",
+      );
+      expect(document.querySelector('[data-stat="unknown"]')).toHaveClass(
+        "text-danger",
+      );
       expect(screen.queryByText(/stale/i)).not.toBeInTheDocument();
       expect(props.loadAiring).toHaveBeenCalledOnce();
     },

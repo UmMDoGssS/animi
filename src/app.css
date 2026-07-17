@@ -13,9 +13,22 @@
   --accent: #7726d3;
   --accent-strong: #174ea6;
   --on-accent: #eff1f5;
+  --info: #174ea6;
   --success: #28701c;
   --warning: #855500;
   --danger: #b80d32;
+  --stat-tracked: #7726d3;
+  --stat-watching: #174ea6;
+  --stat-completed: #28701c;
+  --stat-planning: #855500;
+  --page-home-accent: #855500;
+  --page-home-accent-strong: #a66b00;
+  --page-discovery-accent: #28701c;
+  --page-discovery-accent-strong: #26756a;
+  --page-dashboard-accent: #00677f;
+  --page-dashboard-accent-strong: #174ea6;
+  --page-settings-accent: #7726d3;
+  --page-settings-accent-strong: #174ea6;
   --border: rgb(119 38 211 / 48%);
   --control-border: #6c6f85;
   --glass: rgb(239 241 245 / 50%);
@@ -50,9 +63,22 @@
   --accent: #c6a0f6;
   --accent-strong: #8aadf4;
   --on-accent: #1e2030;
+  --info: #8aadf4;
   --success: #a6da95;
   --warning: #eed49f;
   --danger: #ed8796;
+  --stat-tracked: #c6a0f6;
+  --stat-watching: #8aadf4;
+  --stat-completed: #a6da95;
+  --stat-planning: #eed49f;
+  --page-home-accent: #eed49f;
+  --page-home-accent-strong: #f5a97f;
+  --page-discovery-accent: #a6da95;
+  --page-discovery-accent-strong: #8bd5ca;
+  --page-dashboard-accent: #7dc4e4;
+  --page-dashboard-accent-strong: #8aadf4;
+  --page-settings-accent: #c6a0f6;
+  --page-settings-accent-strong: #8aadf4;
   --border: rgb(198 160 246 / 44%);
   --control-border: #6e738d;
   --glass: rgb(36 39 58 / 52%);
@@ -80,9 +106,22 @@
     --accent: #c6a0f6;
     --accent-strong: #8aadf4;
     --on-accent: #1e2030;
+    --info: #8aadf4;
     --success: #a6da95;
     --warning: #eed49f;
     --danger: #ed8796;
+    --stat-tracked: #c6a0f6;
+    --stat-watching: #8aadf4;
+    --stat-completed: #a6da95;
+    --stat-planning: #eed49f;
+    --page-home-accent: #eed49f;
+    --page-home-accent-strong: #f5a97f;
+    --page-discovery-accent: #a6da95;
+    --page-discovery-accent-strong: #8bd5ca;
+    --page-dashboard-accent: #7dc4e4;
+    --page-dashboard-accent-strong: #8aadf4;
+    --page-settings-accent: #c6a0f6;
+    --page-settings-accent-strong: #8aadf4;
     --border: rgb(198 160 246 / 44%);
     --control-border: #6e738d;
     --glass: rgb(36 39 58 / 52%);
@@ -109,9 +148,14 @@
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
   --color-on-accent: var(--on-accent);
+  --color-info: var(--info);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
+  --color-stat-tracked: var(--stat-tracked);
+  --color-stat-watching: var(--stat-watching);
+  --color-stat-completed: var(--stat-completed);
+  --color-stat-planning: var(--stat-planning);
   --color-border: var(--border);
   --color-control-border: var(--control-border);
   --color-glass: var(--glass);
@@ -185,6 +229,33 @@ a {
   outline-offset: 2px;
 }
 
+/* Each destination keeps the same component grammar while carrying its own color. */
+.app-chrome[data-page="home"] {
+  --accent: var(--page-home-accent);
+  --accent-strong: var(--page-home-accent-strong);
+}
+
+.app-chrome[data-page="discovery"] {
+  --accent: var(--page-discovery-accent);
+  --accent-strong: var(--page-discovery-accent-strong);
+}
+
+.app-chrome[data-page="dashboard"] {
+  --accent: var(--page-dashboard-accent);
+  --accent-strong: var(--page-dashboard-accent-strong);
+}
+
+.app-chrome[data-page="settings"] {
+  --accent: var(--page-settings-accent);
+  --accent-strong: var(--page-settings-accent-strong);
+}
+
+.app-chrome[data-page] {
+  --border: color-mix(in srgb, var(--accent) 46%, transparent);
+  --accent-glass: color-mix(in srgb, var(--accent) 82%, transparent);
+  --selection: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
 .glass-panel {
   border: 2px solid var(--border);
   background: var(--surface-raised);
@@ -233,6 +304,36 @@ a {
 .glass-tab[aria-selected="true"] {
   background: var(--accent);
   color: var(--on-accent);
+}
+
+.glass-tab[data-page="home"] {
+  --tab-accent: var(--page-home-accent);
+}
+
+.glass-tab[data-page="discovery"] {
+  --tab-accent: var(--page-discovery-accent);
+}
+
+.glass-tab[data-page="dashboard"] {
+  --tab-accent: var(--page-dashboard-accent);
+}
+
+.glass-tab[data-page="settings"] {
+  --tab-accent: var(--page-settings-accent);
+}
+
+.glass-tab[data-page] {
+  color: var(--tab-accent);
+}
+
+.glass-tab[data-page][aria-selected="true"] {
+  border-color: color-mix(in srgb, var(--tab-accent) 74%, transparent);
+  background: color-mix(in srgb, var(--tab-accent) 82%, transparent);
+  color: var(--on-accent);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    0 0 0 1px color-mix(in srgb, var(--tab-accent) 24%, transparent),
+    var(--control-shadow);
 }
 
 .glass-accent {
@@ -290,6 +391,10 @@ a {
     background: var(--accent-glass);
     -webkit-backdrop-filter: blur(14px) saturate(114%);
     backdrop-filter: blur(14px) saturate(114%);
+  }
+
+  .glass-tab[data-page][aria-selected="true"] {
+    background: color-mix(in srgb, var(--tab-accent) 76%, transparent);
   }
 }
 

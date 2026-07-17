@@ -147,6 +147,8 @@ describe("AppShell", () => {
       ).toBeInTheDocument();
       expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
       expect(screen.getByRole("tabpanel")).toHaveAttribute("id", "home-panel");
+      const appChrome = document.querySelector(".app-chrome");
+      expect(appChrome).toHaveAttribute("data-page", "home");
       expect(
         screen.getByRole("link", { name: "Skip to content" }),
       ).toHaveAttribute("href", "#main-content");
@@ -168,8 +170,13 @@ describe("AppShell", () => {
         ),
       ).not.toBeInTheDocument();
 
-      for (const destination of ["Discover", "Dashboard", "Settings"]) {
+      for (const [destination, pageId] of [
+        ["Discover", "discovery"],
+        ["Dashboard", "dashboard"],
+        ["Settings", "settings"],
+      ] as const) {
         await fireEvent.click(screen.getByRole("tab", { name: destination }));
+        expect(appChrome).toHaveAttribute("data-page", pageId);
         expect(
           screen.getByRole("heading", { level: 1, name: destination }),
         ).toBeInTheDocument();

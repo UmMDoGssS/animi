@@ -328,13 +328,19 @@
       >
         <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
           <p class="text-muted text-xs tracking-[0.1em] uppercase">
-            <span class="text-foreground text-base">{items.length}</span> watching
+            <span class="text-info text-base" data-stat="watching"
+              >{items.length}</span
+            > watching
           </p>
           <p class="text-muted text-xs tracking-[0.1em] uppercase">
-            <span class="text-warning text-base">{waitingCount}</span> waiting
+            <span class="text-warning text-base" data-stat="waiting"
+              >{waitingCount}</span
+            > waiting
           </p>
           <p class="text-muted text-xs tracking-[0.1em] uppercase">
-            <span class="text-foreground text-base">{unknownCount}</span> unknown
+            <span class="text-danger text-base" data-stat="unknown"
+              >{unknownCount}</span
+            > unknown
           </p>
         </div>
         <div class="flex items-center gap-2">
