@@ -282,6 +282,9 @@ describe("DashboardPage", () => {
       });
       expect(totals).toHaveClass("grid-cols-2");
       expect(totals).not.toHaveClass("sm:grid-cols-4");
+      for (const total of totals.querySelectorAll("dd")) {
+        expect(total).toHaveClass("text-3xl", "sm:text-5xl");
+      }
       expect(totals).toHaveTextContent(/tracked\s*04/i);
       expect(totals).toHaveTextContent(/watching\s*02/i);
       expect(totals).toHaveTextContent(/completed\s*01/i);
