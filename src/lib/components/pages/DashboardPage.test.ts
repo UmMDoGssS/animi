@@ -391,19 +391,15 @@ describe("DashboardPage", () => {
       expect(
         screen.getByRole("searchbox", { name: "find a title" }),
       ).toBeInTheDocument();
-      expect(screen.getByRole("combobox", { name: "status" })).toHaveValue(
-        "ALL",
-      );
-      expect(screen.getByRole("combobox", { name: "sort by" })).toHaveValue(
-        "UPDATED_DESC",
-      );
+      expect(
+        screen.getByRole("combobox", { name: "status" }),
+      ).toHaveTextContent("All statuses");
+      expect(
+        screen.getByRole("combobox", { name: "sort by" }),
+      ).toHaveTextContent("Recently updated");
       for (const dropdown of screen.getAllByRole("combobox")) {
-        expect(dropdown).toHaveClass(
-          "glass-select",
-          "glass-interactive",
-          "cursor-pointer",
-          "pr-10",
-        );
+        expect(dropdown).toHaveClass("glass-select-trigger", "cursor-pointer");
+        expect(dropdown).toHaveAttribute("aria-expanded", "false");
       }
       expect(
         screen.getByRole("navigation", { name: "Library index pages" }),
@@ -463,6 +459,15 @@ describe("DashboardPage", () => {
     const searchControls = screen.getByRole("search", {
       name: "Filter library index",
     });
+    const chooseOption = async (
+      controlName: string,
+      optionName: string,
+    ): Promise<void> => {
+      await user.click(
+        within(searchControls).getByRole("combobox", { name: controlName }),
+      );
+      await user.click(screen.getByRole("option", { name: optionName }));
+    };
     const visibleTitles = () =>
       within(screen.getByRole("list", { name: "Library index results" }))
         .getAllByRole("button")
@@ -497,10 +502,7 @@ describe("DashboardPage", () => {
       "Charlie Chronicle",
     ]);
 
-    await user.selectOptions(
-      within(searchControls).getByRole("combobox", { name: "sort by" }),
-      "TITLE_ASC",
-    );
+    await chooseOption("sort by", "Title A–Z");
     expect(visibleTitles()).toEqual([
       "Alpha Archive",
       "Bravo Brigade",
@@ -510,10 +512,7 @@ describe("DashboardPage", () => {
     ]);
     expect(pages).toHaveTextContent(/page\s*1\s*of\s*2/i);
 
-    await user.selectOptions(
-      within(searchControls).getByRole("combobox", { name: "status" }),
-      "WATCHING",
-    );
+    await chooseOption("status", "Watching");
     expect(visibleTitles()).toEqual([
       "Charlie Chronicle",
       "Foxtrot Fable",
@@ -548,10 +547,7 @@ describe("DashboardPage", () => {
       ).getAllByRole("listitem"),
     ).toHaveLength(5);
 
-    await user.selectOptions(
-      within(searchControls).getByRole("combobox", { name: "sort by" }),
-      "PROGRESS_DESC",
-    );
+    await chooseOption("sort by", "Most progress");
     expect(visibleTitles()).toEqual([
       "Bravo Brigade",
       "Echo Expedition",
@@ -560,10 +556,7 @@ describe("DashboardPage", () => {
       "Charlie Chronicle",
     ]);
 
-    await user.selectOptions(
-      within(searchControls).getByRole("combobox", { name: "sort by" }),
-      "SCORE_DESC",
-    );
+    await chooseOption("sort by", "Highest score");
     expect(visibleTitles()).toEqual([
       "Gamma Garden",
       "Echo Expedition",

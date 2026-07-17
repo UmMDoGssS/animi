@@ -21,6 +21,8 @@
   --glass: rgb(239 241 245 / 50%);
   --glass-control: rgb(255 255 255 / 22%);
   --glass-control-hover: rgb(255 255 255 / 36%);
+  --glass-select: rgb(230 233 239 / 84%);
+  --glass-select-hover: rgb(204 208 218 / 94%);
   --glass-highlight: rgb(255 255 255 / 68%);
   --accent-glass: rgb(119 38 211 / 94%);
   --selection: rgb(119 38 211 / 28%);
@@ -56,6 +58,8 @@
   --glass: rgb(36 39 58 / 52%);
   --glass-control: rgb(54 58 79 / 28%);
   --glass-control-hover: rgb(73 77 100 / 42%);
+  --glass-select: rgb(30 32 48 / 86%);
+  --glass-select-hover: rgb(54 58 79 / 95%);
   --glass-highlight: rgb(202 211 245 / 18%);
   --accent-glass: rgb(198 160 246 / 76%);
   --selection: rgb(198 160 246 / 34%);
@@ -84,6 +88,8 @@
     --glass: rgb(36 39 58 / 52%);
     --glass-control: rgb(54 58 79 / 28%);
     --glass-control-hover: rgb(73 77 100 / 42%);
+    --glass-select: rgb(30 32 48 / 86%);
+    --glass-select-hover: rgb(54 58 79 / 95%);
     --glass-highlight: rgb(202 211 245 / 18%);
     --accent-glass: rgb(198 160 246 / 76%);
     --selection: rgb(198 160 246 / 34%);
@@ -185,22 +191,28 @@ a {
     var(--control-shadow);
 }
 
-.glass-select {
-  -webkit-appearance: none;
-  appearance: none;
-  background-color: var(--surface-sunken);
-  color: var(--text);
+.glass-select-trigger,
+.glass-select-menu {
+  background: var(--surface-sunken);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    var(--control-shadow);
 }
 
-.glass-select option {
-  background-color: var(--surface-raised);
-  color: var(--text);
-  font-weight: 300;
+.glass-select-trigger:hover,
+.glass-select-trigger[aria-expanded="true"],
+.glass-select-option:hover,
+.glass-select-option[data-active="true"] {
+  background: var(--overlay);
 }
 
-.glass-select option:checked {
-  background-color: var(--accent);
-  color: var(--on-accent);
+.glass-select-trigger:hover,
+.glass-select-trigger[aria-expanded="true"] {
+  border-color: var(--accent);
+}
+
+.glass-select-option[aria-selected="true"] {
+  color: var(--accent);
 }
 
 .glass-interactive:hover {
@@ -243,6 +255,20 @@ a {
     background: var(--glass-control);
     -webkit-backdrop-filter: blur(14px) saturate(114%);
     backdrop-filter: blur(14px) saturate(114%);
+  }
+
+  .glass-select-trigger,
+  .glass-select-menu {
+    background: var(--glass-select);
+    -webkit-backdrop-filter: blur(18px) saturate(118%);
+    backdrop-filter: blur(18px) saturate(118%);
+  }
+
+  .glass-select-trigger:hover,
+  .glass-select-trigger[aria-expanded="true"],
+  .glass-select-option:hover,
+  .glass-select-option[data-active="true"] {
+    background: var(--glass-select-hover);
   }
 
   .glass-interactive:hover {

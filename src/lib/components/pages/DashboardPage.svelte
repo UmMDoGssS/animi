@@ -28,6 +28,7 @@
   } from "$lib/ipc/types";
 
   import AsyncStateNotice from "../AsyncStateNotice.svelte";
+  import GlassSelect from "../GlassSelect.svelte";
   import MediaCover from "../MediaCover.svelte";
   import MediaDetailsDialog from "../MediaDetailsDialog.svelte";
   import PageHeader from "../PageHeader.svelte";
@@ -51,6 +52,18 @@
     "UPDATED_DESC" | "TITLE_ASC" | "PROGRESS_DESC" | "SCORE_DESC";
 
   const libraryPageSize = 5;
+  const libraryStatusOptions = [
+    { value: "ALL", label: "All statuses" },
+    { value: "WATCHING", label: "Watching" },
+    { value: "COMPLETED", label: "Completed" },
+    { value: "PLANNING", label: "Planning" },
+  ] as const;
+  const librarySortOptions = [
+    { value: "UPDATED_DESC", label: "Recently updated" },
+    { value: "TITLE_ASC", label: "Title A–Z" },
+    { value: "PROGRESS_DESC", label: "Most progress" },
+    { value: "SCORE_DESC", label: "Highest score" },
+  ] as const;
 
   let {
     loadInsights = getDashboardInsights,
@@ -200,6 +213,24 @@
 
   function resetLibraryPage(): void {
     libraryPage = 1;
+  }
+
+  function changeLibraryStatusFilter(value: string): void {
+    const option = libraryStatusOptions.find(
+      (candidate) => candidate.value === value,
+    );
+    if (!option) return;
+    libraryStatusFilter = option.value;
+    resetLibraryPage();
+  }
+
+  function changeLibrarySort(value: string): void {
+    const option = librarySortOptions.find(
+      (candidate) => candidate.value === value,
+    );
+    if (!option) return;
+    librarySort = option.value;
+    resetLibraryPage();
   }
 
   function resetLibraryFilters(): void {
@@ -1058,69 +1089,35 @@
               />
             </label>
 
-            <label class="grid min-w-0 gap-1.5">
+            <div class="grid min-w-0 gap-1.5">
               <span
                 class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
               >
                 status
               </span>
-              <span class="relative block min-w-0">
-                <select
-                  bind:value={libraryStatusFilter}
-                  onchange={resetLibraryPage}
-                  class="glass-control glass-select glass-interactive control-rounded border-border text-foreground min-h-10 w-full min-w-0 cursor-pointer border py-2 pr-10 pl-3 text-sm transition-colors outline-none"
-                >
-                  <option value="ALL">All statuses</option>
-                  <option value="WATCHING">Watching</option>
-                  <option value="COMPLETED">Completed</option>
-                  <option value="PLANNING">Planning</option>
-                </select>
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="text-accent pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2"
-                >
-                  <path d="m7 9.5 5 5 5-5" />
-                </svg>
-              </span>
-            </label>
+              <GlassSelect
+                id="library-status-filter"
+                label="status"
+                value={libraryStatusFilter}
+                options={libraryStatusOptions}
+                onChange={changeLibraryStatusFilter}
+              />
+            </div>
 
-            <label class="grid min-w-0 gap-1.5">
+            <div class="grid min-w-0 gap-1.5">
               <span
                 class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
               >
                 sort by
               </span>
-              <span class="relative block min-w-0">
-                <select
-                  bind:value={librarySort}
-                  onchange={resetLibraryPage}
-                  class="glass-control glass-select glass-interactive control-rounded border-border text-foreground min-h-10 w-full min-w-0 cursor-pointer border py-2 pr-10 pl-3 text-sm transition-colors outline-none"
-                >
-                  <option value="UPDATED_DESC">Recently updated</option>
-                  <option value="TITLE_ASC">Title A–Z</option>
-                  <option value="PROGRESS_DESC">Most progress</option>
-                  <option value="SCORE_DESC">Highest score</option>
-                </select>
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="text-accent pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2"
-                >
-                  <path d="m7 9.5 5 5 5-5" />
-                </svg>
-              </span>
-            </label>
+              <GlassSelect
+                id="library-sort"
+                label="sort by"
+                value={librarySort}
+                options={librarySortOptions}
+                onChange={changeLibrarySort}
+              />
+            </div>
 
             <button
               type="button"
