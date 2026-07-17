@@ -7,7 +7,7 @@
 | Product | Animi |
 | Release | Version 1, Windows desktop |
 | Overall status | In progress |
-| Current phase | P5 ready; P6 complete |
+| Current phase | P7 ready; P5 and P6 complete |
 | Schedule | Dependency-driven; no calendar commitment |
 | Last updated | 2026-07-17 |
 
@@ -49,8 +49,8 @@ The following remain outside v1:
 | P2 | AniList integration and caching | P1 | Complete | Mocked network, cache, offline, and rate-limit behavior passes |
 | P3 | Four-destination application shell and design system | P0; coordinate with P1 contracts | Complete | Home, Discover, Dashboard, and Settings shell works accessibly at desktop and narrow widths |
 | P4 | Discovery, details, Dashboard, and library workflow | P1, P2, P3 | Complete | Core discovery-to-library flow passes end to end |
-| P5 | Home airing workflow, insights, and recommendations | P2, P4 | Not started | Home airing/progress, Dashboard insights, and deterministic recommendation behavior pass |
-| P6 | Settings, backup, and recovery | P1, P3, P4 | In progress | Backup round trips and rollback guarantees pass |
+| P5 | Home airing workflow, insights, and recommendations | P2, P4 | Complete | Home airing/progress, Dashboard insights, and deterministic recommendation behavior pass |
+| P6 | Settings, backup, and recovery | P1, P3, P4 | Complete | Backup round trips and rollback guarantees pass |
 | P7 | Release hardening and Windows packaging | P0-P6 | Not started | Full quality gate and production NSIS acceptance pass |
 
 ## Planned Contracts
@@ -314,30 +314,34 @@ P4 completed 2026-07-17. Discover now uses the typed command boundary for trendi
 
 ### Entry gate
 
-- [ ] **P5-E1** Airing and recommendation fixtures include missing dates, unknown sequels, insufficient history, and offline cache cases.
-- [ ] **P5-E2** Recommendation logic can run as a pure, deterministic Rust domain operation over supplied inputs.
+- [x] **P5-E1** Airing and recommendation fixtures include missing dates, unknown sequels, insufficient history, and offline cache cases.
+- [x] **P5-E2** Recommendation logic can run as a pure, deterministic Rust domain operation over supplied inputs.
 
 ### Milestones
 
-- [ ] **P5-M1 - Airing refresh scheduler:** Refresh relevant airing data at application launch and every 30 minutes while the application remains open, respecting cache and rate limits.
-- [ ] **P5-M2 - Home airing carousel:** Join `WATCHING` entries with next-known airing data. Show the countdown, stale or last-updated state, and catch-up count `max(0, nextEpisode - 1 - progress)`, with a bounded quick action that advances local progress. Treat missing schedules as unknown and provide an explicit no-active-anime state.
-- [ ] **P5-M3 - Sequel presentation:** Show dates only for official sequel relations with release information. Label unknown sequels as unknown rather than estimating them.
-- [ ] **P5-M4 - Preference profile:** Build the local recommendation input from genres and weighted AniList tags in completed and watching entries without uploading library data.
-- [ ] **P5-M5 - Ranking algorithm:** Apply the `PROJECT.md` weighting of 55% tag similarity, 25% genre similarity, and 20% normalized trending score. Define normalization, tie-breaking, and the insufficient-history threshold as deterministic domain behavior before UI integration.
-- [ ] **P5-M6 - Candidate rules:** Rank untracked trending candidates, exclude already tracked titles, and fall back to trending when local history is insufficient.
-- [ ] **P5-M7 - Explanations:** Return the strongest matching tags as concise explanation labels without implying opaque certainty.
-- [ ] **P5-M8 - Recommendation section:** Present ranked, explainable results within Discover with loading, empty, offline, stale, and fallback states.
-- [ ] **P5-M9 - Deterministic tests:** Cover scoring weights, normalization edges, ties, exclusion, fallback, missing metadata, unknown sequels, cache expiry, refresh scheduling, Home catch-up counts, bounded quick progress, and activity aggregation using a controllable clock.
-- [ ] **P5-M10 - Dashboard activity insights:** Present recorded watch time as accessible monthly and yearly summaries, using a heatmap or bar treatment selected during visual review. Show the covered date range and unknown-duration exclusions, and provide useful empty states for users without recorded history.
+- [x] **P5-M1 - Airing refresh scheduler:** Refresh relevant airing data at application launch and every 30 minutes while the application remains open, respecting cache and rate limits.
+- [x] **P5-M2 - Home airing carousel:** Join `WATCHING` entries with next-known airing data. Show the countdown, stale or last-updated state, and catch-up count `max(0, nextEpisode - 1 - progress)`, with a bounded quick action that advances local progress. Treat missing schedules as unknown and provide an explicit no-active-anime state.
+- [x] **P5-M3 - Sequel presentation:** Show dates only for official sequel relations with release information. Label unknown sequels as unknown rather than estimating them.
+- [x] **P5-M4 - Preference profile:** Build the local recommendation input from genres and weighted AniList tags in completed and watching entries without uploading library data.
+- [x] **P5-M5 - Ranking algorithm:** Apply the `PROJECT.md` weighting of 55% tag similarity, 25% genre similarity, and 20% normalized trending score. Define normalization, tie-breaking, and the insufficient-history threshold as deterministic domain behavior before UI integration.
+- [x] **P5-M6 - Candidate rules:** Rank untracked trending candidates, exclude already tracked titles, and fall back to trending when local history is insufficient.
+- [x] **P5-M7 - Explanations:** Return the strongest matching tags as concise explanation labels without implying opaque certainty.
+- [x] **P5-M8 - Recommendation section:** Present ranked, explainable results within Discover with loading, empty, offline, stale, and fallback states.
+- [x] **P5-M9 - Deterministic tests:** Cover scoring weights, normalization edges, ties, exclusion, fallback, missing metadata, unknown sequels, cache expiry, refresh scheduling, Home catch-up counts, bounded quick progress, and activity aggregation using a controllable clock.
+- [x] **P5-M10 - Dashboard activity insights:** Present recorded watch time as accessible monthly and yearly summaries, using a heatmap or bar treatment selected during visual review. Show the covered date range and unknown-duration exclusions, and provide useful empty states for users without recorded history.
 
 ### Exit gate
 
-- [ ] **P5-G1** Airing refresh occurs only at launch, on an allowed manual action, or at the in-app 30-minute interval.
-- [ ] **P5-G2** No test or UI path predicts an unannounced sequel or unknown date.
-- [ ] **P5-G3** Recommendation results and explanations are reproducible from fixed inputs.
-- [ ] **P5-G4** Insufficient history and offline operation produce useful, explicit fallbacks.
+- [x] **P5-G1** Airing refresh occurs only at launch, on an allowed manual action, or at the in-app 30-minute interval.
+- [x] **P5-G2** No test or UI path predicts an unannounced sequel or unknown date.
+- [x] **P5-G3** Recommendation results and explanations are reproducible from fixed inputs.
+- [x] **P5-G4** Insufficient history and offline operation produce useful, explicit fallbacks.
 
-**Evidence:** Pending.
+**Evidence:** Complete. Home remains mounted behind the four-destination shell so its launch check and 30-minute timer continue while the application is open; the only other schedule fetch is the explicit Check schedules action. Every fetch still passes through the 30-minute airing cache and AniList rate-limit handling. Successful schedule responses transactionally replace prior rows, including clearing them for a confirmed empty schedule, and partial per-title failures remain explicit. Home joins only anime `WATCHING` rows, reports stale and last-checked state, computes the documented catch-up count, and routes quick progress through one SQLite transaction that refuses unknown or unaired episodes while retaining activity high-water semantics.
+
+The pure Rust recommendation domain requires two eligible cached `WATCHING` or `COMPLETED` titles before personalization, aggregates only local genre and strongest-per-title tag signals, applies 55% weighted-cosine tag similarity, 25% genre Jaccard overlap, and 20% min-max normalized trending, then breaks ties by score, trending, and AniList ID. Tracked candidates are excluded; insufficient history returns an explicit trending fallback; the strongest matching tags become explanation labels; and six-hour candidate caches remain useful offline with stale disclosure. Official sequel relations keep complete release dates only, while incomplete dates render as unknown without prediction. Dashboard activity now returns twelve ordered monthly buckets, lifetime yearly buckets, exact ledger coverage, and unknown-duration exclusions, rendered as accessible bars and totals.
+
+Verification covers fixed-clock cache expiry and scheduling, empty schedules, stale offline recommendation candidates, insufficient history, score edges and ties, candidate exclusion, official and unknown sequel dates, responsive Home and Discover states, bounded transactional progress, monthly/yearly bucketing, and the real camelCase Tauri command surface in `src-tauri/tests/p5_ipc.rs`. The phase gate passes `bun run format:check`, `bun run lint`, `bun run check`, `bun run test`, `bun run build`, `cargo fmt --check`, `cargo clippy --all-targets --all-features -- -D warnings`, and `cargo test --all-features`; the final suite contains 93 frontend tests across 13 files, 81 Rust unit tests, and 16 Rust integration/persistence tests.
 
 ## P6 - Settings, Backup, and Recovery
 
