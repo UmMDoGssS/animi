@@ -105,10 +105,11 @@ async fn seed_profile_title(
     anilist_id: i64,
     status: LibraryStatus,
     progress: i64,
-    genres: &[&str],
-    tags: &[(&str, i64)],
+    total_units: i64,
+    signals: (&[&str], &[(&str, i64)]),
     now: DateTime<Utc>,
 ) {
+    let (genres, tags) = signals;
     database
         .media()
         .upsert_snapshot(&MediaSnapshotRecord {
@@ -126,7 +127,7 @@ async fn seed_profile_title(
                 })
                 .collect(),
             media_status: Some("RELEASING".to_owned()),
-            total_units: Some(12),
+            total_units: Some(total_units),
             duration_minutes: Some(24),
             cached_at: now,
         })
@@ -158,8 +159,8 @@ fn p5_home_recommendations_and_activity_cross_the_real_ipc_boundary() {
         101,
         LibraryStatus::Watching,
         1,
-        &["Drama"],
-        &[("Found Family", 90)],
+        3,
+        (&["Drama"], &[("Found Family", 90)]),
         now,
     ));
     tauri::async_runtime::block_on(seed_profile_title(
@@ -167,8 +168,8 @@ fn p5_home_recommendations_and_activity_cross_the_real_ipc_boundary() {
         102,
         LibraryStatus::Completed,
         12,
-        &["Fantasy"],
-        &[("Found Family", 80)],
+        12,
+        (&["Fantasy"], &[("Found Family", 80)]),
         now,
     ));
     let airing = json!({
@@ -211,7 +212,7 @@ fn p5_home_recommendations_and_activity_cross_the_real_ipc_boundary() {
         "advance_library_progress",
         json!({ "request": { "anilistId": 101 } }),
     )
-    .expect_err("episode 4 is not yet available");
+    .expect_err("episode total has been reached");
     assert_eq!(bounded["code"], "PROGRESS_NOT_ADVANCEABLE");
 
     let recommendations = invoke_ok(

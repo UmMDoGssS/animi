@@ -142,7 +142,13 @@
   }
 
   function canAdvance(item: HomeAiringItem): boolean {
-    return catchUpCount(item) > 0;
+    return remainingEpisodes(item) > 0;
+  }
+
+  function remainingEpisodes(item: HomeAiringItem): number {
+    const total = item.library.media?.episodes;
+    if (total === null || total === undefined) return 0;
+    return Math.max(0, total - item.library.entry.progress);
   }
 
   function title(item: HomeAiringItem): string {
@@ -181,7 +187,8 @@
 
   function scheduleState(
     item: HomeAiringItem,
-  ): "catch-up" | "on-time" | "unknown" {
+  ): "catch-up" | "finished" | "on-time" | "unknown" {
+    if (item.library.media?.status === "FINISHED") return "finished";
     if (item.nextAiring === null) return "unknown";
     return catchUpCount(item) > 0 ? "catch-up" : "on-time";
   }
@@ -335,17 +342,6 @@
             <div class="flex min-w-0 flex-col sm:py-1">
               <div class="flex flex-wrap items-center gap-2">
                 <span
-                  class:text-warning={scheduleState(item) === "catch-up"}
-                  class:text-success={scheduleState(item) === "on-time"}
-                  class="control-rounded border-border bg-glass-control border px-2 py-1 text-[0.65rem] tracking-[0.12em] uppercase"
-                >
-                  {scheduleState(item) === "catch-up"
-                    ? "catch up"
-                    : scheduleState(item) === "on-time"
-                      ? "on time"
-                      : "schedule unknown"}
-                </span>
-                <span
                   class="text-muted text-[0.68rem] tracking-[0.08em] uppercase"
                 >
                   {item.library.media?.mediaFormat
@@ -359,7 +355,16 @@
                 {title(item)}
               </h3>
               <div class="border-border mt-6 border-l-2 pl-4">
-                {#if scheduleState(item) === "catch-up"}
+                {#if scheduleState(item) === "finished"}
+                  <p class="text-success text-2xl font-light sm:text-3xl">
+                    finished
+                  </p>
+                  <p class="text-muted mt-2 text-xs leading-5">
+                    {remainingEpisodes(item) > 0
+                      ? `${remainingEpisodes(item)} ${remainingEpisodes(item) === 1 ? "episode" : "episodes"} left to watch.`
+                      : "You have watched every episode."}
+                  </p>
+                {:else if scheduleState(item) === "catch-up"}
                   <p class="text-warning text-2xl font-light sm:text-3xl">
                     {catchUpCount(item)}
                     {catchUpCount(item) === 1 ? "episode" : "episodes"} waiting
@@ -432,10 +437,8 @@
                   {advancingId === item.library.entry.anilistId
                     ? "saving progress…"
                     : canAdvance(item)
-                      ? `mark episode ${item.library.entry.progress + 1} watched`
-                      : scheduleState(item) === "unknown"
-                        ? "schedule unavailable"
-                        : "all caught up"}
+                      ? `watch ep ${item.library.entry.progress + 1}`
+                      : "all caught up"}
                 </button>
               </div>
             </div>

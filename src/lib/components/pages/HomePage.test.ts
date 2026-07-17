@@ -33,6 +33,7 @@ function item(
   progress: number,
   nextEpisode: number | null,
   stale = false,
+  mediaStatus = "RELEASING",
 ): HomeAiringItem {
   return {
     library: {
@@ -43,7 +44,7 @@ function item(
         mediaFormat: "TV",
         genres: ["Drama"],
         tags: [{ name: "Time", rank: 80 }],
-        status: "RELEASING",
+        status: mediaStatus,
         episodes: 12,
         durationMinutes: 24,
         cachedAt: checkedAt,
@@ -127,15 +128,13 @@ describe("HomePage", () => {
     },
   );
 
-  it("moves between one active slide and keeps unknown schedules explicit", async () => {
+  it("keeps schedule messaging separate from episode progress", async () => {
     const user = userEvent.setup();
-    render(
-      HomePage,
-      homeProps([
-        item(1, "Moonlit Post Office", 8, 9),
-        item(2, "Signal Lost at 2AM", 3, null),
-      ]),
-    );
+    const props = homeProps([
+      item(1, "Moonlit Post Office", 8, 9),
+      item(2, "Signal Lost at 2AM", 3, null),
+    ]);
+    render(HomePage, props);
     await screen.findByRole("region", { name: "Airing anime" });
 
     await user.click(screen.getByRole("button", { name: "Next anime" }));
@@ -148,9 +147,12 @@ describe("HomePage", () => {
     expect(
       within(unknown).getByText(/no upcoming episode date/i),
     ).toBeInTheDocument();
-    expect(
-      within(unknown).getByRole("button", { name: "schedule unavailable" }),
-    ).toBeDisabled();
+    const watchButton = within(unknown).getByRole("button", {
+      name: "watch ep 4",
+    });
+    expect(watchButton).toBeEnabled();
+    await user.click(watchButton);
+    expect(props.advanceProgress).toHaveBeenCalledWith({ anilistId: 2 });
 
     const next = screen.getByRole("button", { name: "Next anime" });
     next.focus();
@@ -158,6 +160,34 @@ describe("HomePage", () => {
     expect(
       screen.getByRole("group", { name: /1 of 2: Moonlit Post Office/i }),
     ).toBeInTheDocument();
+  });
+
+  it("labels finished anime and uses total progress for the quick action", async () => {
+    const props = homeProps([
+      item(4, "After the Last Bell", 10, null, false, "FINISHED"),
+      item(5, "Complete Catnap", 12, null, false, "FINISHED"),
+    ]);
+    const user = userEvent.setup();
+    render(HomePage, props);
+
+    const unfinished = await screen.findByRole("group", {
+      name: /After the Last Bell/i,
+    });
+    expect(within(unfinished).getAllByText("finished").length).toBeGreaterThan(
+      0,
+    );
+    expect(
+      within(unfinished).getByText("2 episodes left to watch."),
+    ).toBeInTheDocument();
+    expect(
+      within(unfinished).getByRole("button", { name: "watch ep 11" }),
+    ).toBeEnabled();
+
+    await user.click(screen.getByRole("button", { name: "Next anime" }));
+    const complete = screen.getByRole("group", { name: /Complete Catnap/i });
+    expect(
+      within(complete).getByRole("button", { name: "all caught up" }),
+    ).toBeDisabled();
   });
 
   it("persists bounded catch-up progress through the quick command", async () => {
@@ -171,7 +201,7 @@ describe("HomePage", () => {
 
     await user.click(
       within(slide).getByRole("button", {
-        name: "mark episode 6 watched",
+        name: "watch ep 6",
       }),
     );
     expect(props.advanceProgress).toHaveBeenCalledWith({ anilistId: 2 });

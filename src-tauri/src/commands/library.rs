@@ -79,11 +79,9 @@ pub(crate) async fn advance_library_progress_with_database(
 mod tests {
     use tempfile::tempdir;
 
-    use chrono::{Duration, Utc};
+    use chrono::Utc;
 
-    use crate::database::{
-        AiringDataRecord, Database, DatabasePaths, MediaSnapshotRecord, MediaTag,
-    };
+    use crate::database::{Database, DatabasePaths, MediaSnapshotRecord, MediaTag};
     use crate::domain::{
         AdvanceLibraryProgressRequest, LibraryStatus, MediaKind, RemoveLibraryEntryRequest,
         UpsertLibraryEntryRequest,
@@ -179,7 +177,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn home_progress_advances_only_confirmed_available_episodes() {
+    async fn home_progress_advances_to_the_known_total_without_a_schedule() {
         let (_root, database) = test_database().await;
         let now = Utc::now();
         database
@@ -196,7 +194,7 @@ mod tests {
                     rank: 80,
                 }],
                 media_status: Some("RELEASING".to_owned()),
-                total_units: Some(12),
+                total_units: Some(3),
                 duration_minutes: Some(24),
                 cached_at: now,
             })
@@ -210,18 +208,6 @@ mod tests {
             .upsert(tracked)
             .await
             .expect("tracked entry");
-        database
-            .media()
-            .upsert_airing(&AiringDataRecord {
-                anilist_id: 21,
-                media_kind: MediaKind::Anime,
-                episode_number: 4,
-                airing_at: now + Duration::hours(2),
-                fetched_at: now,
-            })
-            .await
-            .expect("airing row");
-
         let request = AdvanceLibraryProgressRequest { anilist_id: 21 };
         let first = advance_library_progress_with_database(&database, request)
             .await
@@ -232,14 +218,31 @@ mod tests {
         assert_eq!((first.progress, second.progress), (2, 3));
         let error = advance_library_progress_with_database(&database, request)
             .await
-            .expect_err("episode 4 has not aired");
+            .expect_err("episode total has been reached");
         assert_eq!(error.code, "PROGRESS_NOT_ADVANCEABLE");
         assert_eq!(database.activity().list().await.expect("activity").len(), 2);
     }
 
     #[tokio::test]
-    async fn home_progress_requires_a_known_future_schedule() {
+    async fn home_progress_requires_a_known_episode_total() {
         let (_root, database) = test_database().await;
+        database
+            .media()
+            .upsert_snapshot(&MediaSnapshotRecord {
+                anilist_id: 21,
+                media_kind: MediaKind::Anime,
+                title: "Unknown Total".to_owned(),
+                cover_url: None,
+                media_format: Some("TV".to_owned()),
+                genres: vec![],
+                tags: vec![],
+                media_status: Some("RELEASING".to_owned()),
+                total_units: None,
+                duration_minutes: Some(24),
+                cached_at: Utc::now(),
+            })
+            .await
+            .expect("snapshot");
         let mut tracked = request();
         tracked.status = LibraryStatus::Watching;
         database
@@ -253,7 +256,7 @@ mod tests {
             AdvanceLibraryProgressRequest { anilist_id: 21 },
         )
         .await
-        .expect_err("unknown schedules are not guessed");
-        assert_eq!(error.code, "AIRING_SCHEDULE_UNKNOWN");
+        .expect_err("unknown episode totals are not guessed");
+        assert_eq!(error.code, "EPISODE_TOTAL_UNKNOWN");
     }
 }

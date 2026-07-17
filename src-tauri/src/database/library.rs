@@ -187,18 +187,13 @@ impl LibraryRepository {
         let mut transaction = self.pool.begin().await.map_err(map_database_error)?;
         let row = sqlx::query_as::<_, HomeProgressRow>(
             "SELECT library.status, library.progress, library.activity_progress, library.score, \
-                library.notes, library.created_at, media.total_units, media.duration_minutes, \
-                (SELECT MIN(airing.episode_number) FROM airing_data AS airing \
-                 WHERE airing.anilist_id = library.anilist_id \
-                   AND airing.media_kind = library.media_kind AND airing.airing_at > ?) \
-                AS next_episode \
+                library.notes, library.created_at, media.total_units, media.duration_minutes \
              FROM library_entries AS library \
              LEFT JOIN media_snapshots AS media \
                ON media.anilist_id = library.anilist_id \
               AND media.media_kind = library.media_kind \
              WHERE library.anilist_id = ? AND library.media_kind = 'ANIME'",
         )
-        .bind(&timestamp)
         .bind(anilist_id)
         .fetch_optional(&mut *transaction)
         .await
@@ -218,21 +213,17 @@ impl LibraryRepository {
                 false,
             ));
         }
-        let next_episode = row.next_episode.ok_or_else(|| {
+        let maximum_progress = row.total_units.ok_or_else(|| {
             CommandError::new(
-                "AIRING_SCHEDULE_UNKNOWN",
-                "The next episode is unknown, so Home did not change progress.",
+                "EPISODE_TOTAL_UNKNOWN",
+                "The episode total is unknown, so Home did not change progress.",
                 false,
             )
         })?;
-        let available_progress = next_episode.saturating_sub(1);
-        let maximum_progress = row
-            .total_units
-            .map_or(available_progress, |total| total.min(available_progress));
         if row.progress >= maximum_progress {
             return Err(CommandError::new(
                 "PROGRESS_NOT_ADVANCEABLE",
-                "No confirmed aired episode is waiting to be marked watched.",
+                "Every known episode is already marked watched.",
                 false,
             ));
         }
@@ -325,7 +316,6 @@ struct HomeProgressRow {
     created_at: String,
     total_units: Option<i64>,
     duration_minutes: Option<i64>,
-    next_episode: Option<i64>,
 }
 
 #[derive(Debug, FromRow)]
@@ -433,12 +423,10 @@ impl TryFrom<LibraryEntryRow> for LibraryEntry {
 
 #[cfg(test)]
 mod tests {
-    use chrono::{DateTime, Duration, Utc};
+    use chrono::{DateTime, Utc};
     use tempfile::tempdir;
 
-    use crate::database::{
-        AiringDataRecord, Database, DatabasePaths, MediaSnapshotRecord, MediaTag,
-    };
+    use crate::database::{Database, DatabasePaths, MediaSnapshotRecord, MediaTag};
     use crate::domain::{LibraryStatus, MediaKind, UpsertLibraryEntryRequest, format_utc};
 
     fn request(progress: i64, status: LibraryStatus) -> UpsertLibraryEntryRequest {
@@ -554,7 +542,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn home_progress_uses_one_transaction_and_a_supplied_clock() {
+    async fn home_progress_uses_the_known_total_and_a_supplied_clock() {
         let root = tempdir().expect("temporary database root");
         let paths = DatabasePaths::from_root(root.path()).expect("valid paths");
         let database = Database::connect(&paths).await.expect("database");
@@ -566,32 +554,21 @@ mod tests {
             .await
             .expect("snapshot");
         repository
-            .upsert_at(request(1, LibraryStatus::Watching), now)
+            .upsert_at(request(11, LibraryStatus::Watching), now)
             .await
             .expect("baseline");
-        database
-            .media()
-            .upsert_airing(&AiringDataRecord {
-                anilist_id: 1,
-                media_kind: MediaKind::Anime,
-                episode_number: 3,
-                airing_at: now + Duration::hours(1),
-                fetched_at: now,
-            })
-            .await
-            .expect("airing");
 
         let advanced = repository
             .advance_home_progress_at(1, now)
             .await
-            .expect("episode 2");
-        assert_eq!(advanced.progress, 2);
+            .expect("episode 12");
+        assert_eq!(advanced.progress, 12);
         assert_eq!(advanced.updated_at, "2026-07-17T08:00:00.000Z");
         assert_eq!(database.activity().list().await.expect("activity").len(), 1);
         let error = repository
             .advance_home_progress_at(1, now)
             .await
-            .expect_err("episode 3 is unaired");
+            .expect_err("known total is already watched");
         assert_eq!(error.code, "PROGRESS_NOT_ADVANCEABLE");
     }
 
