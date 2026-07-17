@@ -1,6 +1,6 @@
 {
   "name": "animi",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A private, local-first anime tracker and recommendation app.",
   "private": true,
   "type": "module",
@@ -16,6 +16,8 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test": "vitest run",
     "test:watch": "vitest",
+    "release:audit": "bun scripts/release-audit.ts",
+    "release:build": "tauri build --bundles nsis",
     "tauri": "tauri"
   },
   "license": "UNLICENSED",
