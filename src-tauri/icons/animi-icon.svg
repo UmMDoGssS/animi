@@ -1,27 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
   <title id="title">Animi application icon</title>
-  <desc id="desc">A cream cat face framed by a seven-color anime playback ring.</desc>
-  <defs>
-    <clipPath id="ring">
-      <circle cx="256" cy="256" r="220" />
-    </clipPath>
-  </defs>
+  <desc id="desc">A cream cat face with small rainbow whiskers on a dark indigo tile.</desc>
   <rect width="512" height="512" rx="112" fill="#24273a" />
-  <g clip-path="url(#ring)">
-    <path d="M36 36h63v440H36z" fill="#ed8796" />
-    <path d="M99 36h63v440H99z" fill="#f5a97f" />
-    <path d="M162 36h63v440h-63z" fill="#eed49f" />
-    <path d="M225 36h63v440h-63z" fill="#a6da95" />
-    <path d="M288 36h63v440h-63z" fill="#91d7e3" />
-    <path d="M351 36h63v440h-63z" fill="#8aadf4" />
-    <path d="M414 36h63v440h-63z" fill="#c6a0f6" />
+  <path d="M127 217 151 83l83 72c7-1 14-2 22-2s15 1 22 2l83-72 24 134c21 29 32 65 32 104 0 82-67 137-161 137S95 403 95 321c0-39 11-75 32-104z" fill="#eed49f" />
+  <path d="m162 126 55 47-66 29z" fill="#f5a97f" />
+  <path d="m350 126-55 47 66 29z" fill="#c6a0f6" />
+  <ellipse cx="202" cy="286" rx="15" ry="22" fill="#24273a" />
+  <ellipse cx="310" cy="286" rx="15" ry="22" fill="#24273a" />
+  <path d="m256 315-17 13 17 12 17-12z" fill="#ed8796" />
+  <path d="M256 340c-5 22-24 30-43 18M256 340c5 22 24 30 43 18" fill="none" stroke="#24273a" stroke-linecap="round" stroke-width="11" />
+  <g fill="none" stroke-linecap="round" stroke-width="12">
+    <path d="m190 328-93-20" stroke="#ed8796" />
+    <path d="m187 350-98 4" stroke="#f5a97f" />
+    <path d="m191 372-87 29" stroke="#a6da95" />
+    <path d="m322 328 93-20" stroke="#91d7e3" />
+    <path d="m325 350 98 4" stroke="#8aadf4" />
+    <path d="m321 372 87 29" stroke="#c6a0f6" />
   </g>
-  <circle cx="256" cy="256" r="174" fill="#24273a" />
-  <path d="M151 218 168 119l74 61c9-2 19-3 29-3s20 1 29 3l74-61 17 99c16 27 25 59 25 93 0 91-70 151-160 151S96 402 96 311c0-34 9-66 25-93z" fill="#eed49f" />
-  <path d="m178 176 48 39-63 15zM334 176l-48 39 63 15z" fill="#f5a97f" />
-  <ellipse cx="203" cy="292" rx="17" ry="23" fill="#24273a" />
-  <ellipse cx="309" cy="292" rx="17" ry="23" fill="#24273a" />
-  <path d="m256 318-15 12 15 10 15-10z" fill="#ed8796" />
-  <path d="M256 340c-5 20-22 27-39 17M256 340c5 20 22 27 39 17" fill="none" stroke="#24273a" stroke-linecap="round" stroke-width="10" />
-  <path d="m239 238 65 39-65 39z" fill="#24273a" opacity=".16" />
 </svg>
