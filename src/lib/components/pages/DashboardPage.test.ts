@@ -113,6 +113,7 @@ function media(
     status: "RELEASING",
     episodes: 12,
     durationMinutes: 24,
+    releaseDate: null,
     cachedAt: "2026-07-16T08:00:00.000Z",
     expiresAt: "2026-07-17T08:00:00.000Z",
     isStale: false,
@@ -220,18 +221,24 @@ function indexedItem(
   progress: number,
   score: number | null,
   updatedDay: number,
+  releaseDay: number | null = updatedDay,
 ): LibraryItem {
   return {
     entry: {
       ...entry(anilistId, status, progress, score),
       updatedAt: `2026-07-${updatedDay.toString().padStart(2, "0")}T08:30:00.000Z`,
     },
-    media: media(title),
+    media: media(title, {
+      releaseDate:
+        releaseDay === null
+          ? null
+          : `2026-06-${releaseDay.toString().padStart(2, "0")}`,
+    }),
   };
 }
 
 const indexedLibraryItems = [
-  indexedItem(501, "Alpha Archive", "PLANNING", 0, null, 1),
+  indexedItem(501, "Alpha Archive", "PLANNING", 0, null, 1, null),
   indexedItem(502, "Bravo Brigade", "COMPLETED", 12, 8, 2),
   indexedItem(503, "Charlie Chronicle", "WATCHING", 4, 7, 3),
   indexedItem(504, "Delta Dream", "PLANNING", 0, 6, 4),
@@ -295,6 +302,7 @@ function detailsFor(item: LibraryItem): MediaDetailsResponse {
       status: summary?.status ?? null,
       episodes: summary?.episodes ?? null,
       durationMinutes: summary?.durationMinutes ?? null,
+      releaseDate: summary?.releaseDate ?? null,
       genres: summary?.genres ?? [],
       tags: summary?.tags ?? [],
       trending: 0,
@@ -432,7 +440,7 @@ describe("DashboardPage", () => {
       ).toHaveTextContent("All statuses");
       expect(
         screen.getByRole("combobox", { name: "sort by" }),
-      ).toHaveTextContent("Recently updated");
+      ).toHaveTextContent("Newest release");
       for (const dropdown of screen.getAllByRole("combobox")) {
         expect(dropdown).toHaveClass("glass-select-trigger", "cursor-pointer");
         expect(dropdown).toHaveAttribute("aria-expanded", "false");

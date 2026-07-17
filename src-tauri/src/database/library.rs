@@ -13,7 +13,7 @@ const LIST_ITEMS_QUERY: &str = "SELECT \
     library.anilist_id, library.media_kind, library.status, library.progress, \
     library.score, library.notes, library.created_at, library.updated_at, \
     media.title, media.cover_url, media.media_format, media.genres_json, \
-    media.tags_json, media.media_status, media.total_units, media.duration_minutes, \
+    media.tags_json, media.media_status, media.total_units, media.duration_minutes, media.release_date, \
     media.cached_at \
  FROM library_entries AS library \
  LEFT JOIN media_snapshots AS media \
@@ -337,6 +337,7 @@ struct LibraryItemRow {
     media_status: Option<String>,
     total_units: Option<i64>,
     duration_minutes: Option<i64>,
+    release_date: Option<String>,
     cached_at: Option<String>,
 }
 
@@ -383,6 +384,7 @@ impl LibraryItemRow {
                     status: self.media_status,
                     episodes: self.total_units,
                     duration_minutes: self.duration_minutes,
+                    release_date: self.release_date,
                     cached_at: format_utc(cached_timestamp),
                     expires_at: format_utc(expires_timestamp),
                     is_stale: expires_timestamp <= now,
@@ -456,6 +458,7 @@ mod tests {
             media_status: Some("RELEASING".to_owned()),
             total_units: Some(12),
             duration_minutes,
+            release_date: None,
             cached_at: "2026-07-16T08:00:00Z".parse().expect("snapshot timestamp"),
         }
     }

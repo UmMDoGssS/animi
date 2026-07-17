@@ -103,6 +103,10 @@ async fn search_uses_anime_only_non_adult_query_and_maps_stable_types() {
     assert_eq!(media[0].episodes, Some(28));
     assert_eq!(media[0].duration_minutes, Some(24));
     assert_eq!(
+        media[0].release_date,
+        chrono::NaiveDate::from_ymd_opt(2023, 9, 29)
+    );
+    assert_eq!(
         serde_json::to_value(&media[0]).expect("serializable media")["durationMinutes"],
         24
     );
@@ -118,6 +122,7 @@ async fn search_uses_anime_only_non_adult_query_and_maps_stable_types() {
     assert!(requests[0].query.contains("type: ANIME"));
     assert!(requests[0].query.contains("isAdult: false"));
     assert!(requests[0].query.contains("duration"));
+    assert!(requests[0].query.contains("startDate"));
     assert_eq!(requests[0].variables["search"], "Frieren");
 }
 

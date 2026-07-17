@@ -17,6 +17,7 @@
           "status": "FINISHED",
           "episodes": 28,
           "duration": 24,
+          "startDate": { "year": 2023, "month": 9, "day": 29 },
           "genres": ["Adventure", "Fantasy"],
           "tags": [
             { "name": "Elf", "rank": 95, "isAdult": false },

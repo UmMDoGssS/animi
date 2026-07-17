@@ -20,6 +20,8 @@ pub struct MediaSummary {
     pub status: Option<String>,
     pub episodes: Option<i64>,
     pub duration_minutes: Option<i64>,
+    #[serde(default)]
+    pub release_date: Option<NaiveDate>,
     pub genres: Vec<String>,
     pub tags: Vec<MediaTag>,
     pub trending: i64,
@@ -116,6 +118,8 @@ pub(super) struct RawMedia {
     pub status: Option<String>,
     pub episodes: Option<i64>,
     pub duration: Option<i64>,
+    #[serde(rename = "startDate")]
+    pub start_date: Option<RawFuzzyDate>,
     #[serde(default)]
     pub genres: Vec<String>,
     #[serde(default)]
@@ -220,6 +224,7 @@ impl TryFrom<RawMedia> for MediaSummary {
             status: media.status,
             episodes: media.episodes,
             duration_minutes: media.duration,
+            release_date: media.start_date.and_then(RawFuzzyDate::complete_date),
             genres: media.genres,
             tags,
             trending: media.trending,

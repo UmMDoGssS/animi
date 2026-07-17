@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::domain::MediaKind;
@@ -22,6 +22,7 @@ pub struct MediaSnapshotRecord {
     pub media_status: Option<String>,
     pub total_units: Option<i64>,
     pub duration_minutes: Option<i64>,
+    pub release_date: Option<NaiveDate>,
     pub cached_at: DateTime<Utc>,
 }
 

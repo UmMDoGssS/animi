@@ -27,6 +27,7 @@ const summary: MediaSummary = {
   status: "RELEASING",
   episodes: 12,
   durationMinutes: 24,
+  releaseDate: null,
   genres: ["Drama"],
   tags: [{ name: "Found Family", rank: 90 }],
   trending: 44,

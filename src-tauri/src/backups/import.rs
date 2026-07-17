@@ -1641,6 +1641,7 @@ mod tests {
                 media_status: Some("RELEASING".to_owned()),
                 total_units: Some(12),
                 duration_minutes: Some(24),
+                release_date: None,
                 cached_at: now - chrono::Duration::hours(25),
             })
             .await

@@ -391,6 +391,7 @@ mod tests {
             status: Some("FINISHED".to_owned()),
             episodes: Some(12),
             duration_minutes: Some(24),
+            release_date: None,
             cached_at: "2026-07-16T08:00:00.000Z".to_owned(),
             expires_at: "2026-07-17T08:00:00.000Z".to_owned(),
             is_stale: false,

@@ -114,6 +114,7 @@ export interface LibraryMediaSnapshot {
   status: string | null;
   episodes: number | null;
   durationMinutes: number | null;
+  releaseDate: CalendarDate | null;
   cachedAt: UtcTimestamp;
   expiresAt: UtcTimestamp;
   isStale: boolean;
@@ -225,6 +226,7 @@ export interface MediaSummary {
   status: string | null;
   episodes: number | null;
   durationMinutes: number | null;
+  releaseDate: CalendarDate | null;
   genres: string[];
   tags: MediaTag[];
   trending: number;

@@ -36,6 +36,7 @@ function item(
   stale = false,
   mediaStatus = "RELEASING",
   episodes = 12,
+  airingInHours = 2,
 ): HomeAiringItem {
   return {
     library: {
@@ -49,6 +50,7 @@ function item(
         status: mediaStatus,
         episodes,
         durationMinutes: 24,
+        releaseDate: null,
         cachedAt: checkedAt,
         expiresAt: "2026-07-18T08:00:00.000Z",
         isStale: false,
@@ -59,7 +61,9 @@ function item(
         ? null
         : {
             episode: nextEpisode,
-            airingAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+            airingAt: new Date(
+              Date.now() + airingInHours * 60 * 60 * 1000,
+            ).toISOString(),
           },
     scheduleFreshness: {
       fetchedAt: checkedAt,
@@ -85,6 +89,7 @@ function detailsFor(homeItem: HomeAiringItem): MediaDetailsResponse {
       status: homeItem.library.media?.status ?? null,
       episodes: homeItem.library.media?.episodes ?? null,
       durationMinutes: homeItem.library.media?.durationMinutes ?? null,
+      releaseDate: homeItem.library.media?.releaseDate ?? null,
       genres: homeItem.library.media?.genres ?? [],
       tags: homeItem.library.media?.tags ?? [],
       trending: 0,
@@ -130,6 +135,32 @@ afterEach(() => {
 });
 
 describe("HomePage", () => {
+  it("prioritizes unwatched episodes, including finished anime, then the next airing time", async () => {
+    const props = homeProps([
+      item(1, "Caught Up Soon", 4, 5, false, "RELEASING", 12, 1),
+      item(2, "Two Waiting Later", 4, 7, false, "RELEASING", 12, 8),
+      item(3, "Finished With Four", 8, null, false, "FINISHED", 12),
+      item(4, "One Waiting Soon", 4, 6, false, "RELEASING", 12, 2),
+      item(5, "Schedule Unknown", 3, null),
+    ]);
+    render(HomePage, props);
+
+    const carousel = await screen.findByRole("region", {
+      name: "Airing anime",
+    });
+    expect(
+      within(carousel)
+        .getAllByRole("group")
+        .map((slide) => slide.getAttribute("aria-label")),
+    ).toEqual([
+      "1 of 5: Finished With Four",
+      "2 of 5: Two Waiting Later",
+      "3 of 5: One Waiting Soon",
+      "4 of 5: Caught Up Soon",
+      "5 of 5: Schedule Unknown",
+    ]);
+  });
+
   it.each(testViewports)(
     "renders the live airing carousel at the $name viewport",
     async (viewport) => {
@@ -155,11 +186,11 @@ describe("HomePage", () => {
       );
       expect(within(carousel).getAllByRole("group")).toHaveLength(3);
       const firstSlide = within(carousel).getByRole("group", {
-        name: /1 of 3: Moonlit Post Office/i,
+        name: /1 of 3: Last Train to Aomori/i,
       });
       expect(firstSlide).toBeInTheDocument();
       const cover = within(firstSlide).getByRole("img", {
-        name: /cover unavailable for Moonlit Post Office/i,
+        name: /cover unavailable for Last Train to Aomori/i,
       });
       expect(cover.parentElement).toHaveClass("h-full");
       expect(cover.parentElement?.parentElement).toHaveClass(
@@ -289,11 +320,11 @@ describe("HomePage", () => {
     const unfinished = await screen.findByRole("group", {
       name: /After the Last Bell/i,
     });
-    expect(within(unfinished).getAllByText("finished").length).toBeGreaterThan(
-      0,
-    );
     expect(
-      within(unfinished).getByText("2 episodes left to watch."),
+      within(unfinished).getByText(/2 episodes waiting/i),
+    ).toBeInTheDocument();
+    expect(
+      within(unfinished).getByText("Finished airing."),
     ).toBeInTheDocument();
     const watchNext = within(unfinished).getByRole("button", {
       name: "watch ep 11",
@@ -304,6 +335,10 @@ describe("HomePage", () => {
 
     await user.click(screen.getByRole("button", { name: "Next anime" }));
     const complete = screen.getByRole("group", { name: /Complete Catnap/i });
+    expect(within(complete).getByText("finished")).toBeInTheDocument();
+    expect(
+      within(complete).getByText("You have watched every episode."),
+    ).toBeInTheDocument();
     const caughtUp = within(complete).getByRole("button", {
       name: "all caught up",
     });

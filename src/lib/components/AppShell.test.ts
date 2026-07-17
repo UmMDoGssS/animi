@@ -28,6 +28,7 @@ const appShellMedia: MediaSummary = {
   status: "RELEASING",
   episodes: 12,
   durationMinutes: 24,
+  releaseDate: null,
   genres: ["Drama"],
   tags: [{ name: "Found Family", rank: 88 }],
   trending: 90,

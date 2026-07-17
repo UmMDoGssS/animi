@@ -492,6 +492,7 @@ fn media_snapshot(
         media_status: summary.status.clone(),
         total_units: summary.episodes,
         duration_minutes: summary.duration_minutes,
+        release_date: summary.release_date,
         cached_at,
     })
 }
@@ -721,6 +722,7 @@ mod tests {
                 media_status: Some("RELEASING".to_owned()),
                 total_units: Some(12),
                 duration_minutes: Some(24),
+                release_date: None,
                 cached_at: "2026-07-16T08:00:00Z".parse().expect("seed time"),
             })
             .await
@@ -995,6 +997,7 @@ mod tests {
         assert_eq!(media.title, "Frieren: Beyond Journey's End");
         assert_eq!(media.episodes, Some(28));
         assert_eq!(media.duration_minutes, Some(24));
+        assert_eq!(media.release_date.as_deref(), Some("2023-09-29"));
         assert_eq!(transport.request_count(), 2);
 
         let paths = DatabasePaths::from_root(root.path()).expect("database paths");

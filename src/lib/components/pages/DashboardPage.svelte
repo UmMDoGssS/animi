@@ -47,7 +47,11 @@
 
   type LibraryStatusFilter = "ALL" | LibraryStatus;
   type LibrarySort =
-    "UPDATED_DESC" | "TITLE_ASC" | "PROGRESS_DESC" | "SCORE_DESC";
+    | "RELEASE_DESC"
+    | "UPDATED_DESC"
+    | "TITLE_ASC"
+    | "PROGRESS_DESC"
+    | "SCORE_DESC";
 
   const libraryStatusOptions = [
     { value: "ALL", label: "All statuses" },
@@ -56,6 +60,7 @@
     { value: "PLANNING", label: "Planning" },
   ] as const;
   const librarySortOptions = [
+    { value: "RELEASE_DESC", label: "Newest release" },
     { value: "UPDATED_DESC", label: "Recently updated" },
     { value: "TITLE_ASC", label: "Title A–Z" },
     { value: "PROGRESS_DESC", label: "Most progress" },
@@ -82,7 +87,7 @@
   let libraryIndexHeading = $state<HTMLElement | null>(null);
   let libraryQuery = $state("");
   let libraryStatusFilter = $state<LibraryStatusFilter>("ALL");
-  let librarySort = $state<LibrarySort>("UPDATED_DESC");
+  let librarySort = $state<LibrarySort>("RELEASE_DESC");
   let libraryRail = $state<HTMLElement | null>(null);
 
   const selectedSummary = $derived.by<MediaSummary | null>(() => {
@@ -150,6 +155,19 @@
   }
 
   function compareLibraryItems(left: LibraryItem, right: LibraryItem): number {
+    if (librarySort === "RELEASE_DESC") {
+      const leftRelease = left.media?.releaseDate ?? null;
+      const rightRelease = right.media?.releaseDate ?? null;
+      if (leftRelease !== rightRelease) {
+        if (leftRelease === null) return 1;
+        if (rightRelease === null) return -1;
+        return (
+          rightRelease.localeCompare(leftRelease) ||
+          compareLibraryTitles(left, right)
+        );
+      }
+      return compareLibraryTitles(left, right);
+    }
     if (librarySort === "TITLE_ASC") {
       return compareLibraryTitles(left, right);
     }
@@ -217,6 +235,7 @@
       status: item.media?.status ?? null,
       episodes: item.media?.episodes ?? null,
       durationMinutes: item.media?.durationMinutes ?? null,
+      releaseDate: item.media?.releaseDate ?? null,
       genres: item.media?.genres ?? [],
       tags: item.media?.tags ?? [],
       trending: 0,
@@ -299,6 +318,7 @@
       status: response.media.status,
       episodes: response.media.episodes,
       durationMinutes: response.media.durationMinutes,
+      releaseDate: response.media.releaseDate,
       cachedAt: response.freshness.fetchedAt,
       expiresAt: response.freshness.expiresAt,
       isStale: response.freshness.isStale,

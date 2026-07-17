@@ -42,14 +42,15 @@ impl MediaRepository {
             sqlx::query(
                 "INSERT INTO media_snapshots (\
                     anilist_id, media_kind, title, cover_url, media_format, genres_json, tags_json, \
-                    media_status, total_units, duration_minutes, cached_at\
-                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) \
+                    media_status, total_units, duration_minutes, release_date, cached_at\
+                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) \
                  ON CONFLICT(anilist_id, media_kind) DO UPDATE SET \
                     title = excluded.title, cover_url = excluded.cover_url, \
                     media_format = excluded.media_format, genres_json = excluded.genres_json, \
                     tags_json = excluded.tags_json, media_status = excluded.media_status, \
                     total_units = excluded.total_units, \
-                    duration_minutes = excluded.duration_minutes, cached_at = excluded.cached_at",
+                    duration_minutes = excluded.duration_minutes, \
+                    release_date = excluded.release_date, cached_at = excluded.cached_at",
             )
             .bind(snapshot.anilist_id)
             .bind(snapshot.media_kind.as_str())
@@ -61,6 +62,7 @@ impl MediaRepository {
             .bind(&snapshot.media_status)
             .bind(snapshot.total_units)
             .bind(snapshot.duration_minutes)
+            .bind(snapshot.release_date.map(|date| date.to_string()))
             .bind(format_utc(snapshot.cached_at))
             .execute(&mut *transaction)
             .await?;
@@ -76,7 +78,7 @@ impl MediaRepository {
     ) -> Result<Option<MediaSnapshotRecord>, DatabaseError> {
         let row = sqlx::query_as::<_, SnapshotRow>(
             "SELECT anilist_id, media_kind, title, cover_url, media_format, genres_json, tags_json, \
-             media_status, total_units, duration_minutes, cached_at FROM media_snapshots \
+             media_status, total_units, duration_minutes, release_date, cached_at FROM media_snapshots \
              WHERE anilist_id = ? AND media_kind = ?",
         )
         .bind(anilist_id)
@@ -172,6 +174,7 @@ struct SnapshotRow {
     media_status: Option<String>,
     total_units: Option<i64>,
     duration_minutes: Option<i64>,
+    release_date: Option<String>,
     cached_at: String,
 }
 
@@ -194,6 +197,13 @@ impl TryFrom<SnapshotRow> for MediaSnapshotRecord {
             media_status: row.media_status,
             total_units: row.total_units,
             duration_minutes: row.duration_minutes,
+            release_date: row
+                .release_date
+                .map(|value| chrono::NaiveDate::parse_from_str(&value, "%Y-%m-%d"))
+                .transpose()
+                .map_err(|_| {
+                    DatabaseError::CorruptData("A cached media release date is invalid.".to_owned())
+                })?,
             cached_at: parse_timestamp(&row.cached_at)?,
         })
     }

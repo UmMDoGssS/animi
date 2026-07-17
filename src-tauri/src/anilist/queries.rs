@@ -10,6 +10,7 @@ query SearchMedia($search: String!, $page: Int!, $perPage: Int!) {
       status
       episodes
       duration
+      startDate { year month day }
       genres
       tags { name rank isAdult }
       trending
@@ -30,6 +31,7 @@ query TrendingMedia($page: Int!, $perPage: Int!) {
       status
       episodes
       duration
+      startDate { year month day }
       genres
       tags { name rank isAdult }
       trending
@@ -48,6 +50,7 @@ query MediaDetails($id: Int!) {
     status
     episodes
     duration
+    startDate { year month day }
     genres
     tags { name rank isAdult }
     trending

@@ -3,7 +3,7 @@ use animi_lib::database::{
     SettingRecord,
 };
 use animi_lib::domain::{LibraryStatus, MediaKind, UpsertLibraryEntryRequest};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 use serde_json::json;
 use sqlx::sqlite::SqliteConnectOptions;
 use sqlx::{Connection, SqliteConnection};
@@ -14,6 +14,7 @@ const MIGRATION_0002_CHECKSUM: &str = "9361fde43170e805d0688fc5db6e64a11ac3e7f5a
 const MIGRATION_0003_CHECKSUM: &str = "614bc98e326578e7a1649dae266c728ee5ec5468ec7a0c72291b998c3c7b7297620ef2f567b803105036135f6126b318";
 const MIGRATION_0004_CHECKSUM: &str = "2d33bf79c69c9975e0f2e0341bd55b7c8117d495db9e4818dcf0f678aec199f9aeabf55df24da15138c670442231563e";
 const MIGRATION_0005_CHECKSUM: &str = "364ea2015447827da34dd27a3aced13ff4015a14d039b5d70a6c54c733598a2df3676e9073cf26822701ae11e97842ea";
+const MIGRATION_0006_CHECKSUM: &str = "acb07fd7605f13d3d1d98684187ac1eedbd1d982dd4c7eba54d03d43fe27a5de5a7412a84548d828cc19d3fa75cc8977";
 
 fn library_request(progress: i64, status: LibraryStatus) -> UpsertLibraryEntryRequest {
     UpsertLibraryEntryRequest {
@@ -41,6 +42,7 @@ fn snapshot(total_units: Option<i64>) -> MediaSnapshotRecord {
         media_status: Some("FINISHED".to_owned()),
         total_units,
         duration_minutes: Some(24),
+        release_date: NaiveDate::from_ymd_opt(2025, 10, 4),
         cached_at: timestamp("2026-07-16T08:00:00.000Z"),
     }
 }
@@ -75,6 +77,17 @@ async fn repository_crud_status_transition_and_restart_persistence() {
     assert_eq!(updated.status, LibraryStatus::Completed);
     assert_eq!(updated.created_at, created.created_at);
     assert!(updated.updated_at >= created.updated_at);
+    assert_eq!(
+        database
+            .library()
+            .list_items()
+            .await
+            .expect("library items")[0]
+            .media
+            .as_ref()
+            .and_then(|media| media.release_date.as_deref()),
+        Some("2025-10-04")
+    );
 
     database.close().await;
     let reopened = Database::connect(&paths).await.expect("reopened database");
@@ -455,6 +468,7 @@ async fn v0002_fixture_preserves_activity_and_applies_activity_progress_migratio
             (3, MIGRATION_0003_CHECKSUM.to_owned()),
             (4, MIGRATION_0004_CHECKSUM.to_owned()),
             (5, MIGRATION_0005_CHECKSUM.to_owned()),
+            (6, MIGRATION_0006_CHECKSUM.to_owned()),
         ]
     );
     inspection
@@ -553,6 +567,7 @@ async fn v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress
             (3, MIGRATION_0003_CHECKSUM.to_owned()),
             (4, MIGRATION_0004_CHECKSUM.to_owned()),
             (5, MIGRATION_0005_CHECKSUM.to_owned()),
+            (6, MIGRATION_0006_CHECKSUM.to_owned()),
         ]
     );
     inspection

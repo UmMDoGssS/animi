@@ -51,6 +51,7 @@ mod tests {
                 media_status: Some("RELEASING".to_owned()),
                 total_units: Some(12),
                 duration_minutes: Some(24),
+                release_date: None,
                 cached_at: "2026-07-16T08:00:00Z".parse().expect("snapshot time"),
             })
             .await

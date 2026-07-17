@@ -67,12 +67,17 @@
   let refreshTimer: ReturnType<typeof setInterval> | null = null;
   let clockTimer: ReturnType<typeof setInterval> | null = null;
 
-  const items = $derived(response?.items ?? []);
+  const items = $derived.by<HomeAiringItem[]>(() =>
+    [...(response?.items ?? [])].sort(compareAiringItems),
+  );
   const waitingCount = $derived(
     items.reduce((total, item) => total + catchUpCount(item), 0),
   );
   const unknownCount = $derived(
-    items.filter((item) => item.nextAiring === null).length,
+    items.filter(
+      (item) =>
+        item.nextAiring === null && item.library.media?.status !== "FINISHED",
+    ).length,
   );
 
   onMount(() => {
@@ -200,11 +205,34 @@
   }
 
   function catchUpCount(item: HomeAiringItem): number {
+    if (item.library.media?.status === "FINISHED") {
+      return remainingEpisodes(item);
+    }
     if (item.nextAiring === null) return 0;
     return Math.max(
       0,
       item.nextAiring.episode - 1 - item.library.entry.progress,
     );
+  }
+
+  function compareAiringItems(
+    left: HomeAiringItem,
+    right: HomeAiringItem,
+  ): number {
+    const unwatchedDifference = catchUpCount(right) - catchUpCount(left);
+    if (unwatchedDifference !== 0) return unwatchedDifference;
+
+    const leftAiringAt = left.nextAiring
+      ? new Date(left.nextAiring.airingAt).getTime()
+      : Number.POSITIVE_INFINITY;
+    const rightAiringAt = right.nextAiring
+      ? new Date(right.nextAiring.airingAt).getTime()
+      : Number.POSITIVE_INFINITY;
+    const airingDifference = leftAiringAt - rightAiringAt;
+    if (Number.isFinite(airingDifference) && airingDifference !== 0) {
+      return airingDifference;
+    }
+    return left.library.entry.anilistId - right.library.entry.anilistId;
   }
 
   function canAdvance(item: HomeAiringItem): boolean {
@@ -239,6 +267,7 @@
       status: item.library.media?.status ?? null,
       episodes: item.library.media?.episodes ?? null,
       durationMinutes: item.library.media?.durationMinutes ?? null,
+      releaseDate: item.library.media?.releaseDate ?? null,
       genres: item.library.media?.genres ?? [],
       tags: item.library.media?.tags ?? [],
       trending: 0,
@@ -330,9 +359,9 @@
   function scheduleState(
     item: HomeAiringItem,
   ): "catch-up" | "finished" | "on-time" | "unknown" {
+    if (catchUpCount(item) > 0) return "catch-up";
     if (item.library.media?.status === "FINISHED") return "finished";
-    if (item.nextAiring === null) return "unknown";
-    return catchUpCount(item) > 0 ? "catch-up" : "on-time";
+    return item.nextAiring === null ? "unknown" : "on-time";
   }
 </script>
 
@@ -534,9 +563,9 @@
                     {catchUpCount(item) === 1 ? "episode" : "episodes"} waiting
                   </p>
                   <p class="text-muted mt-2 text-xs leading-5">
-                    Episode {item.nextAiring?.episode} airs in {countdown(
-                      item,
-                    )}.
+                    {item.library.media?.status === "FINISHED"
+                      ? "Finished airing."
+                      : `Episode ${item.nextAiring?.episode} airs in ${countdown(item)}.`}
                   </p>
                 {:else if scheduleState(item) === "on-time"}
                   <p class="text-foreground text-3xl font-light">

@@ -466,6 +466,7 @@ mod tests {
             media_status: Some("RELEASING".to_owned()),
             total_units: Some(12),
             duration_minutes: None,
+            release_date: None,
             cached_at: timestamp("2026-07-17T06:00:00Z"),
         };
         database
