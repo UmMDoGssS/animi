@@ -1,188 +1,210 @@
-import { render, screen, within } from "@testing-library/svelte";
+import { fireEvent, render, screen, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+import type {
+  HomeAiringItem,
+  HomeAiringResponse,
+  LibraryEntry,
+} from "$lib/ipc/types";
 
 import { setTestViewport, testViewports } from "../../../test/viewports";
 
 import HomePage from "./HomePage.svelte";
 
+const checkedAt = "2026-07-17T08:00:00.000Z";
+
+function entry(id: number, progress: number): LibraryEntry {
+  return {
+    anilistId: id,
+    mediaKind: "ANIME",
+    status: "WATCHING",
+    progress,
+    score: null,
+    notes: null,
+    createdAt: checkedAt,
+    updatedAt: checkedAt,
+  };
+}
+
+function item(
+  id: number,
+  title: string,
+  progress: number,
+  nextEpisode: number | null,
+  stale = false,
+): HomeAiringItem {
+  return {
+    library: {
+      entry: entry(id, progress),
+      media: {
+        title,
+        coverUrl: null,
+        mediaFormat: "TV",
+        genres: ["Drama"],
+        tags: [{ name: "Time", rank: 80 }],
+        status: "RELEASING",
+        episodes: 12,
+        durationMinutes: 24,
+        cachedAt: checkedAt,
+        expiresAt: "2026-07-18T08:00:00.000Z",
+        isStale: false,
+      },
+    },
+    nextAiring:
+      nextEpisode === null
+        ? null
+        : {
+            episode: nextEpisode,
+            airingAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+          },
+    scheduleFreshness: {
+      fetchedAt: checkedAt,
+      expiresAt: "2026-07-17T08:30:00.000Z",
+      isStale: stale,
+      refreshError: null,
+    },
+    scheduleError: null,
+  };
+}
+
+function response(items: HomeAiringItem[]): HomeAiringResponse {
+  return { items, checkedAt };
+}
+
+function homeProps(items: HomeAiringItem[] = []) {
+  return {
+    loadAiring: vi.fn().mockResolvedValue(response(items)),
+    advanceProgress: vi.fn(async ({ anilistId }: { anilistId: number }) => {
+      const current = items.find(
+        (candidate) => candidate.library.entry.anilistId === anilistId,
+      );
+      if (!current) throw new Error("missing fixture");
+      return {
+        ...current.library.entry,
+        progress: current.library.entry.progress + 1,
+        updatedAt: "2026-07-17T09:00:00.000Z",
+      };
+    }),
+    openDiscovery: vi.fn(),
+    refreshIntervalMs: 30 * 60 * 1000,
+  };
+}
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 describe("HomePage", () => {
   it.each(testViewports)(
-    "renders one truthful carousel slide at the $name viewport",
-    (viewport) => {
+    "renders the live airing carousel at the $name viewport",
+    async (viewport) => {
       setTestViewport(viewport);
-      render(HomePage);
+      const props = homeProps([
+        item(1, "Moonlit Post Office", 8, 9),
+        item(2, "Last Train to Aomori", 5, 8, true),
+        item(3, "Signal Lost at 2AM", 3, null),
+      ]);
+      render(HomePage, props);
 
       expect(
         screen.getByRole("heading", { level: 1, name: "Home" }),
       ).toBeInTheDocument();
-      expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-      expect(screen.getByText("sample library")).toBeInTheDocument();
-      expect(
-        screen.getByText(/sample entries and progress are not saved/i),
-      ).toBeInTheDocument();
-      expect(screen.getByText(/known episodes waiting/i)).toBeInTheDocument();
-      expect(screen.getByText(/schedule unknown/i)).toBeInTheDocument();
-
-      const carousel = screen.getByRole("region", { name: "Airing anime" });
+      const carousel = await screen.findByRole("region", {
+        name: "Airing anime",
+      });
       expect(carousel).toHaveAttribute("aria-roledescription", "carousel");
-      expect(
-        within(carousel).getAllByRole("group", { name: /of 3:/i }),
-      ).toHaveLength(1);
       expect(
         within(carousel).getByRole("group", {
           name: /1 of 3: Moonlit Post Office/i,
         }),
       ).toBeInTheDocument();
-      expect(
-        screen.getByRole("img", {
-          name: "Sample cover artwork for Moonlit Post Office",
-        }),
-      ).toBeInTheDocument();
-      expect(screen.getByText("on time")).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: "all caught up" }),
-      ).toBeDisabled();
-      expect(
-        screen.queryByRole("button", { name: /mark ep/i }),
-      ).not.toBeInTheDocument();
+      expect(screen.getByText("3").closest("p")).toHaveTextContent("watching");
+      expect(screen.getByText("2").closest("p")).toHaveTextContent("waiting");
+      expect(screen.getByText("1").closest("p")).toHaveTextContent("unknown");
+      expect(screen.getByText("1 stale")).toBeInTheDocument();
+      expect(props.loadAiring).toHaveBeenCalledOnce();
     },
   );
 
-  it("moves the only active carousel slide with controls and keyboard", async () => {
+  it("moves between one active slide and keeps unknown schedules explicit", async () => {
     const user = userEvent.setup();
-    render(HomePage);
+    render(
+      HomePage,
+      homeProps([
+        item(1, "Moonlit Post Office", 8, 9),
+        item(2, "Signal Lost at 2AM", 3, null),
+      ]),
+    );
+    await screen.findByRole("region", { name: "Airing anime" });
 
-    const nextButton = screen.getByRole("button", { name: "Next anime" });
+    await user.click(screen.getByRole("button", { name: "Next anime" }));
+    const unknown = screen.getByRole("group", {
+      name: /2 of 2: Signal Lost at 2AM/i,
+    });
     expect(
-      screen.getByRole("group", {
-        name: /1 of 3: Moonlit Post Office/i,
-      }),
-    ).toBeInTheDocument();
+      within(unknown).getAllByText("schedule unknown").length,
+    ).toBeGreaterThan(0);
+    expect(within(unknown).getByText(/will not estimate/i)).toBeInTheDocument();
+    expect(
+      within(unknown).getByRole("button", { name: "schedule unavailable" }),
+    ).toBeDisabled();
 
-    await user.click(nextButton);
-    expect(
-      screen.getByRole("group", {
-        name: /2 of 3: Last Train to Aomori/i,
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("group", { name: /1 of 3:/i }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByText("Slide 2 of 3, Last Train to Aomori"),
-    ).toBeInTheDocument();
-
-    nextButton.focus();
-    await user.keyboard("{ArrowRight}");
-    expect(
-      screen.getByRole("group", {
-        name: /3 of 3: Signal Lost at 2AM/i,
-      }),
-    ).toBeInTheDocument();
-
+    const next = screen.getByRole("button", { name: "Next anime" });
+    next.focus();
     await user.keyboard("{Home}");
     expect(
-      screen.getByRole("group", {
-        name: /1 of 3: Moonlit Post Office/i,
-      }),
-    ).toBeInTheDocument();
-
-    await user.keyboard("{ArrowLeft}");
-    expect(
-      screen.getByRole("group", {
-        name: /3 of 3: Signal Lost at 2AM/i,
-      }),
+      screen.getByRole("group", { name: /1 of 2: Moonlit Post Office/i }),
     ).toBeInTheDocument();
   });
 
-  it("updates sample catch-up progress and stops at the next unaired episode", async () => {
+  it("persists bounded catch-up progress through the quick command", async () => {
     const user = userEvent.setup();
-    render(HomePage);
+    const props = homeProps([item(2, "Last Train to Aomori", 5, 8)]);
+    render(HomePage, props);
+    const slide = await screen.findByRole("group", {
+      name: /Last Train to Aomori/i,
+    });
+    expect(within(slide).getByText(/2 episodes waiting/i)).toBeInTheDocument();
 
     await user.click(
-      screen.getByRole("button", { name: "Show Last Train to Aomori" }),
-    );
-    const catchUpSlide = screen.getByRole("group", {
-      name: /2 of 3: Last Train to Aomori/i,
-    });
-
-    expect(
-      within(catchUpSlide).getByText(/2\s+episodes\s+waiting/i),
-    ).toBeInTheDocument();
-    const firstProgressAction = within(catchUpSlide).getByRole("button", {
-      name: "preview · mark ep. 06 watched",
-    });
-    const actionBoundary = firstProgressAction.closest(".home-progress-action");
-    expect(actionBoundary).toHaveClass("shrink-0", "sm:pt-5");
-    expect(
-      catchUpSlide.querySelector(".home-progress-track")?.nextElementSibling,
-    ).toBe(actionBoundary);
-    await user.click(firstProgressAction);
-    expect(within(catchUpSlide).getByText("06 / 12")).toBeInTheDocument();
-    expect(
-      within(catchUpSlide).getByText(/1\s+episode\s+waiting/i),
-    ).toBeInTheDocument();
-
-    await user.click(
-      within(catchUpSlide).getByRole("button", {
-        name: "preview · mark ep. 07 watched",
+      within(slide).getByRole("button", {
+        name: "mark episode 6 watched",
       }),
     );
-    expect(within(catchUpSlide).getByText("07 / 12")).toBeInTheDocument();
-    expect(within(catchUpSlide).getByText("on time")).toBeInTheDocument();
-    expect(
-      within(catchUpSlide).getByRole("button", { name: "all caught up" }),
-    ).toBeDisabled();
-    expect(screen.getByText(/^0$/)).toBeInTheDocument();
+    expect(props.advanceProgress).toHaveBeenCalledWith({ anilistId: 2 });
+    expect(within(slide).getByText("06 / 12")).toBeInTheDocument();
+    expect(within(slide).getByText(/1 episode waiting/i)).toBeInTheDocument();
   });
 
-  it("keeps unknown schedules explicit and disables their quick action", async () => {
-    const user = userEvent.setup();
-    render(HomePage);
+  it("checks at launch, an allowed manual action, and the 30-minute interval", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-17T08:00:00.000Z"));
+    const props = homeProps([item(1, "Moonlit Post Office", 8, 9)]);
+    render(HomePage, props);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(props.loadAiring).toHaveBeenCalledOnce();
 
-    await user.click(
-      screen.getByRole("button", { name: "Show Signal Lost at 2AM" }),
+    await vi.advanceTimersByTimeAsync(30 * 60 * 1000);
+    expect(props.loadAiring).toHaveBeenCalledTimes(2);
+
+    await fireEvent.click(
+      screen.getByRole("button", { name: "check schedules" }),
     );
-    const unknownSlide = screen.getByRole("group", {
-      name: /3 of 3: Signal Lost at 2AM/i,
-    });
-
-    expect(
-      within(unknownSlide).getByText("schedule unknown"),
-    ).toBeInTheDocument();
-    expect(
-      within(unknownSlide).getByText(/no countdown or Home quick update/i),
-    ).toBeInTheDocument();
-    expect(
-      within(unknownSlide).getByRole("button", {
-        name: "schedule unavailable",
-      }),
-    ).toBeDisabled();
-    expect(within(unknownSlide).getByText("—")).toBeInTheDocument();
+    expect(props.loadAiring).toHaveBeenCalledTimes(3);
   });
 
-  it("exposes the no-active-anime preview and its Discover action", async () => {
+  it("shows the no-active-anime state and opens Discover", async () => {
     const user = userEvent.setup();
-    const openDiscovery = vi.fn();
-    render(HomePage, { openDiscovery });
-
-    await user.click(screen.getByRole("button", { name: "empty state" }));
-
+    const props = homeProps();
+    render(HomePage, props);
     expect(
-      screen.getByRole("heading", {
+      await screen.findByRole("heading", {
         level: 3,
-        name: "Nothing is airing in your watching list.",
+        name: "Nothing is in your Watching shelf.",
       }),
     ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("region", { name: "Airing anime" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByText("／ᐠ｡ꞈ｡ᐟ＼").closest('[aria-hidden="true"]'),
-    ).toBeInTheDocument();
-
     await user.click(screen.getByRole("button", { name: /visit Discover/i }));
-    expect(openDiscovery).toHaveBeenCalledOnce();
+    expect(props.openDiscovery).toHaveBeenCalledOnce();
   });
 });

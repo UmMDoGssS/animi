@@ -24,6 +24,7 @@ import type {
   MediaDetailsResponse,
   MediaPageResponse,
   MediaSummary,
+  RecommendationsResponse,
   SearchMediaRequest,
   UpsertLibraryEntryRequest,
 } from "$lib/ipc/types";
@@ -89,6 +90,22 @@ function pageResponse(
   return { items, hasNextPage: false, freshness };
 }
 
+function recommendationsResponse(
+  items: MediaSummary[] = [orbitalCats],
+  isFallback = false,
+): RecommendationsResponse {
+  return {
+    items: items.map((media) => ({
+      media,
+      score: isFallback ? 0 : 0.82,
+      explanationLabels: isFallback ? [] : ["Space"],
+    })),
+    isFallback,
+    eligibleProfileTitles: isFallback ? 1 : 3,
+    freshness: currentFreshness,
+  };
+}
+
 function detailsResponse(summary: MediaSummary): MediaDetailsResponse {
   return {
     media: { ...summary, sequels: [] },
@@ -118,6 +135,7 @@ function discoveryProps(overrides: Record<string, unknown> = {}) {
     loadTrending: vi
       .fn()
       .mockResolvedValue(pageResponse([violetEvergreen, orbitalCats])),
+    loadRecommendations: vi.fn().mockResolvedValue(recommendationsResponse()),
     searchAnime: vi.fn().mockResolvedValue(pageResponse([orbitalCats])),
     loadDetails: vi.fn().mockResolvedValue(detailsResponse(violetEvergreen)),
     loadLibrary: vi.fn().mockResolvedValue([libraryItem(existingEntry)]),
@@ -237,6 +255,41 @@ describe("DiscoveryPage", () => {
       ).not.toBeInTheDocument();
     },
   );
+
+  it("shows explainable local recommendations and an explicit trending fallback", async () => {
+    const personalized = discoveryProps();
+    const { unmount } = render(DiscoveryPage, personalized);
+    const recommendations = await screen.findByRole("list", {
+      name: "Recommended anime",
+    });
+    expect(personalized.loadRecommendations).toHaveBeenCalledWith({
+      perPage: 18,
+    });
+    expect(
+      within(recommendations).getByText("Matches Space"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Personalized from 3 local titles/i),
+    ).toBeInTheDocument();
+    unmount();
+
+    render(
+      DiscoveryPage,
+      discoveryProps({
+        loadRecommendations: vi
+          .fn()
+          .mockResolvedValue(recommendationsResponse([orbitalCats], true)),
+      }),
+    );
+    expect(
+      await screen.findByText(
+        /Trending fallback \/\/ 1 eligible local titles/i,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Trending while your local taste profile grows/i),
+    ).toBeInTheDocument();
+  });
 
   it("debounces trimmed searches and lets form submission search immediately", async () => {
     vi.useFakeTimers();

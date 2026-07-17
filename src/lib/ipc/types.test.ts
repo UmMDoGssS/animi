@@ -161,6 +161,10 @@ describe("library IPC contracts", () => {
         knownDurationEpisodes: 0,
         recordedMinutes: 0,
         unknownDurationEpisodes: 3,
+        coveredFrom: "2026-07-16T08:30:00.000Z",
+        coveredTo: "2026-07-16T08:30:00.000Z",
+        monthly: [],
+        yearly: [],
         events: [
           {
             anilistId: 101,

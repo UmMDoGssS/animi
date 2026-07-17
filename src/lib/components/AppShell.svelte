@@ -13,10 +13,12 @@
   } from "$lib/ipc/client";
   import type {
     CommandError,
+    AdvanceLibraryProgressRequest,
     ClearLocalDataRequest,
     ClearLocalDataResponse,
     DashboardInsights,
     ExportBackupResponse,
+    HomeAiringResponse,
     ImportBackupRequest,
     ImportBackupResponse,
     ImportPreviewResponse,
@@ -27,6 +29,8 @@
     MediaPageRequest,
     MediaPageResponse,
     RefreshLibraryMetadataResponse,
+    RecommendationsRequest,
+    RecommendationsResponse,
     RemoveLibraryEntryRequest,
     RemoveLibraryEntryResponse,
     SearchMediaRequest,
@@ -50,6 +54,7 @@
       preference: ThemePreference,
     ) => Promise<ThemePreference>;
     p4Services?: P4ServiceOverrides;
+    p5Services?: P5ServiceOverrides;
     p6Services?: P6ServiceOverrides;
   }
 
@@ -80,6 +85,17 @@
     ) => Promise<ClearLocalDataResponse>;
   }
 
+  interface P5ServiceOverrides {
+    loadAiring?: () => Promise<HomeAiringResponse>;
+    advanceProgress?: (
+      request: AdvanceLibraryProgressRequest,
+    ) => Promise<LibraryEntry>;
+    refreshIntervalMs?: number;
+    loadRecommendations?: (
+      request: RecommendationsRequest,
+    ) => Promise<RecommendationsResponse>;
+  }
+
   type FailedThemeOperation =
     { kind: "load" } | { kind: "save"; preference: ThemePreference };
 
@@ -87,6 +103,7 @@
     loadThemePreference = getThemePreference,
     saveThemePreference = setThemePreference,
     p4Services = {},
+    p5Services = {},
     p6Services = {},
   }: Props = $props();
 
@@ -204,9 +221,15 @@
       </header>
 
       <main id="main-content" tabindex="-1" class="min-w-0 px-1 sm:px-3">
-        {#if activeView === "home"}
-          <HomePage openDiscovery={() => selectView("discovery")} />
-        {:else if activeView === "discovery"}
+        <div hidden={activeView !== "home"}>
+          <HomePage
+            loadAiring={p5Services.loadAiring}
+            advanceProgress={p5Services.advanceProgress}
+            refreshIntervalMs={p5Services.refreshIntervalMs}
+            openDiscovery={() => selectView("discovery")}
+          />
+        </div>
+        {#if activeView === "discovery"}
           <DiscoveryPage
             loadTrending={p4Services.loadTrending}
             searchAnime={p4Services.searchAnime}
@@ -214,6 +237,7 @@
             loadLibrary={p4Services.loadLibrary}
             saveEntry={p4Services.saveEntry}
             deleteEntry={p4Services.deleteEntry}
+            loadRecommendations={p5Services.loadRecommendations}
           />
         {:else if activeView === "dashboard"}
           <DashboardPage
@@ -224,7 +248,7 @@
             deleteEntry={p4Services.deleteEntry}
             openDiscovery={() => selectView("discovery")}
           />
-        {:else}
+        {:else if activeView === "settings"}
           <SettingsPage
             {themePreference}
             {themeStatus}

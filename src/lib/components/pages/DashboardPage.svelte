@@ -11,6 +11,7 @@
   } from "$lib/ipc/client";
   import type {
     CommandError,
+    DashboardActivityBucket,
     DashboardInsights,
     Freshness,
     LibraryEntry,
@@ -360,6 +361,40 @@
   ): string {
     return `${value} ${value === 1 ? singular : plural}`;
   }
+
+  function activityBarHeight(
+    bucket: DashboardActivityBucket,
+    buckets: DashboardActivityBucket[],
+  ): number {
+    const maximum = Math.max(
+      1,
+      ...buckets.map((candidate) => candidate.recordedMinutes),
+    );
+    if (bucket.recordedMinutes === 0) {
+      return bucket.recordedEpisodes > 0 ? 8 : 2;
+    }
+    return Math.max(12, (bucket.recordedMinutes / maximum) * 100);
+  }
+
+  function formatMonthPeriod(period: string): string {
+    const date = new Date(`${period}-01T00:00:00.000Z`);
+    if (Number.isNaN(date.getTime())) return period;
+    return new Intl.DateTimeFormat(undefined, {
+      month: "short",
+      year: "2-digit",
+      timeZone: "UTC",
+    }).format(date);
+  }
+
+  function bucketLabel(bucket: DashboardActivityBucket): string {
+    const known = formatDuration(bucket.recordedMinutes);
+    const excluded = countLabel(
+      bucket.unknownDurationEpisodes,
+      "episode with unknown duration",
+      "episodes with unknown duration",
+    );
+    return `${bucket.period}: ${known} recorded from ${countLabel(bucket.recordedEpisodes, "episode")}; ${excluded}.`;
+  }
 </script>
 
 <div
@@ -700,6 +735,117 @@
             </dd>
           </div>
         </dl>
+
+        <div
+          class="mt-6 grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(12rem,0.4fr)]"
+        >
+          <section
+            aria-labelledby="monthly-activity-heading"
+            class="glass-control control-rounded border-border min-w-0 border p-3 sm:p-4"
+          >
+            <div class="flex flex-wrap items-end justify-between gap-2">
+              <div>
+                <p
+                  class="text-accent text-[0.62rem] tracking-[0.12em] uppercase"
+                >
+                  last 12 calendar months
+                </p>
+                <h3
+                  id="monthly-activity-heading"
+                  class="text-foreground mt-1 text-base font-light"
+                >
+                  Watch-time rhythm
+                </h3>
+              </div>
+              <p class="text-muted text-[0.62rem] leading-4 sm:text-right">
+                {#if insights.activity.coveredFrom && insights.activity.coveredTo}
+                  Ledger coverage {formatTimestamp(
+                    insights.activity.coveredFrom,
+                  )}<br />
+                  through {formatTimestamp(insights.activity.coveredTo)}
+                {/if}
+              </p>
+            </div>
+            <div class="mt-4 min-w-0 overflow-x-auto pb-1">
+              <ol
+                aria-label="Monthly recorded watch activity"
+                class="grid min-w-[36rem] grid-cols-12 gap-2"
+              >
+                {#each insights.activity.monthly as bucket (bucket.period)}
+                  <li
+                    aria-label={bucketLabel(bucket)}
+                    class="grid min-w-0 gap-2"
+                  >
+                    <div
+                      aria-hidden="true"
+                      class="bg-glass-control flex h-28 items-end overflow-hidden rounded-sm"
+                    >
+                      <span
+                        class="bg-accent block w-full rounded-t-sm opacity-80"
+                        class:bg-warning={bucket.recordedMinutes === 0 &&
+                          bucket.unknownDurationEpisodes > 0}
+                        style:height={`${activityBarHeight(bucket, insights.activity.monthly)}%`}
+                      ></span>
+                    </div>
+                    <div aria-hidden="true" class="text-center">
+                      <p class="text-foreground text-[0.62rem] tabular-nums">
+                        {bucket.recordedMinutes > 0
+                          ? formatDuration(bucket.recordedMinutes)
+                          : bucket.unknownDurationEpisodes > 0
+                            ? "?"
+                            : "—"}
+                      </p>
+                      <p class="text-muted mt-1 text-[0.55rem] uppercase">
+                        {formatMonthPeriod(bucket.period)}
+                      </p>
+                    </div>
+                  </li>
+                {/each}
+              </ol>
+            </div>
+          </section>
+
+          <section
+            aria-labelledby="yearly-activity-heading"
+            class="glass-control control-rounded border-border border p-3 sm:p-4"
+          >
+            <p class="text-accent text-[0.62rem] tracking-[0.12em] uppercase">
+              lifetime ledger
+            </p>
+            <h3
+              id="yearly-activity-heading"
+              class="text-foreground mt-1 text-base font-light"
+            >
+              Yearly totals
+            </h3>
+            <ul
+              aria-label="Yearly recorded watch activity"
+              class="border-border mt-4 grid divide-y border-y"
+            >
+              {#each insights.activity.yearly as bucket (bucket.period)}
+                <li
+                  aria-label={bucketLabel(bucket)}
+                  class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 py-3"
+                >
+                  <span class="text-accent text-lg font-light tabular-nums"
+                    >{bucket.period}</span
+                  >
+                  <span class="text-muted text-right text-[0.62rem] leading-4">
+                    <span class="text-foreground block text-sm"
+                      >{formatDuration(bucket.recordedMinutes)}</span
+                    >
+                    {countLabel(bucket.recordedEpisodes, "episode")}
+                    {#if bucket.unknownDurationEpisodes > 0}
+                      <span class="text-warning block"
+                        >{bucket.unknownDurationEpisodes} duration excluded</span
+                      >
+                    {/if}
+                  </span>
+                </li>
+              {/each}
+            </ul>
+          </section>
+        </div>
 
         <ol
           aria-label="Recent recorded progress events"

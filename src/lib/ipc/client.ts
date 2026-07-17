@@ -1,11 +1,13 @@
 import { invoke } from "@tauri-apps/api/core";
 
 import type {
+  AdvanceLibraryProgressRequest,
   CommandError,
   ClearLocalDataRequest,
   ClearLocalDataResponse,
   DashboardInsights,
   ExportBackupResponse,
+  HomeAiringResponse,
   ImportBackupRequest,
   ImportBackupResponse,
   ImportPreviewResponse,
@@ -18,6 +20,8 @@ import type {
   RemoveLibraryEntryRequest,
   RemoveLibraryEntryResponse,
   RefreshLibraryMetadataResponse,
+  RecommendationsRequest,
+  RecommendationsResponse,
   SmokeResponse,
   SettingsOverview,
   ThemePreference,
@@ -34,6 +38,16 @@ export async function checkBackend(
 
 export async function listLibrary(): Promise<LibraryItem[]> {
   return invoke<LibraryItem[]>("list_library");
+}
+
+export async function getHomeAiring(): Promise<HomeAiringResponse> {
+  return invoke<HomeAiringResponse>("get_home_airing");
+}
+
+export async function advanceLibraryProgress(
+  request: AdvanceLibraryProgressRequest,
+): Promise<LibraryEntry> {
+  return invoke<LibraryEntry>("advance_library_progress", { request });
 }
 
 export async function getDashboardInsights(): Promise<DashboardInsights> {
@@ -108,6 +122,12 @@ export async function getMediaDetails(
 
 export async function refreshLibraryMetadata(): Promise<RefreshLibraryMetadataResponse> {
   return invoke<RefreshLibraryMetadataResponse>("refresh_library_metadata");
+}
+
+export async function getRecommendations(
+  request: RecommendationsRequest,
+): Promise<RecommendationsResponse> {
+  return invoke<RecommendationsResponse>("get_recommendations", { request });
 }
 
 export function normalizeCommandError(error: unknown): CommandError {

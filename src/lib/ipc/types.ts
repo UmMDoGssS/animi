@@ -124,6 +124,10 @@ export interface LibraryItem {
   media: LibraryMediaSnapshot | null;
 }
 
+export interface AdvanceLibraryProgressRequest {
+  anilistId: number;
+}
+
 export interface WatchActivity {
   anilistId: number;
   mediaKind: MediaKind;
@@ -166,7 +170,18 @@ export interface DashboardActivitySummary {
   knownDurationEpisodes: number;
   recordedMinutes: number;
   unknownDurationEpisodes: number;
+  coveredFrom: UtcTimestamp | null;
+  coveredTo: UtcTimestamp | null;
+  monthly: DashboardActivityBucket[];
+  yearly: DashboardActivityBucket[];
   events: WatchActivity[];
+}
+
+export interface DashboardActivityBucket {
+  period: string;
+  recordedEpisodes: number;
+  recordedMinutes: number;
+  unknownDurationEpisodes: number;
 }
 
 export interface DashboardInsights {
@@ -232,6 +247,23 @@ export interface Freshness {
   refreshError: CommandError | null;
 }
 
+export interface AiringSchedule {
+  episode: number;
+  airingAt: UtcTimestamp;
+}
+
+export interface HomeAiringItem {
+  library: LibraryItem;
+  nextAiring: AiringSchedule | null;
+  scheduleFreshness: Freshness | null;
+  scheduleError: CommandError | null;
+}
+
+export interface HomeAiringResponse {
+  items: HomeAiringItem[];
+  checkedAt: UtcTimestamp;
+}
+
 export interface MediaPageResponse {
   items: MediaSummary[];
   hasNextPage: boolean;
@@ -252,6 +284,23 @@ export interface SearchMediaRequest {
 export interface MediaPageRequest {
   page: number;
   perPage: number;
+}
+
+export interface RecommendationsRequest {
+  perPage: number;
+}
+
+export interface Recommendation {
+  media: MediaSummary;
+  score: number;
+  explanationLabels: string[];
+}
+
+export interface RecommendationsResponse {
+  items: Recommendation[];
+  isFallback: boolean;
+  eligibleProfileTitles: number;
+  freshness: Freshness;
 }
 
 export interface MediaDetailsRequest {

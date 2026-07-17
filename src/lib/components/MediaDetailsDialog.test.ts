@@ -229,6 +229,44 @@ describe("MediaDetailsDialog", () => {
     expect(onDetailsLoaded).toHaveBeenCalledWith(unknownDetails);
   });
 
+  it("shows only official sequel dates and labels incomplete dates as unknown", async () => {
+    const sequelDetails: MediaDetailsResponse = {
+      media: {
+        ...summary,
+        sequels: [
+          {
+            anilistId: 201,
+            title: "Paper Cranes: Second Flight",
+            releaseDate: "2027-04-03",
+          },
+          {
+            anilistId: 202,
+            title: "Paper Cranes: After Story",
+            releaseDate: null,
+          },
+        ],
+      },
+      freshness: currentFreshness,
+    };
+    render(MediaDetailsDialog, {
+      summary,
+      entry: null,
+      loadDetails: vi.fn().mockResolvedValue(sequelDetails),
+      saveEntry: vi.fn(),
+      deleteEntry: vi.fn(),
+      onClose: vi.fn(),
+    });
+
+    await screen.findByRole("dialog", { name: summary.title });
+    expect(
+      await screen.findByText("Paper Cranes: Second Flight"),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Releases Apr 3, 2027/i)).toBeInTheDocument();
+    expect(screen.getByText("Paper Cranes: After Story")).toBeInTheDocument();
+    expect(screen.getByText("Release date unknown")).toBeInTheDocument();
+    expect(screen.queryByText(/estimated|predicted/i)).not.toBeInTheDocument();
+  });
+
   it("synchronizes an entry that arrives after a blocked library read", async () => {
     const loadingError: CommandError = {
       code: "LIBRARY_LOADING",

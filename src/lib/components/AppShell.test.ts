@@ -57,6 +57,10 @@ const emptyDashboard: DashboardInsights = {
     knownDurationEpisodes: 0,
     recordedMinutes: 0,
     unknownDurationEpisodes: 0,
+    coveredFrom: null,
+    coveredTo: null,
+    monthly: [],
+    yearly: [],
     events: [],
   },
 };

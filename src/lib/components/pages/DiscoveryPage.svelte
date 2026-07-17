@@ -3,6 +3,7 @@
 
   import {
     getMediaDetails,
+    getRecommendations,
     listLibrary,
     listTrending,
     normalizeCommandError,
@@ -20,6 +21,9 @@
     MediaPageRequest,
     MediaPageResponse,
     MediaSummary,
+    Recommendation,
+    RecommendationsRequest,
+    RecommendationsResponse,
     RemoveLibraryEntryRequest,
     RemoveLibraryEntryResponse,
     SearchMediaRequest,
@@ -33,6 +37,9 @@
 
   interface Props {
     loadTrending?: (request: MediaPageRequest) => Promise<MediaPageResponse>;
+    loadRecommendations?: (
+      request: RecommendationsRequest,
+    ) => Promise<RecommendationsResponse>;
     searchAnime?: (request: SearchMediaRequest) => Promise<MediaPageResponse>;
     loadDetails?: (
       request: MediaDetailsRequest,
@@ -47,6 +54,7 @@
 
   let {
     loadTrending = listTrending,
+    loadRecommendations = getRecommendations,
     searchAnime = searchMedia,
     loadDetails = getMediaDetails,
     loadLibrary = listLibrary,
@@ -68,6 +76,10 @@
   let trendingResponse = $state<MediaPageResponse | null>(null);
   let trendingError = $state<CommandError | null>(null);
   let trendingLoading = $state(true);
+
+  let recommendationsResponse = $state<RecommendationsResponse | null>(null);
+  let recommendationsError = $state<CommandError | null>(null);
+  let recommendationsLoading = $state(true);
 
   let libraryItems = $state<LibraryItem[]>([]);
   let libraryError = $state<CommandError | null>(null);
@@ -91,6 +103,7 @@
 
   onMount(() => {
     void fetchTrending();
+    void fetchRecommendations();
     void fetchLibrary();
   });
 
@@ -109,6 +122,18 @@
       trendingError = normalizeCommandError(reason);
     } finally {
       trendingLoading = false;
+    }
+  }
+
+  async function fetchRecommendations(): Promise<void> {
+    recommendationsLoading = true;
+    recommendationsError = null;
+    try {
+      recommendationsResponse = await loadRecommendations({ perPage: 18 });
+    } catch (reason) {
+      recommendationsError = normalizeCommandError(reason);
+    } finally {
+      recommendationsLoading = false;
     }
   }
 
@@ -255,6 +280,7 @@
       libraryItems = libraryItems.filter(
         (item) => item.entry.anilistId !== anilistId,
       );
+      void fetchRecommendations();
       return;
     }
 
@@ -263,12 +289,14 @@
     );
     if (existingIndex === -1) {
       libraryItems = [...libraryItems, { entry, media: null }];
+      void fetchRecommendations();
       return;
     }
 
     libraryItems = libraryItems.map((item, index) =>
       index === existingIndex ? { ...item, entry } : item,
     );
+    void fetchRecommendations();
   }
 
   function formatLabel(value: string | null): string {
@@ -475,6 +503,69 @@
     </ul>
   {/snippet}
 
+  {#snippet recommendationGrid(
+    recommendations: Recommendation[],
+    freshness: Freshness,
+    fallback: boolean,
+  )}
+    <ul
+      aria-label="Recommended anime"
+      class="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+    >
+      {#each recommendations.slice(0, 6) as recommendation, index (recommendation.media.anilistId)}
+        {@const media = recommendation.media}
+        {@const entry = entryFor(media.anilistId)}
+        <li class="min-w-0">
+          <button
+            type="button"
+            aria-haspopup="dialog"
+            aria-label={`Open details for ${media.title}`}
+            class="discovery-card glass-control glass-interactive control-rounded border-border group grid h-full w-full min-w-0 grid-cols-[5.25rem_minmax(0,1fr)] gap-3 border p-2 text-left transition-[transform,background-color] hover:-translate-y-0.5 focus-visible:-translate-y-0.5"
+            onclick={(event) => openDetails(media, freshness, event)}
+          >
+            <MediaCover title={media.title} coverUrl={media.coverUrl} />
+            <span class="flex min-w-0 flex-col py-1 pr-1">
+              <span
+                class="text-muted text-[0.62rem] tracking-[0.1em] uppercase"
+              >
+                signal {String(index + 1).padStart(2, "0")} // {formatLabel(
+                  media.mediaFormat,
+                )}
+              </span>
+              <span
+                class="text-foreground mt-1.5 line-clamp-2 text-sm leading-5 font-light"
+              >
+                {media.title}
+              </span>
+              {#if fallback}
+                <span class="text-muted mt-2 text-xs leading-5">
+                  Trending while your local taste profile grows.
+                </span>
+              {:else if recommendation.explanationLabels.length > 0}
+                <span class="text-muted mt-2 text-xs leading-5">
+                  Matches {recommendation.explanationLabels.join(" · ")}
+                </span>
+              {:else}
+                <span class="text-muted mt-2 text-xs leading-5">
+                  Ranked from local genre and trending signals.
+                </span>
+              {/if}
+              <span
+                class="border-border mt-auto border-t pt-2 text-[0.62rem] tracking-[0.07em] uppercase"
+                class:text-accent={entry !== null}
+                class:text-muted={entry === null}
+              >
+                {entry
+                  ? `tracked // ${entry.status.toLocaleLowerCase()}`
+                  : "not tracked"}
+              </span>
+            </span>
+          </button>
+        </li>
+      {/each}
+    </ul>
+  {/snippet}
+
   {#if searchTerm.length > 0}
     <section
       aria-labelledby="search-results-heading"
@@ -566,6 +657,96 @@
       {/if}
     </section>
   {:else}
+    <section
+      aria-labelledby="recommendations-heading"
+      class="glass-panel panel-large border-border grid min-w-0 gap-4 border p-4 sm:p-6"
+    >
+      <header class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p class="text-accent text-[0.66rem] tracking-[0.14em] uppercase">
+            local signal // explainable picks
+          </p>
+          <h2
+            id="recommendations-heading"
+            class="text-foreground mt-1 text-xl font-light tracking-[0.03em]"
+          >
+            For your next watch
+          </h2>
+        </div>
+        {#if recommendationsResponse}
+          <p class="text-muted max-w-sm text-xs leading-5 sm:text-right">
+            {recommendationsResponse.isFallback
+              ? `Trending fallback // ${recommendationsResponse.eligibleProfileTitles} eligible local titles`
+              : `Personalized from ${recommendationsResponse.eligibleProfileTitles} local titles`}
+          </p>
+        {/if}
+      </header>
+
+      {#if recommendationsLoading}
+        <AsyncStateNotice
+          status="loading"
+          title="Building local recommendations"
+          description="Animi is comparing cached tags and genres on this device."
+          compact
+        />
+      {/if}
+
+      {#if recommendationsError}
+        <AsyncStateNotice
+          status={recommendationsResponse
+            ? isOfflineError(recommendationsError)
+              ? "offline"
+              : "stale"
+            : isOfflineError(recommendationsError)
+              ? "offline"
+              : "error"}
+          title={recommendationsResponse
+            ? "Keeping the saved recommendation set"
+            : "Recommendations could not load"}
+          description={recommendationsResponse
+            ? "The previous explainable results remain visible."
+            : "Search and the separate trending catalog remain available."}
+          error={recommendationsError}
+          onRetry={recommendationsError.retryable
+            ? fetchRecommendations
+            : undefined}
+          retryLabel="Retry recommendations"
+          compact
+        />
+      {:else if recommendationsResponse?.freshness.isStale}
+        <AsyncStateNotice
+          status={isOfflineError(recommendationsResponse.freshness.refreshError)
+            ? "offline"
+            : "stale"}
+          title="Showing cached recommendations"
+          description={`Candidate data saved ${formatTimestamp(recommendationsResponse.freshness.fetchedAt)}.`}
+          error={recommendationsResponse.freshness.refreshError}
+          onRetry={recommendationsResponse.freshness.refreshError?.retryable
+            ? fetchRecommendations
+            : undefined}
+          retryLabel="Retry recommendations"
+          compact
+        />
+      {/if}
+
+      {#if recommendationsResponse}
+        {#if recommendationsResponse.items.length > 0}
+          {@render recommendationGrid(
+            recommendationsResponse.items,
+            recommendationsResponse.freshness,
+            recommendationsResponse.isFallback,
+          )}
+        {:else}
+          <AsyncStateNotice
+            status="empty"
+            title="No untracked candidates are available"
+            description="Every cached candidate is already in your library. Check again when trending titles change."
+            compact
+          />
+        {/if}
+      {/if}
+    </section>
+
     <section
       aria-labelledby="trending-heading"
       class="glass-panel panel-large border-border grid min-w-0 gap-4 border p-4 sm:p-6"

@@ -157,6 +157,24 @@ const populatedInsights: DashboardInsights = {
     knownDurationEpisodes: 2,
     recordedMinutes: 48,
     unknownDurationEpisodes: 1,
+    coveredFrom: "2026-07-16T09:00:00.000Z",
+    coveredTo: "2026-07-17T10:00:00.000Z",
+    monthly: [
+      {
+        period: "2026-07",
+        recordedEpisodes: 3,
+        recordedMinutes: 48,
+        unknownDurationEpisodes: 1,
+      },
+    ],
+    yearly: [
+      {
+        period: "2026",
+        recordedEpisodes: 3,
+        recordedMinutes: 48,
+        unknownDurationEpisodes: 1,
+      },
+    ],
     events: [
       {
         anilistId: 101,
@@ -200,6 +218,10 @@ const emptyInsights: DashboardInsights = {
     knownDurationEpisodes: 0,
     recordedMinutes: 0,
     unknownDurationEpisodes: 0,
+    coveredFrom: null,
+    coveredTo: null,
+    monthly: [],
+    yearly: [],
     events: [],
   },
 };
@@ -265,6 +287,18 @@ describe("DashboardPage", () => {
       expect(activity).toHaveTextContent(/recorded episodes\s*3/i);
       expect(activity).toHaveTextContent(/known watch time\s*48m/i);
       expect(activity).toHaveTextContent(/duration excluded\s*1 episode/i);
+      expect(
+        screen.getByRole("list", { name: "Monthly recorded watch activity" }),
+      ).toHaveTextContent(/48m/i);
+      expect(
+        screen.getByRole("listitem", {
+          name: /2026-07: 48m recorded from 3 episodes; 1 episode with unknown duration/i,
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("list", { name: "Yearly recorded watch activity" }),
+      ).toHaveTextContent(/2026.*48m.*3 episodes/i);
+      expect(screen.getByText(/Ledger coverage/i)).toBeInTheDocument();
       expect(
         screen.getByRole("list", { name: "Recent recorded progress events" }),
       ).toHaveTextContent(/Paper Cranes at Dawn.*\+2 episodes.*48m/i);

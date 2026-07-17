@@ -164,6 +164,10 @@ function createStatefulP4Services() {
             (event.episodeDurationMinutes === null ? event.progressDelta : 0),
           0,
         ),
+        coveredFrom: activity.at(-1)?.occurredAt ?? null,
+        coveredTo: activity[0]?.occurredAt ?? null,
+        monthly: [],
+        yearly: [],
         events: activity.map((event) => ({ ...event })),
       },
     };
