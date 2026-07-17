@@ -2,12 +2,6 @@ ALTER TABLE media_snapshots
     ADD COLUMN duration_minutes INTEGER
         CHECK (duration_minutes IS NULL OR duration_minutes > 0);
 
-ALTER TABLE library_entries
-    ADD COLUMN activity_progress INTEGER NOT NULL DEFAULT 0
-        CHECK (activity_progress BETWEEN 0 AND 2147483647);
-
-UPDATE library_entries SET activity_progress = progress;
-
 CREATE TABLE watch_activity (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     anilist_id INTEGER NOT NULL CHECK (anilist_id BETWEEN 1 AND 2147483647),

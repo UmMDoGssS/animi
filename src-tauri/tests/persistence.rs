@@ -5,7 +5,13 @@ use animi_lib::database::{
 use animi_lib::domain::{LibraryStatus, MediaKind, UpsertLibraryEntryRequest};
 use chrono::{DateTime, Utc};
 use serde_json::json;
+use sqlx::sqlite::SqliteConnectOptions;
+use sqlx::{Connection, SqliteConnection};
 use tempfile::tempdir;
+
+const MIGRATION_0001_CHECKSUM: &str = "4f33f13a114dc098bc6ab75229eb86c43c4f35eb98c8280f36215860ebfd679deb83643d3a731391ddd5e67aac85cc04";
+const MIGRATION_0002_CHECKSUM: &str = "9361fde43170e805d0688fc5db6e64a11ac3e7f5a1a54d3b881f2a218f122e8e77c43993ea186a1968fb733f16b1fe27";
+const MIGRATION_0003_CHECKSUM: &str = "614bc98e326578e7a1649dae266c728ee5ec5468ec7a0c72291b998c3c7b7297620ef2f567b803105036135f6126b318";
 
 fn library_request(progress: i64, status: LibraryStatus) -> UpsertLibraryEntryRequest {
     UpsertLibraryEntryRequest {
@@ -352,5 +358,135 @@ async fn v0001_fixture_upgrades_without_losing_authoritative_records() {
             .entry
             .progress,
         4
+    );
+}
+
+#[tokio::test]
+async fn v0002_fixture_preserves_activity_and_applies_activity_progress_migration() {
+    let root = tempdir().expect("temporary database root");
+    let paths = DatabasePaths::from_root(root.path()).expect("valid paths");
+    let fixture = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/database/v0002.sqlite3");
+    std::fs::copy(&fixture, paths.database()).expect("copy immutable fixture");
+
+    let database = Database::connect(&paths).await.expect("upgraded database");
+    let items = database
+        .library()
+        .list_items()
+        .await
+        .expect("upgraded library");
+    assert_eq!(items.len(), 1);
+    assert_eq!(items[0].entry.anilist_id, 101);
+    assert_eq!(items[0].entry.progress, 3);
+    assert_eq!(
+        items[0]
+            .media
+            .as_ref()
+            .expect("preserved snapshot")
+            .duration_minutes,
+        Some(24)
+    );
+    assert_eq!(
+        database
+            .settings()
+            .get("theme")
+            .await
+            .expect("setting lookup")
+            .expect("preserved theme")
+            .value,
+        json!("SYSTEM")
+    );
+    assert_eq!(
+        database
+            .media()
+            .list_airing(101, MediaKind::Anime)
+            .await
+            .expect("preserved airing")
+            .len(),
+        1
+    );
+    assert!(
+        database
+            .cache()
+            .get("details:anime:101")
+            .await
+            .expect("cache lookup")
+            .is_some()
+    );
+
+    let original_activity = database
+        .activity()
+        .list()
+        .await
+        .expect("preserved activity");
+    assert_eq!(original_activity.len(), 1);
+    assert_eq!(original_activity[0].progress_delta, 2);
+    assert_eq!(original_activity[0].episode_duration_minutes, Some(24));
+    assert_eq!(original_activity[0].occurred_at, "2026-07-16T08:30:00.000Z");
+
+    let options = SqliteConnectOptions::new()
+        .filename(paths.database())
+        .read_only(true);
+    let mut inspection = SqliteConnection::connect_with(&options)
+        .await
+        .expect("read-only migration inspection");
+    let activity_progress = sqlx::query_scalar::<_, i64>(
+        "SELECT activity_progress FROM library_entries \
+         WHERE anilist_id = 101 AND media_kind = 'ANIME'",
+    )
+    .fetch_one(&mut inspection)
+    .await
+    .expect("activity progress baseline");
+    assert_eq!(activity_progress, 3);
+
+    let migrations = sqlx::query_as::<_, (i64, String)>(
+        "SELECT version, lower(hex(checksum)) FROM _sqlx_migrations ORDER BY version",
+    )
+    .fetch_all(&mut inspection)
+    .await
+    .expect("applied migration checksums");
+    assert_eq!(
+        migrations,
+        vec![
+            (1, MIGRATION_0001_CHECKSUM.to_owned()),
+            (2, MIGRATION_0002_CHECKSUM.to_owned()),
+            (3, MIGRATION_0003_CHECKSUM.to_owned()),
+        ]
+    );
+    inspection
+        .close()
+        .await
+        .expect("close migration inspection");
+
+    database
+        .library()
+        .upsert(library_request(4, LibraryStatus::Watching))
+        .await
+        .expect("post-upgrade progress");
+    let activity = database.activity().list().await.expect("updated activity");
+    assert_eq!(activity.len(), 2);
+    assert_eq!(activity[0].progress_delta, 1);
+    assert_eq!(activity[0].episode_duration_minutes, Some(24));
+    assert_eq!(activity[1], original_activity[0]);
+
+    database.close().await;
+    let reopened = Database::connect(&paths).await.expect("reopened upgrade");
+    assert_eq!(
+        reopened
+            .library()
+            .list_items()
+            .await
+            .expect("persisted library")[0]
+            .entry
+            .progress,
+        4
+    );
+    assert_eq!(
+        reopened
+            .activity()
+            .list()
+            .await
+            .expect("persisted activity"),
+        activity
     );
 }

@@ -9,3 +9,7 @@ current migrator against the copy, and assert both schema and preserved records.
 open a fixture in place or resolve the production app-data directory. The initial schema is tested
 from an empty temporary directory, so the first binary fixture is intentionally deferred until a
 second migration creates a real upgrade boundary.
+
+`v0002.sqlite3` pins the first-applied migration-2 checksum and the schema immediately before
+`0003_activity_progress.sql`. Keep both the database and its manifest immutable so checksum drift
+and upgrade regressions remain reproducible.
