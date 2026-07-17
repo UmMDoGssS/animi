@@ -40,6 +40,27 @@ query TrendingMedia($page: Int!, $perPage: Int!) {
 }
 "#;
 
+pub const LIBRARY_MEDIA: &str = r#"
+query LibraryMedia($ids: [Int], $perPage: Int!) {
+  Page(page: 1, perPage: $perPage) {
+    pageInfo { hasNextPage }
+    media(type: ANIME, id_in: $ids, isAdult: false) {
+      id
+      title { romaji english native }
+      coverImage { large }
+      format
+      status
+      episodes
+      duration
+      startDate { year month day }
+      genres
+      tags { name rank isAdult }
+      trending
+    }
+  }
+}
+"#;
+
 pub const MEDIA_DETAILS: &str = r#"
 query MediaDetails($id: Int!) {
   Media(id: $id, type: ANIME, isAdult: false) {

@@ -3,7 +3,7 @@ use animi_lib::database::{
     SettingRecord,
 };
 use animi_lib::domain::{LibraryStatus, MediaKind, UpsertLibraryEntryRequest};
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::{DateTime, Utc};
 use serde_json::json;
 use sqlx::sqlite::SqliteConnectOptions;
 use sqlx::{Connection, SqliteConnection};
@@ -15,6 +15,7 @@ const MIGRATION_0003_CHECKSUM: &str = "614bc98e326578e7a1649dae266c728ee5ec5468e
 const MIGRATION_0004_CHECKSUM: &str = "2d33bf79c69c9975e0f2e0341bd55b7c8117d495db9e4818dcf0f678aec199f9aeabf55df24da15138c670442231563e";
 const MIGRATION_0005_CHECKSUM: &str = "364ea2015447827da34dd27a3aced13ff4015a14d039b5d70a6c54c733598a2df3676e9073cf26822701ae11e97842ea";
 const MIGRATION_0006_CHECKSUM: &str = "acb07fd7605f13d3d1d98684187ac1eedbd1d982dd4c7eba54d03d43fe27a5de5a7412a84548d828cc19d3fa75cc8977";
+const MIGRATION_0007_CHECKSUM: &str = "ac12d71cd3774e812497656d0c8196f9cb88d9f715d0c349bcbccc318f77f047d6e0b2b1cc3dbb686c6fe4bafdb3c23c";
 
 fn library_request(progress: i64, status: LibraryStatus) -> UpsertLibraryEntryRequest {
     UpsertLibraryEntryRequest {
@@ -42,7 +43,7 @@ fn snapshot(total_units: Option<i64>) -> MediaSnapshotRecord {
         media_status: Some("FINISHED".to_owned()),
         total_units,
         duration_minutes: Some(24),
-        release_date: NaiveDate::from_ymd_opt(2025, 10, 4),
+        release_date: Some("2025-10-04".to_owned()),
         cached_at: timestamp("2026-07-16T08:00:00.000Z"),
     }
 }
@@ -469,6 +470,7 @@ async fn v0002_fixture_preserves_activity_and_applies_activity_progress_migratio
             (4, MIGRATION_0004_CHECKSUM.to_owned()),
             (5, MIGRATION_0005_CHECKSUM.to_owned()),
             (6, MIGRATION_0006_CHECKSUM.to_owned()),
+            (7, MIGRATION_0007_CHECKSUM.to_owned()),
         ]
     );
     inspection
@@ -519,6 +521,18 @@ async fn v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress
     std::fs::copy(&fixture, paths.database()).expect("copy immutable fixture");
 
     let database = Database::connect(&paths).await.expect("upgraded database");
+    assert_eq!(
+        database
+            .library()
+            .list_items()
+            .await
+            .expect("migrated library metadata")[0]
+            .media
+            .as_ref()
+            .expect("fixture metadata")
+            .cached_at,
+        "1970-01-01T00:00:00.000Z"
+    );
     let original_activity = database
         .activity()
         .list()
@@ -568,6 +582,7 @@ async fn v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress
             (4, MIGRATION_0004_CHECKSUM.to_owned()),
             (5, MIGRATION_0005_CHECKSUM.to_owned()),
             (6, MIGRATION_0006_CHECKSUM.to_owned()),
+            (7, MIGRATION_0007_CHECKSUM.to_owned()),
         ]
     );
     inspection

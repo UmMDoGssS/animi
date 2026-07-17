@@ -272,6 +272,16 @@ describe("MediaDetailsDialog", () => {
           },
           {
             anilistId: 202,
+            title: "Paper Cranes: Autumn Return",
+            releaseDate: "2027-10",
+          },
+          {
+            anilistId: 203,
+            title: "Paper Cranes: Someday",
+            releaseDate: "2028",
+          },
+          {
+            anilistId: 204,
             title: "Paper Cranes: After Story",
             releaseDate: null,
           },
@@ -293,6 +303,8 @@ describe("MediaDetailsDialog", () => {
       await screen.findByText("Paper Cranes: Second Flight"),
     ).toBeInTheDocument();
     expect(screen.getByText(/Releases Apr 3, 2027/i)).toBeInTheDocument();
+    expect(screen.getByText(/Releases Oct 2027/i)).toBeInTheDocument();
+    expect(screen.getByText(/Releases 2028/i)).toBeInTheDocument();
     expect(screen.getByText("Paper Cranes: After Story")).toBeInTheDocument();
     expect(screen.getByText("Release date unknown")).toBeInTheDocument();
     expect(screen.queryByText(/estimated|predicted/i)).not.toBeInTheDocument();

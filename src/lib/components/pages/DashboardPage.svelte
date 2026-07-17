@@ -135,7 +135,7 @@
           (item) =>
             item.media !== null &&
             item.media.releaseDate === null &&
-            item.media.status !== "NOT_YET_RELEASED",
+            item.media.isStale,
         )
       ) {
         releaseDateBackfillChecked = true;
@@ -174,10 +174,7 @@
       if (leftRelease !== rightRelease) {
         if (leftRelease === null) return 1;
         if (rightRelease === null) return -1;
-        return (
-          rightRelease.localeCompare(leftRelease) ||
-          compareLibraryTitles(left, right)
-        );
+        return leftRelease < rightRelease ? 1 : -1;
       }
       return compareLibraryTitles(left, right);
     }

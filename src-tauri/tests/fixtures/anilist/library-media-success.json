@@ -1,0 +1,43 @@
+{
+  "data": {
+    "Page": {
+      "pageInfo": { "hasNextPage": false },
+      "media": [
+        {
+          "id": 195539,
+          "title": {
+            "romaji": "Cyberpunk: Edgerunners 2",
+            "english": null,
+            "native": null
+          },
+          "coverImage": { "large": null },
+          "format": "TV",
+          "status": "NOT_YET_RELEASED",
+          "episodes": null,
+          "duration": null,
+          "startDate": { "year": 2026, "month": null, "day": null },
+          "genres": ["Action"],
+          "tags": [],
+          "trending": 1
+        },
+        {
+          "id": 209939,
+          "title": {
+            "romaji": "Sousou no Frieren 3rd Season",
+            "english": null,
+            "native": null
+          },
+          "coverImage": { "large": null },
+          "format": "TV",
+          "status": "NOT_YET_RELEASED",
+          "episodes": null,
+          "duration": null,
+          "startDate": { "year": 2027, "month": 10, "day": null },
+          "genres": ["Adventure"],
+          "tags": [],
+          "trending": 1
+        }
+      ]
+    }
+  }
+}

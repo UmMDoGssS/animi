@@ -619,11 +619,21 @@ describe("DashboardPage", () => {
         indexedItem(602, "Alphabetically Last", "WATCHING", 1, null, 2, null),
       ],
     };
+    legacyInsights.libraryItems = legacyInsights.libraryItems.map((item) => ({
+      ...item,
+      media: item.media === null ? null : { ...item.media, isStale: true },
+    }));
     const refreshedInsights: DashboardInsights = {
       ...legacyInsights,
       libraryItems: [
-        indexedItem(601, "Alphabetically First", "WATCHING", 1, null, 1, 1),
-        indexedItem(602, "Alphabetically Last", "WATCHING", 1, null, 2, 2),
+        {
+          ...indexedItem(601, "Alphabetically First", "WATCHING", 1, null, 1),
+          media: media("Alphabetically First", { releaseDate: "2027" }),
+        },
+        {
+          ...indexedItem(602, "Alphabetically Last", "WATCHING", 1, null, 2),
+          media: media("Alphabetically Last", { releaseDate: "2027-10" }),
+        },
       ],
     };
     const loadInsights = vi

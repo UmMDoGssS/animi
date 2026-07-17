@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::future::Future;
 
 use chrono::Duration;
@@ -14,7 +15,8 @@ use super::{AiringSchedule, AniListClient, AniListError, MediaDetails, MediaSumm
 
 // Bump this whenever a persisted detail payload gains a field that library snapshots need.
 // Older payloads deserialize safely, but reusing them would leave the new snapshot field empty.
-const MEDIA_DETAILS_CACHE_SCHEMA_VERSION: u8 = 3;
+const MEDIA_DETAILS_CACHE_SCHEMA_VERSION: u8 = 4;
+const LIBRARY_METADATA_BATCH_SIZE: usize = 50;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CachePolicy {
@@ -352,18 +354,39 @@ impl AniListService {
         };
         let mut snapshots = Vec::with_capacity(tracked_anime.len());
 
-        // All network/cache reads complete before the snapshot batch starts. This keeps database
-        // transactions and locks out of the network request lifetime.
-        for anilist_id in tracked_anime {
-            match self.cached_media_details(anilist_id).await {
-                Ok(details) => {
-                    let snapshot = media_snapshot(&details.value, &details.freshness)?;
-                    snapshots.push(snapshot);
-                    response.stale += usize::from(details.freshness.is_stale);
+        // AniList accepts up to 50 IDs in one media page. Batching prevents a normal-sized local
+        // library refresh from exhausting the shared request budget before all titles are updated.
+        for batch in tracked_anime.chunks(LIBRARY_METADATA_BATCH_SIZE) {
+            match self.client.library_media(batch).await {
+                Ok(media) => {
+                    let mut by_id = media
+                        .into_iter()
+                        .map(|summary| (summary.anilist_id, summary))
+                        .collect::<BTreeMap<_, _>>();
+                    for anilist_id in batch {
+                        if let Some(summary) = by_id.remove(anilist_id) {
+                            snapshots.push(media_summary_snapshot(&summary, self.client.now()));
+                        } else {
+                            response.failures.push(MetadataRefreshFailure {
+                                anilist_id: *anilist_id,
+                                error: CommandError::new(
+                                    "ANILIST_RESPONSE_INVALID",
+                                    "AniList did not return metadata for this tracked title.",
+                                    false,
+                                ),
+                            });
+                        }
+                    }
                 }
-                Err(error) => response
-                    .failures
-                    .push(MetadataRefreshFailure { anilist_id, error }),
+                Err(error) => {
+                    let error = error.into_command_error();
+                    response.failures.extend(batch.iter().map(|anilist_id| {
+                        MetadataRefreshFailure {
+                            anilist_id: *anilist_id,
+                            error: error.clone(),
+                        }
+                    }));
+                }
             }
         }
 
@@ -475,8 +498,14 @@ fn media_snapshot(
                 false,
             )
         })?;
-    let summary = &details.summary;
-    Ok(MediaSnapshotRecord {
+    Ok(media_summary_snapshot(&details.summary, cached_at))
+}
+
+fn media_summary_snapshot(
+    summary: &MediaSummary,
+    cached_at: chrono::DateTime<chrono::Utc>,
+) -> MediaSnapshotRecord {
+    MediaSnapshotRecord {
         anilist_id: summary.anilist_id,
         media_kind: MediaKind::Anime,
         title: summary.title.clone(),
@@ -494,9 +523,9 @@ fn media_snapshot(
         media_status: summary.status.clone(),
         total_units: summary.episodes,
         duration_minutes: summary.duration_minutes,
-        release_date: summary.release_date,
+        release_date: summary.release_date.clone(),
         cached_at,
-    })
+    }
 }
 
 impl AniListError {
@@ -610,7 +639,7 @@ mod tests {
         LibraryStatus, MediaKind, RemoveLibraryEntryRequest, UpsertLibraryEntryRequest,
     };
 
-    use super::{AniListClient, AniListService, CachePolicy};
+    use super::{AniListClient, AniListService, CachePolicy, LIBRARY_METADATA_BATCH_SIZE};
 
     struct TestClock {
         now: Mutex<DateTime<Utc>>,
@@ -654,6 +683,16 @@ mod tests {
         fn request_count(&self) -> usize {
             *self.request_count.lock().expect("request count lock")
         }
+
+        fn extend_responses(
+            &self,
+            responses: impl IntoIterator<Item = Result<AniListResponse, TransportError>>,
+        ) {
+            self.responses
+                .lock()
+                .expect("response lock")
+                .extend(responses);
+        }
     }
 
     impl AniListTransport for ScriptedTransport {
@@ -674,6 +713,40 @@ mod tests {
             status: 200,
             headers: BTreeMap::new(),
             body: fixture.to_owned(),
+        })
+    }
+
+    fn library_response(ids: &[i64]) -> Result<AniListResponse, TransportError> {
+        let media = ids
+            .iter()
+            .map(|id| {
+                serde_json::json!({
+                    "id": id,
+                    "title": { "romaji": format!("Tracked {id}"), "english": null, "native": null },
+                    "coverImage": { "large": null },
+                    "format": "TV",
+                    "status": "FINISHED",
+                    "episodes": 12,
+                    "duration": 24,
+                    "startDate": { "year": 2025, "month": 10, "day": 4 },
+                    "genres": [],
+                    "tags": [],
+                    "trending": 0
+                })
+            })
+            .collect::<Vec<_>>();
+        Ok(AniListResponse {
+            status: 200,
+            headers: BTreeMap::new(),
+            body: serde_json::json!({
+                "data": {
+                    "Page": {
+                        "pageInfo": { "hasNextPage": false },
+                        "media": media
+                    }
+                }
+            })
+            .to_string(),
         })
     }
 
@@ -1064,7 +1137,7 @@ mod tests {
         database
             .cache()
             .upsert(&CacheRecord {
-                cache_key: "details:v2:anime:154587".to_owned(),
+                cache_key: "details:v3:anime:154587".to_owned(),
                 payload: serde_json::json!({
                     "anilistId": 154587,
                     "title": "Legacy cached title",
@@ -1092,15 +1165,15 @@ mod tests {
         assert_eq!(details.media.summary.duration_minutes, Some(24));
         assert_eq!(
             details.media.summary.release_date,
-            chrono::NaiveDate::from_ymd_opt(2023, 9, 29)
+            Some("2023-09-29".to_owned())
         );
         assert_eq!(transport.request_count(), 1);
         assert!(
             database
                 .cache()
-                .get("details:v3:anime:154587")
+                .get("details:v4:anime:154587")
                 .await
-                .expect("v3 cache lookup")
+                .expect("v4 cache lookup")
                 .is_some()
         );
     }
@@ -1184,10 +1257,10 @@ mod tests {
     #[tokio::test]
     async fn library_refresh_fetches_only_tracked_anime_and_persists_after_network_work() {
         let (_root, database, service, transport, _clock) = service([response(include_str!(
-            "../../tests/fixtures/anilist/details-incomplete.json"
+            "../../tests/fixtures/anilist/library-media-success.json"
         ))])
         .await;
-        for (anilist_id, media_kind) in [(21, MediaKind::Anime), (22, MediaKind::Manga)] {
+        for (anilist_id, media_kind) in [(195_539, MediaKind::Anime), (22, MediaKind::Manga)] {
             database
                 .library()
                 .upsert(UpsertLibraryEntryRequest {
@@ -1215,10 +1288,10 @@ mod tests {
         assert!(
             database
                 .media()
-                .get_snapshot(21, MediaKind::Anime)
+                .get_snapshot(195_539, MediaKind::Anime)
                 .await
                 .expect("anime snapshot")
-                .is_some()
+                .is_some_and(|snapshot| snapshot.release_date.as_deref() == Some("2026"))
         );
         assert!(
             database
@@ -1228,6 +1301,48 @@ mod tests {
                 .expect("manga snapshot")
                 .is_none()
         );
+    }
+
+    #[tokio::test]
+    async fn library_refresh_batches_more_than_fifty_titles_into_two_requests() {
+        let (_root, database, service, transport, _clock) = service([]).await;
+        for anilist_id in 1..=63 {
+            database
+                .library()
+                .upsert(UpsertLibraryEntryRequest {
+                    anilist_id,
+                    media_kind: MediaKind::Anime,
+                    status: LibraryStatus::Planning,
+                    progress: 0,
+                    score: None,
+                    notes: None,
+                })
+                .await
+                .expect("tracked anime");
+        }
+        let tracked = database
+            .library()
+            .list()
+            .await
+            .expect("tracked library")
+            .into_iter()
+            .map(|entry| entry.anilist_id)
+            .collect::<Vec<_>>();
+        transport.extend_responses(
+            tracked
+                .chunks(LIBRARY_METADATA_BATCH_SIZE)
+                .map(library_response),
+        );
+
+        let result = service
+            .refresh_library_metadata()
+            .await
+            .expect("batched metadata refresh");
+
+        assert_eq!(result.attempted, 63);
+        assert_eq!(result.updated, 63);
+        assert!(result.failures.is_empty());
+        assert_eq!(transport.request_count(), 2);
     }
 
     #[tokio::test]

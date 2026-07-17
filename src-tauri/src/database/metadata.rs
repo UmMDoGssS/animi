@@ -62,7 +62,7 @@ impl MediaRepository {
             .bind(&snapshot.media_status)
             .bind(snapshot.total_units)
             .bind(snapshot.duration_minutes)
-            .bind(snapshot.release_date.map(|date| date.to_string()))
+            .bind(&snapshot.release_date)
             .bind(format_utc(snapshot.cached_at))
             .execute(&mut *transaction)
             .await?;
@@ -197,15 +197,25 @@ impl TryFrom<SnapshotRow> for MediaSnapshotRecord {
             media_status: row.media_status,
             total_units: row.total_units,
             duration_minutes: row.duration_minutes,
-            release_date: row
-                .release_date
-                .map(|value| chrono::NaiveDate::parse_from_str(&value, "%Y-%m-%d"))
-                .transpose()
-                .map_err(|_| {
-                    DatabaseError::CorruptData("A cached media release date is invalid.".to_owned())
-                })?,
+            release_date: row.release_date.map(validate_release_date).transpose()?,
             cached_at: parse_timestamp(&row.cached_at)?,
         })
+    }
+}
+
+fn validate_release_date(value: String) -> Result<String, DatabaseError> {
+    let valid = match value.len() {
+        4 => value.parse::<i32>().is_ok_and(|year| year > 0),
+        7 => chrono::NaiveDate::parse_from_str(&format!("{value}-01"), "%Y-%m-%d").is_ok(),
+        10 => chrono::NaiveDate::parse_from_str(&value, "%Y-%m-%d").is_ok(),
+        _ => false,
+    };
+    if valid {
+        Ok(value)
+    } else {
+        Err(DatabaseError::CorruptData(
+            "A cached media release date is invalid.".to_owned(),
+        ))
     }
 }
 

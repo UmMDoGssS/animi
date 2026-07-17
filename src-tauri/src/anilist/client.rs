@@ -9,7 +9,7 @@ use serde::de::DeserializeOwned;
 use serde_json::{Value, json};
 
 use super::GRAPHQL_ENDPOINT;
-use super::queries::{AIRING_SCHEDULE, MEDIA_DETAILS, SEARCH_MEDIA, TRENDING_MEDIA};
+use super::queries::{AIRING_SCHEDULE, LIBRARY_MEDIA, MEDIA_DETAILS, SEARCH_MEDIA, TRENDING_MEDIA};
 use super::types::{
     AiringPageData, AiringSchedule, GraphQlEnvelope, MediaDetails, MediaDetailsData, MediaPageData,
     MediaSummary,
@@ -231,6 +231,25 @@ impl AniListClient {
             )
             .await?;
         map_media_page(data)
+    }
+
+    pub async fn library_media(&self, ids: &[i64]) -> Result<Vec<MediaSummary>, AniListError> {
+        if ids.is_empty() || ids.len() > 50 || ids.iter().any(|id| *id <= 0) {
+            return Err(AniListError::contract(
+                "Library metadata batches must contain 1 to 50 positive AniList IDs.",
+            ));
+        }
+        let per_page = u8::try_from(ids.len())
+            .map_err(|_| AniListError::contract("Library metadata batch is too large."))?;
+        let data: MediaPageData = self
+            .execute(
+                "LibraryMedia",
+                LIBRARY_MEDIA,
+                json!({ "ids": ids, "perPage": per_page }),
+            )
+            .await?;
+        let (media, _) = map_media_page(data)?;
+        Ok(media)
     }
 
     pub async fn media_details(&self, id: i64) -> Result<MediaDetails, AniListError> {

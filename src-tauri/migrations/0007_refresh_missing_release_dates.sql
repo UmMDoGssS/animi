@@ -1,0 +1,3 @@
+UPDATE media_snapshots
+SET cached_at = '1970-01-01T00:00:00.000Z'
+WHERE release_date IS NULL;

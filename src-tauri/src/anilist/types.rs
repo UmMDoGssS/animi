@@ -21,7 +21,7 @@ pub struct MediaSummary {
     pub episodes: Option<i64>,
     pub duration_minutes: Option<i64>,
     #[serde(default)]
-    pub release_date: Option<NaiveDate>,
+    pub release_date: Option<String>,
     pub genres: Vec<String>,
     pub tags: Vec<MediaTag>,
     pub trending: i64,
@@ -32,7 +32,7 @@ pub struct MediaSummary {
 pub struct Sequel {
     pub anilist_id: i64,
     pub title: String,
-    pub release_date: Option<NaiveDate>,
+    pub release_date: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -224,7 +224,11 @@ impl TryFrom<RawMedia> for MediaSummary {
             status: media.status,
             episodes: media.episodes,
             duration_minutes: media.duration,
-            release_date: media.start_date.and_then(RawFuzzyDate::complete_date),
+            release_date: media
+                .start_date
+                .map(RawFuzzyDate::calendar_date)
+                .transpose()?
+                .flatten(),
             genres: media.genres,
             tags,
             trending: media.trending,
@@ -255,7 +259,12 @@ impl RawRelationEdge {
                 "AniList returned an invalid sequel ID.",
             ));
         }
-        let release_date = self.node.start_date.and_then(RawFuzzyDate::complete_date);
+        let release_date = self
+            .node
+            .start_date
+            .map(RawFuzzyDate::calendar_date)
+            .transpose()?
+            .flatten();
         Ok(Some(Sequel {
             anilist_id: self.node.id,
             title: self.node.title.into_title()?,
@@ -265,8 +274,34 @@ impl RawRelationEdge {
 }
 
 impl RawFuzzyDate {
-    fn complete_date(self) -> Option<NaiveDate> {
-        NaiveDate::from_ymd_opt(self.year?, self.month?, self.day?)
+    fn calendar_date(self) -> Result<Option<String>, AniListError> {
+        let Some(year) = self.year else {
+            return Ok(None);
+        };
+        if year <= 0 {
+            return Err(AniListError::contract(
+                "AniList returned an invalid release year.",
+            ));
+        }
+        let Some(month) = self.month else {
+            if self.day.is_some() {
+                return Err(AniListError::contract(
+                    "AniList returned a release day without a month.",
+                ));
+            }
+            return Ok(Some(format!("{year:04}")));
+        };
+        if !(1..=12).contains(&month) {
+            return Err(AniListError::contract(
+                "AniList returned an invalid release month.",
+            ));
+        }
+        let Some(day) = self.day else {
+            return Ok(Some(format!("{year:04}-{month:02}")));
+        };
+        let date = NaiveDate::from_ymd_opt(year, month, day)
+            .ok_or_else(|| AniListError::contract("AniList returned an invalid release date."))?;
+        Ok(Some(date.format("%Y-%m-%d").to_string()))
     }
 }
 

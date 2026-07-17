@@ -180,6 +180,16 @@
   }
 
   function formatCalendarDate(value: string): string {
+    if (/^\d{4}$/.test(value)) {
+      return value;
+    }
+    if (/^\d{4}-\d{2}$/.test(value)) {
+      return new Intl.DateTimeFormat(undefined, {
+        year: "numeric",
+        month: "short",
+        timeZone: "UTC",
+      }).format(new Date(`${value}-01T00:00:00Z`));
+    }
     return new Intl.DateTimeFormat(undefined, {
       year: "numeric",
       month: "short",

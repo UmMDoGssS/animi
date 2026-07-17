@@ -102,10 +102,7 @@ async fn search_uses_anime_only_non_adult_query_and_maps_stable_types() {
     assert_eq!(media[0].title, "Frieren: Beyond Journey's End");
     assert_eq!(media[0].episodes, Some(28));
     assert_eq!(media[0].duration_minutes, Some(24));
-    assert_eq!(
-        media[0].release_date,
-        chrono::NaiveDate::from_ymd_opt(2023, 9, 29)
-    );
+    assert_eq!(media[0].release_date.as_deref(), Some("2023-09-29"));
     assert_eq!(
         serde_json::to_value(&media[0]).expect("serializable media")["durationMinutes"],
         24
@@ -124,6 +121,32 @@ async fn search_uses_anime_only_non_adult_query_and_maps_stable_types() {
     assert!(requests[0].query.contains("duration"));
     assert!(requests[0].query.contains("startDate"));
     assert_eq!(requests[0].variables["search"], "Frieren");
+}
+
+#[tokio::test]
+async fn library_batch_uses_one_request_and_preserves_fuzzy_release_dates() {
+    let transport = Arc::new(FixtureTransport::with_response(Ok(response(
+        200,
+        include_str!("../../tests/fixtures/anilist/library-media-success.json"),
+    ))));
+    let client = AniListClient::new(transport.clone());
+
+    let media = client
+        .library_media(&[195_539, 209_939])
+        .await
+        .expect("library metadata response");
+
+    assert_eq!(media.len(), 2);
+    assert_eq!(media[0].release_date.as_deref(), Some("2026"));
+    assert_eq!(media[1].release_date.as_deref(), Some("2027-10"));
+    let requests = transport.requests();
+    assert_eq!(requests.len(), 1);
+    assert_eq!(requests[0].operation_name, "LibraryMedia");
+    assert_eq!(
+        requests[0].variables["ids"],
+        serde_json::json!([195539, 209939])
+    );
+    assert_eq!(requests[0].variables["perPage"], 2);
 }
 
 #[tokio::test]
