@@ -23,6 +23,26 @@ const originalClose = Object.getOwnPropertyDescriptor(
   "close",
 );
 
+const trailingTwelveMonths = [
+  "2025-08",
+  "2025-09",
+  "2025-10",
+  "2025-11",
+  "2025-12",
+  "2026-01",
+  "2026-02",
+  "2026-03",
+  "2026-04",
+  "2026-05",
+  "2026-06",
+  "2026-07",
+].map((period) => ({
+  period,
+  recordedEpisodes: period === "2026-07" ? 3 : 0,
+  recordedMinutes: period === "2026-07" ? 48 : 0,
+  unknownDurationEpisodes: period === "2026-07" ? 1 : 0,
+}));
+
 beforeAll(() => {
   Object.defineProperty(HTMLDialogElement.prototype, "showModal", {
     configurable: true,
@@ -159,14 +179,7 @@ const populatedInsights: DashboardInsights = {
     unknownDurationEpisodes: 1,
     coveredFrom: "2026-07-16T09:00:00.000Z",
     coveredTo: "2026-07-17T10:00:00.000Z",
-    monthly: [
-      {
-        period: "2026-07",
-        recordedEpisodes: 3,
-        recordedMinutes: 48,
-        unknownDurationEpisodes: 1,
-      },
-    ],
+    monthly: trailingTwelveMonths,
     yearly: [
       {
         period: "2026",
@@ -288,13 +301,31 @@ describe("DashboardPage", () => {
       expect(activity).toHaveTextContent(/known watch time\s*48m/i);
       expect(activity).toHaveTextContent(/duration excluded\s*1 episode/i);
       expect(
-        screen.getByRole("list", { name: "Monthly recorded watch activity" }),
-      ).toHaveTextContent(/48m/i);
-      expect(
-        screen.getByRole("listitem", {
-          name: /2026-07: 48m recorded from 3 episodes; 1 episode with unknown duration/i,
+        screen.getByRole("table", {
+          name: "Twelve-month contribution graph",
         }),
       ).toBeInTheDocument();
+      expect(
+        within(
+          screen.getByRole("list", { name: "Months in activity year" }),
+        ).getAllByRole("listitem"),
+      ).toHaveLength(12);
+      const weeklyActivity = screen.getByRole("list", {
+        name: "Weekly recorded watch activity",
+      });
+      expect(
+        within(weeklyActivity).getAllByRole("listitem").length,
+      ).toBeGreaterThanOrEqual(52);
+      expect(
+        screen.getByRole("img", {
+          name: /Jul 16, 2026: 48m recorded from 3 episodes; 1 episode with unknown duration/i,
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("region", {
+          name: "Scrollable weekly watch-time chart",
+        }),
+      ).toHaveClass("overflow-x-auto");
       expect(
         screen.getByRole("list", { name: "Yearly recorded watch activity" }),
       ).toHaveTextContent(/2026.*48m.*3 episodes/i);
@@ -302,7 +333,6 @@ describe("DashboardPage", () => {
       expect(
         screen.getByRole("list", { name: "Recent recorded progress events" }),
       ).toHaveTextContent(/Paper Cranes at Dawn.*\+2 episodes.*48m/i);
-      expect(screen.queryByRole("table")).not.toBeInTheDocument();
 
       expect(
         within(

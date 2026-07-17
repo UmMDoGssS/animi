@@ -9,6 +9,12 @@
     removeLibraryEntry,
     upsertLibraryEntry,
   } from "$lib/ipc/client";
+  import {
+    buildDashboardActivityYear,
+    contributionLevel,
+    type DashboardActivityDay,
+    type DashboardActivityWeek,
+  } from "$lib/dashboardActivity";
   import type {
     CommandError,
     DashboardActivityBucket,
@@ -70,6 +76,22 @@
       description: "Saved for later",
     },
   ];
+  const activityWeekdays = [
+    { shortLabel: "M", label: "Monday" },
+    { shortLabel: "T", label: "Tuesday" },
+    { shortLabel: "W", label: "Wednesday" },
+    { shortLabel: "T", label: "Thursday" },
+    { shortLabel: "F", label: "Friday" },
+    { shortLabel: "S", label: "Saturday" },
+    { shortLabel: "S", label: "Sunday" },
+  ] as const;
+  const contributionLegend = [
+    { level: 0, label: "0m" },
+    { level: 1, label: "1–24m" },
+    { level: 2, label: "25–48m" },
+    { level: 3, label: "49–72m" },
+    { level: 4, label: "73m+" },
+  ] as const;
 
   let {
     loadInsights = getDashboardInsights,
@@ -97,6 +119,14 @@
     }
     return summaryForItem(selectedItem);
   });
+  const activityYear = $derived.by(() =>
+    insights === null
+      ? null
+      : buildDashboardActivityYear(
+          insights.activity.monthly,
+          insights.activity.events,
+        ),
+  );
 
   onMount(() => {
     void loadDashboard();
@@ -362,30 +392,6 @@
     return `${value} ${value === 1 ? singular : plural}`;
   }
 
-  function activityBarHeight(
-    bucket: DashboardActivityBucket,
-    buckets: DashboardActivityBucket[],
-  ): number {
-    const maximum = Math.max(
-      1,
-      ...buckets.map((candidate) => candidate.recordedMinutes),
-    );
-    if (bucket.recordedMinutes === 0) {
-      return bucket.recordedEpisodes > 0 ? 8 : 2;
-    }
-    return Math.max(12, (bucket.recordedMinutes / maximum) * 100);
-  }
-
-  function formatMonthPeriod(period: string): string {
-    const date = new Date(`${period}-01T00:00:00.000Z`);
-    if (Number.isNaN(date.getTime())) return period;
-    return new Intl.DateTimeFormat(undefined, {
-      month: "short",
-      year: "2-digit",
-      timeZone: "UTC",
-    }).format(date);
-  }
-
   function bucketLabel(bucket: DashboardActivityBucket): string {
     const known = formatDuration(bucket.recordedMinutes);
     const excluded = countLabel(
@@ -394,6 +400,39 @@
       "episodes with unknown duration",
     );
     return `${bucket.period}: ${known} recorded from ${countLabel(bucket.recordedEpisodes, "episode")}; ${excluded}.`;
+  }
+
+  function formatActivityDate(date: string): string {
+    const timestamp = new Date(`${date}T00:00:00.000Z`);
+    if (Number.isNaN(timestamp.getTime())) return date;
+    return new Intl.DateTimeFormat(undefined, {
+      dateStyle: "medium",
+      timeZone: "UTC",
+    }).format(timestamp);
+  }
+
+  function activityDayLabel(day: DashboardActivityDay): string {
+    const date = formatActivityDate(day.date);
+    if (day.recordedEpisodes === 0) {
+      return `${date}: no recorded activity.`;
+    }
+    return `${date}: ${formatDuration(day.recordedMinutes)} recorded from ${countLabel(day.recordedEpisodes, "episode")}; ${countLabel(day.unknownDurationEpisodes, "episode with unknown duration", "episodes with unknown duration")}.`;
+  }
+
+  function activityWeekLabel(week: DashboardActivityWeek): string {
+    return `${week.label}, ${formatActivityDate(week.startDate)} through ${formatActivityDate(week.endDate)}: ${formatDuration(week.recordedMinutes)} recorded from ${countLabel(week.recordedEpisodes, "episode")}; ${countLabel(week.unknownDurationEpisodes, "episode with unknown duration", "episodes with unknown duration")}.`;
+  }
+
+  function activityWeekBarHeight(week: DashboardActivityWeek): number {
+    const maximum = Math.max(
+      1,
+      ...(activityYear?.weeks.map((candidate) => candidate.recordedMinutes) ??
+        []),
+    );
+    if (week.recordedMinutes === 0) {
+      return week.unknownDurationEpisodes > 0 ? 8 : 2;
+    }
+    return Math.max(12, (week.recordedMinutes / maximum) * 100);
   }
 </script>
 
@@ -736,96 +775,236 @@
           </div>
         </dl>
 
-        <div
-          class="mt-6 grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(12rem,0.4fr)]"
-        >
-          <section
-            aria-labelledby="monthly-activity-heading"
-            class="glass-control control-rounded border-border min-w-0 border p-3 sm:p-4"
-          >
-            <div class="flex flex-wrap items-end justify-between gap-2">
-              <div>
-                <p
-                  class="text-accent text-[0.62rem] tracking-[0.12em] uppercase"
-                >
-                  last 12 calendar months
-                </p>
-                <h3
-                  id="monthly-activity-heading"
-                  class="text-foreground mt-1 text-base font-light"
-                >
-                  Watch-time rhythm
-                </h3>
-              </div>
-              <p class="text-muted text-[0.62rem] leading-4 sm:text-right">
-                {#if insights.activity.coveredFrom && insights.activity.coveredTo}
-                  Ledger coverage {formatTimestamp(
-                    insights.activity.coveredFrom,
-                  )}<br />
-                  through {formatTimestamp(insights.activity.coveredTo)}
-                {/if}
-              </p>
-            </div>
-            <div class="mt-4 min-w-0 overflow-x-auto pb-1">
-              <ol
-                aria-label="Monthly recorded watch activity"
-                class="grid min-w-[36rem] grid-cols-12 gap-2"
-              >
-                {#each insights.activity.monthly as bucket (bucket.period)}
-                  <li
-                    aria-label={bucketLabel(bucket)}
-                    class="grid min-w-0 gap-2"
+        <div class="mt-6 grid min-w-0 gap-4">
+          {#if activityYear}
+            <section
+              aria-labelledby="contribution-activity-heading"
+              class="glass-control control-rounded border-border min-w-0 border p-3 sm:p-4"
+            >
+              <div class="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <p
+                    class="text-accent text-[0.62rem] tracking-[0.12em] uppercase"
                   >
-                    <div
-                      aria-hidden="true"
-                      class="bg-glass-control flex h-28 items-end overflow-hidden rounded-sm"
-                    >
+                    12-month contribution map
+                  </p>
+                  <h3
+                    id="contribution-activity-heading"
+                    class="text-foreground mt-1 text-base font-light"
+                  >
+                    Every recorded day, across a year.
+                  </h3>
+                </div>
+                <p class="text-muted text-[0.62rem] leading-4 sm:text-right">
+                  {formatActivityDate(activityYear.rangeStart)}<br />
+                  through {formatActivityDate(activityYear.rangeEnd)}
+                </p>
+              </div>
+
+              <!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to scroll this wide data region.) -->
+              <div
+                data-activity-scroll="contribution"
+                tabindex="0"
+                role="region"
+                aria-label="Scrollable twelve-month contribution graph"
+                class="focus-ring mt-4 min-w-0 overflow-x-auto pb-2"
+              >
+                <div class="activity-year-frame">
+                  <ol
+                    aria-label="Months in activity year"
+                    class="activity-month-ruler"
+                    style:--activity-week-count={activityYear.weeks.length}
+                  >
+                    {#each activityYear.months as month (month.period)}
+                      <li
+                        class="text-muted text-[0.58rem] tracking-[0.06em] uppercase"
+                        style:grid-column={`${month.weekIndex + 1} / span 4`}
+                      >
+                        {month.label}
+                      </li>
+                    {/each}
+                  </ol>
+
+                  <table
+                    aria-label="Twelve-month contribution graph"
+                    class="activity-grid-table"
+                  >
+                    <caption class="sr-only">
+                      Recorded watch activity for twelve calendar months,
+                      arranged by week and weekday.
+                    </caption>
+                    <thead class="sr-only">
+                      <tr>
+                        <th scope="col">Weekday</th>
+                        {#each activityYear.weeks as week (week.startDate)}
+                          <th scope="col">{week.label}</th>
+                        {/each}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {#each activityWeekdays as weekday, weekdayIndex (weekday.label)}
+                        <tr>
+                          <th
+                            scope="row"
+                            title={weekday.label}
+                            class="text-muted pr-1 text-center text-[0.58rem] font-light"
+                          >
+                            <span aria-hidden="true">{weekday.shortLabel}</span>
+                            <span class="sr-only">{weekday.label}</span>
+                          </th>
+                          {#each activityYear.weeks as week (week.startDate)}
+                            {@const day = week.days[weekdayIndex]}
+                            <td>
+                              {#if day?.inRange}
+                                <span
+                                  role="img"
+                                  aria-label={activityDayLabel(day)}
+                                  title={activityDayLabel(day)}
+                                  class="activity-cell"
+                                  data-level={contributionLevel(
+                                    day.recordedMinutes,
+                                  )}
+                                  data-unknown={day.unknownDurationEpisodes > 0}
+                                ></span>
+                              {:else}
+                                <span
+                                  aria-hidden="true"
+                                  class="activity-cell activity-cell-placeholder"
+                                ></span>
+                              {/if}
+                            </td>
+                          {/each}
+                        </tr>
+                      {/each}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div
+                class="border-border mt-3 flex flex-wrap items-center justify-between gap-3 border-t pt-3"
+              >
+                <p class="text-muted text-[0.62rem] leading-4">
+                  Scroll horizontally to inspect the full year. Gold corners
+                  mark days with episodes whose duration is unknown.
+                </p>
+                <ul
+                  aria-label="Contribution intensity legend"
+                  class="flex items-center gap-2"
+                >
+                  {#each contributionLegend as item (item.level)}
+                    <li class="flex items-center gap-1">
                       <span
-                        class="bg-accent block w-full rounded-t-sm opacity-80"
-                        class:bg-warning={bucket.recordedMinutes === 0 &&
-                          bucket.unknownDurationEpisodes > 0}
-                        style:height={`${activityBarHeight(bucket, insights.activity.monthly)}%`}
+                        aria-hidden="true"
+                        class="activity-cell activity-legend-cell"
+                        data-level={item.level}
                       ></span>
-                    </div>
-                    <div aria-hidden="true" class="text-center">
-                      <p class="text-foreground text-[0.62rem] tabular-nums">
-                        {bucket.recordedMinutes > 0
-                          ? formatDuration(bucket.recordedMinutes)
-                          : bucket.unknownDurationEpisodes > 0
-                            ? "?"
-                            : "—"}
-                      </p>
-                      <p class="text-muted mt-1 text-[0.55rem] uppercase">
-                        {formatMonthPeriod(bucket.period)}
-                      </p>
-                    </div>
-                  </li>
-                {/each}
-              </ol>
-            </div>
-          </section>
+                      <span class="text-muted text-[0.55rem]">{item.label}</span
+                      >
+                    </li>
+                  {/each}
+                </ul>
+              </div>
+            </section>
+
+            <section
+              aria-labelledby="weekly-activity-heading"
+              class="glass-control control-rounded border-border min-w-0 border p-3 sm:p-4"
+            >
+              <div class="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <p
+                    class="text-accent text-[0.62rem] tracking-[0.12em] uppercase"
+                  >
+                    week-by-week ledger
+                  </p>
+                  <h3
+                    id="weekly-activity-heading"
+                    class="text-foreground mt-1 text-base font-light"
+                  >
+                    Watch-time rhythm
+                  </h3>
+                </div>
+                <p class="text-muted text-[0.62rem] leading-4 sm:text-right">
+                  One bar per week<br />same 12-month range
+                </p>
+              </div>
+
+              <!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to scroll this wide data region.) -->
+              <div
+                data-activity-scroll="weekly"
+                tabindex="0"
+                role="region"
+                aria-label="Scrollable weekly watch-time chart"
+                class="focus-ring mt-4 min-w-0 overflow-x-auto pb-2"
+              >
+                <ol
+                  aria-label="Weekly recorded watch activity"
+                  class="activity-week-bars"
+                  style:--activity-week-count={activityYear.weeks.length}
+                >
+                  {#each activityYear.weeks as week (week.startDate)}
+                    <li
+                      aria-label={activityWeekLabel(week)}
+                      title={activityWeekLabel(week)}
+                      class="activity-week-bucket"
+                    >
+                      <span aria-hidden="true" class="activity-week-track">
+                        <span
+                          class="activity-week-bar"
+                          class:activity-week-bar-unknown={week.unknownDurationEpisodes >
+                            0}
+                          style:height={`${activityWeekBarHeight(week)}%`}
+                        ></span>
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        class="text-muted activity-week-label text-[0.5rem] tabular-nums"
+                      >
+                        {week.label}
+                      </span>
+                    </li>
+                  {/each}
+                </ol>
+              </div>
+            </section>
+          {/if}
 
           <section
             aria-labelledby="yearly-activity-heading"
             class="glass-control control-rounded border-border border p-3 sm:p-4"
           >
-            <p class="text-accent text-[0.62rem] tracking-[0.12em] uppercase">
-              lifetime ledger
-            </p>
-            <h3
-              id="yearly-activity-heading"
-              class="text-foreground mt-1 text-base font-light"
-            >
-              Yearly totals
-            </h3>
+            <div class="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p
+                  class="text-accent text-[0.62rem] tracking-[0.12em] uppercase"
+                >
+                  lifetime ledger
+                </p>
+                <h3
+                  id="yearly-activity-heading"
+                  class="text-foreground mt-1 text-base font-light"
+                >
+                  Yearly totals
+                </h3>
+              </div>
+              {#if insights.activity.coveredFrom && insights.activity.coveredTo}
+                <p class="text-muted text-[0.62rem] leading-4 sm:text-right">
+                  Ledger coverage {formatTimestamp(
+                    insights.activity.coveredFrom,
+                  )}<br />
+                  through {formatTimestamp(insights.activity.coveredTo)}
+                </p>
+              {/if}
+            </div>
             <ul
               aria-label="Yearly recorded watch activity"
-              class="border-border mt-4 grid divide-y border-y"
+              class="border-border mt-4 grid divide-y border-y sm:grid-cols-2 sm:divide-x sm:divide-y-0"
             >
               {#each insights.activity.yearly as bucket (bucket.period)}
                 <li
                   aria-label={bucketLabel(bucket)}
-                  class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 py-3"
+                  class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 p-3 first:pl-0 last:pr-0"
                 >
                   <span class="text-accent text-lg font-light tabular-nums"
                     >{bucket.period}</span
@@ -1084,3 +1263,169 @@
     />
   {/if}
 </div>
+
+<style>
+  .activity-year-frame {
+    width: max-content;
+    min-width: 100%;
+  }
+
+  .activity-month-ruler {
+    display: grid;
+    width: max-content;
+    min-width: 100%;
+    height: 1.25rem;
+    grid-template-columns: repeat(var(--activity-week-count), 0.72rem);
+    column-gap: 0.22rem;
+    padding-left: 1.25rem;
+  }
+
+  .activity-month-ruler li {
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .activity-grid-table {
+    border-spacing: 0.22rem;
+    border-collapse: separate;
+    table-layout: fixed;
+  }
+
+  .activity-cell {
+    position: relative;
+    display: block;
+    width: 0.72rem;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 0.18rem;
+    background: var(--glass-control);
+    box-shadow: inset 0 1px 0 var(--glass-highlight);
+  }
+
+  .activity-cell::before {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--accent);
+    content: "";
+    opacity: var(--activity-opacity, 0);
+  }
+
+  .activity-cell[data-level="0"] {
+    --activity-opacity: 0;
+  }
+
+  .activity-cell[data-level="1"] {
+    --activity-opacity: 0.24;
+  }
+
+  .activity-cell[data-level="2"] {
+    --activity-opacity: 0.46;
+  }
+
+  .activity-cell[data-level="3"] {
+    --activity-opacity: 0.68;
+  }
+
+  .activity-cell[data-level="4"] {
+    --activity-opacity: 0.92;
+  }
+
+  .activity-cell[data-unknown="true"]::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-bottom: 0.28rem solid transparent;
+    border-left: 0.28rem solid transparent;
+    border-top: 0.28rem solid var(--warning);
+    content: "";
+  }
+
+  .activity-cell-placeholder {
+    visibility: hidden;
+  }
+
+  .activity-legend-cell {
+    width: 0.65rem;
+    border-radius: 0.12rem;
+  }
+
+  .activity-week-bars {
+    display: grid;
+    width: max-content;
+    min-width: 100%;
+    grid-template-columns: repeat(var(--activity-week-count), 1.5rem);
+    gap: 0.25rem;
+    border-bottom: 1px solid var(--border);
+    padding: 0.4rem 0.25rem 0.6rem;
+  }
+
+  .activity-week-bucket {
+    display: grid;
+    min-width: 0;
+    grid-template-rows: 8rem auto;
+    gap: 0.45rem;
+  }
+
+  .activity-week-track {
+    display: flex;
+    min-height: 0;
+    align-items: flex-end;
+    overflow: hidden;
+    border-radius: 0.18rem 0.18rem 0 0;
+    background: var(--glass-control);
+  }
+
+  .activity-week-bar {
+    display: block;
+    width: 100%;
+    min-height: 2px;
+    border: 1px solid var(--border);
+    border-bottom: 0;
+    border-radius: 0.18rem 0.18rem 0 0;
+    background: var(--accent-glass);
+    box-shadow: inset 0 1px 0 var(--glass-highlight);
+  }
+
+  .activity-week-bar-unknown {
+    border-top-color: var(--warning);
+    box-shadow:
+      inset 0 2px 0 var(--warning),
+      inset 0 1px 0 var(--glass-highlight);
+  }
+
+  .activity-week-label {
+    justify-self: center;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+
+  @media (min-width: 640px) {
+    .activity-month-ruler {
+      grid-template-columns: repeat(var(--activity-week-count), 0.82rem);
+      column-gap: 0.25rem;
+      padding-left: 1.35rem;
+    }
+
+    .activity-grid-table {
+      border-spacing: 0.25rem;
+    }
+
+    .activity-cell {
+      width: 0.82rem;
+    }
+
+    .activity-legend-cell {
+      width: 0.72rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .activity-week-bar {
+      transition: none;
+    }
+  }
+</style>
