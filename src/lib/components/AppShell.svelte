@@ -42,7 +42,6 @@
   import { applyThemePreference } from "$lib/theme/theme";
 
   import AppNavigation from "./AppNavigation.svelte";
-  import BackgroundCat from "./BackgroundCat.svelte";
   import DashboardPage from "./pages/DashboardPage.svelte";
   import DiscoveryPage from "./pages/DiscoveryPage.svelte";
   import HomePage from "./pages/HomePage.svelte";
@@ -193,7 +192,6 @@
     <span
       class="bg-overlay absolute bottom-[-10rem] left-[24%] size-[22rem] rounded-full opacity-35 blur-[64px]"
     ></span>
-    <BackgroundCat />
   </div>
 
   <div class="relative mx-auto min-h-screen max-w-[96rem] p-2 sm:p-4">

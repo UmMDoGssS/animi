@@ -73,7 +73,7 @@
           <NavigationIcon name={item.icon} />
           <span
             aria-hidden="true"
-            class="relative -top-px hidden text-xs leading-none font-medium sm:inline"
+            class="relative top-0.5 hidden text-xs leading-none font-medium sm:inline"
           >
             {item.label}
           </span>
