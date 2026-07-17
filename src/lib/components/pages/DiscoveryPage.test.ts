@@ -368,6 +368,11 @@ describe("DiscoveryPage", () => {
     const search = screen.getByRole("searchbox", { name: "Anime title" });
     await user.type(search, "No Such Anime{Enter}");
 
+    expect(search).toHaveAttribute("type", "text");
+    expect(
+      screen.getAllByRole("button", { name: "Clear search" }),
+    ).toHaveLength(1);
+
     expect(
       await screen.findByText('No anime found for "No Such Anime"'),
     ).toBeInTheDocument();

@@ -380,7 +380,9 @@
           <input
             bind:this={searchInput}
             id="discovery-search"
-            type="search"
+            type="text"
+            role="searchbox"
+            enterkeyhint="search"
             value={query}
             autocomplete="off"
             maxlength="200"
