@@ -6,6 +6,7 @@ import type {
   HomeAiringItem,
   HomeAiringResponse,
   LibraryEntry,
+  MediaDetailsResponse,
 } from "$lib/ipc/types";
 
 import { setTestViewport, testViewports } from "../../../test/viewports";
@@ -74,6 +75,30 @@ function response(items: HomeAiringItem[]): HomeAiringResponse {
   return { items, checkedAt };
 }
 
+function detailsFor(homeItem: HomeAiringItem): MediaDetailsResponse {
+  return {
+    media: {
+      anilistId: homeItem.library.entry.anilistId,
+      title: homeItem.library.media?.title ?? "Unknown anime",
+      coverUrl: homeItem.library.media?.coverUrl ?? null,
+      mediaFormat: homeItem.library.media?.mediaFormat ?? null,
+      status: homeItem.library.media?.status ?? null,
+      episodes: homeItem.library.media?.episodes ?? null,
+      durationMinutes: homeItem.library.media?.durationMinutes ?? null,
+      genres: homeItem.library.media?.genres ?? [],
+      tags: homeItem.library.media?.tags ?? [],
+      trending: 0,
+      sequels: [],
+    },
+    freshness: {
+      fetchedAt: checkedAt,
+      expiresAt: "2026-07-18T08:00:00.000Z",
+      isStale: false,
+      refreshError: null,
+    },
+  };
+}
+
 function homeProps(items: HomeAiringItem[] = []) {
   return {
     loadAiring: vi.fn().mockResolvedValue(response(items)),
@@ -87,6 +112,13 @@ function homeProps(items: HomeAiringItem[] = []) {
         progress: current.library.entry.progress + 1,
         updatedAt: "2026-07-17T09:00:00.000Z",
       };
+    }),
+    loadDetails: vi.fn(async ({ anilistId }: { anilistId: number }) => {
+      const current = items.find(
+        (candidate) => candidate.library.entry.anilistId === anilistId,
+      );
+      if (!current) throw new Error("missing fixture");
+      return detailsFor(current);
     }),
     openDiscovery: vi.fn(),
     refreshIntervalMs: 30 * 60 * 1000,
@@ -189,6 +221,30 @@ describe("HomePage", () => {
     expect(
       screen.getByRole("group", { name: /1 of 2: Moonlit Post Office/i }),
     ).toBeInTheDocument();
+  });
+
+  it("opens anime details from a carousel cover and restores focus", async () => {
+    const user = userEvent.setup();
+    const props = homeProps([item(1, "Moonlit Post Office", 8, 9)]);
+    render(HomePage, props);
+
+    const coverButton = await screen.findByRole("button", {
+      name: "Open details for Moonlit Post Office",
+    });
+    expect(coverButton).toHaveAttribute("aria-haspopup", "dialog");
+
+    await user.click(coverButton);
+
+    const dialog = await screen.findByRole("dialog");
+    expect(props.loadDetails).toHaveBeenCalledWith({ anilistId: 1 });
+    expect(
+      within(dialog).getByRole("heading", { name: "Moonlit Post Office" }),
+    ).toBeInTheDocument();
+
+    await user.click(
+      within(dialog).getByRole("button", { name: "Close details" }),
+    );
+    expect(coverButton).toHaveFocus();
   });
 
   it("keeps the selected slide in sync with horizontal scrolling", async () => {

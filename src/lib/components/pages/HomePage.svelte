@@ -1,27 +1,45 @@
 <script lang="ts">
-  import { onDestroy, onMount } from "svelte";
+  import { onDestroy, onMount, tick } from "svelte";
 
   import {
     advanceLibraryProgress,
     getHomeAiring,
+    getMediaDetails,
     normalizeCommandError,
+    removeLibraryEntry,
+    upsertLibraryEntry,
   } from "$lib/ipc/client";
   import type {
     AdvanceLibraryProgressRequest,
     CommandError,
+    Freshness,
     HomeAiringItem,
     HomeAiringResponse,
     LibraryEntry,
+    MediaDetailsRequest,
+    MediaDetailsResponse,
+    MediaSummary,
+    RemoveLibraryEntryRequest,
+    RemoveLibraryEntryResponse,
+    UpsertLibraryEntryRequest,
   } from "$lib/ipc/types";
 
   import AsyncStateNotice from "../AsyncStateNotice.svelte";
   import MediaCover from "../MediaCover.svelte";
+  import MediaDetailsDialog from "../MediaDetailsDialog.svelte";
 
   interface Props {
     loadAiring?: () => Promise<HomeAiringResponse>;
     advanceProgress?: (
       request: AdvanceLibraryProgressRequest,
     ) => Promise<LibraryEntry>;
+    loadDetails?: (
+      request: MediaDetailsRequest,
+    ) => Promise<MediaDetailsResponse>;
+    saveEntry?: (request: UpsertLibraryEntryRequest) => Promise<LibraryEntry>;
+    deleteEntry?: (
+      request: RemoveLibraryEntryRequest,
+    ) => Promise<RemoveLibraryEntryResponse>;
     openDiscovery?: () => void;
     refreshIntervalMs?: number;
   }
@@ -29,6 +47,9 @@
   let {
     loadAiring = getHomeAiring,
     advanceProgress = advanceLibraryProgress,
+    loadDetails = getMediaDetails,
+    saveEntry = upsertLibraryEntry,
+    deleteEntry = removeLibraryEntry,
     openDiscovery = () => undefined,
     refreshIntervalMs = 30 * 60 * 1000,
   }: Props = $props();
@@ -39,6 +60,8 @@
   let advancingError = $state<CommandError | null>(null);
   let advancingId = $state<number | null>(null);
   let selectedIndex = $state(0);
+  let selectedItem = $state<HomeAiringItem | null>(null);
+  let detailsOpener: HTMLButtonElement | null = null;
   let carouselRail = $state<HTMLElement | null>(null);
   let now = $state(Date.now());
   let refreshTimer: ReturnType<typeof setInterval> | null = null;
@@ -205,6 +228,75 @@
     return (
       item.library.media?.title ?? `AniList #${item.library.entry.anilistId}`
     );
+  }
+
+  function summaryForItem(item: HomeAiringItem): MediaSummary {
+    return {
+      anilistId: item.library.entry.anilistId,
+      title: title(item),
+      coverUrl: item.library.media?.coverUrl ?? null,
+      mediaFormat: item.library.media?.mediaFormat ?? null,
+      status: item.library.media?.status ?? null,
+      episodes: item.library.media?.episodes ?? null,
+      durationMinutes: item.library.media?.durationMinutes ?? null,
+      genres: item.library.media?.genres ?? [],
+      tags: item.library.media?.tags ?? [],
+      trending: 0,
+    };
+  }
+
+  function freshnessForItem(item: HomeAiringItem): Freshness | null {
+    const media = item.library.media;
+    if (media === null) return null;
+    return {
+      fetchedAt: media.cachedAt,
+      expiresAt: media.expiresAt,
+      isStale: media.isStale,
+      refreshError: null,
+    };
+  }
+
+  function openDetails(item: HomeAiringItem, event: MouseEvent): void {
+    if (!(event.currentTarget instanceof HTMLButtonElement)) return;
+    detailsOpener = event.currentTarget;
+    selectedItem = item;
+  }
+
+  function closeDetails(): void {
+    selectedItem = null;
+    const focusTarget = detailsOpener;
+    detailsOpener = null;
+    void tick().then(() => focusTarget?.isConnected && focusTarget.focus());
+  }
+
+  function handleLibraryChanged(entry: LibraryEntry | null): void {
+    if (selectedItem === null) return;
+    const anilistId = selectedItem.library.entry.anilistId;
+    if (entry === null || entry.status !== "WATCHING") {
+      if (response !== null) {
+        response = {
+          ...response,
+          items: response.items.filter(
+            (item) => item.library.entry.anilistId !== anilistId,
+          ),
+        };
+        if (selectedIndex >= response.items.length) selectedIndex = 0;
+      }
+      return;
+    }
+    const updatedItem: HomeAiringItem = {
+      ...selectedItem,
+      library: { ...selectedItem.library, entry },
+    };
+    selectedItem = updatedItem;
+    if (response !== null) {
+      response = {
+        ...response,
+        items: response.items.map((item) =>
+          item.library.entry.anilistId === entry.anilistId ? updatedItem : item,
+        ),
+      };
+    }
   }
 
   function progressLabel(item: HomeAiringItem): string {
@@ -398,15 +490,19 @@
             data-carousel-index={index}
             class="glass-control control-rounded border-border grid w-full min-w-full shrink-0 snap-start gap-5 border p-4 sm:grid-cols-[11rem_minmax(0,1fr)] sm:p-5 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-7 lg:p-6"
           >
-            <div
-              class="mx-auto aspect-[2/3] w-36 sm:aspect-auto sm:w-full sm:self-stretch"
+            <button
+              type="button"
+              aria-haspopup="dialog"
+              aria-label={`Open details for ${title(item)}`}
+              class="glass-interactive control-rounded mx-auto aspect-[2/3] w-36 overflow-hidden text-left focus-visible:outline-2 focus-visible:outline-offset-2 sm:aspect-auto sm:w-full sm:self-stretch"
+              onclick={(event) => openDetails(item, event)}
             >
               <MediaCover
                 title={title(item)}
                 coverUrl={item.library.media?.coverUrl ?? null}
                 fill
               />
-            </div>
+            </button>
             <div class="flex min-w-0 flex-col sm:py-1">
               <div class="flex flex-wrap items-center gap-2">
                 <span
@@ -562,4 +658,17 @@
       {/if}
     {/if}
   </section>
+
+  {#if selectedItem}
+    <MediaDetailsDialog
+      summary={summaryForItem(selectedItem)}
+      entry={selectedItem.library.entry}
+      fallbackFreshness={freshnessForItem(selectedItem)}
+      {loadDetails}
+      {saveEntry}
+      {deleteEntry}
+      onLibraryChanged={handleLibraryChanged}
+      onClose={closeDetails}
+    />
+  {/if}
 </div>

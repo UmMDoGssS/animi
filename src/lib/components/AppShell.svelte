@@ -211,6 +211,9 @@
           <HomePage
             loadAiring={p5Services.loadAiring}
             advanceProgress={p5Services.advanceProgress}
+            loadDetails={p4Services.loadDetails}
+            saveEntry={p4Services.saveEntry}
+            deleteEntry={p4Services.deleteEntry}
             refreshIntervalMs={p5Services.refreshIntervalMs}
             openDiscovery={() => selectView("discovery")}
           />
