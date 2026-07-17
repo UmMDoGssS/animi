@@ -43,7 +43,7 @@ Critical flow coverage includes Home airing and bounded quick progress, Discover
 ## Windows package expectations
 
 - Build with `bun run release:audit` followed by `bun run release:build`.
-- Smoke installation uses a temporary current-user directory and an isolated temporary `APPDATA` root so validation cannot open or change a real Animi profile.
+- Smoke installation uses a temporary current-user directory and the guarded `ANIMI_RELEASE_SMOKE=1` plus `ANIMI_RELEASE_SMOKE_DATA_DIR` startup override. Supplying the directory without the exact guard has no effect, while the paired values let packaged QA avoid opening or changing the normal Animi profile.
 - Launch must remain running without a startup panic. A second launch against the same isolated app-data root must preserve the database and settings paths.
 - Installing the same stable identity over an earlier build preserves `%APPDATA%\app.animi.desktop`; migrations run on first launch. Downgrades are refused.
 - NSIS uninstall removes installed program files and shortcuts. User-created application data under `%APPDATA%\app.animi.desktop` is intentionally retained for recovery or reinstallation and can be removed only through Animi's confirmed clear-data flow or an explicit manual action.
