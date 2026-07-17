@@ -85,6 +85,7 @@
   let libraryStatusFilter = $state<LibraryStatusFilter>("ALL");
   let librarySort = $state<LibrarySort>("UPDATED_DESC");
   let libraryPage = $state(1);
+  let libraryRail = $state<HTMLElement | null>(null);
 
   const selectedSummary = $derived.by<MediaSummary | null>(() => {
     if (selectedItem === null) {
@@ -206,6 +207,7 @@
 
   function resetLibraryPage(): void {
     libraryPage = 1;
+    resetLibraryScroll();
   }
 
   function changeLibraryStatusFilter(value: string): void {
@@ -230,14 +232,21 @@
     libraryQuery = "";
     libraryStatusFilter = "ALL";
     libraryPage = 1;
+    resetLibraryScroll();
   }
 
   function showPreviousLibraryPage(): void {
     libraryPage = Math.max(1, libraryPage - 1);
+    resetLibraryScroll();
   }
 
   function showNextLibraryPage(): void {
     libraryPage = Math.min(libraryPageCount, libraryPage + 1);
+    resetLibraryScroll();
+  }
+
+  function resetLibraryScroll(): void {
+    libraryRail?.scrollTo?.({ left: 0, behavior: "smooth" });
   }
 
   function summaryForItem(item: LibraryItem): MediaSummary {
@@ -1094,12 +1103,15 @@
             </div>
           {:else}
             <ul
+              bind:this={libraryRail}
               aria-label="Library index results"
-              class="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+              class="flex min-w-0 touch-pan-x snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth pb-3"
             >
               {#each visibleLibraryItems as item (item.entry.anilistId)}
                 {@const itemTitle = titleForItem(item)}
-                <li class="min-w-0">
+                <li
+                  class="w-[min(17rem,82vw)] min-w-0 shrink-0 snap-start sm:w-64"
+                >
                   <button
                     type="button"
                     aria-haspopup="dialog"

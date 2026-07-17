@@ -456,6 +456,8 @@ describe("DashboardPage", () => {
     const libraryIndex = await screen.findByRole("list", {
       name: "Library index results",
     });
+    const scrollTo = vi.fn();
+    libraryIndex.scrollTo = scrollTo;
     const pages = screen.getByRole("navigation", {
       name: "Library index pages",
     });
@@ -481,6 +483,11 @@ describe("DashboardPage", () => {
         );
 
     expect(within(libraryIndex).getAllByRole("listitem")).toHaveLength(5);
+    expect(libraryIndex).toHaveClass("overflow-x-auto", "snap-x");
+    expect(within(libraryIndex).getAllByRole("listitem")[0]).toHaveClass(
+      "shrink-0",
+      "snap-start",
+    );
     expect(visibleTitles()).toEqual([
       "Gamma Garden",
       "Foxtrot Fable",
@@ -493,6 +500,7 @@ describe("DashboardPage", () => {
     ).toBeDisabled();
 
     await user.click(within(pages).getByRole("button", { name: "next" }));
+    expect(scrollTo).toHaveBeenCalledWith({ left: 0, behavior: "smooth" });
     expect(visibleTitles()).toEqual(["Bravo Brigade", "Alpha Archive"]);
     expect(pages).toHaveTextContent(/page\s*2\s*of\s*2/i);
     expect(within(pages).getByRole("button", { name: "next" })).toBeDisabled();

@@ -115,6 +115,8 @@ describe("HomePage", () => {
         name: "Airing anime",
       });
       expect(carousel).toHaveAttribute("aria-roledescription", "carousel");
+      expect(carousel).toHaveClass("overflow-x-auto", "snap-x");
+      expect(within(carousel).getAllByRole("group")).toHaveLength(3);
       expect(
         within(carousel).getByRole("group", {
           name: /1 of 3: Moonlit Post Office/i,
@@ -135,9 +137,14 @@ describe("HomePage", () => {
       item(2, "Signal Lost at 2AM", 3, null),
     ]);
     render(HomePage, props);
-    await screen.findByRole("region", { name: "Airing anime" });
+    const carousel = await screen.findByRole("region", {
+      name: "Airing anime",
+    });
+    const scrollTo = vi.fn();
+    carousel.scrollTo = scrollTo;
 
     await user.click(screen.getByRole("button", { name: "Next anime" }));
+    expect(scrollTo).toHaveBeenCalledWith({ left: 0, behavior: "smooth" });
     const unknown = screen.getByRole("group", {
       name: /2 of 2: Signal Lost at 2AM/i,
     });
@@ -160,6 +167,37 @@ describe("HomePage", () => {
     expect(
       screen.getByRole("group", { name: /1 of 2: Moonlit Post Office/i }),
     ).toBeInTheDocument();
+  });
+
+  it("keeps the selected slide in sync with horizontal scrolling", async () => {
+    const props = homeProps([
+      item(1, "Moonlit Post Office", 8, 9),
+      item(2, "Signal Lost at 2AM", 3, null),
+    ]);
+    render(HomePage, props);
+
+    const carousel = await screen.findByRole("region", {
+      name: "Airing anime",
+    });
+    const slides = within(carousel).getAllByRole("group");
+    vi.spyOn(carousel, "getBoundingClientRect").mockReturnValue({
+      left: 0,
+    } as DOMRect);
+    vi.spyOn(slides[0]!, "getBoundingClientRect").mockReturnValue({
+      left: -320,
+    } as DOMRect);
+    vi.spyOn(slides[1]!, "getBoundingClientRect").mockReturnValue({
+      left: 0,
+    } as DOMRect);
+    Object.defineProperty(carousel, "scrollLeft", {
+      configurable: true,
+      value: 320,
+    });
+
+    await fireEvent.scroll(carousel);
+
+    expect(slides[1]).toHaveAttribute("aria-current", "true");
+    expect(screen.getByText(/02 \/\/ 02/)).toBeInTheDocument();
   });
 
   it("labels finished anime and uses total progress for the quick action", async () => {

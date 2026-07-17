@@ -39,6 +39,7 @@
   let advancingError = $state<CommandError | null>(null);
   let advancingId = $state<number | null>(null);
   let selectedIndex = $state(0);
+  let carouselRail = $state<HTMLElement | null>(null);
   let now = $state(Date.now());
   let refreshTimer: ReturnType<typeof setInterval> | null = null;
   let clockTimer: ReturnType<typeof setInterval> | null = null;
@@ -107,14 +108,56 @@
     }
   }
 
-  function selectedItem(): HomeAiringItem | null {
-    return items[selectedIndex] ?? null;
-  }
-
   function selectSlide(index: number): void {
     if (items.length === 0) return;
     selectedIndex = (index + items.length) % items.length;
     advancingError = null;
+    const slide = carouselRail?.querySelector<HTMLElement>(
+      `[data-carousel-index="${selectedIndex}"]`,
+    );
+    const left =
+      carouselRail && slide
+        ? slide.getBoundingClientRect().left -
+          carouselRail.getBoundingClientRect().left +
+          carouselRail.scrollLeft
+        : 0;
+    carouselRail?.scrollTo?.({
+      left,
+      behavior: "smooth",
+    });
+  }
+
+  function handleCarouselScroll(): void {
+    if (carouselRail === null) return;
+    const railBounds = carouselRail.getBoundingClientRect();
+    const scrollLeft = carouselRail.scrollLeft;
+    const slides = [
+      ...carouselRail.querySelectorAll<HTMLElement>("[data-carousel-index]"),
+    ];
+    const closestSlide = slides.reduce<HTMLElement | null>((closest, slide) => {
+      if (closest === null) return slide;
+      const slideLeft =
+        slide.getBoundingClientRect().left - railBounds.left + scrollLeft;
+      const closestLeft =
+        closest.getBoundingClientRect().left - railBounds.left + scrollLeft;
+      return Math.abs(slideLeft - scrollLeft) <
+        Math.abs(closestLeft - scrollLeft)
+        ? slide
+        : closest;
+    }, null);
+    const index = Number(closestSlide?.dataset.carouselIndex);
+    if (Number.isInteger(index) && index !== selectedIndex) {
+      selectedIndex = index;
+      advancingError = null;
+    }
+  }
+
+  function syncCarouselSelection(rail: HTMLElement): { destroy: () => void } {
+    const handleScroll = () => handleCarouselScroll();
+    rail.addEventListener("scroll", handleScroll, { passive: true });
+    return {
+      destroy: () => rail.removeEventListener("scroll", handleScroll),
+    };
   }
 
   function handleCarouselKeydown(event: KeyboardEvent): void {
@@ -320,18 +363,27 @@
         </div>
       </div>
 
-      {@const item = selectedItem()}
-      {#if item}
-        <div
-          role="region"
-          aria-roledescription="carousel"
-          aria-label="Airing anime"
-        >
+      <p id="airing-carousel-instructions" class="sr-only">
+        Scroll horizontally to browse anime. Use the arrow keys, previous and
+        next buttons, or slide selectors to move between titles.
+      </p>
+      <div
+        bind:this={carouselRail}
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Airing anime"
+        aria-describedby="airing-carousel-instructions"
+        class="flex min-w-0 touch-pan-x snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-3"
+        use:syncCarouselSelection
+      >
+        {#each items as item, index (item.library.entry.anilistId)}
           <article
             role="group"
             aria-roledescription="slide"
-            aria-label={`${selectedIndex + 1} of ${items.length}: ${title(item)}`}
-            class="glass-control control-rounded border-border grid min-w-0 gap-5 border p-4 sm:grid-cols-[11rem_minmax(0,1fr)] sm:p-5 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-7 lg:p-6"
+            aria-label={`${index + 1} of ${items.length}: ${title(item)}`}
+            aria-current={selectedIndex === index ? "true" : undefined}
+            data-carousel-index={index}
+            class="glass-control control-rounded border-border grid w-full min-w-full shrink-0 snap-start gap-5 border p-4 sm:grid-cols-[11rem_minmax(0,1fr)] sm:p-5 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-7 lg:p-6"
           >
             <div class="mx-auto w-36 sm:w-full">
               <MediaCover
@@ -443,39 +495,39 @@
               </div>
             </div>
           </article>
-          {#if advancingError}
-            <div class="mt-3">
-              <AsyncStateNotice
-                status="error"
-                title="Progress was not changed"
-                error={advancingError}
-                compact
-              />
-            </div>
-          {/if}
-          <div class="mt-3 flex items-center justify-center gap-1">
-            {#each items as carouselItem, index (carouselItem.library.entry.anilistId)}
-              <button
-                type="button"
-                aria-label={`Show ${title(carouselItem)}`}
-                aria-current={selectedIndex === index ? "true" : undefined}
-                class="control-rounded grid size-10 place-items-center"
-                onclick={() => selectSlide(index)}
-                onkeydown={handleCarouselKeydown}
-              >
-                <span
-                  aria-hidden="true"
-                  class="control-rounded border-border h-1.5 border transition-[width,background-color]"
-                  class:bg-accent={selectedIndex === index}
-                  class:bg-glass-control={selectedIndex !== index}
-                  class:w-8={selectedIndex === index}
-                  class:w-3={selectedIndex !== index}
-                ></span>
-              </button>
-            {/each}
-          </div>
+        {/each}
+      </div>
+      {#if advancingError}
+        <div class="mt-3">
+          <AsyncStateNotice
+            status="error"
+            title="Progress was not changed"
+            error={advancingError}
+            compact
+          />
         </div>
       {/if}
+      <div class="mt-1 flex items-center justify-center gap-1">
+        {#each items as carouselItem, index (carouselItem.library.entry.anilistId)}
+          <button
+            type="button"
+            aria-label={`Show ${title(carouselItem)}`}
+            aria-current={selectedIndex === index ? "true" : undefined}
+            class="control-rounded grid size-10 place-items-center"
+            onclick={() => selectSlide(index)}
+            onkeydown={handleCarouselKeydown}
+          >
+            <span
+              aria-hidden="true"
+              class="control-rounded border-border h-1.5 border transition-[width,background-color]"
+              class:bg-accent={selectedIndex === index}
+              class:bg-glass-control={selectedIndex !== index}
+              class:w-8={selectedIndex === index}
+              class:w-3={selectedIndex !== index}
+            ></span>
+          </button>
+        {/each}
+      </div>
       {#if loadError}
         <div class="mt-4">
           <AsyncStateNotice
