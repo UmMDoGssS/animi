@@ -49,7 +49,6 @@
   type LibrarySort =
     "UPDATED_DESC" | "TITLE_ASC" | "PROGRESS_DESC" | "SCORE_DESC";
 
-  const libraryPageSize = 5;
   const libraryStatusOptions = [
     { value: "ALL", label: "All statuses" },
     { value: "WATCHING", label: "Watching" },
@@ -84,7 +83,6 @@
   let libraryQuery = $state("");
   let libraryStatusFilter = $state<LibraryStatusFilter>("ALL");
   let librarySort = $state<LibrarySort>("UPDATED_DESC");
-  let libraryPage = $state(1);
   let libraryRail = $state<HTMLElement | null>(null);
 
   const selectedSummary = $derived.by<MediaSummary | null>(() => {
@@ -109,32 +107,9 @@
     return [...matchingItems].sort(compareLibraryItems);
   });
 
-  const libraryPageCount = $derived(
-    Math.max(1, Math.ceil(filteredLibraryItems.length / libraryPageSize)),
-  );
-  const visibleLibraryItems = $derived(
-    filteredLibraryItems.slice(
-      (libraryPage - 1) * libraryPageSize,
-      libraryPage * libraryPageSize,
-    ),
-  );
-  const libraryResultStart = $derived(
-    filteredLibraryItems.length === 0
-      ? 0
-      : (libraryPage - 1) * libraryPageSize + 1,
-  );
-  const libraryResultEnd = $derived(
-    Math.min(libraryPage * libraryPageSize, filteredLibraryItems.length),
-  );
   const libraryFiltersActive = $derived(
     libraryQuery.trim().length > 0 || libraryStatusFilter !== "ALL",
   );
-
-  $effect(() => {
-    if (libraryPage > libraryPageCount) {
-      libraryPage = libraryPageCount;
-    }
-  });
 
   onMount(() => {
     void loadDashboard();
@@ -205,18 +180,13 @@
     );
   }
 
-  function resetLibraryPage(): void {
-    libraryPage = 1;
-    resetLibraryScroll();
-  }
-
   function changeLibraryStatusFilter(value: string): void {
     const option = libraryStatusOptions.find(
       (candidate) => candidate.value === value,
     );
     if (!option) return;
     libraryStatusFilter = option.value;
-    resetLibraryPage();
+    resetLibraryScroll();
   }
 
   function changeLibrarySort(value: string): void {
@@ -225,23 +195,12 @@
     );
     if (!option) return;
     librarySort = option.value;
-    resetLibraryPage();
+    resetLibraryScroll();
   }
 
   function resetLibraryFilters(): void {
     libraryQuery = "";
     libraryStatusFilter = "ALL";
-    libraryPage = 1;
-    resetLibraryScroll();
-  }
-
-  function showPreviousLibraryPage(): void {
-    libraryPage = Math.max(1, libraryPage - 1);
-    resetLibraryScroll();
-  }
-
-  function showNextLibraryPage(): void {
-    libraryPage = Math.min(libraryPageCount, libraryPage + 1);
     resetLibraryScroll();
   }
 
@@ -1025,7 +984,7 @@
                 type="search"
                 placeholder="Title or AniList ID"
                 bind:value={libraryQuery}
-                oninput={resetLibraryPage}
+                oninput={resetLibraryScroll}
                 class="glass-control control-rounded border-border text-foreground placeholder:text-muted min-h-10 w-full min-w-0 border px-3 py-2 text-sm outline-none"
               />
             </label>
@@ -1072,15 +1031,11 @@
 
           <div class="flex flex-wrap items-center justify-between gap-2">
             <p class="text-muted text-xs leading-5" aria-live="polite">
-              Showing
-              <span class="text-foreground tabular-nums"
-                >{libraryResultStart}–{libraryResultEnd}</span
-              >
-              of
               <span class="text-foreground tabular-nums"
                 >{filteredLibraryItems.length}</span
               >
-              matching {filteredLibraryItems.length === 1 ? "title" : "titles"}.
+              matching {filteredLibraryItems.length === 1 ? "title" : "titles"}
+              shown.
             </p>
           </div>
 
@@ -1109,9 +1064,9 @@
             <ul
               bind:this={libraryRail}
               aria-label="Library index results"
-              class="scrollbar-hidden flex min-w-0 touch-pan-x snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth pb-3"
+              class="flex min-w-0 touch-pan-x snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth pb-3"
             >
-              {#each visibleLibraryItems as item (item.entry.anilistId)}
+              {#each filteredLibraryItems as item (item.entry.anilistId)}
                 {@const itemTitle = titleForItem(item)}
                 <li
                   class="w-[min(18rem,84vw)] min-w-0 shrink-0 snap-start sm:w-72"
@@ -1183,35 +1138,6 @@
                 </li>
               {/each}
             </ul>
-
-            <nav
-              aria-label="Library index pages"
-              class="border-border flex items-center justify-between gap-3 border-t pt-4"
-            >
-              <button
-                type="button"
-                class="glass-interactive control-rounded min-h-10 px-3 py-2 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-45"
-                disabled={libraryPage === 1}
-                onclick={showPreviousLibraryPage}
-              >
-                previous
-              </button>
-              <p
-                class="text-muted text-xs tracking-[0.08em] tabular-nums"
-                aria-live="polite"
-              >
-                page <span class="text-foreground">{libraryPage}</span> of
-                <span class="text-foreground">{libraryPageCount}</span>
-              </p>
-              <button
-                type="button"
-                class="glass-interactive control-rounded min-h-10 px-3 py-2 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-45"
-                disabled={libraryPage === libraryPageCount}
-                onclick={showNextLibraryPage}
-              >
-                next
-              </button>
-            </nav>
           {/if}
         </div>
       {/if}

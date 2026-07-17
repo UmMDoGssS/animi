@@ -224,7 +224,7 @@ function indexedItem(
   };
 }
 
-const paginatedLibraryItems = [
+const indexedLibraryItems = [
   indexedItem(501, "Alpha Archive", "PLANNING", 0, null, 1),
   indexedItem(502, "Bravo Brigade", "COMPLETED", 12, 8, 2),
   indexedItem(503, "Charlie Chronicle", "WATCHING", 4, 7, 3),
@@ -234,9 +234,9 @@ const paginatedLibraryItems = [
   indexedItem(507, "Gamma Garden", "WATCHING", 8, 10, 7),
 ];
 
-const paginatedInsights: DashboardInsights = {
+const indexedInsights: DashboardInsights = {
   ...populatedInsights,
-  libraryItems: paginatedLibraryItems,
+  libraryItems: indexedLibraryItems,
   libraryTotals: {
     tracked: 7,
     watching: 3,
@@ -432,8 +432,8 @@ describe("DashboardPage", () => {
         expect(dropdown).toHaveAttribute("aria-expanded", "false");
       }
       expect(
-        screen.getByRole("navigation", { name: "Library index pages" }),
-      ).toHaveTextContent(/page\s*1\s*of\s*1/i);
+        screen.queryByRole("navigation", { name: "Library index pages" }),
+      ).not.toBeInTheDocument();
       expect(screen.getAllByText("AniList #404")).toHaveLength(2);
       expect(screen.getAllByText("episode total unknown")).toHaveLength(2);
       expect(screen.getByText(/score \/\/ 7 \/ 10/i)).toBeInTheDocument();
@@ -473,10 +473,10 @@ describe("DashboardPage", () => {
     expect(openDiscovery).toHaveBeenCalledOnce();
   });
 
-  it("paginates five titles and supports title, status, and sort controls", async () => {
+  it("continuously scrolls all titles and supports title, status, and sort controls", async () => {
     const user = userEvent.setup();
     render(DashboardPage, {
-      loadInsights: vi.fn().mockResolvedValue(paginatedInsights),
+      loadInsights: vi.fn().mockResolvedValue(indexedInsights),
       refreshMetadata: vi.fn(),
     });
 
@@ -485,9 +485,6 @@ describe("DashboardPage", () => {
     });
     const scrollTo = vi.fn();
     libraryIndex.scrollTo = scrollTo;
-    const pages = screen.getByRole("navigation", {
-      name: "Library index pages",
-    });
     const searchControls = screen.getByRole("search", {
       name: "Filter library index",
     });
@@ -509,12 +506,9 @@ describe("DashboardPage", () => {
             ?.replace("Open library details for ", ""),
         );
 
-    expect(within(libraryIndex).getAllByRole("listitem")).toHaveLength(5);
-    expect(libraryIndex).toHaveClass(
-      "overflow-x-auto",
-      "snap-x",
-      "scrollbar-hidden",
-    );
+    expect(within(libraryIndex).getAllByRole("listitem")).toHaveLength(7);
+    expect(libraryIndex).toHaveClass("overflow-x-auto", "snap-x");
+    expect(libraryIndex).not.toHaveClass("scrollbar-hidden");
     expect(within(libraryIndex).getAllByRole("listitem")[0]).toHaveClass(
       "shrink-0",
       "snap-start",
@@ -525,34 +519,24 @@ describe("DashboardPage", () => {
       "Echo Expedition",
       "Delta Dream",
       "Charlie Chronicle",
+      "Bravo Brigade",
+      "Alpha Archive",
     ]);
     expect(
-      within(pages).getByRole("button", { name: "previous" }),
-    ).toBeDisabled();
-
-    await user.click(within(pages).getByRole("button", { name: "next" }));
-    expect(scrollTo).toHaveBeenCalledWith({ left: 0, behavior: "smooth" });
-    expect(visibleTitles()).toEqual(["Bravo Brigade", "Alpha Archive"]);
-    expect(pages).toHaveTextContent(/page\s*2\s*of\s*2/i);
-    expect(within(pages).getByRole("button", { name: "next" })).toBeDisabled();
-    await user.click(within(pages).getByRole("button", { name: "previous" }));
-    expect(visibleTitles()).toEqual([
-      "Gamma Garden",
-      "Foxtrot Fable",
-      "Echo Expedition",
-      "Delta Dream",
-      "Charlie Chronicle",
-    ]);
+      screen.queryByRole("navigation", { name: "Library index pages" }),
+    ).not.toBeInTheDocument();
 
     await chooseOption("sort by", "Title A–Z");
+    expect(scrollTo).toHaveBeenCalledWith({ left: 0, behavior: "smooth" });
     expect(visibleTitles()).toEqual([
       "Alpha Archive",
       "Bravo Brigade",
       "Charlie Chronicle",
       "Delta Dream",
       "Echo Expedition",
+      "Foxtrot Fable",
+      "Gamma Garden",
     ]);
-    expect(pages).toHaveTextContent(/page\s*1\s*of\s*2/i);
 
     await chooseOption("status", "Watching");
     expect(visibleTitles()).toEqual([
@@ -567,7 +551,7 @@ describe("DashboardPage", () => {
     );
     expect(visibleTitles()).toEqual(["Gamma Garden"]);
     expect(screen.getByText(/matching title/i).closest("p")).toHaveTextContent(
-      /Showing\s*1–1\s*of\s*1\s*matching title/i,
+      /1\s*matching title shown/i,
     );
 
     await user.clear(
@@ -587,7 +571,7 @@ describe("DashboardPage", () => {
       within(
         screen.getByRole("list", { name: "Library index results" }),
       ).getAllByRole("listitem"),
-    ).toHaveLength(5);
+    ).toHaveLength(7);
 
     await chooseOption("sort by", "Most progress");
     expect(visibleTitles()).toEqual([
@@ -596,6 +580,8 @@ describe("DashboardPage", () => {
       "Gamma Garden",
       "Foxtrot Fable",
       "Charlie Chronicle",
+      "Alpha Archive",
+      "Delta Dream",
     ]);
 
     await chooseOption("sort by", "Highest score");
@@ -605,6 +591,8 @@ describe("DashboardPage", () => {
       "Bravo Brigade",
       "Charlie Chronicle",
       "Delta Dream",
+      "Alpha Archive",
+      "Foxtrot Fable",
     ]);
   });
 
