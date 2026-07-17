@@ -38,7 +38,7 @@ Critical flow coverage includes Home airing and bounded quick progress, Discover
 - The main window capability grants only `core:default`. Backup dialogs are invoked by Rust through the registered dialog plugin; no frontend filesystem permission is exposed.
 - Production CSP denies objects and frames, limits scripts/fonts/styles to packaged content, permits IPC only for connections, and permits HTTPS only for cover images.
 - The installer is current-user NSIS, blocks downgrades, embeds no updater, and skips bundling WebView2 because WebView2 is an explicit prerequisite.
-- The source-controlled icon is an Animi-specific cat mark with restrained rainbow whiskers, generated into every Windows icon size and visually checked at 32 px and 512 px.
+- The source-controlled icon is an Animi-specific neutral cat mark framed by a circular rainbow, generated into every Windows icon size and visually checked at 32 px and 512 px.
 
 ## Windows package expectations
 
