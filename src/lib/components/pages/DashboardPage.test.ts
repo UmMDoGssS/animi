@@ -400,6 +400,17 @@ describe("DashboardPage", () => {
         name: "Library index results",
       });
       expect(within(libraryIndex).getAllByRole("listitem")).toHaveLength(4);
+      const libraryCard = within(libraryIndex).getByRole("button", {
+        name: "Open library details for Paper Cranes at Dawn",
+      });
+      const libraryCover = within(libraryCard).getByRole("img", {
+        name: "Cover artwork for Paper Cranes at Dawn",
+      });
+      expect(libraryCover.parentElement).toHaveClass("h-full");
+      expect(libraryCover.parentElement?.parentElement).toHaveClass(
+        "min-h-[5.625rem]",
+        "self-stretch",
+      );
       expect(
         screen.getByRole("searchbox", { name: "find a title" }),
       ).toBeInTheDocument();

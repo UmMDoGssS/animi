@@ -1135,10 +1135,13 @@
                         ? "No personal score."
                         : `Personal score ${item.entry.score} out of 10.`}
                     </span>
-                    <div class="w-[3.75rem] shrink-0">
+                    <div
+                      class="min-h-[5.625rem] w-[3.75rem] shrink-0 self-stretch"
+                    >
                       <MediaCover
                         title={itemTitle}
                         coverUrl={item.media?.coverUrl ?? null}
+                        fill
                       />
                     </div>
 
