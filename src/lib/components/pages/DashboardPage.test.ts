@@ -392,6 +392,9 @@ describe("DashboardPage", () => {
         screen.getByRole("searchbox", { name: "find a title" }),
       ).toBeInTheDocument();
       expect(
+        screen.getByRole("search", { name: "Filter library index" }),
+      ).toHaveClass("relative", "z-20");
+      expect(
         screen.getByRole("combobox", { name: "status" }),
       ).toHaveTextContent("All statuses");
       expect(

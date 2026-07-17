@@ -1072,7 +1072,7 @@
           <div
             role="search"
             aria-label="Filter library index"
-            class="glass-control control-rounded border-border grid min-w-0 gap-3 border p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-[minmax(15rem,1fr)_minmax(10rem,0.45fr)_minmax(11rem,0.55fr)_auto] lg:items-end"
+            class="glass-control control-rounded border-border relative z-20 grid min-w-0 gap-3 border p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-[minmax(15rem,1fr)_minmax(10rem,0.45fr)_minmax(11rem,0.55fr)_auto] lg:items-end"
           >
             <label class="grid min-w-0 gap-1.5">
               <span
