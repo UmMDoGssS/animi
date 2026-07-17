@@ -185,6 +185,24 @@ a {
     var(--control-shadow);
 }
 
+.glass-select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: var(--surface-sunken);
+  color: var(--text);
+}
+
+.glass-select option {
+  background-color: var(--surface-raised);
+  color: var(--text);
+  font-weight: 300;
+}
+
+.glass-select option:checked {
+  background-color: var(--accent);
+  color: var(--on-accent);
+}
+
 .glass-interactive:hover {
   background: var(--overlay);
 }

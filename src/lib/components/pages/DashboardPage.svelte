@@ -1064,16 +1064,30 @@
               >
                 status
               </span>
-              <select
-                bind:value={libraryStatusFilter}
-                onchange={resetLibraryPage}
-                class="glass-control control-rounded border-border text-foreground min-h-10 w-full min-w-0 border px-3 py-2 text-sm outline-none"
-              >
-                <option value="ALL">All statuses</option>
-                <option value="WATCHING">Watching</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="PLANNING">Planning</option>
-              </select>
+              <span class="relative block min-w-0">
+                <select
+                  bind:value={libraryStatusFilter}
+                  onchange={resetLibraryPage}
+                  class="glass-control glass-select glass-interactive control-rounded border-border text-foreground min-h-10 w-full min-w-0 cursor-pointer border py-2 pr-10 pl-3 text-sm transition-colors outline-none"
+                >
+                  <option value="ALL">All statuses</option>
+                  <option value="WATCHING">Watching</option>
+                  <option value="COMPLETED">Completed</option>
+                  <option value="PLANNING">Planning</option>
+                </select>
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="text-accent pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2"
+                >
+                  <path d="m7 9.5 5 5 5-5" />
+                </svg>
+              </span>
             </label>
 
             <label class="grid min-w-0 gap-1.5">
@@ -1082,16 +1096,30 @@
               >
                 sort by
               </span>
-              <select
-                bind:value={librarySort}
-                onchange={resetLibraryPage}
-                class="glass-control control-rounded border-border text-foreground min-h-10 w-full min-w-0 border px-3 py-2 text-sm outline-none"
-              >
-                <option value="UPDATED_DESC">Recently updated</option>
-                <option value="TITLE_ASC">Title A–Z</option>
-                <option value="PROGRESS_DESC">Most progress</option>
-                <option value="SCORE_DESC">Highest score</option>
-              </select>
+              <span class="relative block min-w-0">
+                <select
+                  bind:value={librarySort}
+                  onchange={resetLibraryPage}
+                  class="glass-control glass-select glass-interactive control-rounded border-border text-foreground min-h-10 w-full min-w-0 cursor-pointer border py-2 pr-10 pl-3 text-sm transition-colors outline-none"
+                >
+                  <option value="UPDATED_DESC">Recently updated</option>
+                  <option value="TITLE_ASC">Title A–Z</option>
+                  <option value="PROGRESS_DESC">Most progress</option>
+                  <option value="SCORE_DESC">Highest score</option>
+                </select>
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="text-accent pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2"
+                >
+                  <path d="m7 9.5 5 5 5-5" />
+                </svg>
+              </span>
             </label>
 
             <button

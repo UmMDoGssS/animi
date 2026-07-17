@@ -397,6 +397,14 @@ describe("DashboardPage", () => {
       expect(screen.getByRole("combobox", { name: "sort by" })).toHaveValue(
         "UPDATED_DESC",
       );
+      for (const dropdown of screen.getAllByRole("combobox")) {
+        expect(dropdown).toHaveClass(
+          "glass-select",
+          "glass-interactive",
+          "cursor-pointer",
+          "pr-10",
+        );
+      }
       expect(
         screen.getByRole("navigation", { name: "Library index pages" }),
       ).toHaveTextContent(/page\s*1\s*of\s*1/i);
