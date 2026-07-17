@@ -483,7 +483,11 @@ describe("DashboardPage", () => {
         );
 
     expect(within(libraryIndex).getAllByRole("listitem")).toHaveLength(5);
-    expect(libraryIndex).toHaveClass("overflow-x-auto", "snap-x");
+    expect(libraryIndex).toHaveClass(
+      "overflow-x-auto",
+      "snap-x",
+      "scrollbar-hidden",
+    );
     expect(within(libraryIndex).getAllByRole("listitem")[0]).toHaveClass(
       "shrink-0",
       "snap-start",

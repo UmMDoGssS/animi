@@ -373,7 +373,7 @@
         aria-roledescription="carousel"
         aria-label="Airing anime"
         aria-describedby="airing-carousel-instructions"
-        class="flex min-w-0 touch-pan-x snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-3"
+        class="scrollbar-hidden flex min-w-0 touch-pan-x snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-3"
         use:syncCarouselSelection
       >
         {#each items as item, index (item.library.entry.anilistId)}

@@ -115,7 +115,11 @@ describe("HomePage", () => {
         name: "Airing anime",
       });
       expect(carousel).toHaveAttribute("aria-roledescription", "carousel");
-      expect(carousel).toHaveClass("overflow-x-auto", "snap-x");
+      expect(carousel).toHaveClass(
+        "overflow-x-auto",
+        "snap-x",
+        "scrollbar-hidden",
+      );
       expect(within(carousel).getAllByRole("group")).toHaveLength(3);
       expect(
         within(carousel).getByRole("group", {

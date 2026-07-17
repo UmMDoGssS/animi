@@ -156,6 +156,16 @@ body {
   background-clip: content-box;
 }
 
+/* Cover rails keep native scrolling without adding persistent platform chrome. */
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
 html.has-modal {
   overflow: hidden;
 }
