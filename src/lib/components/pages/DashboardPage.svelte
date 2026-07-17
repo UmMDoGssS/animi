@@ -31,7 +31,6 @@
   import GlassSelect from "../GlassSelect.svelte";
   import MediaCover from "../MediaCover.svelte";
   import MediaDetailsDialog from "../MediaDetailsDialog.svelte";
-  import PageHeader from "../PageHeader.svelte";
 
   interface Props {
     loadInsights?: () => Promise<DashboardInsights>;
@@ -527,11 +526,7 @@
   tabindex="0"
   class="grid min-w-0 gap-4 pb-8 sm:gap-5"
 >
-  <PageHeader
-    eyebrow="Local ledger // what Animi remembers"
-    title="Dashboard"
-    description="Read your authoritative local library, preference coverage, and recorded progress history without sending it anywhere."
-  />
+  <h1 class="sr-only">Dashboard</h1>
 
   {#if loading && insights === null}
     <AsyncStateNotice

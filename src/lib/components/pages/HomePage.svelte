@@ -16,7 +16,6 @@
 
   import AsyncStateNotice from "../AsyncStateNotice.svelte";
   import MediaCover from "../MediaCover.svelte";
-  import PageHeader from "../PageHeader.svelte";
 
   interface Props {
     loadAiring?: () => Promise<HomeAiringResponse>;
@@ -207,11 +206,7 @@
   tabindex="0"
   class="grid min-w-0 gap-4 pb-8 sm:gap-5"
 >
-  <PageHeader
-    eyebrow="Today // your airing desk"
-    title="Home"
-    description="Keep the week in view, catch the episodes that slipped past, and log one more without leaving your queue."
-  />
+  <h1 class="sr-only">Home</h1>
 
   <section
     aria-labelledby="airing-queue-heading"

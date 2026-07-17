@@ -33,7 +33,6 @@
   import AsyncStateNotice from "../AsyncStateNotice.svelte";
   import MediaCover from "../MediaCover.svelte";
   import MediaDetailsDialog from "../MediaDetailsDialog.svelte";
-  import PageHeader from "../PageHeader.svelte";
 
   interface Props {
     loadTrending?: (request: MediaPageRequest) => Promise<MediaPageResponse>;
@@ -340,11 +339,7 @@
   tabindex="0"
   class="grid min-w-0 gap-4 pb-8 sm:gap-5"
 >
-  <PageHeader
-    eyebrow="catalog // find your next signal"
-    title="Discover"
-    description="Search AniList, browse what is trending, and keep your private library on this device."
-  />
+  <h1 class="sr-only">Discover</h1>
 
   {#if libraryError}
     <AsyncStateNotice

@@ -14,7 +14,6 @@
     ThemePreference,
   } from "$lib/ipc/types";
 
-  import PageHeader from "../PageHeader.svelte";
   import ThemePreferenceControl from "../ThemePreferenceControl.svelte";
 
   const CLEAR_CONFIRMATION = "CLEAR MY LOCAL DATA";
@@ -179,11 +178,7 @@
   tabindex="0"
   class="grid min-w-0 gap-4 pb-8 sm:gap-5"
 >
-  <PageHeader
-    eyebrow="Local config // nothing leaves this device"
-    title="Settings"
-    description="Set the palette, inspect local cache freshness, and keep a recovery copy of the state that belongs to you."
-  />
+  <h1 class="sr-only">Settings</h1>
 
   <aside
     role="note"

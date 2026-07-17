@@ -27,9 +27,9 @@
   function handleKeydown(event: KeyboardEvent, index: number) {
     let nextIndex: number | null = null;
 
-    if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+    if (event.key === "ArrowRight") {
       nextIndex = (index + 1) % navigationItems.length;
-    } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+    } else if (event.key === "ArrowLeft") {
       nextIndex = (index - 1 + navigationItems.length) % navigationItems.length;
     } else if (event.key === "Home") {
       nextIndex = 0;
@@ -47,14 +47,14 @@
 </script>
 
 <div
-  class="glass-panel control-group border-border flex w-14 flex-col items-center border px-1.5 py-2.5"
+  class="glass-panel control-group border-border flex items-center border p-1.5"
 >
-  <nav aria-label="Primary navigation" class="w-full">
+  <nav aria-label="Primary navigation">
     <div
       role="tablist"
       aria-label="Primary pages"
-      aria-orientation="vertical"
-      class="grid justify-items-center gap-2"
+      aria-orientation="horizontal"
+      class="flex items-center gap-1"
     >
       {#each navigationItems as item, index (item.id)}
         <button
@@ -66,14 +66,14 @@
           aria-selected={activeView === item.id}
           aria-controls={`${item.id}-panel`}
           tabindex={activeView === item.id ? 0 : -1}
-          class="glass-control glass-interactive glass-tab control-rounded group text-muted hover:text-foreground relative grid size-10 place-items-center transition-colors"
+          class="glass-control glass-interactive glass-tab control-rounded text-muted hover:text-foreground flex h-10 items-center justify-center gap-2 px-2.5 transition-colors sm:px-3"
           onclick={() => selectView(item.id)}
           onkeydown={(event) => handleKeydown(event, index)}
         >
           <NavigationIcon name={item.icon} />
           <span
             aria-hidden="true"
-            class="glass-control control-rounded border-border text-foreground pointer-events-none absolute top-1/2 left-[calc(100%+0.75rem)] z-40 translate-x-1 -translate-y-1/2 border px-2.5 py-1.5 text-xs font-medium whitespace-nowrap opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100"
+            class="relative -top-px hidden text-xs leading-none font-medium sm:inline"
           >
             {item.label}
           </span>

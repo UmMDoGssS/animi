@@ -133,7 +133,7 @@ describe("AppShell", () => {
       expect(tabs).toHaveLength(4);
       expect(
         screen.getByRole("tablist", { name: "Primary pages" }),
-      ).toHaveAttribute("aria-orientation", "vertical");
+      ).toHaveAttribute("aria-orientation", "horizontal");
       expect(screen.getByRole("tab", { name: "Home" })).toHaveAttribute(
         "aria-selected",
         "true",
@@ -158,16 +158,21 @@ describe("AppShell", () => {
       ).toHaveAttribute("href", "#main-content");
       expect(screen.getByRole("main")).toHaveAttribute("tabindex", "-1");
       expect(
-        screen.getByRole("complementary", {
+        screen.getByRole("banner", { name: "Application header" }),
+      ).toHaveClass("justify-between");
+      expect(
+        screen.getByRole("banner", { name: "Application header" }),
+      ).not.toHaveClass("sticky", "fixed");
+      expect(
+        screen.queryByRole("complementary", {
           name: "Primary navigation rail",
         }),
-      ).toHaveClass(
-        "top-2",
-        "h-[calc(100dvh-1rem)]",
-        "self-start",
-        "sm:top-4",
-        "sm:h-[calc(100dvh-2rem)]",
-      );
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(
+          "Keep the week in view, catch the episodes that slipped past, and log one more without leaving your queue.",
+        ),
+      ).not.toBeInTheDocument();
 
       for (const destination of ["Discover", "Dashboard", "Settings"]) {
         await fireEvent.click(screen.getByRole("tab", { name: destination }));
@@ -197,7 +202,7 @@ describe("AppShell", () => {
     expect(discoverTab).toHaveAttribute("tabindex", "-1");
     homeTab.focus();
 
-    await user.keyboard("{ArrowDown}");
+    await user.keyboard("{ArrowRight}");
     await waitFor(() => expect(discoverTab).toHaveFocus());
     expect(discoverTab).toHaveAttribute("aria-selected", "true");
     expect(

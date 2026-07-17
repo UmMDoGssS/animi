@@ -196,31 +196,27 @@
     <BackgroundCat />
   </div>
 
-  <div
-    class="relative mx-auto grid min-h-screen max-w-[96rem] grid-cols-[3.5rem_minmax(0,1fr)] gap-2 p-2 sm:gap-3 sm:p-4"
-  >
-    <aside
-      aria-label="Primary navigation rail"
-      class="sticky top-2 z-30 flex h-[calc(100dvh-1rem)] items-center self-start py-2 sm:top-4 sm:h-[calc(100dvh-2rem)] sm:py-4"
-    >
-      <AppNavigation {activeView} {selectView} />
-    </aside>
-
+  <div class="relative mx-auto min-h-screen max-w-[96rem] p-2 sm:p-4">
     <div class="min-w-0">
-      <header class="flex min-h-20 items-center px-2 py-3 sm:min-h-24 sm:px-3">
+      <header
+        aria-label="Application header"
+        class="flex min-h-16 items-center justify-between gap-3 px-2 py-2 sm:min-h-20 sm:px-3"
+      >
         <div class="min-w-0">
           <p
             class="text-foreground truncate text-lg font-light tracking-[0.18em]"
           >
             animi
           </p>
-          <p class="text-muted truncate text-xs tracking-wide">
+          <p class="text-muted hidden truncate text-xs tracking-wide sm:block">
             Your quiet anime corner
           </p>
         </div>
+
+        <AppNavigation {activeView} {selectView} />
       </header>
 
-      <main id="main-content" tabindex="-1" class="min-w-0 px-1 sm:px-3">
+      <main id="main-content" tabindex="-1" class="min-w-0 px-1 pt-2 sm:px-3">
         <div hidden={activeView !== "home"}>
           <HomePage
             loadAiring={p5Services.loadAiring}
