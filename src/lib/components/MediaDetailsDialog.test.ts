@@ -337,8 +337,11 @@ describe("MediaDetailsDialog", () => {
     expect(
       await screen.findByRole("heading", { name: "Edit library entry" }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("Episodes watched")).toHaveValue("3");
-    expect(screen.getByLabelText(/personal score/i)).toHaveValue("8.5");
+    expect(screen.queryByText("Library")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("slider", { name: "Episodes watched" }),
+    ).toHaveValue("3");
+    expect(screen.getByText("8.5 / 10")).toBeInTheDocument();
     expect(screen.getByLabelText(/private notes/i)).toHaveValue(
       existingEntry.notes,
     );

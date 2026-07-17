@@ -57,16 +57,24 @@ describe("LibraryEntryEditor", () => {
       screen.getByRole("heading", { name: "Add to your library" }),
     ).toBeInTheDocument();
     expect(screen.getByText(/episode total is unknown/i)).toHaveTextContent(
-      /still record progress/i,
+      /slider, arrow keys, or step buttons/i,
     );
     expect(
       screen.queryByRole("button", { name: "Remove from library" }),
     ).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("radio", { name: /watching/i }));
-    await user.clear(screen.getByLabelText("Episodes watched"));
-    await user.type(screen.getByLabelText("Episodes watched"), "14");
-    await user.type(screen.getByLabelText(/personal score/i), "9.25");
+    await fireEvent.input(
+      screen.getByRole("slider", { name: "Episodes watched" }),
+      {
+        target: { value: "14" },
+      },
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: "Set personal score to 9 out of 10",
+      }),
+    );
     await user.type(
       screen.getByLabelText(/private notes/i),
       "Unknown total, known favorite.",
@@ -78,15 +86,13 @@ describe("LibraryEntryEditor", () => {
       mediaKind: "ANIME",
       status: "WATCHING",
       progress: 14,
-      score: 9.25,
+      score: 9,
       notes: "Unknown total, known favorite.",
     });
     expect(onSaved).toHaveBeenCalledWith(
-      expect.objectContaining({ progress: 14, score: 9.25 }),
+      expect.objectContaining({ progress: 14, score: 9 }),
     );
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "Added to your library.",
-    );
+    expect(screen.getByText("Added to your library.")).toBeInTheDocument();
   });
 
   it("renders existing values and updates every editable field", async () => {
@@ -105,18 +111,33 @@ describe("LibraryEntryEditor", () => {
     expect(
       screen.getByRole("heading", { name: "Edit library entry" }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("Episodes watched")).toHaveValue("3");
-    expect(screen.getByLabelText(/personal score/i)).toHaveValue("8.5");
+    expect(
+      screen.getByRole("slider", { name: "Episodes watched" }),
+    ).toHaveValue("3");
+    const scoreGroup = screen.getByRole("group", { name: "Personal score" });
+    expect(
+      within(scoreGroup)
+        .getByRole("button", { name: "Set personal score to 9 out of 10" })
+        .querySelector(".star-fill"),
+    ).toHaveStyle({ width: "50%" });
+    expect(screen.getByText("8.5 / 10")).toBeInTheDocument();
     expect(screen.getByLabelText(/private notes/i)).toHaveValue(
       "Quietly excellent.",
     );
     expect(screen.getByText(/known episode total: 28/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole("radio", { name: /completed/i }));
-    await user.clear(screen.getByLabelText("Episodes watched"));
-    await user.type(screen.getByLabelText("Episodes watched"), "28");
-    await user.clear(screen.getByLabelText(/personal score/i));
-    await user.type(screen.getByLabelText(/personal score/i), "10");
+    await fireEvent.input(
+      screen.getByRole("slider", { name: "Episodes watched" }),
+      {
+        target: { value: "28" },
+      },
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: "Set personal score to 10 out of 10",
+      }),
+    );
     await user.clear(screen.getByLabelText(/private notes/i));
     await user.type(screen.getByLabelText(/private notes/i), "A keeper.");
     await user.click(screen.getByRole("button", { name: "Save changes" }));
@@ -132,7 +153,7 @@ describe("LibraryEntryEditor", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Changes saved.");
   });
 
-  it("keeps malformed drafts visible and reports every client-side error", async () => {
+  it("keeps slider and star drafts visible when notes validation fails", async () => {
     const user = userEvent.setup();
     const saveEntry = vi.fn();
     const oversizedNotes = "n".repeat(10_001);
@@ -144,34 +165,29 @@ describe("LibraryEntryEditor", () => {
       saveEntry,
     });
 
-    const progress = screen.getByLabelText("Episodes watched");
-    const score = screen.getByLabelText(/personal score/i);
+    const progress = screen.getByRole("slider", { name: "Episodes watched" });
     const notes = screen.getByLabelText(/private notes/i);
-    await user.clear(progress);
-    await user.type(progress, "2.5");
-    await user.clear(score);
-    await user.type(score, "eleven");
+    await fireEvent.input(progress, { target: { value: "11" } });
+    await user.click(
+      screen.getByRole("button", {
+        name: "Set personal score to 6 out of 10",
+      }),
+    );
     await fireEvent.input(notes, { target: { value: oversizedNotes } });
     await user.click(screen.getByRole("button", { name: "Save changes" }));
 
     expect(saveEntry).not.toHaveBeenCalled();
-    expect(progress).toHaveValue("2.5");
-    expect(score).toHaveValue("eleven");
+    expect(progress).toHaveValue("11");
+    expect(screen.getByText("6 / 10")).toBeInTheDocument();
     expect(notes).toHaveValue(oversizedNotes);
-    expect(progress).toHaveAttribute("aria-invalid", "true");
-    expect(score).toHaveAttribute("aria-invalid", "true");
     expect(notes).toHaveAttribute("aria-invalid", "true");
-    expect(
-      screen.getByText("Enter progress as a non-negative whole number."),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/score from 0 to 10/i)).toBeInTheDocument();
     expect(screen.getByText(/cannot exceed 10,000/i)).toBeInTheDocument();
     expect(screen.getByRole("alert")).toHaveTextContent(
       /your other edits are still here/i,
     );
   });
 
-  it("enforces a known episode bound without changing the draft", async () => {
+  it("bounds the episode slider and step controls by the known total", async () => {
     const user = userEvent.setup();
     const saveEntry = vi.fn();
 
@@ -182,16 +198,17 @@ describe("LibraryEntryEditor", () => {
       saveEntry,
     });
 
-    const progress = screen.getByLabelText("Episodes watched");
-    await user.clear(progress);
-    await user.type(progress, "13");
+    const progress = screen.getByRole("slider", { name: "Episodes watched" });
+    expect(progress).toHaveAttribute("max", "12");
+    await fireEvent.input(progress, { target: { value: "12" } });
+    expect(
+      screen.getByRole("button", { name: "Increase episodes watched" }),
+    ).toBeDisabled();
     await user.click(screen.getByRole("button", { name: "Save changes" }));
 
-    expect(saveEntry).not.toHaveBeenCalled();
-    expect(progress).toHaveValue("13");
-    expect(
-      screen.getByText(/cannot exceed the known total of 12/i),
-    ).toBeInTheDocument();
+    expect(saveEntry).toHaveBeenCalledWith(
+      expect.objectContaining({ progress: 12 }),
+    );
   });
 
   it("shows a structured backend error without discarding any edits", async () => {
@@ -211,10 +228,17 @@ describe("LibraryEntryEditor", () => {
     });
 
     await user.click(screen.getByRole("radio", { name: /planning/i }));
-    await user.clear(screen.getByLabelText("Episodes watched"));
-    await user.type(screen.getByLabelText("Episodes watched"), "7");
-    await user.clear(screen.getByLabelText(/personal score/i));
-    await user.type(screen.getByLabelText(/personal score/i), "7.75");
+    await fireEvent.input(
+      screen.getByRole("slider", { name: "Episodes watched" }),
+      {
+        target: { value: "7" },
+      },
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: "Set personal score to 7 out of 10",
+      }),
+    );
     await user.clear(screen.getByLabelText(/private notes/i));
     await user.type(
       screen.getByLabelText(/private notes/i),
@@ -227,8 +251,10 @@ describe("LibraryEntryEditor", () => {
     expect(alert).not.toHaveTextContent("DATABASE_UNAVAILABLE");
     expect(alert).toHaveTextContent("The local library could not be saved.");
     expect(screen.getByRole("radio", { name: /planning/i })).toBeChecked();
-    expect(screen.getByLabelText("Episodes watched")).toHaveValue("7");
-    expect(screen.getByLabelText(/personal score/i)).toHaveValue("7.75");
+    expect(
+      screen.getByRole("slider", { name: "Episodes watched" }),
+    ).toHaveValue("7");
+    expect(screen.getByText("7 / 10")).toBeInTheDocument();
     expect(screen.getByLabelText(/private notes/i)).toHaveValue(
       "Keep this draft.",
     );

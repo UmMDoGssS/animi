@@ -29,7 +29,6 @@
 
   interface FieldErrors {
     progress?: string;
-    score?: string;
     notes?: string;
   }
 
@@ -42,7 +41,9 @@
   type FailedOperation = "save" | "remove";
 
   const MAX_PROGRESS = 2_147_483_647;
+  const DEFAULT_UNKNOWN_PROGRESS_MAXIMUM = 2_000;
   const MAX_NOTES_CHARACTERS = 10_000;
+  const scoreOptions = Array.from({ length: 10 }, (_, index) => index + 1);
   const statusOptions: readonly {
     value: LibraryStatus;
     label: string;
@@ -76,8 +77,9 @@
   }: Props = $props();
 
   let statusDraft = $state<LibraryStatus>("PLANNING");
-  let progressDraft = $state("0");
-  let scoreDraft = $state("");
+  let progressDraft = $state(0);
+  let scoreDraft = $state<number | null>(null);
+  let unknownProgressMaximum = $state(DEFAULT_UNKNOWN_PROGRESS_MAXIMUM);
   let notesDraft = $state("");
   let fieldErrors = $state<FieldErrors>({});
   let operationError = $state<CommandError | null>(null);
@@ -93,8 +95,6 @@
   let headingId = $derived(`${fieldIdPrefix}-heading`);
   let progressHelpId = $derived(`${fieldIdPrefix}-progress-help`);
   let progressErrorId = $derived(`${fieldIdPrefix}-progress-error`);
-  let scoreHelpId = $derived(`${fieldIdPrefix}-score-help`);
-  let scoreErrorId = $derived(`${fieldIdPrefix}-score-error`);
   let notesHelpId = $derived(`${fieldIdPrefix}-notes-help`);
   let notesErrorId = $derived(`${fieldIdPrefix}-notes-error`);
   let removalConfirmationId = $derived(`${fieldIdPrefix}-removal-confirmation`);
@@ -104,11 +104,13 @@
 
   let notesCharacterCount = $derived(Array.from(notesDraft).length);
   let hasValidationErrors = $derived(
-    fieldErrors.progress !== undefined ||
-      fieldErrors.score !== undefined ||
-      fieldErrors.notes !== undefined,
+    fieldErrors.progress !== undefined || fieldErrors.notes !== undefined,
   );
   let isBusy = $derived(busyOperation !== "idle");
+  let progressMaximum = $derived(knownTotal ?? unknownProgressMaximum);
+  let progressFill = $derived(
+    progressMaximum === 0 ? 0 : (progressDraft / progressMaximum) * 100,
+  );
 
   $effect.pre(() => {
     const nextDraftSource = `${anilistId}:${entry?.updatedAt ?? "new"}`;
@@ -118,8 +120,12 @@
 
     initializedDraftSource = nextDraftSource;
     statusDraft = entry?.status ?? "PLANNING";
-    progressDraft = entry?.progress.toString() ?? "0";
-    scoreDraft = entry?.score?.toString() ?? "";
+    progressDraft = entry?.progress ?? 0;
+    scoreDraft = entry?.score ?? null;
+    unknownProgressMaximum = Math.max(
+      DEFAULT_UNKNOWN_PROGRESS_MAXIMUM,
+      entry?.progress ?? 0,
+    );
     notesDraft = entry?.notes ?? "";
     fieldErrors = {};
     operationError = null;
@@ -140,29 +146,15 @@
 
   function validateDrafts(): ValidatedDrafts | null {
     const nextErrors: FieldErrors = {};
-    const trimmedProgress = progressDraft.trim();
-    let progress = Number.NaN;
+    const progress = Number(progressDraft);
 
-    if (!/^\d+$/.test(trimmedProgress)) {
+    if (!Number.isSafeInteger(progress) || progress < 0) {
       nextErrors.progress = "Enter progress as a non-negative whole number.";
-    } else {
-      progress = Number(trimmedProgress);
-      if (!Number.isSafeInteger(progress) || progress > MAX_PROGRESS) {
-        nextErrors.progress =
-          "Enter a non-negative whole number within Animi's supported range.";
-      } else if (knownTotal !== null && progress > knownTotal) {
-        nextErrors.progress = `Progress cannot exceed the known total of ${knownTotal} episodes.`;
-      }
-    }
-
-    const trimmedScore = scoreDraft.trim();
-    let score: number | null = null;
-    if (trimmedScore.length > 0) {
-      score = Number(trimmedScore);
-      if (!Number.isFinite(score) || score < 0 || score > 10) {
-        nextErrors.score =
-          "Enter a score from 0 to 10, or leave this field blank.";
-      }
+    } else if (progress > MAX_PROGRESS) {
+      nextErrors.progress =
+        "Enter a non-negative whole number within Animi's supported range.";
+    } else if (knownTotal !== null && progress > knownTotal) {
+      nextErrors.progress = `Progress cannot exceed the known total of ${knownTotal} episodes.`;
     }
 
     if (notesCharacterCount > MAX_NOTES_CHARACTERS) {
@@ -174,15 +166,37 @@
     failedOperation = null;
     successMessage = null;
 
-    if (
-      nextErrors.progress !== undefined ||
-      nextErrors.score !== undefined ||
-      nextErrors.notes !== undefined
-    ) {
+    if (nextErrors.progress !== undefined || nextErrors.notes !== undefined) {
       return null;
     }
 
-    return { progress, score };
+    return { progress, score: scoreDraft };
+  }
+
+  function updateProgress(value: string): void {
+    progressDraft = Number(value);
+    clearFeedback("progress");
+  }
+
+  function adjustProgress(delta: number): void {
+    const nextProgress = Math.max(
+      0,
+      Math.min(knownTotal ?? MAX_PROGRESS, progressDraft + delta),
+    );
+    if (knownTotal === null && nextProgress > unknownProgressMaximum) {
+      unknownProgressMaximum = nextProgress;
+    }
+    progressDraft = nextProgress;
+    clearFeedback("progress");
+  }
+
+  function setScore(score: number | null): void {
+    scoreDraft = score;
+    clearFeedback();
+  }
+
+  function starFill(star: number): number {
+    return Math.max(0, Math.min(1, (scoreDraft ?? 0) - (star - 1)));
   }
 
   async function submitEntry(event: SubmitEvent): Promise<void> {
@@ -315,31 +329,60 @@
 
       <div class="grid min-w-0 gap-4 sm:grid-cols-2">
         <div class="min-w-0">
-          <label
-            for={`${fieldIdPrefix}-progress`}
-            class="text-foreground block text-sm font-medium"
+          <div class="flex items-center justify-between gap-3">
+            <label
+              for={`${fieldIdPrefix}-progress`}
+              class="text-foreground block text-sm font-medium"
+            >
+              Episodes watched
+            </label>
+            <span
+              class="glass-control control-rounded border-border text-foreground border px-2.5 py-1 text-xs tabular-nums"
+            >
+              {progressDraft}{knownTotal === null ? "" : ` / ${knownTotal}`}
+            </span>
+          </div>
+          <div
+            class="mt-3 grid grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center gap-2"
           >
-            Episodes watched
-          </label>
-          <input
-            id={`${fieldIdPrefix}-progress`}
-            type="text"
-            inputmode="numeric"
-            autocomplete="off"
-            bind:value={progressDraft}
-            aria-invalid={fieldErrors.progress ? "true" : undefined}
-            aria-describedby={`${progressHelpId}${fieldErrors.progress ? ` ${progressErrorId}` : ""}`}
-            class="glass-control control-rounded border-border text-foreground placeholder:text-muted mt-2 min-h-11 w-full min-w-0 border px-3 py-2 text-sm tabular-nums outline-none"
-            class:border-danger={fieldErrors.progress !== undefined}
-            oninput={() => clearFeedback("progress")}
-          />
+            <button
+              type="button"
+              aria-label="Decrease episodes watched"
+              class="glass-control glass-interactive control-rounded border-border text-foreground min-h-11 border text-lg disabled:cursor-not-allowed disabled:opacity-40"
+              disabled={progressDraft === 0}
+              onclick={() => adjustProgress(-1)}
+            >
+              −
+            </button>
+            <input
+              id={`${fieldIdPrefix}-progress`}
+              type="range"
+              min="0"
+              max={progressMaximum}
+              step="1"
+              value={progressDraft}
+              aria-invalid={fieldErrors.progress ? "true" : undefined}
+              aria-describedby={`${progressHelpId}${fieldErrors.progress ? ` ${progressErrorId}` : ""}`}
+              class="episode-slider w-full min-w-0 cursor-pointer"
+              style={`--progress-fill: ${progressFill}%`}
+              oninput={(event) => updateProgress(event.currentTarget.value)}
+            />
+            <button
+              type="button"
+              aria-label="Increase episodes watched"
+              class="glass-control glass-interactive control-rounded border-border text-foreground min-h-11 border text-lg disabled:cursor-not-allowed disabled:opacity-40"
+              disabled={knownTotal !== null && progressDraft === knownTotal}
+              onclick={() => adjustProgress(1)}
+            >
+              +
+            </button>
+          </div>
           <p id={progressHelpId} class="text-muted mt-2 text-xs leading-5">
             {#if knownTotal === null}
-              Episode total is unknown. You can still record progress with a
-              non-negative whole number.
+              Episode total is unknown. Use the slider, arrow keys, or step
+              buttons to record progress.
             {:else}
-              Known episode total: {knownTotal}. Progress must stay between 0
-              and {knownTotal}.
+              Known episode total: {knownTotal}.
             {/if}
           </p>
           {#if fieldErrors.progress}
@@ -350,34 +393,46 @@
         </div>
 
         <div class="min-w-0">
-          <label
-            for={`${fieldIdPrefix}-score`}
-            class="text-foreground block text-sm font-medium"
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-foreground text-sm font-medium">
+              Personal score
+              <span class="text-muted font-normal">(optional)</span>
+            </span>
+            <span class="text-warning text-xs tabular-nums" aria-live="polite">
+              {scoreDraft === null ? "Not rated" : `${scoreDraft} / 10`}
+            </span>
+          </div>
+          <div
+            role="group"
+            aria-label="Personal score"
+            class="score-stars mt-3 grid grid-cols-10 gap-0.5"
           >
-            Personal score <span class="text-muted font-normal">(optional)</span
-            >
-          </label>
-          <input
-            id={`${fieldIdPrefix}-score`}
-            type="text"
-            inputmode="decimal"
-            autocomplete="off"
-            bind:value={scoreDraft}
-            aria-invalid={fieldErrors.score ? "true" : undefined}
-            aria-describedby={`${scoreHelpId}${fieldErrors.score ? ` ${scoreErrorId}` : ""}`}
-            placeholder="0 to 10"
-            class="glass-control control-rounded border-border text-foreground placeholder:text-muted mt-2 min-h-11 w-full min-w-0 border px-3 py-2 text-sm tabular-nums outline-none"
-            class:border-danger={fieldErrors.score !== undefined}
-            oninput={() => clearFeedback("score")}
-          />
-          <p id={scoreHelpId} class="text-muted mt-2 text-xs leading-5">
-            Use any number from 0 to 10, or leave this blank.
-          </p>
-          {#if fieldErrors.score}
-            <p id={scoreErrorId} class="text-danger mt-1 text-xs leading-5">
-              {fieldErrors.score}
-            </p>
-          {/if}
+            {#each scoreOptions as score (score)}
+              <button
+                type="button"
+                aria-label={`Set personal score to ${score} out of 10`}
+                aria-pressed={scoreDraft === score}
+                class="star-button control-rounded relative grid min-h-10 min-w-0 place-items-center"
+                onclick={() => setScore(score)}
+              >
+                <span aria-hidden="true" class="star-shell">
+                  <span class="star-empty">☆</span>
+                  <span
+                    class="star-fill"
+                    style={`width: ${starFill(score) * 100}%`}>★</span
+                  >
+                </span>
+              </button>
+            {/each}
+          </div>
+          <button
+            type="button"
+            class="text-muted hover:text-warning mt-2 text-xs underline decoration-dotted underline-offset-4 disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={scoreDraft === null}
+            onclick={() => setScore(null)}
+          >
+            Clear rating
+          </button>
         </div>
       </div>
 
@@ -531,5 +586,65 @@
   .status-option:has(input:focus-visible) {
     outline: 2px solid var(--accent);
     outline-offset: 3px;
+  }
+
+  .episode-slider {
+    height: 0.5rem;
+    appearance: none;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      var(--accent) 0 var(--progress-fill),
+      var(--surface-sunken) var(--progress-fill) 100%
+    );
+    box-shadow: inset 0 0 0 1px var(--control-border);
+  }
+
+  .episode-slider::-webkit-slider-thumb {
+    width: 1.25rem;
+    height: 1.25rem;
+    appearance: none;
+    border: 2px solid var(--surface-raised);
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow:
+      0 0 0 1px var(--control-border),
+      var(--control-shadow);
+  }
+
+  .episode-slider::-moz-range-thumb {
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 2px solid var(--surface-raised);
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow:
+      0 0 0 1px var(--control-border),
+      var(--control-shadow);
+  }
+
+  .star-button:hover .star-empty,
+  .star-button:focus-visible .star-empty {
+    color: var(--warning);
+  }
+
+  .star-shell {
+    position: relative;
+    display: inline-block;
+    font-size: clamp(1.1rem, 4vw, 1.45rem);
+    line-height: 1;
+  }
+
+  .star-empty {
+    color: var(--text-muted);
+    transition: color 120ms ease;
+  }
+
+  .star-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    overflow: hidden;
+    color: var(--warning);
+    white-space: nowrap;
   }
 </style>

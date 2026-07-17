@@ -1,4 +1,10 @@
-import { render, screen, waitFor, within } from "@testing-library/svelte";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -277,16 +283,14 @@ describe("P4 discovery-to-library flow", () => {
       name: "Paper Cranes at Dawn",
     });
     await user.click(within(dialog).getByRole("radio", { name: /Watching/ }));
-    await user.clear(
-      within(dialog).getByRole("textbox", { name: "Episodes watched" }),
+    await fireEvent.input(
+      within(dialog).getByRole("slider", { name: "Episodes watched" }),
+      { target: { value: "3" } },
     );
-    await user.type(
-      within(dialog).getByRole("textbox", { name: "Episodes watched" }),
-      "3",
-    );
-    await user.type(
-      within(dialog).getByRole("textbox", { name: /Personal score/ }),
-      "8.5",
+    await user.click(
+      within(dialog).getByRole("button", {
+        name: "Set personal score to 8 out of 10",
+      }),
     );
     await user.type(
       within(dialog).getByRole("textbox", { name: /Private notes/ }),
@@ -295,9 +299,9 @@ describe("P4 discovery-to-library flow", () => {
     await user.click(
       within(dialog).getByRole("button", { name: "Add to library" }),
     );
-    expect(await within(dialog).findByRole("status")).toHaveTextContent(
-      /Added to your library/i,
-    );
+    expect(
+      await within(dialog).findByText(/Added to your library/i),
+    ).toBeInTheDocument();
     expect(state.activity).toHaveLength(0);
     await user.click(
       within(dialog).getByRole("button", { name: "Close details" }),
@@ -332,16 +336,15 @@ describe("P4 discovery-to-library flow", () => {
       name: "Paper Cranes at Dawn",
     });
     await user.click(within(dialog).getByRole("radio", { name: /Completed/ }));
-    const progress = within(dialog).getByRole("textbox", {
+    const progress = within(dialog).getByRole("slider", {
       name: "Episodes watched",
     });
-    await user.clear(progress);
-    await user.type(progress, "5");
-    const score = within(dialog).getByRole("textbox", {
-      name: /Personal score/,
-    });
-    await user.clear(score);
-    await user.type(score, "9");
+    await fireEvent.input(progress, { target: { value: "5" } });
+    await user.click(
+      within(dialog).getByRole("button", {
+        name: "Set personal score to 9 out of 10",
+      }),
+    );
     const notes = within(dialog).getByRole("textbox", {
       name: /Private notes/,
     });

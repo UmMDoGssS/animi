@@ -1,4 +1,10 @@
-import { render, screen, waitFor, within } from "@testing-library/svelte";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -739,11 +745,10 @@ describe("DashboardPage", () => {
       name: "Paper Cranes at Dawn",
     });
     await user.click(within(dialog).getByRole("radio", { name: /Completed/ }));
-    const progress = within(dialog).getByRole("textbox", {
+    const progress = within(dialog).getByRole("slider", {
       name: "Episodes watched",
     });
-    await user.clear(progress);
-    await user.type(progress, "5");
+    await fireEvent.input(progress, { target: { value: "5" } });
     await user.click(
       within(dialog).getByRole("button", { name: "Save changes" }),
     );

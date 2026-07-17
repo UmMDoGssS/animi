@@ -385,18 +385,7 @@
         {/if}
       </section>
 
-      <section aria-labelledby="local-tracking-heading">
-        <div class="flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h3
-              id="local-tracking-heading"
-              class="text-foreground text-lg font-light tracking-[0.03em]"
-            >
-              Library
-            </h3>
-          </div>
-        </div>
-
+      <section aria-label="Library editor">
         {#if libraryMessage && trackingError === null}
           <p
             role="status"
