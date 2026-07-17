@@ -68,7 +68,6 @@ export const semanticColorTokens = [
   "glass",
   "glass-control",
   "glass-select",
-  "accent-glass",
   "selection",
 ] as const;
 

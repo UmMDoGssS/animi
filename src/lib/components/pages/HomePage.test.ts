@@ -230,15 +230,21 @@ describe("HomePage", () => {
     expect(
       within(unfinished).getByText("2 episodes left to watch."),
     ).toBeInTheDocument();
-    expect(
-      within(unfinished).getByRole("button", { name: "watch ep 11" }),
-    ).toBeEnabled();
+    const watchNext = within(unfinished).getByRole("button", {
+      name: "watch ep 11",
+    });
+    expect(watchNext).toBeEnabled();
+    expect(watchNext).toHaveClass("glass-accent");
+    expect(watchNext).not.toHaveClass("glass-control");
 
     await user.click(screen.getByRole("button", { name: "Next anime" }));
     const complete = screen.getByRole("group", { name: /Complete Catnap/i });
-    expect(
-      within(complete).getByRole("button", { name: "all caught up" }),
-    ).toBeDisabled();
+    const caughtUp = within(complete).getByRole("button", {
+      name: "all caught up",
+    });
+    expect(caughtUp).toBeDisabled();
+    expect(caughtUp).toHaveClass("glass-control", "text-muted");
+    expect(caughtUp).not.toHaveClass("glass-accent", "opacity-55");
   });
 
   it("persists bounded catch-up progress through the quick command", async () => {

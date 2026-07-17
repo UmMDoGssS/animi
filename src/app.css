@@ -46,11 +46,6 @@
   --glass-select: rgb(230 233 239 / var(--glass-density));
   --glass-select-hover: rgb(204 208 218 / var(--glass-hover-density));
   --glass-highlight: rgb(255 255 255 / 68%);
-  --accent-glass: color-mix(
-    in srgb,
-    var(--accent) var(--glass-density),
-    transparent
-  );
   --selection: rgb(119 38 211 / 28%);
   --scrim: rgb(76 79 105 / 42%);
   --panel-shadow: 0 20px 60px rgb(76 79 105 / 10%);
@@ -109,11 +104,6 @@
   --glass-select: rgb(30 32 48 / var(--glass-density));
   --glass-select-hover: rgb(54 58 79 / var(--glass-hover-density));
   --glass-highlight: rgb(202 211 245 / 18%);
-  --accent-glass: color-mix(
-    in srgb,
-    var(--accent) var(--glass-density),
-    transparent
-  );
   --selection: rgb(198 160 246 / 34%);
   --scrim: rgb(17 17 27 / 62%);
   --panel-shadow: 0 20px 60px rgb(17 17 27 / 24%);
@@ -165,11 +155,6 @@
     --glass-select: rgb(30 32 48 / var(--glass-density));
     --glass-select-hover: rgb(54 58 79 / var(--glass-hover-density));
     --glass-highlight: rgb(202 211 245 / 18%);
-    --accent-glass: color-mix(
-      in srgb,
-      var(--accent) var(--glass-density),
-      transparent
-    );
     --selection: rgb(198 160 246 / 34%);
     --scrim: rgb(17 17 27 / 62%);
     --panel-shadow: 0 20px 60px rgb(17 17 27 / 24%);
@@ -298,11 +283,6 @@ a {
 
 .app-chrome[data-page] {
   --border: color-mix(in srgb, var(--accent) 46%, transparent);
-  --accent-glass: color-mix(
-    in srgb,
-    var(--accent) var(--glass-density),
-    transparent
-  );
   --selection: color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
@@ -410,7 +390,7 @@ a {
 
 .glass-tab[data-page][aria-selected="true"] {
   border-color: color-mix(in srgb, var(--tab-accent) 74%, transparent);
-  background: color-mix(in srgb, var(--tab-accent) 82%, transparent);
+  background: var(--tab-accent);
   color: var(--on-accent);
   box-shadow:
     inset 0 1px 0 var(--glass-highlight),
@@ -466,17 +446,6 @@ a {
 
   .glass-interactive:hover {
     background: var(--glass-control-hover);
-  }
-
-  .glass-accent,
-  .glass-tab[aria-selected="true"] {
-    background: var(--accent-glass);
-    -webkit-backdrop-filter: blur(14px) saturate(114%);
-    backdrop-filter: blur(14px) saturate(114%);
-  }
-
-  .glass-tab[data-page][aria-selected="true"] {
-    background: var(--accent-glass);
   }
 }
 

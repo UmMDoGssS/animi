@@ -489,7 +489,11 @@
                 <button
                   type="button"
                   disabled={!canAdvance(item) || advancingId !== null}
-                  class="glass-accent control-rounded w-full px-4 py-3 text-xs tracking-[0.06em] disabled:cursor-default disabled:opacity-55 sm:w-fit sm:min-w-60"
+                  class="control-rounded w-full px-4 py-3 text-xs tracking-[0.06em] disabled:cursor-default sm:w-fit sm:min-w-60"
+                  class:glass-accent={canAdvance(item)}
+                  class:glass-control={!canAdvance(item)}
+                  class:text-muted={!canAdvance(item)}
+                  class:opacity-55={canAdvance(item) && advancingId !== null}
                   onclick={() => markNextWatched(item)}
                 >
                   {advancingId === item.library.entry.anilistId

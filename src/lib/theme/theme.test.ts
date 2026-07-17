@@ -129,11 +129,18 @@ describe("theme contract", () => {
       expect(tokenValue(block, token)).toContain("var(--glass-density)");
     }
 
-    expect(tokenValue(block, "accent-glass")).toContain("var(--glass-density)");
-
     const density = Number.parseFloat(tokenValue(block, "glass-density"));
     expect(density).toBeGreaterThanOrEqual(50);
     expect(density).toBeLessThanOrEqual(55);
+  });
+
+  it("keeps colored action and selected navigation fills fully opaque", () => {
+    const accentAction = cssBlock(".glass-accent,");
+    const selectedTab = cssBlock('.glass-tab[data-page][aria-selected="true"]');
+
+    expect(accentAction).toContain("background: var(--accent);");
+    expect(selectedTab).toContain("background: var(--tab-accent);");
+    expect(appStyles).not.toContain("--accent-glass:");
   });
 
   it("defines the askew Catppuccin rainbow as a decorative shell layer", () => {
