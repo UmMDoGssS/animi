@@ -1006,14 +1006,10 @@ mod tests {
             .expect("persisted enriched library");
         assert_eq!(persisted[0].entry, first[0].entry);
         assert_eq!(persisted[0].media, first[0].media);
-        assert!(
-            reopened
-                .activity()
-                .list()
-                .await
-                .expect("activity")
-                .is_empty()
-        );
+        let activity = reopened.activity().list().await.expect("activity");
+        assert_eq!(activity.len(), 1);
+        assert_eq!(activity[0].progress_delta, 3);
+        assert_eq!(activity[0].episode_duration_minutes, Some(24));
 
         let error = remove_library_entry_with_database(
             &reopened,

@@ -126,11 +126,12 @@ impl LibraryRepository {
         .await
         .map_err(map_database_error)?;
 
-        // A new entry establishes a baseline. Later activity records only progress beyond the
-        // already-recorded high-water mark, so correcting and then restoring progress does not
-        // double count an episode or rewrite the append-only history.
-        if let Some(progress_delta) = previous_activity_progress
-            .and_then(|previous| entry.progress.checked_sub(previous))
+        // Saving nonzero progress is an explicit record that those episodes were watched, even
+        // for a new entry. The high-water mark still prevents corrections and later restores
+        // from double-counting episodes or rewriting the append-only history.
+        if let Some(progress_delta) = entry
+            .progress
+            .checked_sub(previous_activity_progress.unwrap_or(0))
             .filter(|delta| *delta > 0)
         {
             sqlx::query(
@@ -564,7 +565,10 @@ mod tests {
             .expect("episode 12");
         assert_eq!(advanced.progress, 12);
         assert_eq!(advanced.updated_at, "2026-07-17T08:00:00.000Z");
-        assert_eq!(database.activity().list().await.expect("activity").len(), 1);
+        let activity = database.activity().list().await.expect("activity");
+        assert_eq!(activity.len(), 2);
+        assert_eq!(activity[0].progress_delta, 1);
+        assert_eq!(activity[1].progress_delta, 11);
         let error = repository
             .advance_home_progress_at(1, now)
             .await
@@ -573,7 +577,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn activity_records_only_existing_positive_progress_increases() {
+    async fn activity_records_initial_progress_and_later_positive_increases() {
         let root = tempdir().expect("temporary database root");
         let paths = DatabasePaths::from_root(root.path()).expect("valid paths");
         let database = Database::connect(&paths).await.expect("database");
@@ -590,15 +594,12 @@ mod tests {
                 "2026-07-16T08:00:00Z".parse().expect("baseline time"),
             )
             .await
-            .expect("initial baseline");
-        assert!(
-            database
-                .activity()
-                .list()
-                .await
-                .expect("activity")
-                .is_empty()
-        );
+            .expect("initial progress");
+        let initial_activity = database.activity().list().await.expect("activity");
+        assert_eq!(initial_activity.len(), 1);
+        assert_eq!(initial_activity[0].progress_delta, 3);
+        assert_eq!(initial_activity[0].episode_duration_minutes, Some(24));
+        assert_eq!(initial_activity[0].occurred_at, "2026-07-16T08:00:00.000Z");
 
         repository
             .upsert_at(
@@ -651,13 +652,14 @@ mod tests {
             .expect("progress correction");
 
         let activity = database.activity().list().await.expect("activity");
-        assert_eq!(activity.len(), 2);
+        assert_eq!(activity.len(), 3);
         assert_eq!(activity[0].progress_delta, 1);
         assert_eq!(activity[0].episode_duration_minutes, Some(25));
         assert_eq!(activity[0].occurred_at, "2026-07-16T09:45:00.000Z");
         assert_eq!(activity[1].progress_delta, 2);
         assert_eq!(activity[1].episode_duration_minutes, Some(24));
         assert_eq!(activity[1].occurred_at, "2026-07-16T09:00:00.000Z");
+        assert_eq!(activity[2], initial_activity[0]);
 
         let before_invalid = repository.list().await.expect("library before invalid");
         let invalid_error = repository
@@ -669,7 +671,7 @@ mod tests {
             .expect_err("known total should reject invalid progress");
         assert_eq!(invalid_error.code, "PROGRESS_EXCEEDS_TOTAL");
         assert_eq!(repository.list().await.expect("library"), before_invalid);
-        assert_eq!(database.activity().list().await.expect("activity").len(), 2);
+        assert_eq!(database.activity().list().await.expect("activity").len(), 3);
 
         assert!(
             repository
@@ -677,7 +679,7 @@ mod tests {
                 .await
                 .expect("remove entry")
         );
-        assert_eq!(database.activity().list().await.expect("retained").len(), 2);
+        assert_eq!(database.activity().list().await.expect("retained").len(), 3);
     }
 
     #[tokio::test]
@@ -693,18 +695,11 @@ mod tests {
             .expect("snapshot");
         repository
             .upsert_at(
-                request(0, LibraryStatus::Watching),
+                request(2, LibraryStatus::Watching),
                 "2026-07-16T08:00:00Z".parse().expect("baseline time"),
             )
             .await
-            .expect("baseline");
-        repository
-            .upsert_at(
-                request(2, LibraryStatus::Watching),
-                "2026-07-16T09:00:00Z".parse().expect("increase time"),
-            )
-            .await
-            .expect("increase");
+            .expect("initial progress");
 
         let activity = database.activity().list().await.expect("activity");
         assert_eq!(activity[0].progress_delta, 2);
@@ -719,7 +714,7 @@ mod tests {
         let repository = database.library();
         repository
             .upsert_at(
-                request(1, LibraryStatus::Watching),
+                request(0, LibraryStatus::Watching),
                 "2026-07-16T08:00:00Z".parse().expect("baseline time"),
             )
             .await

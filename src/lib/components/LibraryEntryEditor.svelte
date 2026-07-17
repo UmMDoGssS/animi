@@ -380,9 +380,11 @@
           <p id={progressHelpId} class="text-muted mt-2 text-xs leading-5">
             {#if knownTotal === null}
               Episode total is unknown. Use the slider, arrow keys, or step
-              buttons to record progress.
+              buttons to record progress. Saving nonzero progress adds those
+              episodes to your watch history.
             {:else}
-              Known episode total: {knownTotal}.
+              Known episode total: {knownTotal}. Saving nonzero progress adds
+              those episodes to your watch history.
             {/if}
           </p>
           {#if fieldErrors.progress}

@@ -182,15 +182,16 @@ function createStatefulP4Services() {
   const saveEntry = vi.fn(
     async (request: UpsertLibraryEntryRequest): Promise<LibraryEntry> => {
       const previous = localEntry;
-      if (previous === null) {
-        activityHighWater = request.progress;
-      } else if (request.progress > activityHighWater) {
-        activity.push({
+      if (request.progress > activityHighWater) {
+        activity.unshift({
           anilistId: request.anilistId,
           mediaKind: "ANIME",
           progressDelta: request.progress - activityHighWater,
           episodeDurationMinutes: media.durationMinutes,
-          occurredAt: "2026-07-17T10:00:00.000Z",
+          occurredAt:
+            previous === null
+              ? "2026-07-17T08:30:00.000Z"
+              : "2026-07-17T10:00:00.000Z",
         });
         activityHighWater = request.progress;
       }
@@ -255,7 +256,7 @@ function createStatefulP4Services() {
 }
 
 describe("P4 discovery-to-library flow", () => {
-  it("persists edits across a restart, records only later progress, works from cache offline, and confirms removal", async () => {
+  it("persists edits across a restart, records initial and later progress, works from cache offline, and confirms removal", async () => {
     const user = userEvent.setup();
     const state = createStatefulP4Services();
     const shellProps = {
@@ -302,7 +303,8 @@ describe("P4 discovery-to-library flow", () => {
     expect(
       await within(dialog).findByText(/Added to your library/i),
     ).toBeInTheDocument();
-    expect(state.activity).toHaveLength(0);
+    expect(state.activity).toHaveLength(1);
+    expect(state.activity[0]?.progressDelta).toBe(3);
     await user.click(
       within(dialog).getByRole("button", { name: "Close details" }),
     );
@@ -318,10 +320,11 @@ describe("P4 discovery-to-library flow", () => {
     expect(libraryIndex).toHaveTextContent(/Paper Cranes at Dawn/);
     expect(libraryIndex).toHaveTextContent(/3 \/ 12 eps/);
     expect(
-      screen.getByRole("heading", {
-        name: "Your watch history is empty.",
-      }),
-    ).toBeInTheDocument();
+      screen.getByRole("group", { name: "Recorded activity summary" }),
+    ).toHaveTextContent(/recorded episodes\s*3/i);
+    expect(
+      screen.getByRole("list", { name: "Recent recorded progress events" }),
+    ).toHaveTextContent(/\+3 episodes.*1h 12m/i);
 
     await user.click(screen.getByRole("tab", { name: "Discover" }));
     const trending = await screen.findByRole("list", {
@@ -353,8 +356,9 @@ describe("P4 discovery-to-library flow", () => {
     await user.click(
       within(dialog).getByRole("button", { name: "Save changes" }),
     );
-    await waitFor(() => expect(state.activity).toHaveLength(1));
+    await waitFor(() => expect(state.activity).toHaveLength(2));
     expect(state.activity[0]?.progressDelta).toBe(2);
+    expect(state.activity[1]?.progressDelta).toBe(3);
     await user.click(
       within(dialog).getByRole("button", { name: "Close details" }),
     );
@@ -368,7 +372,7 @@ describe("P4 discovery-to-library flow", () => {
     expect(updatedLibraryIndex).toHaveTextContent(/score \/\/ 9 \/ 10/i);
     expect(
       screen.getByRole("group", { name: "Recorded activity summary" }),
-    ).toHaveTextContent(/recorded episodes\s*2/i);
+    ).toHaveTextContent(/recorded episodes\s*5/i);
     expect(
       screen.getByRole("list", { name: "Recent recorded progress events" }),
     ).toHaveTextContent(/\+2 episodes.*48m/i);
@@ -408,6 +412,6 @@ describe("P4 discovery-to-library flow", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("group", { name: "Recorded activity summary" }),
-    ).toHaveTextContent(/updates\s*1/i);
+    ).toHaveTextContent(/updates\s*2/i);
   });
 });

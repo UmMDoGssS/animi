@@ -117,7 +117,7 @@ fn export_backup_crosses_the_real_camel_case_ipc_boundary() {
     assert_eq!(response["schemaVersion"], 1);
     assert_eq!(response["settingsCount"], 1);
     assert_eq!(response["libraryEntryCount"], 1);
-    assert_eq!(response["watchActivityCount"], 1);
+    assert_eq!(response["watchActivityCount"], 2);
     assert!(response.get("schema_version").is_none());
 
     let backup: Value =
@@ -126,8 +126,10 @@ fn export_backup_crosses_the_real_camel_case_ipc_boundary() {
     assert_eq!(backup["settings"][0]["value"], "MACCHIATO");
     assert_eq!(backup["libraryEntries"][0]["progress"], 3);
     assert_eq!(backup["libraryEntries"][0]["activityProgress"], 3);
-    assert_eq!(backup["watchActivity"][0]["progressDelta"], 1);
+    assert_eq!(backup["watchActivity"][0]["progressDelta"], 2);
+    assert_eq!(backup["watchActivity"][1]["progressDelta"], 1);
     assert!(backup["watchActivity"][0].get("eventId").is_some());
+    assert!(backup["watchActivity"][1].get("eventId").is_some());
 }
 
 #[test]
@@ -193,7 +195,7 @@ fn export_clear_preview_and_restore_cross_the_real_command_boundary() {
     invoke_ok(&webview, "upsert_library_entry", library_request(4));
     let exported = invoke_ok(&webview, "export_backup", json!({}));
     assert_eq!(exported["libraryEntryCount"], 1);
-    assert_eq!(exported["watchActivityCount"], 1);
+    assert_eq!(exported["watchActivityCount"], 2);
 
     let confirmation_error = invoke_error(
         &webview,
@@ -215,7 +217,7 @@ fn export_clear_preview_and_restore_cross_the_real_command_boundary() {
         json!({ "request": { "confirmation": "CLEAR MY LOCAL DATA" } }),
     );
     assert_eq!(cleared["libraryEntriesRemoved"], 1);
-    assert_eq!(cleared["watchActivityRemoved"], 1);
+    assert_eq!(cleared["watchActivityRemoved"], 2);
     assert_eq!(invoke_ok(&webview, "list_library", json!({})), json!([]));
     assert_eq!(
         invoke_ok(&webview, "get_theme_preference", json!({})),
@@ -228,7 +230,7 @@ fn export_clear_preview_and_restore_cross_the_real_command_boundary() {
     let preview = invoke_ok(&webview, "preview_import", json!({}));
     assert_eq!(preview["canApply"], true);
     assert_eq!(preview["changes"]["libraryAdded"], 1);
-    assert_eq!(preview["changes"]["activityAdded"], 1);
+    assert_eq!(preview["changes"]["activityAdded"], 2);
     assert_eq!(preview["preservesUnrelatedLocalEntries"], true);
     assert!(
         preview["validationErrors"]
@@ -256,7 +258,7 @@ fn export_clear_preview_and_restore_cross_the_real_command_boundary() {
 
     let repeated_preview = invoke_ok(&webview, "preview_import", json!({}));
     assert_eq!(repeated_preview["changes"]["activityAdded"], 0);
-    assert_eq!(repeated_preview["changes"]["activityUnchanged"], 1);
+    assert_eq!(repeated_preview["changes"]["activityUnchanged"], 2);
 }
 
 #[test]

@@ -199,9 +199,9 @@ fn p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network() {
     assert_eq!(dashboard["libraryTotals"]["tracked"], 1);
     assert_eq!(dashboard["libraryTotals"]["completed"], 1);
     assert_eq!(dashboard["libraryTotals"]["currentProgress"], 5);
-    assert_eq!(dashboard["activity"]["eventCount"], 1);
-    assert_eq!(dashboard["activity"]["recordedEpisodes"], 2);
-    assert_eq!(dashboard["activity"]["recordedMinutes"], 48);
+    assert_eq!(dashboard["activity"]["eventCount"], 2);
+    assert_eq!(dashboard["activity"]["recordedEpisodes"], 5);
+    assert_eq!(dashboard["activity"]["recordedMinutes"], 120);
     assert_eq!(dashboard["activity"]["events"][0]["progressDelta"], 2);
     assert_eq!(
         dashboard["activity"]["events"][0]["episodeDurationMinutes"],
@@ -221,7 +221,7 @@ fn p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network() {
     assert_eq!(before_restart[0]["entry"]["progress"], 5);
     assert_eq!(before_restart[0]["entry"]["score"], 9.0);
     assert_eq!(before_restart[0]["entry"]["notes"], "final local note");
-    assert_eq!(dashboard["activity"]["eventCount"], 1);
+    assert_eq!(dashboard["activity"]["eventCount"], 2);
 
     drop(webview);
     drop(app);
@@ -264,8 +264,8 @@ fn p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network() {
     let after_refresh = invoke_ok(&reopened_webview, "list_library", json!({}));
     assert_eq!(after_refresh[0]["entry"], persisted_entry);
     let refreshed_dashboard = invoke_ok(&reopened_webview, "get_dashboard_insights", json!({}));
-    assert_eq!(refreshed_dashboard["activity"]["eventCount"], 1);
-    assert_eq!(refreshed_dashboard["activity"]["recordedEpisodes"], 2);
+    assert_eq!(refreshed_dashboard["activity"]["eventCount"], 2);
+    assert_eq!(refreshed_dashboard["activity"]["recordedEpisodes"], 5);
 
     let unconfirmed = invoke_error(
         &reopened_webview,
@@ -308,8 +308,8 @@ fn p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network() {
 
     let after_removal = invoke_ok(&reopened_webview, "get_dashboard_insights", json!({}));
     assert_eq!(after_removal["libraryTotals"]["tracked"], 0);
-    assert_eq!(after_removal["activity"]["eventCount"], 1);
-    assert_eq!(after_removal["activity"]["recordedEpisodes"], 2);
+    assert_eq!(after_removal["activity"]["eventCount"], 2);
+    assert_eq!(after_removal["activity"]["recordedEpisodes"], 5);
     assert_eq!(after_removal["activity"]["events"][0]["anilistId"], 154_587);
 
     drop(reopened_webview);

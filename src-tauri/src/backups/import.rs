@@ -1262,7 +1262,7 @@ mod tests {
             .expect("preview");
         assert!(preview.can_apply);
         assert_eq!(preview.changes.library_added, 1);
-        assert_eq!(preview.changes.activity_added, 1);
+        assert_eq!(preview.changes.activity_added, 2);
         let result = import_backup(
             &target,
             &sessions,
@@ -1287,7 +1287,7 @@ mod tests {
         .await
         .expect("clear");
         assert_eq!(cleared.library_entries_removed, 1);
-        assert_eq!(cleared.watch_activity_removed, 1);
+        assert_eq!(cleared.watch_activity_removed, 2);
         assert!(
             target
                 .backups()

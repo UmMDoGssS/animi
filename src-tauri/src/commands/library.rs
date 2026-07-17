@@ -220,7 +220,7 @@ mod tests {
             .await
             .expect_err("episode total has been reached");
         assert_eq!(error.code, "PROGRESS_NOT_ADVANCEABLE");
-        assert_eq!(database.activity().list().await.expect("activity").len(), 2);
+        assert_eq!(database.activity().list().await.expect("activity").len(), 3);
     }
 
     #[tokio::test]

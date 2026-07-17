@@ -229,13 +229,13 @@ fn p5_home_recommendations_and_activity_cross_the_real_ipc_boundary() {
     );
 
     let dashboard = invoke_ok(&webview, "get_dashboard_insights", json!({}));
-    assert_eq!(dashboard["activity"]["recordedEpisodes"], 2);
-    assert_eq!(dashboard["activity"]["recordedMinutes"], 48);
+    assert_eq!(dashboard["activity"]["recordedEpisodes"], 15);
+    assert_eq!(dashboard["activity"]["recordedMinutes"], 360);
     assert_eq!(
         dashboard["activity"]["monthly"].as_array().unwrap().len(),
         12
     );
-    assert_eq!(dashboard["activity"]["yearly"][0]["recordedMinutes"], 48);
+    assert_eq!(dashboard["activity"]["yearly"][0]["recordedMinutes"], 360);
 
     drop(webview);
     drop(app);
