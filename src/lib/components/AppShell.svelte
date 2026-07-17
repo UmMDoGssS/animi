@@ -183,15 +183,7 @@
     aria-hidden="true"
     class="pointer-events-none fixed inset-0 overflow-hidden"
   >
-    <span
-      class="bg-accent absolute -top-24 left-[12%] size-[24rem] rounded-full opacity-[0.14] blur-[72px]"
-    ></span>
-    <span
-      class="bg-accent-strong absolute top-[38%] -right-28 size-[28rem] rounded-full opacity-[0.12] blur-[88px]"
-    ></span>
-    <span
-      class="bg-overlay absolute bottom-[-10rem] left-[24%] size-[22rem] rounded-full opacity-35 blur-[64px]"
-    ></span>
+    <span class="rainbow-band"></span>
   </div>
 
   <div class="relative mx-auto min-h-screen max-w-[96rem] p-2 sm:p-4">

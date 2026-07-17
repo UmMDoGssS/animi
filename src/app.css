@@ -29,15 +29,28 @@
   --page-dashboard-accent-strong: #174ea6;
   --page-settings-accent: #7726d3;
   --page-settings-accent-strong: #174ea6;
+  --rainbow-red: #d20f39;
+  --rainbow-peach: #fe640b;
+  --rainbow-yellow: #df8e1d;
+  --rainbow-green: #40a02b;
+  --rainbow-sky: #04a5e5;
+  --rainbow-blue: #1e66f5;
+  --rainbow-mauve: #8839ef;
   --border: rgb(119 38 211 / 48%);
   --control-border: #6c6f85;
-  --glass: rgb(239 241 245 / 50%);
-  --glass-control: rgb(255 255 255 / 22%);
-  --glass-control-hover: rgb(255 255 255 / 36%);
-  --glass-select: rgb(230 233 239 / 84%);
-  --glass-select-hover: rgb(204 208 218 / 94%);
+  --glass-density: 54%;
+  --glass-hover-density: 72%;
+  --glass: rgb(239 241 245 / var(--glass-density));
+  --glass-control: rgb(220 224 232 / var(--glass-density));
+  --glass-control-hover: rgb(204 208 218 / var(--glass-hover-density));
+  --glass-select: rgb(230 233 239 / var(--glass-density));
+  --glass-select-hover: rgb(204 208 218 / var(--glass-hover-density));
   --glass-highlight: rgb(255 255 255 / 68%);
-  --accent-glass: rgb(119 38 211 / 94%);
+  --accent-glass: color-mix(
+    in srgb,
+    var(--accent) var(--glass-density),
+    transparent
+  );
   --selection: rgb(119 38 211 / 28%);
   --scrim: rgb(76 79 105 / 42%);
   --panel-shadow: 0 20px 60px rgb(76 79 105 / 10%);
@@ -79,15 +92,28 @@
   --page-dashboard-accent-strong: #8aadf4;
   --page-settings-accent: #c6a0f6;
   --page-settings-accent-strong: #8aadf4;
+  --rainbow-red: #ed8796;
+  --rainbow-peach: #f5a97f;
+  --rainbow-yellow: #eed49f;
+  --rainbow-green: #a6da95;
+  --rainbow-sky: #91d7e3;
+  --rainbow-blue: #8aadf4;
+  --rainbow-mauve: #c6a0f6;
   --border: rgb(198 160 246 / 44%);
   --control-border: #6e738d;
-  --glass: rgb(36 39 58 / 52%);
-  --glass-control: rgb(54 58 79 / 28%);
-  --glass-control-hover: rgb(73 77 100 / 42%);
-  --glass-select: rgb(30 32 48 / 86%);
-  --glass-select-hover: rgb(54 58 79 / 95%);
+  --glass-density: 52%;
+  --glass-hover-density: 74%;
+  --glass: rgb(36 39 58 / var(--glass-density));
+  --glass-control: rgb(24 25 38 / var(--glass-density));
+  --glass-control-hover: rgb(54 58 79 / var(--glass-hover-density));
+  --glass-select: rgb(30 32 48 / var(--glass-density));
+  --glass-select-hover: rgb(54 58 79 / var(--glass-hover-density));
   --glass-highlight: rgb(202 211 245 / 18%);
-  --accent-glass: rgb(198 160 246 / 76%);
+  --accent-glass: color-mix(
+    in srgb,
+    var(--accent) var(--glass-density),
+    transparent
+  );
   --selection: rgb(198 160 246 / 34%);
   --scrim: rgb(17 17 27 / 62%);
   --panel-shadow: 0 20px 60px rgb(17 17 27 / 24%);
@@ -122,15 +148,28 @@
     --page-dashboard-accent-strong: #8aadf4;
     --page-settings-accent: #c6a0f6;
     --page-settings-accent-strong: #8aadf4;
+    --rainbow-red: #ed8796;
+    --rainbow-peach: #f5a97f;
+    --rainbow-yellow: #eed49f;
+    --rainbow-green: #a6da95;
+    --rainbow-sky: #91d7e3;
+    --rainbow-blue: #8aadf4;
+    --rainbow-mauve: #c6a0f6;
     --border: rgb(198 160 246 / 44%);
     --control-border: #6e738d;
-    --glass: rgb(36 39 58 / 52%);
-    --glass-control: rgb(54 58 79 / 28%);
-    --glass-control-hover: rgb(73 77 100 / 42%);
-    --glass-select: rgb(30 32 48 / 86%);
-    --glass-select-hover: rgb(54 58 79 / 95%);
+    --glass-density: 52%;
+    --glass-hover-density: 74%;
+    --glass: rgb(36 39 58 / var(--glass-density));
+    --glass-control: rgb(24 25 38 / var(--glass-density));
+    --glass-control-hover: rgb(54 58 79 / var(--glass-hover-density));
+    --glass-select: rgb(30 32 48 / var(--glass-density));
+    --glass-select-hover: rgb(54 58 79 / var(--glass-hover-density));
     --glass-highlight: rgb(202 211 245 / 18%);
-    --accent-glass: rgb(198 160 246 / 76%);
+    --accent-glass: color-mix(
+      in srgb,
+      var(--accent) var(--glass-density),
+      transparent
+    );
     --selection: rgb(198 160 246 / 34%);
     --scrim: rgb(17 17 27 / 62%);
     --panel-shadow: 0 20px 60px rgb(17 17 27 / 24%);
@@ -156,6 +195,13 @@
   --color-stat-watching: var(--stat-watching);
   --color-stat-completed: var(--stat-completed);
   --color-stat-planning: var(--stat-planning);
+  --color-rainbow-red: var(--rainbow-red);
+  --color-rainbow-peach: var(--rainbow-peach);
+  --color-rainbow-yellow: var(--rainbow-yellow);
+  --color-rainbow-green: var(--rainbow-green);
+  --color-rainbow-sky: var(--rainbow-sky);
+  --color-rainbow-blue: var(--rainbow-blue);
+  --color-rainbow-mauve: var(--rainbow-mauve);
   --color-border: var(--border);
   --color-control-border: var(--control-border);
   --color-glass: var(--glass);
@@ -252,8 +298,44 @@ a {
 
 .app-chrome[data-page] {
   --border: color-mix(in srgb, var(--accent) 46%, transparent);
-  --accent-glass: color-mix(in srgb, var(--accent) 82%, transparent);
+  --accent-glass: color-mix(
+    in srgb,
+    var(--accent) var(--glass-density),
+    transparent
+  );
   --selection: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* A single off-axis Polaroid stripe is the shell's signature background mark. */
+.rainbow-band {
+  position: absolute;
+  top: -14vh;
+  bottom: -14vh;
+  left: clamp(6rem, 24vw, 23rem);
+  width: clamp(8rem, 12vw, 12.5rem);
+  transform: rotate(-8deg) skewY(-1.5deg);
+  transform-origin: 50% 0;
+  background: linear-gradient(
+    90deg,
+    var(--rainbow-red) 0 14.285%,
+    var(--rainbow-peach) 14.285% 28.57%,
+    var(--rainbow-yellow) 28.57% 42.855%,
+    var(--rainbow-green) 42.855% 57.14%,
+    var(--rainbow-sky) 57.14% 71.425%,
+    var(--rainbow-blue) 71.425% 85.71%,
+    var(--rainbow-mauve) 85.71% 100%
+  );
+  box-shadow: 0 0 4rem color-mix(in srgb, var(--rainbow-blue) 18%, transparent);
+  opacity: 0.62;
+}
+
+@media (max-width: 40rem) {
+  .rainbow-band {
+    left: 18vw;
+    width: 6.25rem;
+    transform: rotate(-6deg) skewY(-1deg);
+    opacity: 0.52;
+  }
 }
 
 .glass-panel {
@@ -394,7 +476,7 @@ a {
   }
 
   .glass-tab[data-page][aria-selected="true"] {
-    background: color-mix(in srgb, var(--tab-accent) 76%, transparent);
+    background: var(--accent-glass);
   }
 }
 

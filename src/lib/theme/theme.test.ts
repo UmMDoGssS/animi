@@ -8,6 +8,7 @@ import {
   pageAccentTokens,
   semanticColorTokens,
   themeIds,
+  translucentSurfaceTokens,
 } from "./theme";
 
 const appStyles = readFileSync(resolve("src/app.css"), "utf8");
@@ -72,6 +73,15 @@ function solidHexToken(block: string, token: string): string {
   return value;
 }
 
+function tokenValue(block: string, token: string): string {
+  const value = block.match(new RegExp(`--${token}:\\s*([^;]+);`, "i"))?.[1];
+  if (!value) {
+    throw new Error(`Missing token --${token}.`);
+  }
+
+  return value.trim();
+}
+
 function rgb(hex: string): Rgb {
   return [
     Number.parseInt(hex.slice(1, 3), 16),
@@ -110,6 +120,38 @@ describe("theme contract", () => {
     for (const token of semanticColorTokens) {
       expect(block).toContain(`--${token}:`);
     }
+  });
+
+  it.each(themeIds)("uses one glass density across %s surfaces", (themeId) => {
+    const block = themeBlock(themeId);
+
+    for (const token of translucentSurfaceTokens) {
+      expect(tokenValue(block, token)).toContain("var(--glass-density)");
+    }
+
+    expect(tokenValue(block, "accent-glass")).toContain("var(--glass-density)");
+
+    const density = Number.parseFloat(tokenValue(block, "glass-density"));
+    expect(density).toBeGreaterThanOrEqual(50);
+    expect(density).toBeLessThanOrEqual(55);
+  });
+
+  it("defines the askew Catppuccin rainbow as a decorative shell layer", () => {
+    const block = cssBlock(".rainbow-band");
+
+    for (const token of [
+      "rainbow-red",
+      "rainbow-peach",
+      "rainbow-yellow",
+      "rainbow-green",
+      "rainbow-sky",
+      "rainbow-blue",
+      "rainbow-mauve",
+    ]) {
+      expect(block).toContain(`var(--${token})`);
+    }
+
+    expect(block).toContain("rotate(-8deg)");
   });
 
   it.each(themeIds)("keeps %s text colors readable", (themeId) => {

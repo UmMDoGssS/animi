@@ -149,6 +149,7 @@ describe("AppShell", () => {
       expect(screen.getByRole("tabpanel")).toHaveAttribute("id", "home-panel");
       const appChrome = document.querySelector(".app-chrome");
       expect(appChrome).toHaveAttribute("data-page", "home");
+      expect(document.querySelector(".rainbow-band")).toBeInTheDocument();
       expect(
         screen.getByRole("link", { name: "Skip to content" }),
       ).toHaveAttribute("href", "#main-content");

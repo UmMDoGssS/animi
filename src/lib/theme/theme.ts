@@ -56,10 +56,26 @@ export const semanticColorTokens = [
   "stat-watching",
   "stat-completed",
   "stat-planning",
+  "rainbow-red",
+  "rainbow-peach",
+  "rainbow-yellow",
+  "rainbow-green",
+  "rainbow-sky",
+  "rainbow-blue",
+  "rainbow-mauve",
   "border",
   "control-border",
   "glass",
+  "glass-control",
+  "glass-select",
+  "accent-glass",
   "selection",
+] as const;
+
+export const translucentSurfaceTokens = [
+  "glass",
+  "glass-control",
+  "glass-select",
 ] as const;
 
 export const pageAccentTokens = [
