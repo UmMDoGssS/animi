@@ -45,31 +45,12 @@
     openDiscovery?: () => void;
   }
 
-  interface LibrarySection {
-    status: LibraryStatus;
-    title: string;
-    description: string;
-  }
-
   type ReloadContext = "initial" | "mutation" | "details" | "refresh";
+  type LibraryStatusFilter = "ALL" | LibraryStatus;
+  type LibrarySort =
+    "UPDATED_DESC" | "TITLE_ASC" | "PROGRESS_DESC" | "SCORE_DESC";
 
-  const librarySections: readonly LibrarySection[] = [
-    {
-      status: "WATCHING",
-      title: "Watching",
-      description: "In progress now",
-    },
-    {
-      status: "COMPLETED",
-      title: "Completed",
-      description: "Finished entries",
-    },
-    {
-      status: "PLANNING",
-      title: "Planning",
-      description: "Saved for later",
-    },
-  ];
+  const libraryPageSize = 5;
 
   let {
     loadInsights = getDashboardInsights,
@@ -90,12 +71,58 @@
   let selectedItem = $state<LibraryItem | null>(null);
   let detailsOpener: HTMLButtonElement | null = null;
   let libraryIndexHeading = $state<HTMLElement | null>(null);
+  let libraryQuery = $state("");
+  let libraryStatusFilter = $state<LibraryStatusFilter>("ALL");
+  let librarySort = $state<LibrarySort>("UPDATED_DESC");
+  let libraryPage = $state(1);
 
   const selectedSummary = $derived.by<MediaSummary | null>(() => {
     if (selectedItem === null) {
       return null;
     }
     return summaryForItem(selectedItem);
+  });
+
+  const filteredLibraryItems = $derived.by<LibraryItem[]>(() => {
+    const normalizedQuery = libraryQuery.trim().toLocaleLowerCase();
+    const matchingItems = (insights?.libraryItems ?? []).filter((item) => {
+      const matchesStatus =
+        libraryStatusFilter === "ALL" ||
+        item.entry.status === libraryStatusFilter;
+      const matchesQuery =
+        normalizedQuery.length === 0 ||
+        titleForItem(item).toLocaleLowerCase().includes(normalizedQuery) ||
+        item.entry.anilistId.toString().includes(normalizedQuery);
+      return matchesStatus && matchesQuery;
+    });
+    return [...matchingItems].sort(compareLibraryItems);
+  });
+
+  const libraryPageCount = $derived(
+    Math.max(1, Math.ceil(filteredLibraryItems.length / libraryPageSize)),
+  );
+  const visibleLibraryItems = $derived(
+    filteredLibraryItems.slice(
+      (libraryPage - 1) * libraryPageSize,
+      libraryPage * libraryPageSize,
+    ),
+  );
+  const libraryResultStart = $derived(
+    filteredLibraryItems.length === 0
+      ? 0
+      : (libraryPage - 1) * libraryPageSize + 1,
+  );
+  const libraryResultEnd = $derived(
+    Math.min(libraryPage * libraryPageSize, filteredLibraryItems.length),
+  );
+  const libraryFiltersActive = $derived(
+    libraryQuery.trim().length > 0 || libraryStatusFilter !== "ALL",
+  );
+
+  $effect(() => {
+    if (libraryPage > libraryPageCount) {
+      libraryPage = libraryPageCount;
+    }
   });
 
   onMount(() => {
@@ -136,17 +163,63 @@
     }
   }
 
-  function itemsForStatus(status: LibraryStatus): LibraryItem[] {
+  function titleForItem(item: LibraryItem): string {
+    return item.media?.title ?? `AniList #${item.entry.anilistId}`;
+  }
+
+  function compareLibraryItems(left: LibraryItem, right: LibraryItem): number {
+    if (librarySort === "TITLE_ASC") {
+      return compareLibraryTitles(left, right);
+    }
+    if (librarySort === "PROGRESS_DESC") {
+      return (
+        right.entry.progress - left.entry.progress ||
+        compareLibraryTitles(left, right)
+      );
+    }
+    if (librarySort === "SCORE_DESC") {
+      return (
+        (right.entry.score ?? -1) - (left.entry.score ?? -1) ||
+        compareLibraryTitles(left, right)
+      );
+    }
     return (
-      insights?.libraryItems.filter((item) => item.entry.status === status) ??
-      []
+      right.entry.updatedAt.localeCompare(left.entry.updatedAt) ||
+      compareLibraryTitles(left, right)
     );
+  }
+
+  function compareLibraryTitles(left: LibraryItem, right: LibraryItem): number {
+    return (
+      titleForItem(left).localeCompare(titleForItem(right), undefined, {
+        sensitivity: "base",
+        numeric: true,
+      }) || left.entry.anilistId - right.entry.anilistId
+    );
+  }
+
+  function resetLibraryPage(): void {
+    libraryPage = 1;
+  }
+
+  function resetLibraryFilters(): void {
+    libraryQuery = "";
+    libraryStatusFilter = "ALL";
+    libraryPage = 1;
+  }
+
+  function showPreviousLibraryPage(): void {
+    libraryPage = Math.max(1, libraryPage - 1);
+  }
+
+  function showNextLibraryPage(): void {
+    libraryPage = Math.min(libraryPageCount, libraryPage + 1);
   }
 
   function summaryForItem(item: LibraryItem): MediaSummary {
     return {
       anilistId: item.entry.anilistId,
-      title: item.media?.title ?? `AniList #${item.entry.anilistId}`,
+      title: titleForItem(item),
       coverUrl: item.media?.coverUrl ?? null,
       mediaFormat: item.media?.mediaFormat ?? null,
       status: item.media?.status ?? null,
@@ -932,7 +1005,7 @@
             tabindex="-1"
             class="text-foreground mt-2 text-xl font-light tracking-[0.03em] sm:text-2xl"
           >
-            Every local shelf stays in view.
+            Five titles at a time, the full library in reach.
           </h2>
         </div>
         <p class="text-muted max-w-md text-xs leading-5 sm:text-right">
@@ -964,138 +1037,232 @@
           </div>
         </div>
       {:else}
-        <div class="mt-5 grid min-w-0 gap-4 lg:grid-cols-3">
-          {#each librarySections as section (section.status)}
-            {@const sectionItems = itemsForStatus(section.status)}
-            <section
-              aria-labelledby={`dashboard-${section.status.toLocaleLowerCase()}-heading`}
-              class="glass-control control-rounded border-border min-w-0 overflow-hidden border p-3 sm:p-4"
+        <div class="mt-5 grid min-w-0 gap-4">
+          <div
+            role="search"
+            aria-label="Filter library index"
+            class="glass-control control-rounded border-border grid min-w-0 gap-3 border p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-[minmax(15rem,1fr)_minmax(10rem,0.45fr)_minmax(11rem,0.55fr)_auto] lg:items-end"
+          >
+            <label class="grid min-w-0 gap-1.5">
+              <span
+                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
+              >
+                find a title
+              </span>
+              <input
+                type="search"
+                placeholder="Title or AniList ID"
+                bind:value={libraryQuery}
+                oninput={resetLibraryPage}
+                class="glass-control control-rounded border-border text-foreground placeholder:text-muted min-h-10 w-full min-w-0 border px-3 py-2 text-sm outline-none"
+              />
+            </label>
+
+            <label class="grid min-w-0 gap-1.5">
+              <span
+                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
+              >
+                status
+              </span>
+              <select
+                bind:value={libraryStatusFilter}
+                onchange={resetLibraryPage}
+                class="glass-control control-rounded border-border text-foreground min-h-10 w-full min-w-0 border px-3 py-2 text-sm outline-none"
+              >
+                <option value="ALL">All statuses</option>
+                <option value="WATCHING">Watching</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="PLANNING">Planning</option>
+              </select>
+            </label>
+
+            <label class="grid min-w-0 gap-1.5">
+              <span
+                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
+              >
+                sort by
+              </span>
+              <select
+                bind:value={librarySort}
+                onchange={resetLibraryPage}
+                class="glass-control control-rounded border-border text-foreground min-h-10 w-full min-w-0 border px-3 py-2 text-sm outline-none"
+              >
+                <option value="UPDATED_DESC">Recently updated</option>
+                <option value="TITLE_ASC">Title A–Z</option>
+                <option value="PROGRESS_DESC">Most progress</option>
+                <option value="SCORE_DESC">Highest score</option>
+              </select>
+            </label>
+
+            <button
+              type="button"
+              class="glass-interactive control-rounded min-h-10 px-3 py-2 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-45"
+              disabled={!libraryFiltersActive}
+              onclick={resetLibraryFilters}
             >
-              <header class="flex items-end justify-between gap-3">
-                <div>
-                  <h3
-                    id={`dashboard-${section.status.toLocaleLowerCase()}-heading`}
-                    class="text-foreground text-base font-light tracking-[0.04em]"
-                  >
-                    {section.title}
-                  </h3>
-                  <p
-                    class="text-muted mt-1 text-[0.65rem] tracking-[0.08em] uppercase"
-                  >
-                    {section.description}
-                  </p>
-                </div>
-                <span
-                  class="text-accent text-sm tracking-[0.1em] tabular-nums"
-                  aria-label={`${sectionItems.length} entries`}
-                >
-                  {padCount(sectionItems.length)}
-                </span>
-              </header>
+              clear filters
+            </button>
+          </div>
 
-              {#if sectionItems.length === 0}
-                <p
-                  class="border-border text-muted mt-4 border-y py-5 text-xs leading-5"
-                >
-                  No {section.title.toLocaleLowerCase()} entries yet.
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <p class="text-muted text-xs leading-5" aria-live="polite">
+              Showing
+              <span class="text-foreground tabular-nums"
+                >{libraryResultStart}–{libraryResultEnd}</span
+              >
+              of
+              <span class="text-foreground tabular-nums"
+                >{filteredLibraryItems.length}</span
+              >
+              matching {filteredLibraryItems.length === 1 ? "title" : "titles"}.
+            </p>
+            <p class="text-muted text-[0.65rem] tracking-[0.1em] uppercase">
+              5 titles per page
+            </p>
+          </div>
+
+          {#if filteredLibraryItems.length === 0}
+            <div
+              class="border-border grid min-h-48 place-items-center border-y py-8 text-center"
+            >
+              <div class="max-w-lg">
+                <h3 class="text-foreground text-lg font-light">
+                  No titles match these filters.
+                </h3>
+                <p class="text-muted mt-2 text-xs leading-5">
+                  Try another title or status, or clear the filters to restore
+                  the complete local index.
                 </p>
-              {:else}
-                <ul
-                  aria-label={`${section.title} anime`}
-                  class="border-border mt-4 grid divide-y border-y"
+                <button
+                  type="button"
+                  class="glass-interactive control-rounded mt-4 min-h-10 px-4 py-2 text-xs"
+                  onclick={resetLibraryFilters}
                 >
-                  {#each sectionItems as item (item.entry.anilistId)}
-                    {@const itemTitle =
-                      item.media?.title ?? `AniList #${item.entry.anilistId}`}
-                    <li class="py-2">
-                      <button
-                        type="button"
-                        aria-haspopup="dialog"
-                        aria-label={`Open library details for ${itemTitle}`}
-                        aria-describedby={`library-card-summary-${item.entry.anilistId}`}
-                        data-library-anilist-id={item.entry.anilistId}
-                        class="glass-interactive control-rounded grid w-full min-w-0 grid-cols-[3.75rem_minmax(0,1fr)] gap-3 p-1 text-left transition-colors"
-                        onclick={(event) => openItemDetails(item, event)}
-                      >
-                        <span
-                          id={`library-card-summary-${item.entry.anilistId}`}
-                          class="sr-only"
-                        >
-                          {progressLabel(item)}.
-                          {item.media === null
-                            ? "Metadata missing."
-                            : item.media.isStale
-                              ? `Stale metadata cached ${formatTimestamp(item.media.cachedAt)}.`
-                              : `Metadata cached ${formatTimestamp(item.media.cachedAt)}.`}
-                          {item.entry.score === null
-                            ? "No personal score."
-                            : `Personal score ${item.entry.score} out of 10.`}
-                        </span>
-                        <div class="w-[3.75rem] shrink-0">
-                          <MediaCover
-                            title={itemTitle}
-                            coverUrl={item.media?.coverUrl ?? null}
-                          />
-                        </div>
+                  clear filters
+                </button>
+              </div>
+            </div>
+          {:else}
+            <ul
+              aria-label="Library index results"
+              class="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+            >
+              {#each visibleLibraryItems as item (item.entry.anilistId)}
+                {@const itemTitle = titleForItem(item)}
+                <li class="min-w-0">
+                  <button
+                    type="button"
+                    aria-haspopup="dialog"
+                    aria-label={`Open library details for ${itemTitle}`}
+                    aria-describedby={`library-card-summary-${item.entry.anilistId}`}
+                    data-library-anilist-id={item.entry.anilistId}
+                    class="glass-control glass-interactive control-rounded border-border grid h-full w-full min-w-0 grid-cols-[3.75rem_minmax(0,1fr)] gap-3 border p-2 text-left transition-colors"
+                    onclick={(event) => openItemDetails(item, event)}
+                  >
+                    <span
+                      id={`library-card-summary-${item.entry.anilistId}`}
+                      class="sr-only"
+                    >
+                      {item.entry.status.toLocaleLowerCase()}.
+                      {progressLabel(item)}.
+                      {item.media === null
+                        ? "Metadata missing."
+                        : item.media.isStale
+                          ? `Stale metadata cached ${formatTimestamp(item.media.cachedAt)}.`
+                          : `Metadata cached ${formatTimestamp(item.media.cachedAt)}.`}
+                      {item.entry.score === null
+                        ? "No personal score."
+                        : `Personal score ${item.entry.score} out of 10.`}
+                    </span>
+                    <div class="w-[3.75rem] shrink-0">
+                      <MediaCover
+                        title={itemTitle}
+                        coverUrl={item.media?.coverUrl ?? null}
+                      />
+                    </div>
 
-                        <span class="flex min-w-0 flex-col py-0.5">
-                          <span
-                            class="text-foreground line-clamp-2 text-sm leading-5 font-light"
-                          >
-                            {itemTitle}
-                          </span>
-                          <span
-                            class="text-muted mt-1 text-[0.62rem] tracking-[0.08em] uppercase"
-                          >
-                            {formatMediaFormat(item.media?.mediaFormat ?? null)}
-                            // {item.media === null
-                              ? "metadata missing"
-                              : item.media.isStale
-                                ? "stale cache"
-                                : "cached"}
-                          </span>
-                          {#if item.media}
-                            <span
-                              class="text-muted mt-1 block text-[0.6rem] leading-4"
-                            >
-                              Cached {formatTimestamp(item.media.cachedAt)}
-                            </span>
-                          {/if}
-                          <span class="mt-3">
-                            <span
-                              class="text-foreground block text-xs tabular-nums"
-                            >
-                              {progressLabel(item)}
-                            </span>
-                            {#if item.media?.episodes === null || item.media === null}
-                              <span
-                                class="text-warning mt-1 block text-[0.62rem]"
-                              >
-                                episode total unknown
-                              </span>
-                            {/if}
-                            {#if item.entry.score !== null}
-                              <span
-                                class="text-muted mt-1 block text-[0.62rem]"
-                              >
-                                score // {item.entry.score} / 10
-                              </span>
-                            {:else}
-                              <span
-                                class="text-muted mt-1 block text-[0.62rem]"
-                              >
-                                no score
-                              </span>
-                            {/if}
-                          </span>
+                    <span class="flex min-w-0 flex-col py-0.5">
+                      <span
+                        class="text-foreground line-clamp-2 text-sm leading-5 font-light"
+                      >
+                        {itemTitle}
+                      </span>
+                      <span
+                        class="text-accent mt-1 text-[0.62rem] tracking-[0.08em] uppercase"
+                      >
+                        {item.entry.status.toLocaleLowerCase()}
+                      </span>
+                      <span
+                        class="text-muted mt-1 text-[0.62rem] tracking-[0.08em] uppercase"
+                      >
+                        {formatMediaFormat(item.media?.mediaFormat ?? null)} //
+                        {item.media === null
+                          ? "metadata missing"
+                          : item.media.isStale
+                            ? "stale cache"
+                            : "cached"}
+                      </span>
+                      {#if item.media}
+                        <span class="text-muted mt-1 text-[0.6rem] leading-4">
+                          Cached {formatTimestamp(item.media.cachedAt)}
                         </span>
-                      </button>
-                    </li>
-                  {/each}
-                </ul>
-              {/if}
-            </section>
-          {/each}
+                      {/if}
+                      <span class="mt-3">
+                        <span
+                          class="text-foreground block text-xs tabular-nums"
+                        >
+                          {progressLabel(item)}
+                        </span>
+                        {#if item.media?.episodes === null || item.media === null}
+                          <span class="text-warning mt-1 block text-[0.62rem]">
+                            episode total unknown
+                          </span>
+                        {/if}
+                        {#if item.entry.score !== null}
+                          <span class="text-muted mt-1 block text-[0.62rem]">
+                            score // {item.entry.score} / 10
+                          </span>
+                        {:else}
+                          <span class="text-muted mt-1 block text-[0.62rem]">
+                            no score
+                          </span>
+                        {/if}
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              {/each}
+            </ul>
+
+            <nav
+              aria-label="Library index pages"
+              class="border-border flex items-center justify-between gap-3 border-t pt-4"
+            >
+              <button
+                type="button"
+                class="glass-interactive control-rounded min-h-10 px-3 py-2 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-45"
+                disabled={libraryPage === 1}
+                onclick={showPreviousLibraryPage}
+              >
+                previous
+              </button>
+              <p
+                class="text-muted text-xs tracking-[0.08em] tabular-nums"
+                aria-live="polite"
+              >
+                page <span class="text-foreground">{libraryPage}</span> of
+                <span class="text-foreground">{libraryPageCount}</span>
+              </p>
+              <button
+                type="button"
+                class="glass-interactive control-rounded min-h-10 px-3 py-2 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-45"
+                disabled={libraryPage === libraryPageCount}
+                onclick={showNextLibraryPage}
+              >
+                next
+              </button>
+            </nav>
+          {/if}
         </div>
       {/if}
     </section>

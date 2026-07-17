@@ -308,11 +308,11 @@ describe("P4 discovery-to-library flow", () => {
 
     render(AppShell, shellProps);
     await user.click(screen.getByRole("tab", { name: "Dashboard" }));
-    const watchingShelf = await screen.findByRole("list", {
-      name: "Watching anime",
+    const libraryIndex = await screen.findByRole("list", {
+      name: "Library index results",
     });
-    expect(watchingShelf).toHaveTextContent(/Paper Cranes at Dawn/);
-    expect(watchingShelf).toHaveTextContent(/3 \/ 12 eps/);
+    expect(libraryIndex).toHaveTextContent(/Paper Cranes at Dawn/);
+    expect(libraryIndex).toHaveTextContent(/3 \/ 12 eps/);
     expect(
       screen.getByRole("heading", {
         name: "No progress activity has been recorded yet.",
@@ -358,11 +358,11 @@ describe("P4 discovery-to-library flow", () => {
 
     state.goOffline();
     await user.click(screen.getByRole("tab", { name: "Dashboard" }));
-    const completedShelf = await screen.findByRole("list", {
-      name: "Completed anime",
+    const updatedLibraryIndex = await screen.findByRole("list", {
+      name: "Library index results",
     });
-    expect(completedShelf).toHaveTextContent(/5 \/ 12 eps/);
-    expect(completedShelf).toHaveTextContent(/score \/\/ 9 \/ 10/i);
+    expect(updatedLibraryIndex).toHaveTextContent(/5 \/ 12 eps/);
+    expect(updatedLibraryIndex).toHaveTextContent(/score \/\/ 9 \/ 10/i);
     expect(
       screen.getByRole("group", { name: "Recorded activity summary" }),
     ).toHaveTextContent(/recorded episodes\s*2/i);
@@ -371,7 +371,7 @@ describe("P4 discovery-to-library flow", () => {
     ).toHaveTextContent(/\+2 episodes.*48m/i);
 
     await user.click(
-      within(completedShelf).getByRole("button", {
+      within(updatedLibraryIndex).getByRole("button", {
         name: "Open library details for Paper Cranes at Dawn",
       }),
     );

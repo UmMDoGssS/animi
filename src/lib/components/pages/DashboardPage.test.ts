@@ -207,6 +207,45 @@ const populatedInsights: DashboardInsights = {
   },
 };
 
+function indexedItem(
+  anilistId: number,
+  title: string,
+  status: LibraryEntry["status"],
+  progress: number,
+  score: number | null,
+  updatedDay: number,
+): LibraryItem {
+  return {
+    entry: {
+      ...entry(anilistId, status, progress, score),
+      updatedAt: `2026-07-${updatedDay.toString().padStart(2, "0")}T08:30:00.000Z`,
+    },
+    media: media(title),
+  };
+}
+
+const paginatedLibraryItems = [
+  indexedItem(501, "Alpha Archive", "PLANNING", 0, null, 1),
+  indexedItem(502, "Bravo Brigade", "COMPLETED", 12, 8, 2),
+  indexedItem(503, "Charlie Chronicle", "WATCHING", 4, 7, 3),
+  indexedItem(504, "Delta Dream", "PLANNING", 0, 6, 4),
+  indexedItem(505, "Echo Expedition", "COMPLETED", 10, 9, 5),
+  indexedItem(506, "Foxtrot Fable", "WATCHING", 6, null, 6),
+  indexedItem(507, "Gamma Garden", "WATCHING", 8, 10, 7),
+];
+
+const paginatedInsights: DashboardInsights = {
+  ...populatedInsights,
+  libraryItems: paginatedLibraryItems,
+  libraryTotals: {
+    tracked: 7,
+    watching: 3,
+    completed: 2,
+    planning: 2,
+    currentProgress: 40,
+  },
+};
+
 const emptyInsights: DashboardInsights = {
   mediaKind: "ANIME",
   libraryItems: [],
@@ -266,7 +305,7 @@ function detailsFor(item: LibraryItem): MediaDetailsResponse {
 
 describe("DashboardPage", () => {
   it.each(testViewports)(
-    "renders authoritative totals, signals, activity, and every shelf at the $name viewport",
+    "renders authoritative totals, signals, activity, and the library index at the $name viewport",
     async (viewport) => {
       setTestViewport(viewport);
       render(DashboardPage, {
@@ -345,21 +384,22 @@ describe("DashboardPage", () => {
       ).toHaveTextContent(/Paper Cranes at Dawn.*\+2 episodes.*48m/i);
       expect(screen.queryByRole("table")).not.toBeInTheDocument();
 
+      const libraryIndex = screen.getByRole("list", {
+        name: "Library index results",
+      });
+      expect(within(libraryIndex).getAllByRole("listitem")).toHaveLength(4);
       expect(
-        within(
-          screen.getByRole("list", { name: "Watching anime" }),
-        ).getAllByRole("listitem"),
-      ).toHaveLength(2);
+        screen.getByRole("searchbox", { name: "find a title" }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("combobox", { name: "status" })).toHaveValue(
+        "ALL",
+      );
+      expect(screen.getByRole("combobox", { name: "sort by" })).toHaveValue(
+        "UPDATED_DESC",
+      );
       expect(
-        within(
-          screen.getByRole("list", { name: "Completed anime" }),
-        ).getAllByRole("listitem"),
-      ).toHaveLength(1);
-      expect(
-        within(
-          screen.getByRole("list", { name: "Planning anime" }),
-        ).getAllByRole("listitem"),
-      ).toHaveLength(1);
+        screen.getByRole("navigation", { name: "Library index pages" }),
+      ).toHaveTextContent(/page\s*1\s*of\s*1/i);
       expect(screen.getAllByText("AniList #404")).toHaveLength(2);
       expect(screen.getAllByText("episode total unknown")).toHaveLength(2);
       expect(screen.getByText(/score \/\/ 7 \/ 10/i)).toBeInTheDocument();
@@ -399,6 +439,132 @@ describe("DashboardPage", () => {
     expect(openDiscovery).toHaveBeenCalledOnce();
   });
 
+  it("paginates five titles and supports title, status, and sort controls", async () => {
+    const user = userEvent.setup();
+    render(DashboardPage, {
+      loadInsights: vi.fn().mockResolvedValue(paginatedInsights),
+      refreshMetadata: vi.fn(),
+    });
+
+    const libraryIndex = await screen.findByRole("list", {
+      name: "Library index results",
+    });
+    const pages = screen.getByRole("navigation", {
+      name: "Library index pages",
+    });
+    const searchControls = screen.getByRole("search", {
+      name: "Filter library index",
+    });
+    const visibleTitles = () =>
+      within(screen.getByRole("list", { name: "Library index results" }))
+        .getAllByRole("button")
+        .map((button) =>
+          button
+            .getAttribute("aria-label")
+            ?.replace("Open library details for ", ""),
+        );
+
+    expect(within(libraryIndex).getAllByRole("listitem")).toHaveLength(5);
+    expect(visibleTitles()).toEqual([
+      "Gamma Garden",
+      "Foxtrot Fable",
+      "Echo Expedition",
+      "Delta Dream",
+      "Charlie Chronicle",
+    ]);
+    expect(
+      within(pages).getByRole("button", { name: "previous" }),
+    ).toBeDisabled();
+
+    await user.click(within(pages).getByRole("button", { name: "next" }));
+    expect(visibleTitles()).toEqual(["Bravo Brigade", "Alpha Archive"]);
+    expect(pages).toHaveTextContent(/page\s*2\s*of\s*2/i);
+    expect(within(pages).getByRole("button", { name: "next" })).toBeDisabled();
+    await user.click(within(pages).getByRole("button", { name: "previous" }));
+    expect(visibleTitles()).toEqual([
+      "Gamma Garden",
+      "Foxtrot Fable",
+      "Echo Expedition",
+      "Delta Dream",
+      "Charlie Chronicle",
+    ]);
+
+    await user.selectOptions(
+      within(searchControls).getByRole("combobox", { name: "sort by" }),
+      "TITLE_ASC",
+    );
+    expect(visibleTitles()).toEqual([
+      "Alpha Archive",
+      "Bravo Brigade",
+      "Charlie Chronicle",
+      "Delta Dream",
+      "Echo Expedition",
+    ]);
+    expect(pages).toHaveTextContent(/page\s*1\s*of\s*2/i);
+
+    await user.selectOptions(
+      within(searchControls).getByRole("combobox", { name: "status" }),
+      "WATCHING",
+    );
+    expect(visibleTitles()).toEqual([
+      "Charlie Chronicle",
+      "Foxtrot Fable",
+      "Gamma Garden",
+    ]);
+
+    await user.type(
+      within(searchControls).getByRole("searchbox", { name: "find a title" }),
+      "Gamma",
+    );
+    expect(visibleTitles()).toEqual(["Gamma Garden"]);
+    expect(screen.getByText(/matching title/i).closest("p")).toHaveTextContent(
+      /Showing\s*1–1\s*of\s*1\s*matching title/i,
+    );
+
+    await user.clear(
+      within(searchControls).getByRole("searchbox", { name: "find a title" }),
+    );
+    await user.type(
+      within(searchControls).getByRole("searchbox", { name: "find a title" }),
+      "No such title",
+    );
+    expect(
+      screen.getByRole("heading", { name: "No titles match these filters." }),
+    ).toBeInTheDocument();
+    await user.click(
+      within(searchControls).getByRole("button", { name: "clear filters" }),
+    );
+    expect(
+      within(
+        screen.getByRole("list", { name: "Library index results" }),
+      ).getAllByRole("listitem"),
+    ).toHaveLength(5);
+
+    await user.selectOptions(
+      within(searchControls).getByRole("combobox", { name: "sort by" }),
+      "PROGRESS_DESC",
+    );
+    expect(visibleTitles()).toEqual([
+      "Bravo Brigade",
+      "Echo Expedition",
+      "Gamma Garden",
+      "Foxtrot Fable",
+      "Charlie Chronicle",
+    ]);
+
+    await user.selectOptions(
+      within(searchControls).getByRole("combobox", { name: "sort by" }),
+      "SCORE_DESC",
+    );
+    expect(visibleTitles()).toEqual([
+      "Gamma Garden",
+      "Echo Expedition",
+      "Bravo Brigade",
+      "Charlie Chronicle",
+      "Delta Dream",
+    ]);
+  });
+
   it("retries a terminal initial load failure", async () => {
     const loadInsights = vi
       .fn()
@@ -422,7 +588,7 @@ describe("DashboardPage", () => {
     expect(loadInsights).toHaveBeenCalledTimes(2);
   });
 
-  it("reports partial metadata refreshes while keeping cached shelves visible", async () => {
+  it("reports partial metadata refreshes while keeping the cached index visible", async () => {
     const loadInsights = vi.fn().mockResolvedValue(populatedInsights);
     const refreshMetadata = vi.fn().mockResolvedValue({
       attempted: 4,
@@ -450,7 +616,7 @@ describe("DashboardPage", () => {
       /1 title updated, 2 titles stale, 1 title failed out of 4 tracked titles/i,
     );
     expect(
-      screen.getByRole("list", { name: "Watching anime" }),
+      screen.getByRole("list", { name: "Library index results" }),
     ).toHaveTextContent("Paper Cranes at Dawn");
     expect(loadInsights).toHaveBeenCalledTimes(2);
   });
@@ -475,7 +641,7 @@ describe("DashboardPage", () => {
       /Your local edits and saved metadata remain unchanged/i,
     );
     expect(
-      screen.getByRole("list", { name: "Completed anime" }),
+      screen.getByRole("list", { name: "Library index results" }),
     ).toHaveTextContent("How to Befriend a Comet");
   });
 
@@ -511,7 +677,7 @@ describe("DashboardPage", () => {
     expect(opener).toHaveFocus();
   });
 
-  it("keeps saved shelf mutations visible when the aggregate reload fails and restores focus after a move or removal", async () => {
+  it("keeps saved index mutations visible when the aggregate reload fails and restores focus after a move or removal", async () => {
     const user = userEvent.setup();
     const loadInsights = vi
       .fn()
@@ -557,7 +723,7 @@ describe("DashboardPage", () => {
       await screen.findByText(/saved library rows are updated/i),
     ).toBeInTheDocument();
     const movedCard = within(
-      screen.getByRole("list", { name: "Completed anime" }),
+      screen.getByRole("list", { name: "Library index results" }),
     ).getByRole("button", {
       name: "Open library details for Paper Cranes at Dawn",
     });
@@ -595,7 +761,7 @@ describe("DashboardPage", () => {
     await waitFor(() =>
       expect(
         screen.getByRole("heading", {
-          name: "Every local shelf stays in view.",
+          name: "Five titles at a time, the full library in reach.",
         }),
       ).toHaveFocus(),
     );
