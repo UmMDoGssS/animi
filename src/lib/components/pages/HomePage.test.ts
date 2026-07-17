@@ -122,11 +122,19 @@ describe("HomePage", () => {
         "scrollbar-hidden",
       );
       expect(within(carousel).getAllByRole("group")).toHaveLength(3);
-      expect(
-        within(carousel).getByRole("group", {
-          name: /1 of 3: Moonlit Post Office/i,
-        }),
-      ).toBeInTheDocument();
+      const firstSlide = within(carousel).getByRole("group", {
+        name: /1 of 3: Moonlit Post Office/i,
+      });
+      expect(firstSlide).toBeInTheDocument();
+      const cover = within(firstSlide).getByRole("img", {
+        name: /cover unavailable for Moonlit Post Office/i,
+      });
+      expect(cover.parentElement).toHaveClass("h-full");
+      expect(cover.parentElement?.parentElement).toHaveClass(
+        "aspect-[2/3]",
+        "sm:aspect-auto",
+        "sm:self-stretch",
+      );
       expect(screen.getByText("3").closest("p")).toHaveTextContent("watching");
       expect(screen.getByText("2").closest("p")).toHaveTextContent("waiting");
       expect(screen.getByText("1").closest("p")).toHaveTextContent("unknown");

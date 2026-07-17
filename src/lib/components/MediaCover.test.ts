@@ -68,4 +68,15 @@ describe("MediaCover", () => {
       "overflow-hidden",
     );
   });
+
+  it("can fill a layout-owned cover frame", () => {
+    const { container } = render(MediaCover, {
+      title: "Tall Carousel Card",
+      coverUrl: null,
+      fill: true,
+    });
+
+    expect(container.firstElementChild).toHaveClass("h-full", "w-full");
+    expect(container.firstElementChild).not.toHaveClass("aspect-[2/3]");
+  });
 });

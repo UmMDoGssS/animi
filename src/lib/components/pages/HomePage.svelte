@@ -398,10 +398,13 @@
             data-carousel-index={index}
             class="glass-control control-rounded border-border grid w-full min-w-full shrink-0 snap-start gap-5 border p-4 sm:grid-cols-[11rem_minmax(0,1fr)] sm:p-5 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-7 lg:p-6"
           >
-            <div class="mx-auto w-36 sm:w-full">
+            <div
+              class="mx-auto aspect-[2/3] w-36 sm:aspect-auto sm:w-full sm:self-stretch"
+            >
               <MediaCover
                 title={title(item)}
                 coverUrl={item.library.media?.coverUrl ?? null}
+                fill
               />
             </div>
             <div class="flex min-w-0 flex-col sm:py-1">

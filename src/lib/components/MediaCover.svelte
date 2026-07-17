@@ -2,9 +2,10 @@
   interface Props {
     title: string;
     coverUrl: string | null;
+    fill?: boolean;
   }
 
-  let { title, coverUrl }: Props = $props();
+  let { title, coverUrl, fill = false }: Props = $props();
 
   let failedCoverUrl = $state<string | null>(null);
   let normalizedCoverUrl = $derived(coverUrl?.trim() || null);
@@ -19,7 +20,7 @@
 
 <div
   data-cover-state={showCover ? "image" : "fallback"}
-  class="control-rounded border-border bg-surface-sunken relative aspect-[2/3] w-full max-w-full min-w-0 overflow-hidden border"
+  class={`control-rounded border-border bg-surface-sunken relative w-full max-w-full min-w-0 overflow-hidden border ${fill ? "h-full" : "aspect-[2/3]"}`}
 >
   {#if showCover && normalizedCoverUrl}
     <img
