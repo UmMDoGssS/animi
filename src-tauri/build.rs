@@ -1,4 +1,7 @@
 fn main() {
+    // `sqlx::migrate!` embeds the directory at compile time. Stable Cargo does
+    // not discover directory changes through proc-macro tracking on its own.
+    println!("cargo:rerun-if-changed=migrations");
     tauri_build::build();
 
     // Tauri links its generated Windows resource only to application binaries. Mock-runtime

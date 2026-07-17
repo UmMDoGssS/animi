@@ -21,6 +21,7 @@ unsafe extern "C" {}
 pub fn register_commands<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::Builder<R> {
     builder.invoke_handler(tauri::generate_handler![
         commands::smoke::smoke_check,
+        commands::backups::export_backup,
         commands::library::list_library,
         commands::library::upsert_library_entry,
         commands::library::remove_library_entry,
@@ -36,16 +37,23 @@ pub fn register_commands<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let result = register_commands(tauri::Builder::default().setup(|app| {
-        let paths = DatabasePaths::from_root(app.path().app_data_dir()?)?;
-        let database = tauri::async_runtime::block_on(Database::connect(&paths))?;
-        let transport = ReqwestTransport::new()?;
-        let anilist =
-            AniListService::new(database.clone(), AniListClient::new(Arc::new(transport)));
-        app.manage(database);
-        app.manage(anilist);
-        Ok(())
-    }))
+    let result = register_commands(
+        tauri::Builder::default()
+            .plugin(tauri_plugin_dialog::init())
+            .setup(|app| {
+                let paths = DatabasePaths::from_root(app.path().app_data_dir()?)?;
+                let database = tauri::async_runtime::block_on(Database::connect(&paths))?;
+                let transport = ReqwestTransport::new()?;
+                let anilist =
+                    AniListService::new(database.clone(), AniListClient::new(Arc::new(transport)));
+                let backup_destination_picker =
+                    commands::backups::BackupDestinationPicker::for_app(app.handle().clone());
+                app.manage(database);
+                app.manage(anilist);
+                app.manage(backup_destination_picker);
+                Ok(())
+            }),
+    )
     .run(tauri::generate_context!());
 
     if let Err(error) = result {

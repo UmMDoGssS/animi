@@ -13,3 +13,7 @@ second migration creates a real upgrade boundary.
 `v0002.sqlite3` pins the first-applied migration-2 checksum and the schema immediately before
 `0003_activity_progress.sql`. Keep both the database and its manifest immutable so checksum drift
 and upgrade regressions remain reproducible.
+
+`v0003.sqlite3` pins the activity high-water schema immediately before
+`0004_watch_activity_identity.sql`. Its activity row verifies that the identity migration adds a
+portable event identifier without changing the user-owned event or its local ordering ID.

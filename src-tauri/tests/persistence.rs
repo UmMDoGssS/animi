@@ -12,6 +12,7 @@ use tempfile::tempdir;
 const MIGRATION_0001_CHECKSUM: &str = "4f33f13a114dc098bc6ab75229eb86c43c4f35eb98c8280f36215860ebfd679deb83643d3a731391ddd5e67aac85cc04";
 const MIGRATION_0002_CHECKSUM: &str = "9361fde43170e805d0688fc5db6e64a11ac3e7f5a1a54d3b881f2a218f122e8e77c43993ea186a1968fb733f16b1fe27";
 const MIGRATION_0003_CHECKSUM: &str = "614bc98e326578e7a1649dae266c728ee5ec5468ec7a0c72291b998c3c7b7297620ef2f567b803105036135f6126b318";
+const MIGRATION_0004_CHECKSUM: &str = "2d33bf79c69c9975e0f2e0341bd55b7c8117d495db9e4818dcf0f678aec199f9aeabf55df24da15138c670442231563e";
 
 fn library_request(progress: i64, status: LibraryStatus) -> UpsertLibraryEntryRequest {
     UpsertLibraryEntryRequest {
@@ -451,6 +452,7 @@ async fn v0002_fixture_preserves_activity_and_applies_activity_progress_migratio
             (1, MIGRATION_0001_CHECKSUM.to_owned()),
             (2, MIGRATION_0002_CHECKSUM.to_owned()),
             (3, MIGRATION_0003_CHECKSUM.to_owned()),
+            (4, MIGRATION_0004_CHECKSUM.to_owned()),
         ]
     );
     inspection
@@ -488,5 +490,131 @@ async fn v0002_fixture_preserves_activity_and_applies_activity_progress_migratio
             .await
             .expect("persisted activity"),
         activity
+    );
+}
+
+#[tokio::test]
+async fn v0003_fixture_adds_stable_activity_identity_without_changing_the_event() {
+    let root = tempdir().expect("temporary database root");
+    let paths = DatabasePaths::from_root(root.path()).expect("valid paths");
+    let fixture = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/database/v0003.sqlite3");
+    std::fs::copy(&fixture, paths.database()).expect("copy immutable fixture");
+
+    let database = Database::connect(&paths).await.expect("upgraded database");
+    let original_activity = database
+        .activity()
+        .list()
+        .await
+        .expect("preserved activity");
+    assert_eq!(original_activity.len(), 1);
+    assert_eq!(original_activity[0].anilist_id, 101);
+    assert_eq!(original_activity[0].progress_delta, 2);
+    assert_eq!(original_activity[0].episode_duration_minutes, Some(24));
+    assert_eq!(original_activity[0].occurred_at, "2026-07-16T08:30:00.000Z");
+
+    let options = SqliteConnectOptions::new()
+        .filename(paths.database())
+        .read_only(true);
+    let mut inspection = SqliteConnection::connect_with(&options)
+        .await
+        .expect("read-only migration inspection");
+    let (local_id, event_id) = sqlx::query_as::<_, (i64, String)>(
+        "SELECT id, event_id FROM watch_activity WHERE anilist_id = 101",
+    )
+    .fetch_one(&mut inspection)
+    .await
+    .expect("migrated event identity");
+    assert_eq!(local_id, 1);
+    uuid::Uuid::parse_str(&event_id).expect("portable UUID event identity");
+    assert_eq!(&event_id[14..15], "4");
+    assert!(matches!(&event_id[19..20], "8" | "9" | "a" | "b"));
+
+    let migrations = sqlx::query_as::<_, (i64, String)>(
+        "SELECT version, lower(hex(checksum)) FROM _sqlx_migrations ORDER BY version",
+    )
+    .fetch_all(&mut inspection)
+    .await
+    .expect("applied migration checksums");
+    assert_eq!(
+        migrations,
+        vec![
+            (1, MIGRATION_0001_CHECKSUM.to_owned()),
+            (2, MIGRATION_0002_CHECKSUM.to_owned()),
+            (3, MIGRATION_0003_CHECKSUM.to_owned()),
+            (4, MIGRATION_0004_CHECKSUM.to_owned()),
+        ]
+    );
+    inspection
+        .close()
+        .await
+        .expect("close migration inspection");
+
+    database
+        .library()
+        .upsert(library_request(4, LibraryStatus::Watching))
+        .await
+        .expect("post-upgrade progress");
+    let updated_activity = database.activity().list().await.expect("updated activity");
+    assert_eq!(updated_activity.len(), 2);
+    assert_eq!(updated_activity[0].progress_delta, 1);
+    assert_eq!(updated_activity[1], original_activity[0]);
+
+    let options = SqliteConnectOptions::new()
+        .filename(paths.database())
+        .read_only(true);
+    let mut inspection = SqliteConnection::connect_with(&options)
+        .await
+        .expect("post-insert migration inspection");
+    let event_rows = sqlx::query_as::<_, (i64, String)>(
+        "SELECT id, event_id FROM watch_activity ORDER BY id ASC",
+    )
+    .fetch_all(&mut inspection)
+    .await
+    .expect("event identities after insert");
+    assert_eq!(event_rows.len(), 2);
+    assert_eq!(event_rows[0], (1, event_id.clone()));
+    assert_eq!(event_rows[1].0, 2);
+    assert_ne!(event_rows[1].1, event_id);
+    uuid::Uuid::parse_str(&event_rows[1].1).expect("new UUID event identity");
+    assert_eq!(
+        sqlx::query_scalar::<_, i64>(
+            "SELECT seq FROM sqlite_sequence WHERE name = 'watch_activity'"
+        )
+        .fetch_one(&mut inspection)
+        .await
+        .expect("watch activity autoincrement sequence"),
+        2
+    );
+    inspection
+        .close()
+        .await
+        .expect("close post-insert inspection");
+
+    database.close().await;
+    let reopened = Database::connect(&paths).await.expect("reopened upgrade");
+    assert_eq!(
+        reopened.activity().list().await.expect("reopened activity"),
+        updated_activity
+    );
+    let options = SqliteConnectOptions::new()
+        .filename(paths.database())
+        .read_only(true);
+    let mut inspection = SqliteConnection::connect_with(&options)
+        .await
+        .expect("reopened inspection");
+    assert_eq!(
+        sqlx::query_scalar::<_, String>("SELECT event_id FROM watch_activity WHERE id = 1")
+            .fetch_one(&mut inspection)
+            .await
+            .expect("stable event identity"),
+        event_rows[0].1
+    );
+    assert_eq!(
+        sqlx::query_scalar::<_, String>("SELECT event_id FROM watch_activity WHERE id = 2")
+            .fetch_one(&mut inspection)
+            .await
+            .expect("stable new event identity"),
+        event_rows[1].1
     );
 }

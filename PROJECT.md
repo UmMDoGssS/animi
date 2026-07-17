@@ -67,7 +67,7 @@ Tauri command boundary:
 - `get_dashboard_insights`
 - `export_backup`, `preview_import`, `import_backup`
 
-Backups use versioned JSON containing `schemaVersion`, `exportedAt`, settings, local library entries, and user-owned watch activity. Cached discovery data and images are excluded. Imports validate the entire file before one SQLite transaction; duplicates merge by `updatedAt`, the newest entry wins, and import never deletes unrelated local entries.
+Backups use versioned JSON containing `schemaVersion`, `exportedAt`, settings, local library entries, and user-owned watch activity. Library backup records retain the internal activity high-water mark needed to prevent progress from being counted twice after recovery, and activity records carry stable event IDs for idempotent merging. An imported event ID with an identical payload is a no-op; the same event ID with a different payload is a validation error before any write transaction begins. Cached discovery data and images are excluded. Imports validate the entire file before one SQLite transaction. Library and setting conflicts use the greatest `updatedAt`, with an equal timestamp keeping the local record. Library records with the same `createdAt` represent one incarnation and retain the greatest activity high-water mark; when `createdAt` differs, the winning incarnation keeps its own high-water mark. Import never deletes unrelated local entries.
 
 There is no HTTP server, login, cloud database, analytics, or AniList OAuth in v1. Public AniList metadata does not require authentication. ([AniList authentication](https://docs.anilist.co/guide/auth/))
 

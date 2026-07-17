@@ -7,7 +7,7 @@
 | Product | Animi |
 | Release | Version 1, Windows desktop |
 | Overall status | In progress |
-| Current phase | P4 complete; P5 ready |
+| Current phase | P6 in progress; P5 ready |
 | Schedule | Dependency-driven; no calendar commitment |
 | Last updated | 2026-07-17 |
 
@@ -50,7 +50,7 @@ The following remain outside v1:
 | P3 | Four-destination application shell and design system | P0; coordinate with P1 contracts | Complete | Home, Discover, Dashboard, and Settings shell works accessibly at desktop and narrow widths |
 | P4 | Discovery, details, Dashboard, and library workflow | P1, P2, P3 | Complete | Core discovery-to-library flow passes end to end |
 | P5 | Home airing workflow, insights, and recommendations | P2, P4 | Not started | Home airing/progress, Dashboard insights, and deterministic recommendation behavior pass |
-| P6 | Settings, backup, and recovery | P1, P3, P4 | Not started | Backup round trips and rollback guarantees pass |
+| P6 | Settings, backup, and recovery | P1, P3, P4 | In progress | Backup round trips and rollback guarantees pass |
 | P7 | Release hardening and Windows packaging | P0-P6 | Not started | Full quality gate and production NSIS acceptance pass |
 
 ## Planned Contracts
@@ -87,7 +87,7 @@ For P4, `list_library` returns authoritative local entry fields enriched with op
 
 ### Backup envelope
 
-Backups use versioned JSON containing `schemaVersion`, `exportedAt`, settings, local library entries, and user-owned watch activity. Cache records and downloaded images are excluded. Import validates the complete file before opening one write transaction. For duplicate entries, the greatest `updatedAt` wins; import never deletes unrelated local entries.
+Backups use versioned JSON containing `schemaVersion`, `exportedAt`, settings, local library entries, and user-owned watch activity. Backup-only library records preserve the activity high-water mark, and watch activity carries stable event IDs so repeated imports can be idempotent. An existing event ID with an identical payload is a no-op; a reused event ID with a different payload is a validation error before writes. Cache records and downloaded images are excluded. Import validates the complete file before opening one write transaction. Library and setting conflicts use the greatest `updatedAt`, with equal timestamps keeping local data. Same-`createdAt` library records retain the greatest activity high-water mark; different `createdAt` values are separate incarnations and the winning incarnation retains its own high-water mark. Import never deletes unrelated local entries.
 
 ## Cross-Cutting Definition of Done
 
@@ -347,18 +347,18 @@ P4 completed 2026-07-17. Discover now uses the typed command boundary for trendi
 
 ### Entry gate
 
-- [ ] **P6-E1** The current backup schema and supported import versions are documented next to the Rust backup types.
-- [ ] **P6-E2** File-dialog and filesystem operations can be replaced with temporary paths in automated tests.
+- [x] **P6-E1** The current backup schema and supported import versions are documented next to the Rust backup types.
+- [x] **P6-E2** File-dialog and filesystem operations can be replaced with temporary paths in automated tests.
 
 ### Milestones
 
 - [ ] **P6-M1 - Settings page:** Complete the Settings primary destination with theme selection, cache freshness information, backup actions, and destructive local-data actions through accessible controls.
-- [ ] **P6-M2 - Versioned export:** Implement `export_backup` with `schemaVersion`, UTC `exportedAt`, settings, library entries, and user-owned watch activity while excluding caches and images.
-- [ ] **P6-M3 - Import validation:** Validate file readability, JSON shape, schema version, enums, timestamps, identifiers, progress, watch activity, and duplicate records before opening a write transaction.
+- [x] **P6-M2 - Versioned export:** Implement `export_backup` with `schemaVersion`, UTC `exportedAt`, settings, library entries, and user-owned watch activity while excluding caches and images.
+- [ ] **P6-M3 - Import validation:** Validate file readability, JSON shape, schema version, enums, timestamps, identifiers, progress, watch activity, duplicate records, and conflicting payloads that reuse an activity event ID before opening a write transaction.
 - [ ] **P6-M4 - Import preview:** Implement `preview_import` with counts, conflicts, validation errors, and a clear statement that unrelated local entries will remain.
-- [ ] **P6-M5 - Transactional import:** Implement `import_backup` in one write transaction, resolve duplicates by greatest `updatedAt`, and roll back every write if any application step fails.
+- [ ] **P6-M5 - Transactional import:** Implement `import_backup` in one write transaction; resolve library and setting duplicates by greatest `updatedAt` with equal timestamps keeping local data; preserve the greatest high-water mark only for library records sharing `createdAt`; let a winning different incarnation keep its own high-water mark; treat identical existing activity events as no-ops; and roll back every write if any application step fails.
 - [ ] **P6-M6 - Destructive confirmation:** Require explicit, specific confirmation before clearing local data and keep backup/import actions visually distinct from deletion.
-- [ ] **P6-M7 - Backup tests:** Cover empty and populated round trips including watch activity, malformed JSON, unsupported versions, invalid records, duplicate conflicts, equal or newer local records, unrelated local entries, forced mid-import failure, and rollback.
+- [ ] **P6-M7 - Backup tests:** Cover empty and populated round trips including watch activity, malformed JSON, unsupported versions, invalid records, duplicate conflicts, repeated identical activity imports, conflicting reused event IDs, equal and newer local records, same- and different-incarnation high-water conflicts, unrelated local entries, forced mid-import failure, and rollback.
 - [ ] **P6-M8 - Recovery flow:** Add end-to-end coverage for export, clearing an isolated test database, previewing import, restoring, and verifying library and settings.
 
 ### Exit gate
@@ -368,7 +368,7 @@ P4 completed 2026-07-17. Discover now uses the typed command boundary for trendi
 - [ ] **P6-G3** Conflict previews match the final transactional result.
 - [ ] **P6-G4** No destructive action can silently discard library entries.
 
-**Evidence:** Pending.
+**Evidence:** In progress. Backup schema v1 and the supported import-version set are documented beside the Rust DTOs. Append-only migration `0004_watch_activity_identity.sql` gives activity events portable UUID identities while preserving local ordering, and the immutable v0003 fixture proves both the upgrade and the next post-upgrade event identity. `export_backup` reads settings, library state including `activityProgress`, and watch activity through one SQLite snapshot; opens a Rust-owned native destination picker; streams an atomically replaced JSON file from a blocking worker; excludes cache-owned tables; and returns structured errors without truncating an existing destination on snapshot, write, or replacement failure. Temporary-path unit coverage, the migration fixture, and success, cancellation, and structured-error cases across the real camelCase Tauri mock IPC boundary are included. The cumulative gate passed Prettier, ESLint, `svelte-check` with zero diagnostics, 87 frontend tests across 13 files, the production frontend build, Rust formatting, Clippy with warnings denied, all 60 Rust unit tests and 12 integration tests, and `tauri build --no-bundle`, which produced the release executable with migration 0004 embedded.
 
 ## P7 - Release Hardening and Windows Packaging
 
@@ -471,3 +471,4 @@ Future phases have no schedule, implementation status, or permission to begin. P
 | 2026-07-16 | Deliver the P3 frontend rewrite through user-reviewed visual checkpoints | Allows desktop and narrow-layout approval before proceeding to the next page |
 | 2026-07-17 | Treat initial progress as a baseline and retain an activity high-water mark across corrections | Prevents fabricated history and avoids counting corrected then restored progress twice without mutating append-only events |
 | 2026-07-17 | Establish anime-only Dashboard base insights during P4 and add time series in P5 | Lets the P4 Dashboard render authoritative totals, preference coverage, and raw activity while keeping calendar bucketing in its planned phase |
+| 2026-07-17 | Preserve activity high-water marks and stable event IDs in backup schema v1 | Recovery must not count corrected progress twice, and repeated imports need portable watch-event identity |

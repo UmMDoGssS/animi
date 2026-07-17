@@ -4,6 +4,7 @@ import { isCommandError } from "./types";
 
 import type {
   DashboardInsights,
+  ExportBackupResponse,
   LibraryEntry,
   LibraryItem,
   MediaDetailsResponse,
@@ -179,5 +180,21 @@ describe("library IPC contracts", () => {
         insights.preferenceSignals.missingMetadataTitles,
     );
     expect(insights.preferenceSignals.tags).toHaveLength(0);
+  });
+});
+
+describe("backup IPC contracts", () => {
+  it("reports the versioned export counts and UTC timestamp", () => {
+    const response: ExportBackupResponse = {
+      schemaVersion: 1,
+      exportedAt: "2026-07-17T09:00:00.000Z",
+      settingsCount: 1,
+      libraryEntryCount: 2,
+      watchActivityCount: 3,
+    };
+
+    expect(response.schemaVersion).toBe(1);
+    expect(response.exportedAt.endsWith("Z")).toBe(true);
+    expect(response.watchActivityCount).toBe(3);
   });
 });

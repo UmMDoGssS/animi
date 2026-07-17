@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import type {
   CommandError,
   DashboardInsights,
+  ExportBackupResponse,
   LibraryEntry,
   LibraryItem,
   MediaDetailsRequest,
@@ -55,6 +56,10 @@ export async function setThemePreference(
   preference: ThemePreference,
 ): Promise<ThemePreference> {
   return invoke<ThemePreference>("set_theme_preference", { preference });
+}
+
+export async function exportBackup(): Promise<ExportBackupResponse | null> {
+  return invoke<ExportBackupResponse | null>("export_backup");
 }
 
 export async function searchMedia(

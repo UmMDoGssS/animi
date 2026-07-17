@@ -18,6 +18,14 @@ export type MediaKind = "ANIME" | "MANGA";
 export type LibraryStatus = "WATCHING" | "COMPLETED" | "PLANNING";
 export type ThemePreference = "SYSTEM" | "LATTE" | "MACCHIATO";
 
+export interface ExportBackupResponse {
+  schemaVersion: 1;
+  exportedAt: UtcTimestamp;
+  settingsCount: number;
+  libraryEntryCount: number;
+  watchActivityCount: number;
+}
+
 export interface LibraryEntry {
   anilistId: number;
   mediaKind: MediaKind;

@@ -1,4 +1,5 @@
 mod activity;
+mod backups;
 mod cache;
 mod dashboard;
 mod error;
@@ -14,6 +15,10 @@ use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
 use sqlx::{ConnectOptions, SqlitePool};
 
 pub use activity::ActivityRepository;
+pub use backups::BackupRepository;
+pub(crate) use backups::{
+    BackupLibraryEntryRecord, BackupSettingRecord, BackupSnapshotRecord, BackupWatchActivityRecord,
+};
 pub use cache::CacheRepository;
 pub use dashboard::DashboardRepository;
 pub use error::DatabaseError;
@@ -73,6 +78,7 @@ impl DatabasePaths {
 #[derive(Debug, Clone)]
 pub struct Database {
     pool: SqlitePool,
+    storage_root: PathBuf,
 }
 
 impl Database {
@@ -106,7 +112,10 @@ impl Database {
             }
             Err(error) => return Err(error.into()),
         }
-        Ok(Self { pool })
+        Ok(Self {
+            pool,
+            storage_root: paths.root().to_owned(),
+        })
     }
 
     pub fn library(&self) -> LibraryRepository {
@@ -115,6 +124,10 @@ impl Database {
 
     pub fn activity(&self) -> ActivityRepository {
         ActivityRepository::new(self.pool.clone())
+    }
+
+    pub fn backups(&self) -> BackupRepository {
+        BackupRepository::new(self.pool.clone())
     }
 
     pub fn dashboard(&self) -> DashboardRepository {
@@ -131,6 +144,10 @@ impl Database {
 
     pub fn cache(&self) -> CacheRepository {
         CacheRepository::new(self.pool.clone())
+    }
+
+    pub(crate) fn storage_root(&self) -> &Path {
+        &self.storage_root
     }
 
     pub async fn foreign_keys_enabled(&self) -> Result<bool, DatabaseError> {

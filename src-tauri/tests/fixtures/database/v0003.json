@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 3,
+  "migration": "0003_activity_progress.sql",
+  "sqliteSha256": "8e9b27fd196218e9300bc138d600fbb9d574f3c7d17789b85140694239c3cc17",
+  "migrationChecksums": {
+    "0001_initial.sql": "4f33f13a114dc098bc6ab75229eb86c43c4f35eb98c8280f36215860ebfd679deb83643d3a731391ddd5e67aac85cc04",
+    "0002_watch_activity.sql": "9361fde43170e805d0688fc5db6e64a11ac3e7f5a1a54d3b881f2a218f122e8e77c43993ea186a1968fb733f16b1fe27",
+    "0003_activity_progress.sql": "614bc98e326578e7a1649dae266c728ee5ec5468ec7a0c72291b998c3c7b7297620ef2f567b803105036135f6126b318"
+  },
+  "representativeRows": {
+    "airingData": 1,
+    "libraryEntries": 1,
+    "mediaSnapshots": 1,
+    "responseCaches": 1,
+    "settings": 1,
+    "watchActivity": 1
+  },
+  "notes": "Immutable canonical pre-0004 upgrade fixture. Copy to a temporary directory before opening."
+}

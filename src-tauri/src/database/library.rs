@@ -1,5 +1,6 @@
 use chrono::{DateTime, Duration, Utc};
 use sqlx::{FromRow, SqliteConnection, SqlitePool};
+use uuid::Uuid;
 
 use crate::domain::{
     CommandError, LibraryEntry, LibraryItem, LibraryMediaSnapshot, LibraryMediaTag, LibraryStatus,
@@ -134,9 +135,11 @@ impl LibraryRepository {
         {
             sqlx::query(
                 "INSERT INTO watch_activity (\
-                    anilist_id, media_kind, progress_delta, episode_duration_minutes, occurred_at\
-                 ) VALUES (?, ?, ?, ?, ?)",
+                    event_id, anilist_id, media_kind, progress_delta, \
+                    episode_duration_minutes, occurred_at\
+                 ) VALUES (?, ?, ?, ?, ?, ?)",
             )
+            .bind(Uuid::new_v4().to_string())
             .bind(entry.anilist_id)
             .bind(entry.media_kind.as_str())
             .bind(progress_delta)
