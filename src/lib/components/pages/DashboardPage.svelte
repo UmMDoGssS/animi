@@ -1114,7 +1114,7 @@
               {#each visibleLibraryItems as item (item.entry.anilistId)}
                 {@const itemTitle = titleForItem(item)}
                 <li
-                  class="w-[min(17rem,82vw)] min-w-0 shrink-0 snap-start sm:w-64"
+                  class="w-[min(18rem,84vw)] min-w-0 shrink-0 snap-start sm:w-72"
                 >
                   <button
                     type="button"

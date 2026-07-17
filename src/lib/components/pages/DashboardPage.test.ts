@@ -399,7 +399,11 @@ describe("DashboardPage", () => {
       const libraryIndex = screen.getByRole("list", {
         name: "Library index results",
       });
-      expect(within(libraryIndex).getAllByRole("listitem")).toHaveLength(4);
+      const libraryCards = within(libraryIndex).getAllByRole("listitem");
+      expect(libraryCards).toHaveLength(4);
+      for (const card of libraryCards) {
+        expect(card).toHaveClass("w-[min(18rem,84vw)]", "sm:w-72");
+      }
       const libraryCard = within(libraryIndex).getByRole("button", {
         name: "Open library details for Paper Cranes at Dawn",
       });
