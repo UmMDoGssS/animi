@@ -1,42 +1,105 @@
-import { render, screen, within } from "@testing-library/svelte";
+import { render, screen, waitFor, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
+import type { ImportPreviewResponse, SettingsOverview } from "$lib/ipc/types";
 import { setTestViewport, testViewports } from "../../../test/viewports";
 
 import SettingsPage from "./SettingsPage.svelte";
 
+const overview: SettingsOverview = {
+  cachedMediaCount: 8,
+  staleMediaCount: 2,
+  airingRecordCount: 3,
+  staleAiringCount: 1,
+  responseCacheCount: 4,
+  staleResponseCacheCount: 0,
+  latestCacheUpdateAt: "2026-07-17T09:00:00.000Z",
+};
+
+const preview: ImportPreviewResponse = {
+  fileName: "animi-recovery.json",
+  schemaVersion: 1,
+  exportedAt: "2026-07-17T08:00:00.000Z",
+  settingsCount: 1,
+  libraryEntryCount: 4,
+  watchActivityCount: 7,
+  changes: {
+    settingsAdded: 0,
+    settingsUpdated: 1,
+    settingsKeptLocal: 0,
+    libraryAdded: 2,
+    libraryMerged: 1,
+    libraryKeptLocal: 1,
+    libraryConflicts: 2,
+    activityAdded: 5,
+    activityUnchanged: 2,
+    unrelatedLocalLibraryEntriesRetained: 3,
+  },
+  validationErrors: [],
+  canApply: true,
+  importToken: "00000000-0000-4000-a000-000000000010",
+  preservesUnrelatedLocalEntries: true,
+};
+
+function services() {
+  return {
+    loadOverview: vi.fn().mockResolvedValue(overview),
+    saveBackup: vi.fn().mockResolvedValue({
+      schemaVersion: 1,
+      exportedAt: "2026-07-17T10:00:00.000Z",
+      settingsCount: 1,
+      libraryEntryCount: 4,
+      watchActivityCount: 7,
+    }),
+    chooseImport: vi.fn().mockResolvedValue(preview),
+    restoreBackup: vi.fn().mockResolvedValue({
+      schemaVersion: 1,
+      changes: preview.changes,
+    }),
+    clearData: vi.fn().mockResolvedValue({
+      settingsRemoved: 1,
+      libraryEntriesRemoved: 4,
+      watchActivityRemoved: 7,
+      cachedRecordsRemoved: 15,
+    }),
+    localStateChanged: vi.fn().mockResolvedValue(undefined),
+  };
+}
+
 function renderSettings(
   selectThemePreference = vi.fn().mockResolvedValue(undefined),
+  overrides: Partial<ReturnType<typeof services>> = {},
 ) {
-  return render(SettingsPage, {
-    themePreference: "SYSTEM",
-    themeStatus: "ready",
-    themeError: null,
+  const recoveryServices = { ...services(), ...overrides };
+  return {
+    ...render(SettingsPage, {
+      themePreference: "SYSTEM",
+      themeStatus: "ready",
+      themeError: null,
+      selectThemePreference,
+      retryThemePreference: vi.fn().mockResolvedValue(undefined),
+      ...recoveryServices,
+    }),
+    recoveryServices,
     selectThemePreference,
-    retryThemePreference: vi.fn().mockResolvedValue(undefined),
-  });
+  };
 }
 
 describe("SettingsPage", () => {
   it.each(testViewports)(
-    "renders the truthful local settings presentation at the $name viewport",
-    (viewport) => {
+    "renders live local controls at the $name viewport",
+    async (viewport) => {
       setTestViewport(viewport);
       renderSettings();
 
       expect(
         screen.getByRole("heading", { level: 1, name: "Settings" }),
       ).toBeInTheDocument();
-      expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-      expect(screen.getByRole("tabpanel")).toHaveAttribute(
-        "id",
-        "settings-panel",
-      );
       for (const sectionHeading of [
         "Appearance",
         "Local by design",
-        "Cache refresh policy",
+        "Cache freshness",
         "Backup & recovery",
         "Clear local data",
       ]) {
@@ -44,130 +107,154 @@ describe("SettingsPage", () => {
           screen.getByRole("heading", { level: 2, name: sectionHeading }),
         ).toBeInTheDocument();
       }
-      expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(5);
       expect(
-        screen.getByRole("heading", { level: 3, name: "Backup manifest" }),
-      ).toBeInTheDocument();
-
+        screen.getByRole("note", { name: "Local settings disclosure" }),
+      ).toHaveTextContent(/no account, cloud copy, or analytics/i);
       expect(
-        screen.getByRole("note", { name: "Settings preview disclosure" }),
-      ).toHaveTextContent(/appearance changes are saved on this device/i);
+        screen.getByRole("group", { name: "Local-only manifest" }),
+      ).toHaveTextContent(/storage\s*this Windows device/i);
       expect(
-        screen.getByRole("note", { name: "Settings preview disclosure" }),
-      ).toHaveTextContent(/layout previews only/i);
+        screen.getByRole("button", { name: "Export backup" }),
+      ).toBeEnabled();
+      expect(
+        screen.getByRole("button", { name: "Choose backup to restore" }),
+      ).toBeEnabled();
+      expect(
+        screen.getByText("ฅ^•ﻌ•^ฅ").closest('[aria-hidden="true"]'),
+      ).not.toBeNull();
 
-      expect(screen.getAllByRole("radio")).toHaveLength(3);
-      expect(screen.getByRole("radio", { name: /System/ })).toBeChecked();
-
-      const localManifest = screen.getByRole("group", {
-        name: "Local-only manifest",
+      const cache = await screen.findByRole("group", {
+        name: "Local cache freshness",
       });
-      expect(localManifest).toHaveTextContent(/storage\s*this Windows device/i);
-      expect(localManifest).toHaveTextContent(/account\s*none/i);
-      expect(localManifest).toHaveTextContent(/cloud sync\s*none/i);
-      expect(localManifest).toHaveTextContent(/analytics\s*none/i);
-      const localCat = screen.getByText("(=^._.^=) // device only");
-      expect(localCat.closest('[aria-hidden="true"]')).not.toBeNull();
-
-      const cachePolicy = screen.getByRole("group", {
-        name: "AniList cache refresh policy",
-      });
-      expect(cachePolicy).toHaveTextContent(/airing data\s*30 minutes/i);
-      expect(cachePolicy).toHaveTextContent(
-        /discover \+ recommendations\s*6 hours/i,
-      );
-      expect(cachePolicy).toHaveTextContent(/media details\s*24 hours/i);
-      expect(screen.getByText("no live values")).toBeInTheDocument();
-      expect(
-        screen.getByText(/does not inspect cache records/i),
-      ).toBeInTheDocument();
-
-      const included = screen.getByRole("list", {
-        name: "Backup contents preview",
-      });
-      expect(
-        within(included).getByText("Theme and local settings"),
-      ).toBeInTheDocument();
-      expect(within(included).getByText("Library entries")).toBeInTheDocument();
-      expect(
-        within(included).getByText("Recorded watch activity"),
-      ).toBeInTheDocument();
-
-      const excluded = screen.getByRole("list", {
-        name: "Backup exclusions preview",
-      });
-      expect(
-        within(excluded).getByText("Cached AniList responses"),
-      ).toBeInTheDocument();
-      expect(
-        within(excluded).getByText("Downloaded images"),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/validate the whole file and preview conflicts/i),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/unrelated local library entries will stay in place/i),
-      ).toBeInTheDocument();
-
-      for (const action of [
-        "Export backup // preview only",
-        "Restore backup // preview only",
-        "Clear local data // preview only",
-      ]) {
-        expect(screen.getByRole("button", { name: action })).toBeDisabled();
-      }
-
-      const dangerRegion = screen.getByRole("region", {
-        name: "Clear local data",
-      });
-      expect(dangerRegion).toHaveClass("border-danger/60");
-      expect(dangerRegion).toHaveTextContent(
-        /require a specific confirmation/i,
-      );
-      expect(dangerRegion).toHaveTextContent(/will never run silently/i);
+      expect(cache).toHaveTextContent(/8 cached\s*2 stale/i);
+      expect(cache).toHaveTextContent(/3 cached\s*1 stale/i);
+      expect(cache).toHaveTextContent(/4 cached\s*0 stale/i);
     },
   );
 
-  it("keeps the persisted appearance control live", async () => {
+  it("keeps the persisted appearance control live and keyboard operable", async () => {
     const user = userEvent.setup();
     const selectThemePreference = vi.fn().mockResolvedValue(undefined);
     renderSettings(selectThemePreference);
-
-    await user.click(screen.getByRole("radio", { name: /Dark/ }));
-
+    const dark = screen.getByRole("radio", { name: /Dark/ });
+    dark.focus();
+    await user.keyboard(" ");
+    expect(dark).toHaveFocus();
     expect(selectThemePreference).toHaveBeenCalledWith("MACCHIATO");
   });
 
-  it("supports keyboard theme selection and disables changes while saving", async () => {
+  it("exports and reports only user-owned backup counts", async () => {
     const user = userEvent.setup();
-    const selectThemePreference = vi.fn().mockResolvedValue(undefined);
-    const { rerender } = renderSettings(selectThemePreference);
-    const lightOption = screen.getByRole("radio", { name: /Light/ });
-
-    lightOption.focus();
-    await user.keyboard(" ");
-
-    expect(lightOption).toHaveFocus();
-    expect(selectThemePreference).toHaveBeenCalledWith("LATTE");
-
-    await rerender({
-      themePreference: "LATTE",
-      themeStatus: "saving",
-      themeError: null,
-      selectThemePreference,
-      retryThemePreference: vi.fn().mockResolvedValue(undefined),
-    });
-
-    for (const option of screen.getAllByRole("radio")) {
-      expect(option).toBeDisabled();
-    }
-    expect(screen.getByRole("status")).toHaveTextContent(
-      /saving the palette on this device/i,
+    const { recoveryServices } = renderSettings();
+    await user.click(screen.getByRole("button", { name: "Export backup" }));
+    expect(recoveryServices.saveBackup).toHaveBeenCalledTimes(1);
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      /4 library entries and 7 activity events/i,
     );
+  });
+
+  it("previews the recovery ledger before applying the opaque import token", async () => {
+    const user = userEvent.setup();
+    const { recoveryServices } = renderSettings();
+    await user.click(
+      screen.getByRole("button", { name: "Choose backup to restore" }),
+    );
+
+    expect(await screen.findByText("animi-recovery.json")).toBeInTheDocument();
+    const ledger = screen.getByRole("group", { name: "Import change preview" });
+    expect(ledger).toHaveTextContent(/library added\s*2/i);
+    expect(ledger).toHaveTextContent(/library merged\s*1/i);
+    expect(ledger).toHaveTextContent(/unrelated retained\s*3/i);
     expect(
-      screen
-        .getByRole("heading", { level: 2, name: "Appearance" })
-        .closest("section"),
-    ).toHaveAttribute("aria-busy", "true");
+      screen.getByRole("note", { name: "Recovery safety guarantee" }),
+    ).toHaveTextContent(/commits all changes together or keeps none/i);
+
+    await user.click(
+      screen.getByRole("button", { name: "Restore this backup" }),
+    );
+    expect(recoveryServices.restoreBackup).toHaveBeenCalledWith({
+      importToken: preview.importToken,
+    });
+    await waitFor(() =>
+      expect(recoveryServices.localStateChanged).toHaveBeenCalledTimes(1),
+    );
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      /recovery complete/i,
+    );
+  });
+
+  it("shows validation errors and never offers apply for an invalid backup", async () => {
+    const user = userEvent.setup();
+    renderSettings(undefined, {
+      chooseImport: vi.fn().mockResolvedValue({
+        ...preview,
+        canApply: false,
+        importToken: null,
+        validationErrors: [
+          {
+            code: "BACKUP_SCHEMA_VERSION_UNSUPPORTED",
+            message: "Backup schema version 9 is not supported.",
+            path: "schemaVersion",
+          },
+        ],
+      }),
+    });
+    await user.click(
+      screen.getByRole("button", { name: "Choose backup to restore" }),
+    );
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("BACKUP_SCHEMA_VERSION_UNSUPPORTED");
+    expect(alert).toHaveTextContent("schemaVersion");
+    expect(
+      screen.queryByRole("button", { name: "Restore this backup" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("requires the exact destructive confirmation and keeps cancellation harmless", async () => {
+    const user = userEvent.setup();
+    const { recoveryServices } = renderSettings();
+    await user.click(screen.getByRole("button", { name: "Clear local data" }));
+    const confirmation = screen.getByRole("textbox", {
+      name: /Type CLEAR MY LOCAL DATA/i,
+    });
+    const destructive = screen.getByRole("button", {
+      name: "Permanently clear local data",
+    });
+    expect(destructive).toBeDisabled();
+
+    await user.type(confirmation, "CLEAR MY DATA");
+    expect(destructive).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Keep my data" }));
+    expect(recoveryServices.clearData).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole("button", { name: "Clear local data" }));
+    await user.type(
+      screen.getByRole("textbox", { name: /Type CLEAR MY LOCAL DATA/i }),
+      "CLEAR MY LOCAL DATA",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Permanently clear local data" }),
+    );
+    expect(recoveryServices.clearData).toHaveBeenCalledWith({
+      confirmation: "CLEAR MY LOCAL DATA",
+    });
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      /local data cleared/i,
+    );
+    expect(recoveryServices.localStateChanged).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps backup actions visually distinct from the danger region", () => {
+    renderSettings();
+    const dangerRegion = screen.getByRole("region", {
+      name: "Clear local data",
+    });
+    expect(dangerRegion).toHaveClass("border-danger/60");
+    expect(
+      within(dangerRegion).getByRole("button", { name: "Clear local data" }),
+    ).toBeInTheDocument();
+    expect(
+      within(dangerRegion).queryByRole("button", { name: "Export backup" }),
+    ).not.toBeInTheDocument();
   });
 });

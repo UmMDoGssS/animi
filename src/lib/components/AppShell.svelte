@@ -2,13 +2,24 @@
   import { onMount } from "svelte";
 
   import {
+    clearLocalData,
+    exportBackup,
+    getSettingsOverview,
     getThemePreference,
+    importBackup,
     normalizeCommandError,
+    previewImport,
     setThemePreference,
   } from "$lib/ipc/client";
   import type {
     CommandError,
+    ClearLocalDataRequest,
+    ClearLocalDataResponse,
     DashboardInsights,
+    ExportBackupResponse,
+    ImportBackupRequest,
+    ImportBackupResponse,
+    ImportPreviewResponse,
     LibraryEntry,
     LibraryItem,
     MediaDetailsRequest,
@@ -19,6 +30,7 @@
     RemoveLibraryEntryRequest,
     RemoveLibraryEntryResponse,
     SearchMediaRequest,
+    SettingsOverview,
     ThemePreference,
     UpsertLibraryEntryRequest,
   } from "$lib/ipc/types";
@@ -38,6 +50,7 @@
       preference: ThemePreference,
     ) => Promise<ThemePreference>;
     p4Services?: P4ServiceOverrides;
+    p6Services?: P6ServiceOverrides;
   }
 
   interface P4ServiceOverrides {
@@ -55,6 +68,18 @@
     refreshMetadata?: () => Promise<RefreshLibraryMetadataResponse>;
   }
 
+  interface P6ServiceOverrides {
+    loadOverview?: () => Promise<SettingsOverview>;
+    saveBackup?: () => Promise<ExportBackupResponse | null>;
+    chooseImport?: () => Promise<ImportPreviewResponse | null>;
+    restoreBackup?: (
+      request: ImportBackupRequest,
+    ) => Promise<ImportBackupResponse>;
+    clearData?: (
+      request: ClearLocalDataRequest,
+    ) => Promise<ClearLocalDataResponse>;
+  }
+
   type FailedThemeOperation =
     { kind: "load" } | { kind: "save"; preference: ThemePreference };
 
@@ -62,6 +87,7 @@
     loadThemePreference = getThemePreference,
     saveThemePreference = setThemePreference,
     p4Services = {},
+    p6Services = {},
   }: Props = $props();
 
   let activeView = $state<PrimaryViewId>("home");
@@ -205,6 +231,12 @@
             {themeError}
             {selectThemePreference}
             {retryThemePreference}
+            loadOverview={p6Services.loadOverview ?? getSettingsOverview}
+            saveBackup={p6Services.saveBackup ?? exportBackup}
+            chooseImport={p6Services.chooseImport ?? previewImport}
+            restoreBackup={p6Services.restoreBackup ?? importBackup}
+            clearData={p6Services.clearData ?? clearLocalData}
+            localStateChanged={loadPreference}
           />
         {/if}
       </main>

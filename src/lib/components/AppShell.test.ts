@@ -95,6 +95,24 @@ function p4Services() {
   };
 }
 
+function p6Services() {
+  return {
+    loadOverview: vi.fn().mockResolvedValue({
+      cachedMediaCount: 0,
+      staleMediaCount: 0,
+      airingRecordCount: 0,
+      staleAiringCount: 0,
+      responseCacheCount: 0,
+      staleResponseCacheCount: 0,
+      latestCacheUpdateAt: null,
+    }),
+    saveBackup: vi.fn().mockResolvedValue(null),
+    chooseImport: vi.fn().mockResolvedValue(null),
+    restoreBackup: vi.fn(),
+    clearData: vi.fn(),
+  };
+}
+
 describe("AppShell", () => {
   it.each(testViewports)(
     "renders all four page destinations at the $name viewport",
@@ -104,6 +122,7 @@ describe("AppShell", () => {
         loadThemePreference: vi.fn().mockResolvedValue("SYSTEM"),
         saveThemePreference: vi.fn(),
         p4Services: p4Services(),
+        p6Services: p6Services(),
       });
 
       const tabs = screen.getAllByRole("tab");
@@ -161,6 +180,7 @@ describe("AppShell", () => {
     render(AppShell, {
       loadThemePreference: vi.fn().mockResolvedValue("SYSTEM"),
       saveThemePreference: vi.fn(),
+      p6Services: p6Services(),
     });
 
     const homeTab = screen.getByRole("tab", { name: "Home" });
@@ -203,6 +223,7 @@ describe("AppShell", () => {
     render(AppShell, {
       loadThemePreference: vi.fn().mockResolvedValue("SYSTEM"),
       saveThemePreference: vi.fn(),
+      p6Services: p6Services(),
     });
     document.documentElement.scrollTop = 640;
     document.body.scrollTop = 640;
@@ -222,6 +243,7 @@ describe("AppShell", () => {
       loadThemePreference: vi.fn().mockResolvedValue("SYSTEM"),
       saveThemePreference: vi.fn(),
       p4Services: p4Services(),
+      p6Services: p6Services(),
     });
 
     const discoverTab = screen.getByRole("tab", { name: "Discover" });
@@ -249,6 +271,7 @@ describe("AppShell", () => {
     render(AppShell, {
       loadThemePreference: vi.fn().mockResolvedValue("MACCHIATO"),
       saveThemePreference,
+      p6Services: p6Services(),
     });
 
     await waitFor(() =>
@@ -285,6 +308,7 @@ describe("AppShell", () => {
     render(AppShell, {
       loadThemePreference: vi.fn().mockResolvedValue("LATTE"),
       saveThemePreference,
+      p6Services: p6Services(),
     });
 
     await waitFor(() =>
@@ -326,6 +350,7 @@ describe("AppShell", () => {
     render(AppShell, {
       loadThemePreference,
       saveThemePreference: vi.fn(),
+      p6Services: p6Services(),
     });
 
     await fireEvent.click(screen.getByRole("tab", { name: "Settings" }));
@@ -356,6 +381,7 @@ describe("AppShell", () => {
         retryable: false,
       }),
       saveThemePreference: vi.fn(),
+      p6Services: p6Services(),
     });
 
     await fireEvent.click(screen.getByRole("tab", { name: "Settings" }));

@@ -2,8 +2,13 @@ import { invoke } from "@tauri-apps/api/core";
 
 import type {
   CommandError,
+  ClearLocalDataRequest,
+  ClearLocalDataResponse,
   DashboardInsights,
   ExportBackupResponse,
+  ImportBackupRequest,
+  ImportBackupResponse,
+  ImportPreviewResponse,
   LibraryEntry,
   LibraryItem,
   MediaDetailsRequest,
@@ -14,6 +19,7 @@ import type {
   RemoveLibraryEntryResponse,
   RefreshLibraryMetadataResponse,
   SmokeResponse,
+  SettingsOverview,
   ThemePreference,
   SearchMediaRequest,
   UpsertLibraryEntryRequest,
@@ -60,6 +66,26 @@ export async function setThemePreference(
 
 export async function exportBackup(): Promise<ExportBackupResponse | null> {
   return invoke<ExportBackupResponse | null>("export_backup");
+}
+
+export async function previewImport(): Promise<ImportPreviewResponse | null> {
+  return invoke<ImportPreviewResponse | null>("preview_import");
+}
+
+export async function importBackup(
+  request: ImportBackupRequest,
+): Promise<ImportBackupResponse> {
+  return invoke<ImportBackupResponse>("import_backup", { request });
+}
+
+export async function getSettingsOverview(): Promise<SettingsOverview> {
+  return invoke<SettingsOverview>("get_settings_overview");
+}
+
+export async function clearLocalData(
+  request: ClearLocalDataRequest,
+): Promise<ClearLocalDataResponse> {
+  return invoke<ClearLocalDataResponse>("clear_local_data", { request });
 }
 
 export async function searchMedia(

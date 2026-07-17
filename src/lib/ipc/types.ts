@@ -26,6 +26,69 @@ export interface ExportBackupResponse {
   watchActivityCount: number;
 }
 
+export interface ImportValidationIssue {
+  code: string;
+  message: string;
+  path: string | null;
+}
+
+export interface ImportChangeSummary {
+  settingsAdded: number;
+  settingsUpdated: number;
+  settingsKeptLocal: number;
+  libraryAdded: number;
+  libraryMerged: number;
+  libraryKeptLocal: number;
+  libraryConflicts: number;
+  activityAdded: number;
+  activityUnchanged: number;
+  unrelatedLocalLibraryEntriesRetained: number;
+}
+
+export interface ImportPreviewResponse {
+  fileName: string;
+  schemaVersion: number | null;
+  exportedAt: UtcTimestamp | null;
+  settingsCount: number;
+  libraryEntryCount: number;
+  watchActivityCount: number;
+  changes: ImportChangeSummary;
+  validationErrors: ImportValidationIssue[];
+  canApply: boolean;
+  importToken: string | null;
+  preservesUnrelatedLocalEntries: true;
+}
+
+export interface ImportBackupRequest {
+  importToken: string;
+}
+
+export interface ImportBackupResponse {
+  schemaVersion: number;
+  changes: ImportChangeSummary;
+}
+
+export interface ClearLocalDataRequest {
+  confirmation: string;
+}
+
+export interface ClearLocalDataResponse {
+  settingsRemoved: number;
+  libraryEntriesRemoved: number;
+  watchActivityRemoved: number;
+  cachedRecordsRemoved: number;
+}
+
+export interface SettingsOverview {
+  cachedMediaCount: number;
+  staleMediaCount: number;
+  airingRecordCount: number;
+  staleAiringCount: number;
+  responseCacheCount: number;
+  staleResponseCacheCount: number;
+  latestCacheUpdateAt: UtcTimestamp | null;
+}
+
 export interface LibraryEntry {
   anilistId: number;
   mediaKind: MediaKind;
