@@ -1380,7 +1380,7 @@ mod tests {
             {"anilistId":101,"mediaKind":"ANIME","status":"COMPLETED","progress":6,"activityProgress":6,"score":9.0,"notes":"import 101","createdAt":"2026-07-17T08:00:00.000Z","updatedAt":"2026-07-17T11:00:00.000Z"},
             {"anilistId":102,"mediaKind":"ANIME","status":"COMPLETED","progress":3,"activityProgress":3,"score":9.0,"notes":"import 102","createdAt":"2026-07-16T08:00:00.000Z","updatedAt":"2026-07-17T11:00:00.000Z"},
             {"anilistId":103,"mediaKind":"ANIME","status":"COMPLETED","progress":4,"activityProgress":8,"score":9.0,"notes":"import 103","createdAt":"2026-07-17T10:00:00.000Z","updatedAt":"2026-07-17T10:00:00.000Z"},
-            {"anilistId":104,"mediaKind":"ANIME","status":"COMPLETED","progress":4,"activityProgress":4,"score":9.0,"notes":"import 104","createdAt":"2026-07-17T09:00:00.000Z","updatedAt":"2026-07-17T09:00:00.000Z"}
+            {"anilistId":104,"mediaKind":"ANIME","status":"COMPLETED","progress":4,"activityProgress":4,"score":9.0,"notes":"import 104","createdAt":"2026-07-17T08:00:00.000Z","updatedAt":"2026-07-17T08:00:00.000Z"}
         ]);
         backup["watchActivity"] = json!([]);
         // Entry 103 intentionally ties the local update but raises the same-incarnation high-water.
@@ -1434,7 +1434,7 @@ mod tests {
         assert_eq!(
             find(104).notes.as_deref(),
             Some("local 104"),
-            "equal timestamp keeps local"
+            "newer local incarnation stays local"
         );
         assert_eq!(find(999).notes.as_deref(), Some("unrelated"));
         assert_eq!(
@@ -1552,6 +1552,48 @@ mod tests {
                 .snapshot()
                 .await
                 .expect("unchanged")
+                .library_entries
+                .is_empty()
+        );
+
+        let missing_root = tempdir().expect("missing root");
+        let missing = missing_root.path().join("missing.json");
+        let error = preview_import_from_path(&database, &sessions, missing)
+            .await
+            .expect_err("unreadable file");
+        assert_eq!(error.code, "BACKUP_READ_FAILED");
+    }
+
+    #[tokio::test]
+    async fn empty_backup_round_trip_is_a_valid_no_op() {
+        let (_root, database) = database().await;
+        let sessions = ImportSessionStore::default();
+        let empty = json!({
+            "schemaVersion": 1,
+            "exportedAt": "2026-07-17T09:00:00.000Z",
+            "settings": [],
+            "libraryEntries": [],
+            "watchActivity": []
+        });
+        let preview = preview_value(&database, &sessions, &empty).await;
+        assert!(preview.can_apply);
+        assert_eq!(preview.changes, super::ImportChangeSummary::default());
+        let result = import_backup(
+            &database,
+            &sessions,
+            ImportBackupRequest {
+                import_token: preview.import_token.expect("token"),
+            },
+        )
+        .await
+        .expect("empty import");
+        assert_eq!(result.changes, preview.changes);
+        assert!(
+            database
+                .backups()
+                .snapshot()
+                .await
+                .expect("snapshot")
                 .library_entries
                 .is_empty()
         );
