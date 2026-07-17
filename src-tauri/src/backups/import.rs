@@ -1091,12 +1091,14 @@ mod tests {
     use tempfile::tempdir;
 
     use crate::backups::{ImportBackupRequest, export_backup_to_path_at};
-    use crate::database::{Database, DatabasePaths, SettingRecord};
+    use crate::database::{
+        AiringDataRecord, CacheRecord, Database, DatabasePaths, MediaSnapshotRecord, SettingRecord,
+    };
     use crate::domain::{LibraryStatus, MediaKind, UpsertLibraryEntryRequest};
 
     use super::{
-        ClearLocalDataRequest, ImportSessionStore, apply_import, clear_local_data, import_backup,
-        parse_and_validate, preview_import_from_path,
+        ClearLocalDataRequest, ImportSessionStore, apply_import, clear_local_data,
+        get_settings_overview, import_backup, parse_and_validate, preview_import_from_path,
     };
 
     fn timestamp(value: &str) -> DateTime<Utc> {
@@ -1620,5 +1622,58 @@ mod tests {
         .expect_err("confirmation");
         assert_eq!(error.code, "CLEAR_CONFIRMATION_REQUIRED");
         assert_eq!(database.library().list().await.expect("preserved").len(), 1);
+    }
+
+    #[tokio::test]
+    async fn settings_overview_reports_live_cache_freshness() {
+        let (_root, database) = database().await;
+        let now = Utc::now();
+        database
+            .media()
+            .upsert_snapshot(&MediaSnapshotRecord {
+                anilist_id: 101,
+                media_kind: MediaKind::Anime,
+                title: "Cached title".to_owned(),
+                cover_url: None,
+                media_format: Some("TV".to_owned()),
+                genres: Vec::new(),
+                tags: Vec::new(),
+                media_status: Some("RELEASING".to_owned()),
+                total_units: Some(12),
+                duration_minutes: Some(24),
+                cached_at: now - chrono::Duration::hours(25),
+            })
+            .await
+            .expect("media cache");
+        database
+            .media()
+            .upsert_airing(&AiringDataRecord {
+                anilist_id: 101,
+                media_kind: MediaKind::Anime,
+                episode_number: 3,
+                airing_at: now + chrono::Duration::days(1),
+                fetched_at: now - chrono::Duration::minutes(31),
+            })
+            .await
+            .expect("airing cache");
+        database
+            .cache()
+            .upsert(&CacheRecord {
+                cache_key: "settings-overview".to_owned(),
+                payload: json!({"items": []}),
+                fetched_at: now,
+                expires_at: now + chrono::Duration::hours(6),
+            })
+            .await
+            .expect("response cache");
+
+        let overview = get_settings_overview(&database).await.expect("overview");
+        assert_eq!(overview.cached_media_count, 1);
+        assert_eq!(overview.stale_media_count, 1);
+        assert_eq!(overview.airing_record_count, 1);
+        assert_eq!(overview.stale_airing_count, 1);
+        assert_eq!(overview.response_cache_count, 1);
+        assert_eq!(overview.stale_response_cache_count, 0);
+        assert!(overview.latest_cache_update_at.is_some());
     }
 }

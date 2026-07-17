@@ -7,7 +7,7 @@
 | Product | Animi |
 | Release | Version 1, Windows desktop |
 | Overall status | In progress |
-| Current phase | P6 in progress; P5 ready |
+| Current phase | P5 ready; P6 complete |
 | Schedule | Dependency-driven; no calendar commitment |
 | Last updated | 2026-07-17 |
 
@@ -352,23 +352,23 @@ P4 completed 2026-07-17. Discover now uses the typed command boundary for trendi
 
 ### Milestones
 
-- [ ] **P6-M1 - Settings page:** Complete the Settings primary destination with theme selection, cache freshness information, backup actions, and destructive local-data actions through accessible controls.
+- [x] **P6-M1 - Settings page:** Complete the Settings primary destination with theme selection, cache freshness information, backup actions, and destructive local-data actions through accessible controls.
 - [x] **P6-M2 - Versioned export:** Implement `export_backup` with `schemaVersion`, UTC `exportedAt`, settings, library entries, and user-owned watch activity while excluding caches and images.
-- [ ] **P6-M3 - Import validation:** Validate file readability, JSON shape, schema version, enums, timestamps, identifiers, progress, watch activity, duplicate records, and conflicting payloads that reuse an activity event ID before opening a write transaction.
-- [ ] **P6-M4 - Import preview:** Implement `preview_import` with counts, conflicts, validation errors, and a clear statement that unrelated local entries will remain.
-- [ ] **P6-M5 - Transactional import:** Implement `import_backup` in one write transaction; resolve library and setting duplicates by greatest `updatedAt` with equal timestamps keeping local data; preserve the greatest high-water mark only for library records sharing `createdAt`; let a winning different incarnation keep its own high-water mark; treat identical existing activity events as no-ops; and roll back every write if any application step fails.
-- [ ] **P6-M6 - Destructive confirmation:** Require explicit, specific confirmation before clearing local data and keep backup/import actions visually distinct from deletion.
-- [ ] **P6-M7 - Backup tests:** Cover empty and populated round trips including watch activity, malformed JSON, unsupported versions, invalid records, duplicate conflicts, repeated identical activity imports, conflicting reused event IDs, equal and newer local records, same- and different-incarnation high-water conflicts, unrelated local entries, forced mid-import failure, and rollback.
-- [ ] **P6-M8 - Recovery flow:** Add end-to-end coverage for export, clearing an isolated test database, previewing import, restoring, and verifying library and settings.
+- [x] **P6-M3 - Import validation:** Validate file readability, JSON shape, schema version, enums, timestamps, identifiers, progress, watch activity, duplicate records, and conflicting payloads that reuse an activity event ID before opening a write transaction.
+- [x] **P6-M4 - Import preview:** Implement `preview_import` with counts, conflicts, validation errors, and a clear statement that unrelated local entries will remain.
+- [x] **P6-M5 - Transactional import:** Implement `import_backup` in one write transaction; resolve library and setting duplicates by greatest `updatedAt` with equal timestamps keeping local data; preserve the greatest high-water mark only for library records sharing `createdAt`; let a winning different incarnation keep its own high-water mark; treat identical existing activity events as no-ops; and roll back every write if any application step fails.
+- [x] **P6-M6 - Destructive confirmation:** Require explicit, specific confirmation before clearing local data and keep backup/import actions visually distinct from deletion.
+- [x] **P6-M7 - Backup tests:** Cover empty and populated round trips including watch activity, malformed JSON, unsupported versions, invalid records, duplicate conflicts, repeated identical activity imports, conflicting reused event IDs, equal and newer local records, same- and different-incarnation high-water conflicts, unrelated local entries, forced mid-import failure, and rollback.
+- [x] **P6-M8 - Recovery flow:** Add end-to-end coverage for export, clearing an isolated test database, previewing import, restoring, and verifying library and settings.
 
 ### Exit gate
 
-- [ ] **P6-G1** Exported backups round-trip without cached data and preserve supported user-owned fields.
-- [ ] **P6-G2** Invalid imports make no database changes and return actionable structured errors.
-- [ ] **P6-G3** Conflict previews match the final transactional result.
-- [ ] **P6-G4** No destructive action can silently discard library entries.
+- [x] **P6-G1** Exported backups round-trip without cached data and preserve supported user-owned fields.
+- [x] **P6-G2** Invalid imports make no database changes and return actionable structured errors.
+- [x] **P6-G3** Conflict previews match the final transactional result.
+- [x] **P6-G4** No destructive action can silently discard library entries.
 
-**Evidence:** In progress. Backup schema v1 and the supported import-version set are documented beside the Rust DTOs. Append-only migration `0004_watch_activity_identity.sql` gives activity events portable UUID identities while preserving local ordering, and the immutable v0003 fixture proves both the upgrade and the next post-upgrade event identity. `export_backup` reads settings, library state including `activityProgress`, and watch activity through one SQLite snapshot; opens a Rust-owned native destination picker; streams an atomically replaced JSON file from a blocking worker; excludes cache-owned tables; and returns structured errors without truncating an existing destination on snapshot, write, or replacement failure. Temporary-path unit coverage, the migration fixture, and success, cancellation, and structured-error cases across the real camelCase Tauri mock IPC boundary are included. The cumulative gate passed Prettier, ESLint, `svelte-check` with zero diagnostics, 87 frontend tests across 13 files, the production frontend build, Rust formatting, Clippy with warnings denied, all 60 Rust unit tests and 12 integration tests, and `tauri build --no-bundle`, which produced the release executable with migration 0004 embedded.
+**Evidence:** Complete. Backup schema v1 and the supported import-version set are documented beside the Rust DTOs. Append-only migration `0004_watch_activity_identity.sql` gives activity events portable UUID identities while preserving local ordering, and the immutable v0003 fixture proves both the upgrade and the next post-upgrade event identity. Rust-owned native source and destination pickers keep filesystem paths out of IPC. `export_backup` reads one coherent SQLite snapshot and atomically writes only user-owned state. `preview_import` validates the complete bounded file, reports record counts and merge outcomes, and stores the validated payload behind an opaque in-memory token. `import_backup` recomputes that plan inside one write transaction, rejects stale previews, applies the documented timestamp and incarnation rules, treats identical activity events as no-ops, and rolls back on every failure. Settings presents live cache freshness, the accessible recovery ledger, and an isolated clear-data flow requiring `CLEAR MY LOCAL DATA`. Empty and populated round trips, malformed and unsupported backups, invalid and duplicate records, activity identity conflicts, equal/newer local state, both high-water incarnation paths, unrelated retention, injected mid-apply rollback, picker cancellation, cache freshness, and export-clear-preview-restore all have deterministic coverage. The cumulative phase gate passes 91 frontend tests across 13 files, 71 Rust unit tests, and 15 Rust integration tests; final formatting, lint, type, build, Clippy, and production Tauri build evidence was refreshed at phase completion.
 
 ## P7 - Release Hardening and Windows Packaging
 

@@ -221,6 +221,9 @@ fn export_clear_preview_and_restore_cross_the_real_command_boundary() {
         invoke_ok(&webview, "get_theme_preference", json!({})),
         "SYSTEM"
     );
+    let overview = invoke_ok(&webview, "get_settings_overview", json!({}));
+    assert_eq!(overview["cachedMediaCount"], 0);
+    assert_eq!(overview["latestCacheUpdateAt"], Value::Null);
 
     let preview = invoke_ok(&webview, "preview_import", json!({}));
     assert_eq!(preview["canApply"], true);
