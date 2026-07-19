@@ -431,6 +431,10 @@ The final clean-tree gate passes `bun run format:check`, `bun run lint`, `bun ru
 
 **Evidence:** The library editor tracks status, progress, score, and notes against the latest successful save, enables the accent `Save changes` action only for a changed draft, and returns it to the muted `glass-control` state labeled `Changes saved` after persistence. All 15 focused editor and details-dialog tests pass without rendering a separate success banner; Svelte type checking reports zero diagnostics, and lint, formatting, and diff checks pass.
 
+- [x] **2026-07-19 - Refresh icon controls:** Replace the visible Home schedule-refresh and Dashboard anime-metadata-refresh labels with a shared refresh icon while retaining accessible names, tooltips, disabled states, and active-refresh feedback.
+
+**Evidence:** Both refresh controls use the same compact glass icon button, expose their purpose without visible text, and animate the icon only during active work under the existing reduced-motion safeguard. All 22 focused Home and Dashboard tests pass with the icon-only presentation and preserved command behavior; Svelte type checking reports zero diagnostics, and lint, formatting, and diff checks pass.
+
 ## Quality Gates
 
 Run focused tests throughout a phase. Run the complete gate before v1 acceptance and after changes to shared contracts, migrations, packaging, or release configuration:

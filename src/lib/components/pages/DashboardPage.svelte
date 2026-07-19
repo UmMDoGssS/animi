@@ -31,6 +31,7 @@
   import GlassSelect from "../GlassSelect.svelte";
   import MediaCover from "../MediaCover.svelte";
   import MediaDetailsDialog from "../MediaDetailsDialog.svelte";
+  import RefreshIcon from "../RefreshIcon.svelte";
 
   interface Props {
     loadInsights?: () => Promise<DashboardInsights>;
@@ -553,11 +554,19 @@
           </div>
           <button
             type="button"
-            class="glass-control glass-interactive control-rounded min-h-10 px-3 py-2 text-xs transition-colors disabled:cursor-wait disabled:opacity-60"
+            aria-label={refreshing
+              ? "refreshing anime details"
+              : "refresh anime details"}
+            title={refreshing
+              ? "Refreshing anime details"
+              : "Refresh anime details"}
+            class="glass-control glass-interactive control-rounded grid size-10 shrink-0 place-items-center transition-colors disabled:cursor-default disabled:opacity-60"
             disabled={refreshing || insights.libraryTotals.tracked === 0}
             onclick={() => void checkTrackedMetadata()}
           >
-            {refreshing ? "refreshing…" : "refresh anime details"}
+            <span class:animate-spin={refreshing}>
+              <RefreshIcon />
+            </span>
           </button>
         </div>
 

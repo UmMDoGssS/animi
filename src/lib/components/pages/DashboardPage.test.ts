@@ -480,9 +480,12 @@ describe("DashboardPage", () => {
     expect(
       screen.getByText(/update its progress to start your history/i),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "refresh anime details" }),
-    ).toBeDisabled();
+    const refreshButton = screen.getByRole("button", {
+      name: "refresh anime details",
+    });
+    expect(refreshButton).toBeDisabled();
+    expect(refreshButton).toHaveTextContent("");
+    expect(refreshButton.querySelector("svg")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "open Discover" }));
     expect(openDiscovery).toHaveBeenCalledOnce();

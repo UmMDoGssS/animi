@@ -27,6 +27,7 @@
   import AsyncStateNotice from "../AsyncStateNotice.svelte";
   import MediaCover from "../MediaCover.svelte";
   import MediaDetailsDialog from "../MediaDetailsDialog.svelte";
+  import RefreshIcon from "../RefreshIcon.svelte";
 
   interface Props {
     loadAiring?: () => Promise<HomeAiringResponse>;
@@ -389,11 +390,15 @@
       </h2>
       <button
         type="button"
+        aria-label={loading ? "refreshing" : "refresh"}
+        title={loading ? "Refreshing" : "Refresh"}
         disabled={loading}
-        class="glass-control glass-interactive control-rounded min-h-10 px-4 py-2 text-xs tracking-[0.08em] disabled:opacity-55"
+        class="glass-control glass-interactive control-rounded grid size-10 shrink-0 place-items-center disabled:cursor-wait disabled:opacity-55"
         onclick={refreshAiring}
       >
-        {loading ? "refreshing…" : "refresh"}
+        <span class:animate-spin={loading}>
+          <RefreshIcon />
+        </span>
       </button>
     </header>
 

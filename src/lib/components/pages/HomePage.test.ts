@@ -399,7 +399,10 @@ describe("HomePage", () => {
     await vi.advanceTimersByTimeAsync(30 * 60 * 1000);
     expect(props.loadAiring).toHaveBeenCalledTimes(2);
 
-    await fireEvent.click(screen.getByRole("button", { name: "refresh" }));
+    const refreshButton = screen.getByRole("button", { name: "refresh" });
+    expect(refreshButton).toHaveTextContent("");
+    expect(refreshButton.querySelector("svg")).toBeInTheDocument();
+    await fireEvent.click(refreshButton);
     expect(props.loadAiring).toHaveBeenCalledTimes(3);
   });
 
