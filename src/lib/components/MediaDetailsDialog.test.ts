@@ -421,6 +421,25 @@ describe("MediaDetailsDialog", () => {
       within(dialog).getByText("Added to your library."),
     ).toBeInTheDocument();
 
+    await user.type(
+      within(dialog).getByLabelText(/private notes/i),
+      "Watch again.",
+    );
+    const saveButton = within(dialog).getByRole("button", {
+      name: "Save changes",
+    });
+    expect(saveButton).toBeEnabled();
+    await user.click(saveButton);
+
+    expect(saveButton).toBeDisabled();
+    expect(
+      within(dialog).queryByText("Changes saved."),
+    ).not.toBeInTheDocument();
+    expect(onLibraryChanged).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ notes: "Watch again." }),
+    );
+
     await user.click(
       within(dialog).getByRole("button", { name: "Remove from library" }),
     );
@@ -438,7 +457,7 @@ describe("MediaDetailsDialog", () => {
       mediaKind: "ANIME",
       confirmed: true,
     });
-    expect(onLibraryChanged).toHaveBeenNthCalledWith(2, null);
+    expect(onLibraryChanged).toHaveBeenNthCalledWith(3, null);
     expect(
       within(dialog).getByText(
         "Removed from your library. Watch history was kept.",

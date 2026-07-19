@@ -152,7 +152,7 @@
   async function handleSaved(savedEntry: LibraryEntry): Promise<void> {
     const wasNew = currentEntry === null;
     currentEntry = savedEntry;
-    libraryMessage = wasNew ? "Added to your library." : "Changes saved.";
+    libraryMessage = wasNew ? "Added to your library." : null;
     await onLibraryChanged?.(savedEntry);
   }
 

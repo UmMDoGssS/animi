@@ -125,6 +125,9 @@ describe("LibraryEntryEditor", () => {
       "Quietly excellent.",
     );
     expect(screen.getByText(/known episode total: 28/i)).toBeInTheDocument();
+    const saveButton = screen.getByRole("button", { name: "Save changes" });
+    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveClass("disabled:opacity-40");
 
     await user.click(screen.getByRole("radio", { name: /completed/i }));
     await fireEvent.input(
@@ -140,7 +143,8 @@ describe("LibraryEntryEditor", () => {
     );
     await user.clear(screen.getByLabelText(/private notes/i));
     await user.type(screen.getByLabelText(/private notes/i), "A keeper.");
-    await user.click(screen.getByRole("button", { name: "Save changes" }));
+    expect(saveButton).toBeEnabled();
+    await user.click(saveButton);
 
     expect(saveEntry).toHaveBeenCalledWith({
       anilistId: existingEntry.anilistId,
@@ -150,7 +154,8 @@ describe("LibraryEntryEditor", () => {
       score: 10,
       notes: "A keeper.",
     });
-    expect(screen.getByRole("status")).toHaveTextContent("Changes saved.");
+    expect(saveButton).toBeDisabled();
+    expect(screen.queryByText("Changes saved.")).not.toBeInTheDocument();
   });
 
   it("keeps slider and star drafts visible when notes validation fails", async () => {

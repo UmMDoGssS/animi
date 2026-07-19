@@ -37,6 +37,11 @@
     score: number | null;
   }
 
+  interface DraftSnapshot extends ValidatedDrafts {
+    status: LibraryStatus;
+    notes: string;
+  }
+
   type BusyOperation = "idle" | "saving" | "removing";
   type FailedOperation = "save" | "remove";
 
@@ -90,6 +95,7 @@
   let removeButton = $state<HTMLButtonElement | null>(null);
   let confirmRemoveButton = $state<HTMLButtonElement | null>(null);
   let initializedDraftSource = $state<string | null>(null);
+  let savedDraft = $state<DraftSnapshot | null>(null);
 
   let fieldIdPrefix = $derived(`library-entry-${anilistId}`);
   let headingId = $derived(`${fieldIdPrefix}-heading`);
@@ -107,6 +113,13 @@
     fieldErrors.progress !== undefined || fieldErrors.notes !== undefined,
   );
   let isBusy = $derived(busyOperation !== "idle");
+  let hasUnsavedChanges = $derived(
+    savedDraft === null ||
+      statusDraft !== savedDraft.status ||
+      progressDraft !== savedDraft.progress ||
+      scoreDraft !== savedDraft.score ||
+      notesDraft !== savedDraft.notes,
+  );
   let progressMaximum = $derived(knownTotal ?? unknownProgressMaximum);
   let progressFill = $derived(
     progressMaximum === 0 ? 0 : (progressDraft / progressMaximum) * 100,
@@ -127,6 +140,14 @@
       entry?.progress ?? 0,
     );
     notesDraft = entry?.notes ?? "";
+    savedDraft = entry
+      ? {
+          status: entry.status,
+          progress: entry.progress,
+          score: entry.score,
+          notes: entry.notes ?? "",
+        }
+      : null;
     fieldErrors = {};
     operationError = null;
     failedOperation = null;
@@ -222,7 +243,13 @@
         notes: notesDraft,
       });
       busyOperation = "idle";
-      successMessage = wasEditing ? "Changes saved." : "Added to your library.";
+      savedDraft = {
+        status: savedEntry.status,
+        progress: savedEntry.progress,
+        score: savedEntry.score,
+        notes: savedEntry.notes ?? "",
+      };
+      successMessage = wasEditing ? null : "Added to your library.";
       onSaved?.(savedEntry);
     } catch (reason) {
       busyOperation = "idle";
@@ -517,8 +544,8 @@
     >
       <button
         type="submit"
-        class="glass-accent control-rounded min-h-11 px-5 py-2.5 text-sm font-medium transition disabled:cursor-wait disabled:opacity-60"
-        disabled={isBusy}
+        class="glass-accent control-rounded min-h-11 px-5 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40"
+        disabled={isBusy || !hasUnsavedChanges}
       >
         {#if busyOperation === "saving"}
           {entry === null ? "Adding…" : "Saving…"}
