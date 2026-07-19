@@ -254,7 +254,7 @@
         >
           {media.title}
         </h2>
-        <dl class="border-border mt-5 grid divide-y border-y">
+        <dl class="border-border divide-border mt-5 grid divide-y border-y">
           <div class="flex items-baseline justify-between gap-4 py-3">
             <dt class="text-muted text-[0.62rem] tracking-[0.12em] uppercase">
               episodes
