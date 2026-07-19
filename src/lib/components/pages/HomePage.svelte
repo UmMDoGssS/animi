@@ -386,7 +386,7 @@
         id="airing-queue-heading"
         class="text-foreground text-xl font-light tracking-[0.03em] sm:text-2xl"
       >
-        Airing this week
+        Watching
       </h2>
       <button
         type="button"
