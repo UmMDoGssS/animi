@@ -21,6 +21,11 @@ Version 1 is anime-focused and has no server, cloud database, analytics, AniList
 - The user has requested frequent commits. Commit each completed, verified, coherent slice instead of allowing a large uncommitted diff to accumulate.
 - When commits are requested, keep them focused and use Conventional Commit prefixes such as `feat`, `fix`, `test`, `docs`, `refactor`, and `chore`.
 
+## Formatting Style Guide
+
+- Use four spaces for each indentation level in every file type. Do not use tabs or two-space indentation.
+- Configure formatters and editors to preserve four-space indentation across source code, markup, styles, configuration, data, scripts, and documentation.
+
 ## Architecture Boundaries
 
 - Rust owns SQLite access, migrations, AniList requests, caching, rate-limit handling, imports, exports, and all durable state.
