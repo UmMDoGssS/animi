@@ -191,7 +191,7 @@
         role="listbox"
         aria-label={`${label} options`}
         aria-multiselectable="true"
-        class="grid max-h-64 gap-1 overflow-y-auto"
+        class="grid max-h-52 gap-1 overflow-y-auto"
       >
         {#each options as option, index (option.value)}
           <li role="presentation">

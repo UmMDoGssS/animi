@@ -27,6 +27,7 @@ it("keeps the menu open while selecting multiple options", async () => {
 
   const listbox = screen.getByRole("listbox", { name: "genre options" });
   expect(listbox).toHaveAttribute("aria-multiselectable", "true");
+  expect(listbox).toHaveClass("max-h-52", "overflow-y-auto");
   await user.click(screen.getByRole("option", { name: "Drama" }));
   expect(onChange).toHaveBeenLastCalledWith(["Drama"]);
   expect(trigger).toHaveAttribute("aria-expanded", "true");
