@@ -1,4 +1,4 @@
 {
-  "transportError": "unavailable",
-  "message": "fixture network is offline"
+    "transportError": "unavailable",
+    "message": "fixture network is offline"
 }

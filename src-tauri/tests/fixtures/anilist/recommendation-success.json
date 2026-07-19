@@ -1,44 +1,48 @@
 {
-  "data": {
-    "Page": {
-      "pageInfo": { "hasNextPage": false },
-      "media": [
-        {
-          "id": 301,
-          "title": {
-            "romaji": "Glasswing Letters",
-            "english": "Glasswing Letters",
-            "native": null
-          },
-          "coverImage": { "large": null },
-          "format": "TV",
-          "status": "RELEASING",
-          "episodes": 12,
-          "duration": 24,
-          "genres": ["Drama", "Fantasy"],
-          "tags": [
-            { "name": "Found Family", "rank": 92, "isAdult": false },
-            { "name": "Time", "rank": 70, "isAdult": false }
-          ],
-          "trending": 75
-        },
-        {
-          "id": 302,
-          "title": {
-            "romaji": "Cat Signal Orbit",
-            "english": "Cat Signal Orbit",
-            "native": null
-          },
-          "coverImage": { "large": null },
-          "format": "ONA",
-          "status": "RELEASING",
-          "episodes": null,
-          "duration": 18,
-          "genres": ["Comedy"],
-          "tags": [{ "name": "Space", "rank": 95, "isAdult": false }],
-          "trending": 100
+    "data": {
+        "Page": {
+            "pageInfo": { "hasNextPage": false },
+            "media": [
+                {
+                    "id": 301,
+                    "title": {
+                        "romaji": "Glasswing Letters",
+                        "english": "Glasswing Letters",
+                        "native": null
+                    },
+                    "coverImage": { "large": null },
+                    "format": "TV",
+                    "status": "RELEASING",
+                    "episodes": 12,
+                    "duration": 24,
+                    "genres": ["Drama", "Fantasy"],
+                    "tags": [
+                        {
+                            "name": "Found Family",
+                            "rank": 92,
+                            "isAdult": false
+                        },
+                        { "name": "Time", "rank": 70, "isAdult": false }
+                    ],
+                    "trending": 75
+                },
+                {
+                    "id": 302,
+                    "title": {
+                        "romaji": "Cat Signal Orbit",
+                        "english": "Cat Signal Orbit",
+                        "native": null
+                    },
+                    "coverImage": { "large": null },
+                    "format": "ONA",
+                    "status": "RELEASING",
+                    "episodes": null,
+                    "duration": 18,
+                    "genres": ["Comedy"],
+                    "tags": [{ "name": "Space", "rank": 95, "isAdult": false }],
+                    "trending": 100
+                }
+            ]
         }
-      ]
     }
-  }
 }

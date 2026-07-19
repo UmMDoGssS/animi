@@ -1,13 +1,13 @@
 {
-  "schemaVersion": 1,
-  "migration": "0001_initial.sql",
-  "sqliteSha256": "c6c3d2319265b5a7cb7a31d0ca02aebc503457a1fd4ffd206af69ed88283419b",
-  "representativeRows": {
-    "airingData": 1,
-    "libraryEntries": 1,
-    "mediaSnapshots": 1,
-    "responseCaches": 1,
-    "settings": 1
-  },
-  "notes": "Immutable pre-0002 upgrade fixture. Copy to a temporary directory before opening."
+    "schemaVersion": 1,
+    "migration": "0001_initial.sql",
+    "sqliteSha256": "c6c3d2319265b5a7cb7a31d0ca02aebc503457a1fd4ffd206af69ed88283419b",
+    "representativeRows": {
+        "airingData": 1,
+        "libraryEntries": 1,
+        "mediaSnapshots": 1,
+        "responseCaches": 1,
+        "settings": 1
+    },
+    "notes": "Immutable pre-0002 upgrade fixture. Copy to a temporary directory before opening."
 }

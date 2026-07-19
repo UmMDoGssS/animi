@@ -5,81 +5,81 @@ export const themeIds = ["latte", "macchiato"] as const;
 export type ThemeId = (typeof themeIds)[number];
 
 export const themeOptions = [
-  {
-    value: "SYSTEM",
-    label: "System",
-    description: "Follow the Windows color preference.",
-  },
-  {
-    value: "LATTE",
-    label: "Light",
-    description: "Always use Catppuccin Latte.",
-  },
-  {
-    value: "MACCHIATO",
-    label: "Dark",
-    description: "Always use Catppuccin Macchiato.",
-  },
+    {
+        value: "SYSTEM",
+        label: "System",
+        description: "Follow the Windows color preference.",
+    },
+    {
+        value: "LATTE",
+        label: "Light",
+        description: "Always use Catppuccin Latte.",
+    },
+    {
+        value: "MACCHIATO",
+        label: "Dark",
+        description: "Always use Catppuccin Macchiato.",
+    },
 ] as const satisfies readonly {
-  value: ThemePreference;
-  label: string;
-  description: string;
+    value: ThemePreference;
+    label: string;
+    description: string;
 }[];
 
 export function applyThemePreference(
-  preference: ThemePreference,
-  root: HTMLElement = document.documentElement,
+    preference: ThemePreference,
+    root: HTMLElement = document.documentElement,
 ): void {
-  if (preference === "SYSTEM") {
-    root.removeAttribute("data-theme");
-    return;
-  }
+    if (preference === "SYSTEM") {
+        root.removeAttribute("data-theme");
+        return;
+    }
 
-  root.dataset.theme = preference === "LATTE" ? "latte" : "macchiato";
+    root.dataset.theme = preference === "LATTE" ? "latte" : "macchiato";
 }
 
 export const semanticColorTokens = [
-  "surface",
-  "surface-raised",
-  "surface-sunken",
-  "overlay",
-  "text",
-  "text-muted",
-  "accent",
-  "accent-strong",
-  "on-accent",
-  "info",
-  "success",
-  "warning",
-  "danger",
-  "stat-tracked",
-  "stat-watching",
-  "stat-completed",
-  "stat-planning",
-  "rainbow-red",
-  "rainbow-peach",
-  "rainbow-yellow",
-  "rainbow-green",
-  "rainbow-sky",
-  "rainbow-blue",
-  "rainbow-mauve",
-  "border",
-  "control-border",
-  "glass",
-  "glass-control",
-  "glass-select",
-  "selection",
+    "surface",
+    "surface-raised",
+    "surface-sunken",
+    "overlay",
+    "text",
+    "text-muted",
+    "accent",
+    "accent-strong",
+    "on-accent",
+    "info",
+    "success",
+    "warning",
+    "danger",
+    "stat-tracked",
+    "stat-watching",
+    "stat-completed",
+    "stat-planning",
+    "rainbow-red",
+    "rainbow-peach",
+    "rainbow-yellow",
+    "rainbow-green",
+    "rainbow-sky",
+    "rainbow-blue",
+    "rainbow-mauve",
+    "border",
+    "control-border",
+    "glass",
+    "glass-control",
+    "glass-select",
+    "selection",
 ] as const;
 
 export const translucentSurfaceTokens = [
-  "glass",
-  "glass-control",
-  "glass-select",
+    "glass",
+    "glass-control",
+    "glass-select",
 ] as const;
 
 export const pageAccentTokens = [
-  "page-home-accent",
-  "page-discovery-accent",
-  "page-dashboard-accent",
-  "page-settings-accent",
+    "page-home-accent",
+    "page-discovery-accent",
+    "page-dashboard-accent",
+    "page-settings-accent",
 ] as const;

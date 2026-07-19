@@ -1,32 +1,32 @@
 {
-  "data": {
-    "Page": {
-      "pageInfo": { "hasNextPage": true },
-      "media": [
-        {
-          "id": 154587,
-          "title": {
-            "romaji": "Sousou no Frieren",
-            "english": "Frieren: Beyond Journey's End",
-            "native": "葬送のフリーレン"
-          },
-          "coverImage": {
-            "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/example.jpg"
-          },
-          "format": "TV",
-          "status": "FINISHED",
-          "episodes": 28,
-          "duration": 24,
-          "startDate": { "year": 2023, "month": 9, "day": 29 },
-          "genres": ["Adventure", "Fantasy"],
-          "tags": [
-            { "name": "Elf", "rank": 95, "isAdult": false },
-            { "name": "Adult Cast", "rank": 40, "isAdult": true }
-          ],
-          "trending": 155
-        },
-        null
-      ]
+    "data": {
+        "Page": {
+            "pageInfo": { "hasNextPage": true },
+            "media": [
+                {
+                    "id": 154587,
+                    "title": {
+                        "romaji": "Sousou no Frieren",
+                        "english": "Frieren: Beyond Journey's End",
+                        "native": "葬送のフリーレン"
+                    },
+                    "coverImage": {
+                        "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/example.jpg"
+                    },
+                    "format": "TV",
+                    "status": "FINISHED",
+                    "episodes": 28,
+                    "duration": 24,
+                    "startDate": { "year": 2023, "month": 9, "day": 29 },
+                    "genres": ["Adventure", "Fantasy"],
+                    "tags": [
+                        { "name": "Elf", "rank": 95, "isAdult": false },
+                        { "name": "Adult Cast", "rank": 40, "isAdult": true }
+                    ],
+                    "trending": 155
+                },
+                null
+            ]
+        }
     }
-  }
 }

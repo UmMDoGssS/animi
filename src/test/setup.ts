@@ -4,6 +4,6 @@ import { cleanup } from "@testing-library/svelte";
 import { afterEach } from "vitest";
 
 afterEach(() => {
-  cleanup();
-  document.documentElement.removeAttribute("data-theme");
+    cleanup();
+    document.documentElement.removeAttribute("data-theme");
 });

@@ -1,19 +1,19 @@
 import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
+    fireEvent,
+    render,
+    screen,
+    waitFor,
+    within,
 } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import type {
-  DashboardInsights,
-  LibraryEntry,
-  LibraryItem,
-  LibraryMediaSnapshot,
-  MediaDetailsResponse,
+    DashboardInsights,
+    LibraryEntry,
+    LibraryItem,
+    LibraryMediaSnapshot,
+    MediaDetailsResponse,
 } from "$lib/ipc/types";
 
 import { setTestViewport, testViewports } from "../../../test/viewports";
@@ -21,1028 +21,1116 @@ import { setTestViewport, testViewports } from "../../../test/viewports";
 import DashboardPage from "./DashboardPage.svelte";
 
 const originalShowModal = Object.getOwnPropertyDescriptor(
-  HTMLDialogElement.prototype,
-  "showModal",
+    HTMLDialogElement.prototype,
+    "showModal",
 );
 const originalClose = Object.getOwnPropertyDescriptor(
-  HTMLDialogElement.prototype,
-  "close",
+    HTMLDialogElement.prototype,
+    "close",
 );
 
 const trailingTwelveMonths = [
-  "2025-08",
-  "2025-09",
-  "2025-10",
-  "2025-11",
-  "2025-12",
-  "2026-01",
-  "2026-02",
-  "2026-03",
-  "2026-04",
-  "2026-05",
-  "2026-06",
-  "2026-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-07",
 ].map((period) => ({
-  period,
-  recordedEpisodes: period === "2026-07" ? 3 : 0,
-  recordedMinutes: period === "2026-07" ? 48 : 0,
-  unknownDurationEpisodes: period === "2026-07" ? 1 : 0,
+    period,
+    recordedEpisodes: period === "2026-07" ? 3 : 0,
+    recordedMinutes: period === "2026-07" ? 48 : 0,
+    unknownDurationEpisodes: period === "2026-07" ? 1 : 0,
 }));
 
 beforeAll(() => {
-  Object.defineProperty(HTMLDialogElement.prototype, "showModal", {
-    configurable: true,
-    value(this: HTMLDialogElement) {
-      this.setAttribute("open", "");
-    },
-  });
-  Object.defineProperty(HTMLDialogElement.prototype, "close", {
-    configurable: true,
-    value(this: HTMLDialogElement) {
-      this.removeAttribute("open");
-      this.dispatchEvent(new Event("close"));
-    },
-  });
+    Object.defineProperty(HTMLDialogElement.prototype, "showModal", {
+        configurable: true,
+        value(this: HTMLDialogElement) {
+            this.setAttribute("open", "");
+        },
+    });
+    Object.defineProperty(HTMLDialogElement.prototype, "close", {
+        configurable: true,
+        value(this: HTMLDialogElement) {
+            this.removeAttribute("open");
+            this.dispatchEvent(new Event("close"));
+        },
+    });
 });
 
 afterAll(() => {
-  if (originalShowModal) {
-    Object.defineProperty(
-      HTMLDialogElement.prototype,
-      "showModal",
-      originalShowModal,
-    );
-  } else {
-    Reflect.deleteProperty(HTMLDialogElement.prototype, "showModal");
-  }
-  if (originalClose) {
-    Object.defineProperty(HTMLDialogElement.prototype, "close", originalClose);
-  } else {
-    Reflect.deleteProperty(HTMLDialogElement.prototype, "close");
-  }
+    if (originalShowModal) {
+        Object.defineProperty(
+            HTMLDialogElement.prototype,
+            "showModal",
+            originalShowModal,
+        );
+    } else {
+        Reflect.deleteProperty(HTMLDialogElement.prototype, "showModal");
+    }
+    if (originalClose) {
+        Object.defineProperty(
+            HTMLDialogElement.prototype,
+            "close",
+            originalClose,
+        );
+    } else {
+        Reflect.deleteProperty(HTMLDialogElement.prototype, "close");
+    }
 });
 
 function entry(
-  anilistId: number,
-  status: LibraryEntry["status"],
-  progress: number,
-  score: number | null = null,
+    anilistId: number,
+    status: LibraryEntry["status"],
+    progress: number,
+    score: number | null = null,
 ): LibraryEntry {
-  return {
-    anilistId,
-    mediaKind: "ANIME",
-    status,
-    progress,
-    score,
-    notes: null,
-    createdAt: "2026-07-15T08:00:00.000Z",
-    updatedAt: "2026-07-16T08:30:00.000Z",
-  };
+    return {
+        anilistId,
+        mediaKind: "ANIME",
+        status,
+        progress,
+        score,
+        notes: null,
+        createdAt: "2026-07-15T08:00:00.000Z",
+        updatedAt: "2026-07-16T08:30:00.000Z",
+    };
 }
 
 function media(
-  title: string,
-  overrides: Partial<LibraryMediaSnapshot> = {},
+    title: string,
+    overrides: Partial<LibraryMediaSnapshot> = {},
 ): LibraryMediaSnapshot {
-  return {
-    title,
-    coverUrl: `https://example.invalid/${title}.jpg`,
-    mediaFormat: "TV",
-    genres: ["Drama"],
-    tags: [{ name: "Found Family", rank: 90 }],
-    status: "RELEASING",
-    episodes: 12,
-    durationMinutes: 24,
-    releaseDate: null,
-    cachedAt: "2026-07-16T08:00:00.000Z",
-    expiresAt: "2026-07-17T08:00:00.000Z",
-    isStale: false,
-    ...overrides,
-  };
+    return {
+        title,
+        coverUrl: `https://example.invalid/${title}.jpg`,
+        mediaFormat: "TV",
+        genres: ["Drama"],
+        tags: [{ name: "Found Family", rank: 90 }],
+        status: "RELEASING",
+        episodes: 12,
+        durationMinutes: 24,
+        releaseDate: null,
+        cachedAt: "2026-07-16T08:00:00.000Z",
+        expiresAt: "2026-07-17T08:00:00.000Z",
+        isStale: false,
+        ...overrides,
+    };
 }
 
 const libraryItems: LibraryItem[] = [
-  {
-    entry: entry(101, "WATCHING", 3),
-    media: media("Paper Cranes at Dawn", { releaseDate: "2026-04-03" }),
-  },
-  {
-    entry: entry(202, "COMPLETED", 1, 9),
-    media: media("How to Befriend a Comet", {
-      coverUrl: null,
-      mediaFormat: "MOVIE",
-      genres: ["Fantasy"],
-      tags: [{ name: "Space", rank: 91 }],
-      status: "FINISHED",
-      episodes: 1,
-      durationMinutes: 104,
-      releaseDate: "2025-09-12",
-      isStale: true,
-    }),
-  },
-  {
-    entry: entry(303, "PLANNING", 0, 7),
-    media: media("Unknown Season", {
-      coverUrl: null,
-      status: "NOT_YET_RELEASED",
-      episodes: null,
-      durationMinutes: null,
-    }),
-  },
-  {
-    entry: entry(404, "WATCHING", 4),
-    media: null,
-  },
+    {
+        entry: entry(101, "WATCHING", 3),
+        media: media("Paper Cranes at Dawn", { releaseDate: "2026-04-03" }),
+    },
+    {
+        entry: entry(202, "COMPLETED", 1, 9),
+        media: media("How to Befriend a Comet", {
+            coverUrl: null,
+            mediaFormat: "MOVIE",
+            genres: ["Fantasy"],
+            tags: [{ name: "Space", rank: 91 }],
+            status: "FINISHED",
+            episodes: 1,
+            durationMinutes: 104,
+            releaseDate: "2025-09-12",
+            isStale: true,
+        }),
+    },
+    {
+        entry: entry(303, "PLANNING", 0, 7),
+        media: media("Unknown Season", {
+            coverUrl: null,
+            status: "NOT_YET_RELEASED",
+            episodes: null,
+            durationMinutes: null,
+        }),
+    },
+    {
+        entry: entry(404, "WATCHING", 4),
+        media: null,
+    },
 ];
 
 const populatedInsights: DashboardInsights = {
-  mediaKind: "ANIME",
-  libraryItems,
-  libraryTotals: {
-    tracked: 4,
-    watching: 2,
-    completed: 1,
-    planning: 1,
-    currentProgress: 8,
-  },
-  preferenceSignals: {
-    eligibleTitles: 3,
-    metadataTitles: 2,
-    missingMetadataTitles: 1,
-    staleMetadataTitles: 1,
-    genres: [
-      { label: "Drama", titleCount: 1 },
-      { label: "Fantasy", titleCount: 1 },
-    ],
-    tags: [
-      { label: "Space", titleCount: 1, weightedRank: 91 },
-      { label: "Found Family", titleCount: 1, weightedRank: 90 },
-    ],
-  },
-  activity: {
-    eventCount: 2,
-    recordedEpisodes: 3,
-    knownDurationEpisodes: 2,
-    recordedMinutes: 48,
-    unknownDurationEpisodes: 1,
-    coveredFrom: "2026-07-16T09:00:00.000Z",
-    coveredTo: "2026-07-17T10:00:00.000Z",
-    monthly: trailingTwelveMonths,
-    yearly: [
-      {
-        period: "2026",
+    mediaKind: "ANIME",
+    libraryItems,
+    libraryTotals: {
+        tracked: 4,
+        watching: 2,
+        completed: 1,
+        planning: 1,
+        currentProgress: 8,
+    },
+    preferenceSignals: {
+        eligibleTitles: 3,
+        metadataTitles: 2,
+        missingMetadataTitles: 1,
+        staleMetadataTitles: 1,
+        genres: [
+            { label: "Drama", titleCount: 1 },
+            { label: "Fantasy", titleCount: 1 },
+        ],
+        tags: [
+            { label: "Space", titleCount: 1, weightedRank: 91 },
+            { label: "Found Family", titleCount: 1, weightedRank: 90 },
+        ],
+    },
+    activity: {
+        eventCount: 2,
         recordedEpisodes: 3,
+        knownDurationEpisodes: 2,
         recordedMinutes: 48,
         unknownDurationEpisodes: 1,
-      },
-    ],
-    events: [
-      {
-        anilistId: 101,
-        mediaKind: "ANIME",
-        progressDelta: 2,
-        episodeDurationMinutes: 24,
-        occurredAt: "2026-07-16T09:00:00.000Z",
-      },
-      {
-        anilistId: 404,
-        mediaKind: "ANIME",
-        progressDelta: 1,
-        episodeDurationMinutes: null,
-        occurredAt: "2026-07-16T10:00:00.000Z",
-      },
-    ],
-  },
+        coveredFrom: "2026-07-16T09:00:00.000Z",
+        coveredTo: "2026-07-17T10:00:00.000Z",
+        monthly: trailingTwelveMonths,
+        yearly: [
+            {
+                period: "2026",
+                recordedEpisodes: 3,
+                recordedMinutes: 48,
+                unknownDurationEpisodes: 1,
+            },
+        ],
+        events: [
+            {
+                anilistId: 101,
+                mediaKind: "ANIME",
+                progressDelta: 2,
+                episodeDurationMinutes: 24,
+                occurredAt: "2026-07-16T09:00:00.000Z",
+            },
+            {
+                anilistId: 404,
+                mediaKind: "ANIME",
+                progressDelta: 1,
+                episodeDurationMinutes: null,
+                occurredAt: "2026-07-16T10:00:00.000Z",
+            },
+        ],
+    },
 };
 
 function indexedItem(
-  anilistId: number,
-  title: string,
-  status: LibraryEntry["status"],
-  progress: number,
-  score: number | null,
-  updatedDay: number,
-  releaseDay: number | null = updatedDay,
+    anilistId: number,
+    title: string,
+    status: LibraryEntry["status"],
+    progress: number,
+    score: number | null,
+    updatedDay: number,
+    releaseDay: number | null = updatedDay,
 ): LibraryItem {
-  return {
-    entry: {
-      ...entry(anilistId, status, progress, score),
-      updatedAt: `2026-07-${updatedDay.toString().padStart(2, "0")}T08:30:00.000Z`,
-    },
-    media: media(title, {
-      releaseDate:
-        releaseDay === null
-          ? null
-          : `2026-06-${releaseDay.toString().padStart(2, "0")}`,
-    }),
-  };
+    return {
+        entry: {
+            ...entry(anilistId, status, progress, score),
+            updatedAt: `2026-07-${updatedDay.toString().padStart(2, "0")}T08:30:00.000Z`,
+        },
+        media: media(title, {
+            releaseDate:
+                releaseDay === null
+                    ? null
+                    : `2026-06-${releaseDay.toString().padStart(2, "0")}`,
+        }),
+    };
 }
 
 const indexedLibraryItems = [
-  indexedItem(501, "Alpha Archive", "PLANNING", 0, null, 1, null),
-  indexedItem(502, "Bravo Brigade", "COMPLETED", 12, 8, 2),
-  indexedItem(503, "Charlie Chronicle", "WATCHING", 4, 7, 3),
-  indexedItem(504, "Delta Dream", "PLANNING", 0, 6, 4),
-  indexedItem(505, "Echo Expedition", "COMPLETED", 10, 9, 5),
-  indexedItem(506, "Foxtrot Fable", "WATCHING", 6, null, 6),
-  indexedItem(507, "Gamma Garden", "WATCHING", 8, 10, 7),
+    indexedItem(501, "Alpha Archive", "PLANNING", 0, null, 1, null),
+    indexedItem(502, "Bravo Brigade", "COMPLETED", 12, 8, 2),
+    indexedItem(503, "Charlie Chronicle", "WATCHING", 4, 7, 3),
+    indexedItem(504, "Delta Dream", "PLANNING", 0, 6, 4),
+    indexedItem(505, "Echo Expedition", "COMPLETED", 10, 9, 5),
+    indexedItem(506, "Foxtrot Fable", "WATCHING", 6, null, 6),
+    indexedItem(507, "Gamma Garden", "WATCHING", 8, 10, 7),
 ];
 
 const facetedLibraryItems = indexedLibraryItems.map((item) => {
-  const facets: Record<
-    number,
-    Pick<LibraryMediaSnapshot, "genres" | "tags">
-  > = {
-    501: {
-      genres: ["Drama"],
-      tags: [{ name: "Found Family", rank: 90 }],
-    },
-    502: {
-      genres: ["Action", "Comedy"],
-      tags: [
-        { name: "Found Family", rank: 82 },
-        { name: "Tournament", rank: 91 },
-      ],
-    },
-    503: {
-      genres: ["Drama", "Mystery"],
-      tags: [
-        { name: "Archives", rank: 88 },
-        { name: "Found Family", rank: 76 },
-      ],
-    },
-    504: {
-      genres: ["Fantasy"],
-      tags: [{ name: "Space", rank: 80 }],
-    },
-    505: {
-      genres: ["Action", "Drama"],
-      tags: [
-        { name: "Archives", rank: 84 },
-        { name: "Tournament", rank: 93 },
-      ],
-    },
-    506: {
-      genres: ["Comedy"],
-      tags: [{ name: "Found Family", rank: 87 }],
-    },
-    507: {
-      genres: ["Action", "Drama"],
-      tags: [
-        { name: "Found Family", rank: 89 },
-        { name: "Space", rank: 94 },
-      ],
-    },
-  };
-  return {
-    ...item,
-    media:
-      item.media === null
-        ? null
-        : { ...item.media, ...facets[item.entry.anilistId] },
-  };
+    const facets: Record<
+        number,
+        Pick<LibraryMediaSnapshot, "genres" | "tags">
+    > = {
+        501: {
+            genres: ["Drama"],
+            tags: [{ name: "Found Family", rank: 90 }],
+        },
+        502: {
+            genres: ["Action", "Comedy"],
+            tags: [
+                { name: "Found Family", rank: 82 },
+                { name: "Tournament", rank: 91 },
+            ],
+        },
+        503: {
+            genres: ["Drama", "Mystery"],
+            tags: [
+                { name: "Archives", rank: 88 },
+                { name: "Found Family", rank: 76 },
+            ],
+        },
+        504: {
+            genres: ["Fantasy"],
+            tags: [{ name: "Space", rank: 80 }],
+        },
+        505: {
+            genres: ["Action", "Drama"],
+            tags: [
+                { name: "Archives", rank: 84 },
+                { name: "Tournament", rank: 93 },
+            ],
+        },
+        506: {
+            genres: ["Comedy"],
+            tags: [{ name: "Found Family", rank: 87 }],
+        },
+        507: {
+            genres: ["Action", "Drama"],
+            tags: [
+                { name: "Found Family", rank: 89 },
+                { name: "Space", rank: 94 },
+            ],
+        },
+    };
+    return {
+        ...item,
+        media:
+            item.media === null
+                ? null
+                : { ...item.media, ...facets[item.entry.anilistId] },
+    };
 });
 
 const indexedInsights: DashboardInsights = {
-  ...populatedInsights,
-  libraryItems: indexedLibraryItems,
-  libraryTotals: {
-    tracked: 7,
-    watching: 3,
-    completed: 2,
-    planning: 2,
-    currentProgress: 40,
-  },
+    ...populatedInsights,
+    libraryItems: indexedLibraryItems,
+    libraryTotals: {
+        tracked: 7,
+        watching: 3,
+        completed: 2,
+        planning: 2,
+        currentProgress: 40,
+    },
 };
 
 const facetedInsights: DashboardInsights = {
-  ...indexedInsights,
-  libraryItems: facetedLibraryItems,
+    ...indexedInsights,
+    libraryItems: facetedLibraryItems,
 };
 
 const emptyInsights: DashboardInsights = {
-  mediaKind: "ANIME",
-  libraryItems: [],
-  libraryTotals: {
-    tracked: 0,
-    watching: 0,
-    completed: 0,
-    planning: 0,
-    currentProgress: 0,
-  },
-  preferenceSignals: {
-    eligibleTitles: 0,
-    metadataTitles: 0,
-    missingMetadataTitles: 0,
-    staleMetadataTitles: 0,
-    genres: [],
-    tags: [],
-  },
-  activity: {
-    eventCount: 0,
-    recordedEpisodes: 0,
-    knownDurationEpisodes: 0,
-    recordedMinutes: 0,
-    unknownDurationEpisodes: 0,
-    coveredFrom: null,
-    coveredTo: null,
-    monthly: [],
-    yearly: [],
-    events: [],
-  },
+    mediaKind: "ANIME",
+    libraryItems: [],
+    libraryTotals: {
+        tracked: 0,
+        watching: 0,
+        completed: 0,
+        planning: 0,
+        currentProgress: 0,
+    },
+    preferenceSignals: {
+        eligibleTitles: 0,
+        metadataTitles: 0,
+        missingMetadataTitles: 0,
+        staleMetadataTitles: 0,
+        genres: [],
+        tags: [],
+    },
+    activity: {
+        eventCount: 0,
+        recordedEpisodes: 0,
+        knownDurationEpisodes: 0,
+        recordedMinutes: 0,
+        unknownDurationEpisodes: 0,
+        coveredFrom: null,
+        coveredTo: null,
+        monthly: [],
+        yearly: [],
+        events: [],
+    },
 };
 
 function detailsFor(item: LibraryItem): MediaDetailsResponse {
-  const summary = item.media;
-  return {
-    media: {
-      anilistId: item.entry.anilistId,
-      title: summary?.title ?? `AniList #${item.entry.anilistId}`,
-      coverUrl: summary?.coverUrl ?? null,
-      mediaFormat: summary?.mediaFormat ?? null,
-      status: summary?.status ?? null,
-      episodes: summary?.episodes ?? null,
-      durationMinutes: summary?.durationMinutes ?? null,
-      releaseDate: summary?.releaseDate ?? null,
-      genres: summary?.genres ?? [],
-      tags: summary?.tags ?? [],
-      trending: 0,
-      sequels: [],
-    },
-    freshness: {
-      fetchedAt: "2026-07-16T08:00:00.000Z",
-      expiresAt: "2026-07-17T08:00:00.000Z",
-      isStale: false,
-      refreshError: null,
-    },
-  };
+    const summary = item.media;
+    return {
+        media: {
+            anilistId: item.entry.anilistId,
+            title: summary?.title ?? `AniList #${item.entry.anilistId}`,
+            coverUrl: summary?.coverUrl ?? null,
+            mediaFormat: summary?.mediaFormat ?? null,
+            status: summary?.status ?? null,
+            episodes: summary?.episodes ?? null,
+            durationMinutes: summary?.durationMinutes ?? null,
+            releaseDate: summary?.releaseDate ?? null,
+            genres: summary?.genres ?? [],
+            tags: summary?.tags ?? [],
+            trending: 0,
+            sequels: [],
+        },
+        freshness: {
+            fetchedAt: "2026-07-16T08:00:00.000Z",
+            expiresAt: "2026-07-17T08:00:00.000Z",
+            isStale: false,
+            refreshError: null,
+        },
+    };
 }
 
 describe("DashboardPage", () => {
-  it.each(testViewports)(
-    "renders authoritative totals, signals, activity, and the library index at the $name viewport",
-    async (viewport) => {
-      setTestViewport(viewport);
-      render(DashboardPage, {
-        loadInsights: vi.fn().mockResolvedValue(populatedInsights),
-        refreshMetadata: vi.fn(),
-      });
+    it.each(testViewports)(
+        "renders authoritative totals, signals, activity, and the library index at the $name viewport",
+        async (viewport) => {
+            setTestViewport(viewport);
+            render(DashboardPage, {
+                loadInsights: vi.fn().mockResolvedValue(populatedInsights),
+                refreshMetadata: vi.fn(),
+            });
 
-      expect(
-        screen.getByRole("heading", { level: 1, name: "Dashboard" }),
-      ).toBeInTheDocument();
-      const totals = await screen.findByRole("group", {
-        name: "Library totals",
-      });
-      expect(totals).toHaveClass("grid-cols-2");
-      expect(totals).not.toHaveClass("sm:grid-cols-4");
-      for (const total of totals.querySelectorAll("dd")) {
-        expect(total).toHaveClass("text-3xl", "sm:text-5xl");
-      }
-      expect(totals).toHaveTextContent(/tracked\s*04/i);
-      expect(totals).toHaveTextContent(/watching\s*02/i);
-      expect(totals).toHaveTextContent(/completed\s*01/i);
-      expect(totals).toHaveTextContent(/planning\s*01/i);
-      expect(totals.querySelector('[data-stat="tracked"]')).toHaveClass(
-        "text-stat-tracked",
-      );
-      expect(totals.querySelector('[data-stat="watching"]')).toHaveClass(
-        "text-stat-watching",
-      );
-      expect(totals.querySelector('[data-stat="completed"]')).toHaveClass(
-        "text-stat-completed",
-      );
-      expect(totals.querySelector('[data-stat="planning"]')).toHaveClass(
-        "text-stat-planning",
-      );
-      expect(screen.getByText(/8 episodes/i)).toBeInTheDocument();
-      expect(screen.queryByText(/eligible titles/i)).not.toBeInTheDocument();
-      expect(
-        screen.getByRole("list", { name: "Genre preference signals" }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("list", { name: "Tag preference signals" }),
-      ).toHaveTextContent(/Space.*1/i);
+            expect(
+                screen.getByRole("heading", { level: 1, name: "Dashboard" }),
+            ).toBeInTheDocument();
+            const totals = await screen.findByRole("group", {
+                name: "Library totals",
+            });
+            expect(totals).toHaveClass("grid-cols-2");
+            expect(totals).not.toHaveClass("sm:grid-cols-4");
+            for (const total of totals.querySelectorAll("dd")) {
+                expect(total).toHaveClass("text-3xl", "sm:text-5xl");
+            }
+            expect(totals).toHaveTextContent(/tracked\s*04/i);
+            expect(totals).toHaveTextContent(/watching\s*02/i);
+            expect(totals).toHaveTextContent(/completed\s*01/i);
+            expect(totals).toHaveTextContent(/planning\s*01/i);
+            expect(totals.querySelector('[data-stat="tracked"]')).toHaveClass(
+                "text-stat-tracked",
+            );
+            expect(totals.querySelector('[data-stat="watching"]')).toHaveClass(
+                "text-stat-watching",
+            );
+            expect(totals.querySelector('[data-stat="completed"]')).toHaveClass(
+                "text-stat-completed",
+            );
+            expect(totals.querySelector('[data-stat="planning"]')).toHaveClass(
+                "text-stat-planning",
+            );
+            expect(screen.getByText(/8 episodes/i)).toBeInTheDocument();
+            expect(
+                screen.queryByText(/eligible titles/i),
+            ).not.toBeInTheDocument();
+            expect(
+                screen.getByRole("list", { name: "Genre preference signals" }),
+            ).toBeInTheDocument();
+            expect(
+                screen.getByRole("list", { name: "Tag preference signals" }),
+            ).toHaveTextContent(/Space.*1/i);
 
-      const activity = screen.getByRole("group", {
-        name: "Recorded activity summary",
-      });
-      expect(activity).toHaveTextContent(/updates\s*2/i);
-      expect(activity).toHaveTextContent(/recorded episodes\s*3/i);
-      expect(activity).toHaveTextContent(/known watch time\s*48m/i);
-      expect(activity).toHaveTextContent(/time unknown\s*1 episode/i);
-      const monthlyActivity = screen.getByRole("list", {
-        name: "Monthly recorded watch activity",
-      });
-      expect(monthlyActivity).toHaveTextContent(/48m/i);
-      expect(within(monthlyActivity).getAllByRole("listitem")).toHaveLength(12);
-      expect(
-        Array.from(monthlyActivity.querySelectorAll("time"), (month) =>
-          month.textContent?.trim(),
-        ),
-      ).toEqual([
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-      ]);
-      expect(
-        within(monthlyActivity).getByLabelText("August 2025"),
-      ).toHaveTextContent("Aug");
-      expect(
-        screen.getByRole("listitem", {
-          name: /July 2026: 48m of recorded watch time from 3 episodes; 1 episode with unknown duration/i,
-        }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("list", { name: "Yearly recorded watch activity" }),
-      ).toHaveTextContent(/2026.*48m.*3 episodes/i);
-      expect(screen.queryByText(/Ledger coverage/i)).not.toBeInTheDocument();
-      expect(
-        screen.getByRole("list", { name: "Recent recorded progress events" }),
-      ).toHaveTextContent(/Paper Cranes at Dawn.*\+2 episodes.*48m/i);
-      expect(screen.queryByRole("table")).not.toBeInTheDocument();
+            const activity = screen.getByRole("group", {
+                name: "Recorded activity summary",
+            });
+            expect(activity).toHaveTextContent(/updates\s*2/i);
+            expect(activity).toHaveTextContent(/recorded episodes\s*3/i);
+            expect(activity).toHaveTextContent(/known watch time\s*48m/i);
+            expect(activity).toHaveTextContent(/time unknown\s*1 episode/i);
+            const monthlyActivity = screen.getByRole("list", {
+                name: "Monthly recorded watch activity",
+            });
+            expect(monthlyActivity).toHaveTextContent(/48m/i);
+            expect(
+                within(monthlyActivity).getAllByRole("listitem"),
+            ).toHaveLength(12);
+            expect(
+                Array.from(monthlyActivity.querySelectorAll("time"), (month) =>
+                    month.textContent?.trim(),
+                ),
+            ).toEqual([
+                "Aug",
+                "Sep",
+                "Oct",
+                "Nov",
+                "Dec",
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
+                "Jul",
+            ]);
+            expect(
+                within(monthlyActivity).getByLabelText("August 2025"),
+            ).toHaveTextContent("Aug");
+            expect(
+                screen.getByRole("listitem", {
+                    name: /July 2026: 48m of recorded watch time from 3 episodes; 1 episode with unknown duration/i,
+                }),
+            ).toBeInTheDocument();
+            expect(
+                screen.getByRole("list", {
+                    name: "Yearly recorded watch activity",
+                }),
+            ).toHaveTextContent(/2026.*48m.*3 episodes/i);
+            expect(
+                screen.queryByText(/Ledger coverage/i),
+            ).not.toBeInTheDocument();
+            expect(
+                screen.getByRole("list", {
+                    name: "Recent recorded progress events",
+                }),
+            ).toHaveTextContent(/Paper Cranes at Dawn.*\+2 episodes.*48m/i);
+            expect(screen.queryByRole("table")).not.toBeInTheDocument();
 
-      const libraryIndex = screen.getByRole("list", {
-        name: "Library index results",
-      });
-      const libraryCards = within(libraryIndex).getAllByRole("listitem");
-      expect(libraryCards).toHaveLength(4);
-      for (const card of libraryCards) {
-        expect(card).toHaveClass("w-[min(18rem,84vw)]", "sm:w-72");
-      }
-      const libraryCard = within(libraryIndex).getByRole("button", {
-        name: "Open library details for Paper Cranes at Dawn",
-      });
-      const libraryCover = within(libraryCard).getByRole("img", {
-        name: "Cover artwork for Paper Cranes at Dawn",
-      });
-      expect(libraryCover.parentElement).toHaveClass("h-full");
-      expect(libraryCover.parentElement?.parentElement).toHaveClass(
-        "min-h-[5.625rem]",
-        "self-stretch",
-      );
-      expect(
-        screen.getByRole("searchbox", { name: "find a title" }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("search", { name: "Filter library index" }),
-      ).toHaveClass("relative", "z-20");
-      expect(
-        screen.getByRole("combobox", { name: "status" }),
-      ).toHaveTextContent("All statuses");
-      expect(screen.getByRole("combobox", { name: "genre" })).toHaveTextContent(
-        "All genres",
-      );
-      expect(screen.getByRole("combobox", { name: "tag" })).toHaveTextContent(
-        "All tags",
-      );
-      expect(
-        screen.getByRole("combobox", { name: "sort by" }),
-      ).toHaveTextContent("Newest release");
-      for (const dropdown of screen.getAllByRole("combobox")) {
-        expect(dropdown).toHaveClass("glass-select-trigger", "cursor-pointer");
-        expect(dropdown).toHaveAttribute("aria-expanded", "false");
-      }
-      expect(
-        screen.queryByRole("navigation", { name: "Library index pages" }),
-      ).not.toBeInTheDocument();
-      expect(screen.getAllByText("AniList #404")).toHaveLength(2);
-      expect(
-        screen.queryByText("episode total unknown"),
-      ).not.toBeInTheDocument();
-      expect(libraryIndex).toHaveTextContent("0 / ?? eps");
-      expect(screen.getByText(/score \/\/ 7 \/ 10/i)).toBeInTheDocument();
-      expect(screen.queryByText(/stale cache/i)).not.toBeInTheDocument();
-    },
-  );
+            const libraryIndex = screen.getByRole("list", {
+                name: "Library index results",
+            });
+            const libraryCards = within(libraryIndex).getAllByRole("listitem");
+            expect(libraryCards).toHaveLength(4);
+            for (const card of libraryCards) {
+                expect(card).toHaveClass("w-[min(18rem,84vw)]", "sm:w-72");
+            }
+            const libraryCard = within(libraryIndex).getByRole("button", {
+                name: "Open library details for Paper Cranes at Dawn",
+            });
+            const libraryCover = within(libraryCard).getByRole("img", {
+                name: "Cover artwork for Paper Cranes at Dawn",
+            });
+            expect(libraryCover.parentElement).toHaveClass("h-full");
+            expect(libraryCover.parentElement?.parentElement).toHaveClass(
+                "min-h-[5.625rem]",
+                "self-stretch",
+            );
+            expect(
+                screen.getByRole("searchbox", { name: "find a title" }),
+            ).toBeInTheDocument();
+            expect(
+                screen.getByRole("search", { name: "Filter library index" }),
+            ).toHaveClass("relative", "z-20");
+            expect(
+                screen.getByRole("combobox", { name: "status" }),
+            ).toHaveTextContent("All statuses");
+            expect(
+                screen.getByRole("combobox", { name: "genre" }),
+            ).toHaveTextContent("All genres");
+            expect(
+                screen.getByRole("combobox", { name: "tag" }),
+            ).toHaveTextContent("All tags");
+            expect(
+                screen.getByRole("combobox", { name: "sort by" }),
+            ).toHaveTextContent("Newest release");
+            for (const dropdown of screen.getAllByRole("combobox")) {
+                expect(dropdown).toHaveClass(
+                    "glass-select-trigger",
+                    "cursor-pointer",
+                );
+                expect(dropdown).toHaveAttribute("aria-expanded", "false");
+            }
+            expect(
+                screen.queryByRole("navigation", {
+                    name: "Library index pages",
+                }),
+            ).not.toBeInTheDocument();
+            expect(screen.getAllByText("AniList #404")).toHaveLength(2);
+            expect(
+                screen.queryByText("episode total unknown"),
+            ).not.toBeInTheDocument();
+            expect(libraryIndex).toHaveTextContent("0 / ?? eps");
+            expect(screen.getByText(/score \/\/ 7 \/ 10/i)).toBeInTheDocument();
+            expect(screen.queryByText(/stale cache/i)).not.toBeInTheDocument();
+        },
+    );
 
-  it("shows useful whole-library and activity empty states", async () => {
-    const openDiscovery = vi.fn();
-    const user = userEvent.setup();
-    render(DashboardPage, {
-      loadInsights: vi.fn().mockResolvedValue(emptyInsights),
-      refreshMetadata: vi.fn(),
-      openDiscovery,
+    it("shows useful whole-library and activity empty states", async () => {
+        const openDiscovery = vi.fn();
+        const user = userEvent.setup();
+        render(DashboardPage, {
+            loadInsights: vi.fn().mockResolvedValue(emptyInsights),
+            refreshMetadata: vi.fn(),
+            openDiscovery,
+        });
+
+        expect(
+            await screen.findByRole("heading", {
+                level: 3,
+                name: "Your library has no anime yet.",
+            }),
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole("heading", {
+                level: 3,
+                name: "Your watch history is empty.",
+            }),
+        ).toBeInTheDocument();
+        expect(
+            screen.getByText(/update its progress to start your history/i),
+        ).toBeInTheDocument();
+        const refreshButton = screen.getByRole("button", {
+            name: "refresh anime details",
+        });
+        expect(refreshButton).toBeDisabled();
+        expect(refreshButton).toHaveTextContent("");
+        expect(refreshButton.querySelector("svg")).toBeInTheDocument();
+
+        await user.click(screen.getByRole("button", { name: "open Discover" }));
+        expect(openDiscovery).toHaveBeenCalledOnce();
     });
 
-    expect(
-      await screen.findByRole("heading", {
-        level: 3,
-        name: "Your library has no anime yet.",
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", {
-        level: 3,
-        name: "Your watch history is empty.",
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/update its progress to start your history/i),
-    ).toBeInTheDocument();
-    const refreshButton = screen.getByRole("button", {
-      name: "refresh anime details",
-    });
-    expect(refreshButton).toBeDisabled();
-    expect(refreshButton).toHaveTextContent("");
-    expect(refreshButton.querySelector("svg")).toBeInTheDocument();
+    it("continuously scrolls all titles and supports title, status, and sort controls", async () => {
+        const user = userEvent.setup();
+        render(DashboardPage, {
+            loadInsights: vi.fn().mockResolvedValue(indexedInsights),
+            refreshMetadata: vi.fn(),
+        });
 
-    await user.click(screen.getByRole("button", { name: "open Discover" }));
-    expect(openDiscovery).toHaveBeenCalledOnce();
-  });
+        const libraryIndex = await screen.findByRole("list", {
+            name: "Library index results",
+        });
+        const scrollTo = vi.fn();
+        libraryIndex.scrollTo = scrollTo;
+        const searchControls = screen.getByRole("search", {
+            name: "Filter library index",
+        });
+        const chooseOption = async (
+            controlName: string,
+            optionName: string,
+        ): Promise<void> => {
+            await user.click(
+                within(searchControls).getByRole("combobox", {
+                    name: controlName,
+                }),
+            );
+            await user.click(screen.getByRole("option", { name: optionName }));
+        };
+        const visibleTitles = () =>
+            within(screen.getByRole("list", { name: "Library index results" }))
+                .getAllByRole("button")
+                .map((button) =>
+                    button
+                        .getAttribute("aria-label")
+                        ?.replace("Open library details for ", ""),
+                );
 
-  it("continuously scrolls all titles and supports title, status, and sort controls", async () => {
-    const user = userEvent.setup();
-    render(DashboardPage, {
-      loadInsights: vi.fn().mockResolvedValue(indexedInsights),
-      refreshMetadata: vi.fn(),
+        expect(within(libraryIndex).getAllByRole("listitem")).toHaveLength(7);
+        expect(libraryIndex).toHaveClass("overflow-x-auto", "snap-x");
+        expect(libraryIndex).not.toHaveClass("scrollbar-hidden");
+        expect(within(libraryIndex).getAllByRole("listitem")[0]).toHaveClass(
+            "shrink-0",
+            "snap-start",
+        );
+        expect(visibleTitles()).toEqual([
+            "Gamma Garden",
+            "Foxtrot Fable",
+            "Echo Expedition",
+            "Delta Dream",
+            "Charlie Chronicle",
+            "Bravo Brigade",
+            "Alpha Archive",
+        ]);
+        expect(
+            screen.queryByRole("navigation", { name: "Library index pages" }),
+        ).not.toBeInTheDocument();
+
+        await chooseOption("sort by", "Title A–Z");
+        expect(scrollTo).toHaveBeenCalledWith({ left: 0, behavior: "smooth" });
+        expect(visibleTitles()).toEqual([
+            "Alpha Archive",
+            "Bravo Brigade",
+            "Charlie Chronicle",
+            "Delta Dream",
+            "Echo Expedition",
+            "Foxtrot Fable",
+            "Gamma Garden",
+        ]);
+
+        await chooseOption("status", "Watching");
+        expect(visibleTitles()).toEqual([
+            "Charlie Chronicle",
+            "Foxtrot Fable",
+            "Gamma Garden",
+        ]);
+
+        await user.type(
+            within(searchControls).getByRole("searchbox", {
+                name: "find a title",
+            }),
+            "Gamma",
+        );
+        expect(visibleTitles()).toEqual(["Gamma Garden"]);
+        expect(
+            screen.getByText(/matching title/i).closest("p"),
+        ).toHaveTextContent(/1\s*matching title shown/i);
+
+        await user.clear(
+            within(searchControls).getByRole("searchbox", {
+                name: "find a title",
+            }),
+        );
+        await user.type(
+            within(searchControls).getByRole("searchbox", {
+                name: "find a title",
+            }),
+            "No such title",
+        );
+        expect(
+            screen.getByRole("heading", {
+                name: "No titles match these filters.",
+            }),
+        ).toBeInTheDocument();
+        await user.click(
+            within(searchControls).getByRole("button", {
+                name: "clear filters",
+            }),
+        );
+        expect(
+            within(
+                screen.getByRole("list", { name: "Library index results" }),
+            ).getAllByRole("listitem"),
+        ).toHaveLength(7);
+
+        await chooseOption("sort by", "Most progress");
+        expect(visibleTitles()).toEqual([
+            "Bravo Brigade",
+            "Echo Expedition",
+            "Gamma Garden",
+            "Foxtrot Fable",
+            "Charlie Chronicle",
+            "Alpha Archive",
+            "Delta Dream",
+        ]);
+
+        await chooseOption("sort by", "Highest score");
+        expect(visibleTitles()).toEqual([
+            "Gamma Garden",
+            "Echo Expedition",
+            "Bravo Brigade",
+            "Charlie Chronicle",
+            "Delta Dream",
+            "Alpha Archive",
+            "Foxtrot Fable",
+        ]);
     });
 
-    const libraryIndex = await screen.findByRole("list", {
-      name: "Library index results",
+    it("multi-selects genres and tags and requires every selected facet", async () => {
+        const user = userEvent.setup();
+        render(DashboardPage, {
+            loadInsights: vi.fn().mockResolvedValue(facetedInsights),
+            refreshMetadata: vi.fn(),
+        });
+
+        const results = await screen.findByRole("list", {
+            name: "Library index results",
+        });
+        const visibleTitles = () =>
+            within(results)
+                .getAllByRole("button")
+                .map((button) =>
+                    button
+                        .getAttribute("aria-label")
+                        ?.replace("Open library details for ", ""),
+                );
+
+        await user.click(screen.getByRole("combobox", { name: "genre" }));
+        expect(
+            screen.getByRole("listbox", { name: "genre options" }),
+        ).toHaveAttribute("aria-multiselectable", "true");
+        await user.click(screen.getByRole("option", { name: "Action" }));
+        await user.click(screen.getByRole("option", { name: "Drama" }));
+        expect(
+            screen.getByRole("combobox", { name: "genre" }),
+        ).toHaveTextContent("2 genres");
+        expect(visibleTitles()).toEqual(["Gamma Garden", "Echo Expedition"]);
+
+        await user.click(screen.getByRole("combobox", { name: "tag" }));
+        await user.click(screen.getByRole("option", { name: "Found Family" }));
+        await user.click(screen.getByRole("option", { name: "Space" }));
+        expect(screen.getByRole("combobox", { name: "tag" })).toHaveTextContent(
+            "2 tags",
+        );
+        expect(visibleTitles()).toEqual(["Gamma Garden"]);
+
+        const activeFacets = screen.getByRole("group", {
+            name: "Active genre and tag filters",
+        });
+        expect(activeFacets).toHaveTextContent(/genre.*Action/i);
+        expect(activeFacets).toHaveTextContent(/tag.*Space/i);
+        await user.click(
+            within(activeFacets).getByRole("button", {
+                name: "remove tag Space",
+            }),
+        );
+        expect(visibleTitles()).toEqual(["Gamma Garden"]);
+
+        await user.click(screen.getByRole("button", { name: "clear filters" }));
+        expect(visibleTitles()).toHaveLength(7);
+        expect(
+            screen.queryByRole("group", {
+                name: "Active genre and tag filters",
+            }),
+        ).not.toBeInTheDocument();
     });
-    const scrollTo = vi.fn();
-    libraryIndex.scrollTo = scrollTo;
-    const searchControls = screen.getByRole("search", {
-      name: "Filter library index",
+
+    it("backfills upgraded snapshots before relying on the release-date sort", async () => {
+        const legacyInsights: DashboardInsights = {
+            ...indexedInsights,
+            libraryItems: [
+                indexedItem(
+                    601,
+                    "Alphabetically First",
+                    "WATCHING",
+                    1,
+                    null,
+                    1,
+                    null,
+                ),
+                indexedItem(
+                    602,
+                    "Alphabetically Last",
+                    "WATCHING",
+                    1,
+                    null,
+                    2,
+                    null,
+                ),
+            ],
+        };
+        legacyInsights.libraryItems = legacyInsights.libraryItems.map(
+            (item) => ({
+                ...item,
+                media:
+                    item.media === null
+                        ? null
+                        : { ...item.media, isStale: true },
+            }),
+        );
+        const refreshedInsights: DashboardInsights = {
+            ...legacyInsights,
+            libraryItems: [
+                {
+                    ...indexedItem(
+                        601,
+                        "Alphabetically First",
+                        "WATCHING",
+                        1,
+                        null,
+                        1,
+                    ),
+                    media: media("Alphabetically First", {
+                        releaseDate: "2027",
+                    }),
+                },
+                {
+                    ...indexedItem(
+                        602,
+                        "Alphabetically Last",
+                        "WATCHING",
+                        1,
+                        null,
+                        2,
+                    ),
+                    media: media("Alphabetically Last", {
+                        releaseDate: "2027-10",
+                    }),
+                },
+            ],
+        };
+        const loadInsights = vi
+            .fn()
+            .mockResolvedValueOnce(legacyInsights)
+            .mockResolvedValueOnce(refreshedInsights);
+        const refreshMetadata = vi.fn().mockResolvedValue({
+            attempted: 2,
+            updated: 2,
+            stale: 0,
+            failures: [],
+        });
+
+        render(DashboardPage, { loadInsights, refreshMetadata });
+
+        await waitFor(() => expect(refreshMetadata).toHaveBeenCalledOnce());
+        await waitFor(() => expect(loadInsights).toHaveBeenCalledTimes(2));
+        await waitFor(() =>
+            expect(
+                within(
+                    screen.getByRole("list", { name: "Library index results" }),
+                )
+                    .getAllByRole("button")
+                    .map((button) =>
+                        button
+                            .getAttribute("aria-label")
+                            ?.replace("Open library details for ", ""),
+                    ),
+            ).toEqual(["Alphabetically Last", "Alphabetically First"]),
+        );
     });
-    const chooseOption = async (
-      controlName: string,
-      optionName: string,
-    ): Promise<void> => {
-      await user.click(
-        within(searchControls).getByRole("combobox", { name: controlName }),
-      );
-      await user.click(screen.getByRole("option", { name: optionName }));
-    };
-    const visibleTitles = () =>
-      within(screen.getByRole("list", { name: "Library index results" }))
-        .getAllByRole("button")
-        .map((button) =>
-          button
-            .getAttribute("aria-label")
-            ?.replace("Open library details for ", ""),
+
+    it("retries a terminal initial load failure", async () => {
+        const loadInsights = vi
+            .fn()
+            .mockRejectedValueOnce({
+                code: "DATABASE_UNAVAILABLE",
+                message: "The local database is busy.",
+                retryable: true,
+            })
+            .mockResolvedValueOnce(emptyInsights);
+        const user = userEvent.setup();
+        render(DashboardPage, { loadInsights, refreshMetadata: vi.fn() });
+
+        expect(await screen.findByRole("alert")).toHaveTextContent(
+            "The local database is busy.",
+        );
+        await user.click(
+            screen.getByRole("button", { name: "Retry Dashboard" }),
         );
 
-    expect(within(libraryIndex).getAllByRole("listitem")).toHaveLength(7);
-    expect(libraryIndex).toHaveClass("overflow-x-auto", "snap-x");
-    expect(libraryIndex).not.toHaveClass("scrollbar-hidden");
-    expect(within(libraryIndex).getAllByRole("listitem")[0]).toHaveClass(
-      "shrink-0",
-      "snap-start",
-    );
-    expect(visibleTitles()).toEqual([
-      "Gamma Garden",
-      "Foxtrot Fable",
-      "Echo Expedition",
-      "Delta Dream",
-      "Charlie Chronicle",
-      "Bravo Brigade",
-      "Alpha Archive",
-    ]);
-    expect(
-      screen.queryByRole("navigation", { name: "Library index pages" }),
-    ).not.toBeInTheDocument();
-
-    await chooseOption("sort by", "Title A–Z");
-    expect(scrollTo).toHaveBeenCalledWith({ left: 0, behavior: "smooth" });
-    expect(visibleTitles()).toEqual([
-      "Alpha Archive",
-      "Bravo Brigade",
-      "Charlie Chronicle",
-      "Delta Dream",
-      "Echo Expedition",
-      "Foxtrot Fable",
-      "Gamma Garden",
-    ]);
-
-    await chooseOption("status", "Watching");
-    expect(visibleTitles()).toEqual([
-      "Charlie Chronicle",
-      "Foxtrot Fable",
-      "Gamma Garden",
-    ]);
-
-    await user.type(
-      within(searchControls).getByRole("searchbox", { name: "find a title" }),
-      "Gamma",
-    );
-    expect(visibleTitles()).toEqual(["Gamma Garden"]);
-    expect(screen.getByText(/matching title/i).closest("p")).toHaveTextContent(
-      /1\s*matching title shown/i,
-    );
-
-    await user.clear(
-      within(searchControls).getByRole("searchbox", { name: "find a title" }),
-    );
-    await user.type(
-      within(searchControls).getByRole("searchbox", { name: "find a title" }),
-      "No such title",
-    );
-    expect(
-      screen.getByRole("heading", { name: "No titles match these filters." }),
-    ).toBeInTheDocument();
-    await user.click(
-      within(searchControls).getByRole("button", { name: "clear filters" }),
-    );
-    expect(
-      within(
-        screen.getByRole("list", { name: "Library index results" }),
-      ).getAllByRole("listitem"),
-    ).toHaveLength(7);
-
-    await chooseOption("sort by", "Most progress");
-    expect(visibleTitles()).toEqual([
-      "Bravo Brigade",
-      "Echo Expedition",
-      "Gamma Garden",
-      "Foxtrot Fable",
-      "Charlie Chronicle",
-      "Alpha Archive",
-      "Delta Dream",
-    ]);
-
-    await chooseOption("sort by", "Highest score");
-    expect(visibleTitles()).toEqual([
-      "Gamma Garden",
-      "Echo Expedition",
-      "Bravo Brigade",
-      "Charlie Chronicle",
-      "Delta Dream",
-      "Alpha Archive",
-      "Foxtrot Fable",
-    ]);
-  });
-
-  it("multi-selects genres and tags and requires every selected facet", async () => {
-    const user = userEvent.setup();
-    render(DashboardPage, {
-      loadInsights: vi.fn().mockResolvedValue(facetedInsights),
-      refreshMetadata: vi.fn(),
+        expect(
+            await screen.findByRole("group", { name: "Library totals" }),
+        ).toHaveTextContent(/tracked\s*00/i);
+        expect(loadInsights).toHaveBeenCalledTimes(2);
     });
 
-    const results = await screen.findByRole("list", {
-      name: "Library index results",
-    });
-    const visibleTitles = () =>
-      within(results)
-        .getAllByRole("button")
-        .map((button) =>
-          button
-            .getAttribute("aria-label")
-            ?.replace("Open library details for ", ""),
+    it("reports partial metadata refreshes while keeping the cached index visible", async () => {
+        const loadInsights = vi.fn().mockResolvedValue(populatedInsights);
+        const refreshMetadata = vi.fn().mockResolvedValue({
+            attempted: 4,
+            updated: 1,
+            stale: 2,
+            failures: [
+                {
+                    anilistId: 404,
+                    error: {
+                        code: "ANILIST_OFFLINE",
+                        message: "AniList is unavailable.",
+                        retryable: true,
+                    },
+                },
+            ],
+        });
+        const user = userEvent.setup();
+        render(DashboardPage, { loadInsights, refreshMetadata });
+
+        await user.click(
+            await screen.findByRole("button", {
+                name: "refresh anime details",
+            }),
         );
 
-    await user.click(screen.getByRole("combobox", { name: "genre" }));
-    expect(
-      screen.getByRole("listbox", { name: "genre options" }),
-    ).toHaveAttribute("aria-multiselectable", "true");
-    await user.click(screen.getByRole("option", { name: "Action" }));
-    await user.click(screen.getByRole("option", { name: "Drama" }));
-    expect(screen.getByRole("combobox", { name: "genre" })).toHaveTextContent(
-      "2 genres",
-    );
-    expect(visibleTitles()).toEqual(["Gamma Garden", "Echo Expedition"]);
-
-    await user.click(screen.getByRole("combobox", { name: "tag" }));
-    await user.click(screen.getByRole("option", { name: "Found Family" }));
-    await user.click(screen.getByRole("option", { name: "Space" }));
-    expect(screen.getByRole("combobox", { name: "tag" })).toHaveTextContent(
-      "2 tags",
-    );
-    expect(visibleTitles()).toEqual(["Gamma Garden"]);
-
-    const activeFacets = screen.getByRole("group", {
-      name: "Active genre and tag filters",
-    });
-    expect(activeFacets).toHaveTextContent(/genre.*Action/i);
-    expect(activeFacets).toHaveTextContent(/tag.*Space/i);
-    await user.click(
-      within(activeFacets).getByRole("button", { name: "remove tag Space" }),
-    );
-    expect(visibleTitles()).toEqual(["Gamma Garden"]);
-
-    await user.click(screen.getByRole("button", { name: "clear filters" }));
-    expect(visibleTitles()).toHaveLength(7);
-    expect(
-      screen.queryByRole("group", {
-        name: "Active genre and tag filters",
-      }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("backfills upgraded snapshots before relying on the release-date sort", async () => {
-    const legacyInsights: DashboardInsights = {
-      ...indexedInsights,
-      libraryItems: [
-        indexedItem(601, "Alphabetically First", "WATCHING", 1, null, 1, null),
-        indexedItem(602, "Alphabetically Last", "WATCHING", 1, null, 2, null),
-      ],
-    };
-    legacyInsights.libraryItems = legacyInsights.libraryItems.map((item) => ({
-      ...item,
-      media: item.media === null ? null : { ...item.media, isStale: true },
-    }));
-    const refreshedInsights: DashboardInsights = {
-      ...legacyInsights,
-      libraryItems: [
-        {
-          ...indexedItem(601, "Alphabetically First", "WATCHING", 1, null, 1),
-          media: media("Alphabetically First", { releaseDate: "2027" }),
-        },
-        {
-          ...indexedItem(602, "Alphabetically Last", "WATCHING", 1, null, 2),
-          media: media("Alphabetically Last", { releaseDate: "2027-10" }),
-        },
-      ],
-    };
-    const loadInsights = vi
-      .fn()
-      .mockResolvedValueOnce(legacyInsights)
-      .mockResolvedValueOnce(refreshedInsights);
-    const refreshMetadata = vi.fn().mockResolvedValue({
-      attempted: 2,
-      updated: 2,
-      stale: 0,
-      failures: [],
+        expect(await screen.findByRole("status")).toHaveTextContent(
+            /Updated 1 title; 1 title could not be refreshed/i,
+        );
+        expect(
+            screen.getByRole("list", { name: "Library index results" }),
+        ).toHaveTextContent("Paper Cranes at Dawn");
+        expect(loadInsights).toHaveBeenCalledTimes(2);
     });
 
-    render(DashboardPage, { loadInsights, refreshMetadata });
-
-    await waitFor(() => expect(refreshMetadata).toHaveBeenCalledOnce());
-    await waitFor(() => expect(loadInsights).toHaveBeenCalledTimes(2));
-    await waitFor(() =>
-      expect(
-        within(screen.getByRole("list", { name: "Library index results" }))
-          .getAllByRole("button")
-          .map((button) =>
-            button
-              .getAttribute("aria-label")
-              ?.replace("Open library details for ", ""),
-          ),
-      ).toEqual(["Alphabetically Last", "Alphabetically First"]),
-    );
-  });
-
-  it("retries a terminal initial load failure", async () => {
-    const loadInsights = vi
-      .fn()
-      .mockRejectedValueOnce({
-        code: "DATABASE_UNAVAILABLE",
-        message: "The local database is busy.",
-        retryable: true,
-      })
-      .mockResolvedValueOnce(emptyInsights);
-    const user = userEvent.setup();
-    render(DashboardPage, { loadInsights, refreshMetadata: vi.fn() });
-
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "The local database is busy.",
-    );
-    await user.click(screen.getByRole("button", { name: "Retry Dashboard" }));
-
-    expect(
-      await screen.findByRole("group", { name: "Library totals" }),
-    ).toHaveTextContent(/tracked\s*00/i);
-    expect(loadInsights).toHaveBeenCalledTimes(2);
-  });
-
-  it("reports partial metadata refreshes while keeping the cached index visible", async () => {
-    const loadInsights = vi.fn().mockResolvedValue(populatedInsights);
-    const refreshMetadata = vi.fn().mockResolvedValue({
-      attempted: 4,
-      updated: 1,
-      stale: 2,
-      failures: [
-        {
-          anilistId: 404,
-          error: {
+    it("keeps local data visible when a metadata check is offline", async () => {
+        const refreshMetadata = vi.fn().mockRejectedValue({
             code: "ANILIST_OFFLINE",
             message: "AniList is unavailable.",
             retryable: true,
-          },
-        },
-      ],
-    });
-    const user = userEvent.setup();
-    render(DashboardPage, { loadInsights, refreshMetadata });
+        });
+        const user = userEvent.setup();
+        render(DashboardPage, {
+            loadInsights: vi.fn().mockResolvedValue(populatedInsights),
+            refreshMetadata,
+        });
 
-    await user.click(
-      await screen.findByRole("button", { name: "refresh anime details" }),
-    );
+        await user.click(
+            await screen.findByRole("button", {
+                name: "refresh anime details",
+            }),
+        );
 
-    expect(await screen.findByRole("status")).toHaveTextContent(
-      /Updated 1 title; 1 title could not be refreshed/i,
-    );
-    expect(
-      screen.getByRole("list", { name: "Library index results" }),
-    ).toHaveTextContent("Paper Cranes at Dawn");
-    expect(loadInsights).toHaveBeenCalledTimes(2);
-  });
-
-  it("keeps local data visible when a metadata check is offline", async () => {
-    const refreshMetadata = vi.fn().mockRejectedValue({
-      code: "ANILIST_OFFLINE",
-      message: "AniList is unavailable.",
-      retryable: true,
-    });
-    const user = userEvent.setup();
-    render(DashboardPage, {
-      loadInsights: vi.fn().mockResolvedValue(populatedInsights),
-      refreshMetadata,
+        expect(await screen.findByRole("status")).toHaveTextContent(
+            /Your library is still available/i,
+        );
+        expect(
+            screen.getByRole("list", { name: "Library index results" }),
+        ).toHaveTextContent("How to Befriend a Comet");
     });
 
-    await user.click(
-      await screen.findByRole("button", { name: "refresh anime details" }),
-    );
+    it("opens cached library details and restores focus after closing", async () => {
+        const user = userEvent.setup();
+        const loadDetails = vi
+            .fn()
+            .mockResolvedValue(detailsFor(libraryItems[0]!));
+        render(DashboardPage, {
+            loadInsights: vi.fn().mockResolvedValue(populatedInsights),
+            refreshMetadata: vi.fn(),
+            loadDetails,
+            saveEntry: vi.fn(),
+            deleteEntry: vi.fn(),
+        });
 
-    expect(await screen.findByRole("status")).toHaveTextContent(
-      /Your library is still available/i,
-    );
-    expect(
-      screen.getByRole("list", { name: "Library index results" }),
-    ).toHaveTextContent("How to Befriend a Comet");
-  });
+        const opener = await screen.findByRole("button", {
+            name: "Open library details for Paper Cranes at Dawn",
+        });
+        await user.click(opener);
 
-  it("opens cached library details and restores focus after closing", async () => {
-    const user = userEvent.setup();
-    const loadDetails = vi.fn().mockResolvedValue(detailsFor(libraryItems[0]!));
-    render(DashboardPage, {
-      loadInsights: vi.fn().mockResolvedValue(populatedInsights),
-      refreshMetadata: vi.fn(),
-      loadDetails,
-      saveEntry: vi.fn(),
-      deleteEntry: vi.fn(),
+        const dialog = screen.getByRole("dialog", {
+            name: "Paper Cranes at Dawn",
+        });
+        expect(dialog).toHaveAttribute("open");
+        expect(
+            within(dialog).getByText("Edit library entry"),
+        ).toBeInTheDocument();
+        expect(loadDetails).toHaveBeenCalledWith({ anilistId: 101 });
+
+        await user.click(
+            within(dialog).getByRole("button", { name: "Close details" }),
+        );
+        await waitFor(() => expect(dialog).not.toBeInTheDocument());
+        expect(opener).toHaveFocus();
     });
 
-    const opener = await screen.findByRole("button", {
-      name: "Open library details for Paper Cranes at Dawn",
-    });
-    await user.click(opener);
+    it("keeps saved index mutations visible when the aggregate reload fails and restores focus after a move or removal", async () => {
+        const user = userEvent.setup();
+        const loadInsights = vi
+            .fn()
+            .mockResolvedValueOnce(populatedInsights)
+            .mockRejectedValue({
+                code: "DATABASE_UNAVAILABLE",
+                message: "The aggregate snapshot could not reload.",
+                retryable: true,
+            });
+        const saveEntry = vi.fn(async (request) => ({
+            ...libraryItems[0]!.entry,
+            ...request,
+            updatedAt: "2026-07-17T11:00:00.000Z",
+        }));
+        const deleteEntry = vi.fn().mockResolvedValue({ removed: true });
+        render(DashboardPage, {
+            loadInsights,
+            refreshMetadata: vi.fn(),
+            loadDetails: vi
+                .fn()
+                .mockResolvedValue(detailsFor(libraryItems[0]!)),
+            saveEntry,
+            deleteEntry,
+        });
 
-    const dialog = screen.getByRole("dialog", {
-      name: "Paper Cranes at Dawn",
-    });
-    expect(dialog).toHaveAttribute("open");
-    expect(within(dialog).getByText("Edit library entry")).toBeInTheDocument();
-    expect(loadDetails).toHaveBeenCalledWith({ anilistId: 101 });
+        await user.click(
+            await screen.findByRole("button", {
+                name: "Open library details for Paper Cranes at Dawn",
+            }),
+        );
+        let dialog = await screen.findByRole("dialog", {
+            name: "Paper Cranes at Dawn",
+        });
+        await user.click(
+            within(dialog).getByRole("radio", { name: /Completed/ }),
+        );
+        const progress = within(dialog).getByRole("slider", {
+            name: "Episodes watched",
+        });
+        await fireEvent.input(progress, { target: { value: "5" } });
+        await user.click(
+            within(dialog).getByRole("button", { name: "Save changes" }),
+        );
 
-    await user.click(
-      within(dialog).getByRole("button", { name: "Close details" }),
-    );
-    await waitFor(() => expect(dialog).not.toBeInTheDocument());
-    expect(opener).toHaveFocus();
-  });
+        expect(
+            await screen.findByText(/previous dashboard is still shown/i),
+        ).toBeInTheDocument();
+        const movedCard = within(
+            screen.getByRole("list", { name: "Library index results" }),
+        ).getByRole("button", {
+            name: "Open library details for Paper Cranes at Dawn",
+        });
+        expect(movedCard).toHaveTextContent(/5 \/ 12 eps/);
 
-  it("keeps saved index mutations visible when the aggregate reload fails and restores focus after a move or removal", async () => {
-    const user = userEvent.setup();
-    const loadInsights = vi
-      .fn()
-      .mockResolvedValueOnce(populatedInsights)
-      .mockRejectedValue({
-        code: "DATABASE_UNAVAILABLE",
-        message: "The aggregate snapshot could not reload.",
-        retryable: true,
-      });
-    const saveEntry = vi.fn(async (request) => ({
-      ...libraryItems[0]!.entry,
-      ...request,
-      updatedAt: "2026-07-17T11:00:00.000Z",
-    }));
-    const deleteEntry = vi.fn().mockResolvedValue({ removed: true });
-    render(DashboardPage, {
-      loadInsights,
-      refreshMetadata: vi.fn(),
-      loadDetails: vi.fn().mockResolvedValue(detailsFor(libraryItems[0]!)),
-      saveEntry,
-      deleteEntry,
-    });
+        await user.click(
+            within(dialog).getByRole("button", { name: "Close details" }),
+        );
+        await waitFor(() => expect(movedCard).toHaveFocus());
 
-    await user.click(
-      await screen.findByRole("button", {
-        name: "Open library details for Paper Cranes at Dawn",
-      }),
-    );
-    let dialog = await screen.findByRole("dialog", {
-      name: "Paper Cranes at Dawn",
-    });
-    await user.click(within(dialog).getByRole("radio", { name: /Completed/ }));
-    const progress = within(dialog).getByRole("slider", {
-      name: "Episodes watched",
-    });
-    await fireEvent.input(progress, { target: { value: "5" } });
-    await user.click(
-      within(dialog).getByRole("button", { name: "Save changes" }),
-    );
-
-    expect(
-      await screen.findByText(/previous dashboard is still shown/i),
-    ).toBeInTheDocument();
-    const movedCard = within(
-      screen.getByRole("list", { name: "Library index results" }),
-    ).getByRole("button", {
-      name: "Open library details for Paper Cranes at Dawn",
-    });
-    expect(movedCard).toHaveTextContent(/5 \/ 12 eps/);
-
-    await user.click(
-      within(dialog).getByRole("button", { name: "Close details" }),
-    );
-    await waitFor(() => expect(movedCard).toHaveFocus());
-
-    await user.click(movedCard);
-    dialog = await screen.findByRole("dialog", {
-      name: "Paper Cranes at Dawn",
-    });
-    await user.click(
-      within(dialog).getByRole("button", { name: "Remove from library" }),
-    );
-    expect(deleteEntry).not.toHaveBeenCalled();
-    await user.click(
-      within(dialog).getByRole("button", { name: "Remove from library" }),
-    );
-    await waitFor(() =>
-      expect(
-        screen.queryByRole("button", {
-          name: "Open library details for Paper Cranes at Dawn",
-        }),
-      ).not.toBeInTheDocument(),
-    );
-    expect(
-      screen.getByRole("group", { name: "Library totals" }),
-    ).toHaveTextContent(/tracked\s*03/i);
-    await user.click(
-      within(dialog).getByRole("button", { name: "Close details" }),
-    );
-    await waitFor(() =>
-      expect(
-        screen.getByRole("heading", {
-          name: "Your library",
-        }),
-      ).toHaveFocus(),
-    );
-  });
-
-  it("replaces a metadata-less card after details persist a fresh snapshot", async () => {
-    const recoveredMedia = media("Recovered Metadata", {
-      coverUrl: null,
-      genres: ["Mystery"],
-      tags: [{ name: "Archives", rank: 86 }],
-      episodes: 24,
-      releaseDate: "2024-01-08",
-    });
-    const recoveredInsights: DashboardInsights = {
-      ...populatedInsights,
-      libraryItems: populatedInsights.libraryItems.map((item) =>
-        item.entry.anilistId === 404
-          ? { ...item, media: recoveredMedia }
-          : item,
-      ),
-    };
-    const recoveredDetails = detailsFor({
-      entry: libraryItems[3]!.entry,
-      media: recoveredMedia,
-    });
-    const loadInsights = vi
-      .fn()
-      .mockResolvedValueOnce(populatedInsights)
-      .mockResolvedValue(recoveredInsights);
-    const user = userEvent.setup();
-    render(DashboardPage, {
-      loadInsights,
-      refreshMetadata: vi.fn(),
-      loadDetails: vi.fn().mockResolvedValue(recoveredDetails),
-      saveEntry: vi.fn(),
-      deleteEntry: vi.fn(),
+        await user.click(movedCard);
+        dialog = await screen.findByRole("dialog", {
+            name: "Paper Cranes at Dawn",
+        });
+        await user.click(
+            within(dialog).getByRole("button", { name: "Remove from library" }),
+        );
+        expect(deleteEntry).not.toHaveBeenCalled();
+        await user.click(
+            within(dialog).getByRole("button", { name: "Remove from library" }),
+        );
+        await waitFor(() =>
+            expect(
+                screen.queryByRole("button", {
+                    name: "Open library details for Paper Cranes at Dawn",
+                }),
+            ).not.toBeInTheDocument(),
+        );
+        expect(
+            screen.getByRole("group", { name: "Library totals" }),
+        ).toHaveTextContent(/tracked\s*03/i);
+        await user.click(
+            within(dialog).getByRole("button", { name: "Close details" }),
+        );
+        await waitFor(() =>
+            expect(
+                screen.getByRole("heading", {
+                    name: "Your library",
+                }),
+            ).toHaveFocus(),
+        );
     });
 
-    await user.click(
-      await screen.findByRole("button", {
-        name: "Open library details for AniList #404",
-      }),
-    );
-    const dialog = await screen.findByRole("dialog", {
-      name: "Recovered Metadata",
-    });
-    expect(within(dialog).getByText("24 episodes")).toBeInTheDocument();
-    await user.click(
-      within(dialog).getByRole("button", { name: "Close details" }),
-    );
+    it("replaces a metadata-less card after details persist a fresh snapshot", async () => {
+        const recoveredMedia = media("Recovered Metadata", {
+            coverUrl: null,
+            genres: ["Mystery"],
+            tags: [{ name: "Archives", rank: 86 }],
+            episodes: 24,
+            releaseDate: "2024-01-08",
+        });
+        const recoveredInsights: DashboardInsights = {
+            ...populatedInsights,
+            libraryItems: populatedInsights.libraryItems.map((item) =>
+                item.entry.anilistId === 404
+                    ? { ...item, media: recoveredMedia }
+                    : item,
+            ),
+        };
+        const recoveredDetails = detailsFor({
+            entry: libraryItems[3]!.entry,
+            media: recoveredMedia,
+        });
+        const loadInsights = vi
+            .fn()
+            .mockResolvedValueOnce(populatedInsights)
+            .mockResolvedValue(recoveredInsights);
+        const user = userEvent.setup();
+        render(DashboardPage, {
+            loadInsights,
+            refreshMetadata: vi.fn(),
+            loadDetails: vi.fn().mockResolvedValue(recoveredDetails),
+            saveEntry: vi.fn(),
+            deleteEntry: vi.fn(),
+        });
 
-    const refreshedCard = await screen.findByRole("button", {
-      name: "Open library details for Recovered Metadata",
+        await user.click(
+            await screen.findByRole("button", {
+                name: "Open library details for AniList #404",
+            }),
+        );
+        const dialog = await screen.findByRole("dialog", {
+            name: "Recovered Metadata",
+        });
+        expect(within(dialog).getByText("24 episodes")).toBeInTheDocument();
+        await user.click(
+            within(dialog).getByRole("button", { name: "Close details" }),
+        );
+
+        const refreshedCard = await screen.findByRole("button", {
+            name: "Open library details for Recovered Metadata",
+        });
+        expect(refreshedCard).toHaveTextContent(/4 \/ 24 eps/);
+        expect(refreshedCard).not.toHaveTextContent(/cached/i);
+        expect(loadInsights).toHaveBeenCalledTimes(2);
     });
-    expect(refreshedCard).toHaveTextContent(/4 \/ 24 eps/);
-    expect(refreshedCard).not.toHaveTextContent(/cached/i);
-    expect(loadInsights).toHaveBeenCalledTimes(2);
-  });
 });

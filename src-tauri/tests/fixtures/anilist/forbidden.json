@@ -1,4 +1,4 @@
 {
-  "data": null,
-  "errors": [{ "message": "Forbidden", "status": 403 }]
+    "data": null,
+    "errors": [{ "message": "Forbidden", "status": 403 }]
 }
