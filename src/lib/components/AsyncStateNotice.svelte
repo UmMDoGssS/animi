@@ -3,6 +3,7 @@
   import type { AsyncPresentationStatus } from "$lib/state/asyncState";
 
   import SleepingCatLoader from "./SleepingCatLoader.svelte";
+  import StaticCatArt from "./StaticCatArt.svelte";
 
   interface Props {
     status: AsyncPresentationStatus;
@@ -76,13 +77,7 @@
     {#if status === "loading"}
       <SleepingCatLoader {compact} />
     {:else}
-      <span
-        aria-hidden="true"
-        class="size-2 shrink-0 rounded-full"
-        class:bg-muted={status === "empty"}
-        class:bg-warning={status === "offline" || status === "stale"}
-        class:bg-danger={status === "error"}
-      ></span>
+      <StaticCatArt {status} {compact} />
     {/if}
 
     <div class="min-w-0 flex-1">

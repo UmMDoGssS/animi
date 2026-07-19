@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import type { CommandError } from "$lib/ipc/types";
+import type { AsyncPresentationStatus } from "$lib/state/asyncState";
 
 import AsyncStateNotice from "./AsyncStateNotice.svelte";
 
@@ -17,6 +18,36 @@ const terminalError: CommandError = {
   message: "This request is not valid.",
   retryable: false,
 };
+
+const staticArtwork: Array<{
+  status: Exclude<AsyncPresentationStatus, "loading">;
+  artwork: string;
+}> = [
+  {
+    status: "empty",
+    artwork: [
+      "  /\\_/\\  (",
+      " ( ^.^ ) _)",
+      '   \\"/  (',
+      " ( | | )",
+      "(__d b__)",
+    ].join("\n"),
+  },
+  { status: "stale", artwork: "ฅ(´・ω・｀)ฅ" },
+  {
+    status: "offline",
+    artwork: ["  /\\_/\\", " ( o.o )", "  m   m"].join("\n"),
+  },
+  {
+    status: "error",
+    artwork: [
+      ' _._     _,-\'""`-._',
+      "(,-.`._,'(       |\\`-/|",
+      "    `-.-' \\ )-`( , o o)",
+      "          `-    \\`_`\"'-",
+    ].join("\n"),
+  },
+];
 
 describe("AsyncStateNotice", () => {
   it.each([
@@ -128,7 +159,29 @@ describe("AsyncStateNotice", () => {
     expect(notice).toHaveTextContent(
       "Complete a few anime to shape this list.",
     );
+    expect(notice.querySelector("[data-static-cat-art]")).toHaveAttribute(
+      "data-size",
+      "compact",
+    );
   });
+
+  it.each(staticArtwork)(
+    "maps $status to the selected static artwork",
+    ({ status, artwork }) => {
+      render(AsyncStateNotice, { status });
+
+      const notice = screen.getByRole(status === "error" ? "alert" : "status");
+      const cat = notice.querySelector("[data-static-cat-art]");
+      expect(cat).toBeInTheDocument();
+      expect(cat).toHaveAttribute("aria-hidden", "true");
+      expect(cat).toHaveAttribute("data-status", status);
+      expect(cat).toHaveAttribute("data-size", "standard");
+      expect(cat?.textContent).toBe(artwork);
+      expect(
+        notice.querySelector(".size-2.rounded-full"),
+      ).not.toBeInTheDocument();
+    },
+  );
 
   it("shows the sleeping cat animation only while loading", () => {
     const { rerender } = render(AsyncStateNotice, { status: "loading" });
@@ -137,10 +190,14 @@ describe("AsyncStateNotice", () => {
     expect(cat).toBeInTheDocument();
     expect(cat).toHaveAttribute("aria-hidden", "true");
     expect(cat).toHaveTextContent("ZZZzz");
+    expect(
+      document.querySelector("[data-static-cat-art]"),
+    ).not.toBeInTheDocument();
 
     rerender({ status: "empty" });
     expect(
       document.querySelector("[data-sleeping-cat-loader]"),
     ).not.toBeInTheDocument();
+    expect(document.querySelector("[data-static-cat-art]")).toBeInTheDocument();
   });
 });
