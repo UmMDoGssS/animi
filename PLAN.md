@@ -439,6 +439,10 @@ The final clean-tree gate passes `bun run format:check`, `bun run lint`, `bun ru
 
 **Evidence:** All 11 focused Dashboard tests verify that unknown totals remain represented as `progress / ?? eps` without the duplicate warning line. Svelte type checking reports zero diagnostics, and lint, formatting, and diff checks pass.
 
+- [x] **2026-07-19 - Library genre and tag filters:** Add multi-select genre and tag filters to the Dashboard library index, require every selected facet to match, and keep active selections visible and individually removable.
+
+**Evidence:** The reusable glass multi-select and Dashboard integration have focused pointer and keyboard coverage, including multiple simultaneous genre and tag selections, conjunctive matching, visible active-filter chips, individual removal, and full reset. The complete frontend gate passes formatting, lint, Svelte type checking with zero diagnostics, all tests, and the production web build.
+
 ## Quality Gates
 
 Run focused tests throughout a phase. Run the complete gate before v1 acceptance and after changes to shared contracts, migrations, packaging, or release configuration:

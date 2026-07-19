@@ -28,6 +28,7 @@
   } from "$lib/ipc/types";
 
   import AsyncStateNotice from "../AsyncStateNotice.svelte";
+  import GlassMultiSelect from "../GlassMultiSelect.svelte";
   import GlassSelect from "../GlassSelect.svelte";
   import MediaCover from "../MediaCover.svelte";
   import MediaDetailsDialog from "../MediaDetailsDialog.svelte";
@@ -88,6 +89,8 @@
   let libraryIndexHeading = $state<HTMLElement | null>(null);
   let libraryQuery = $state("");
   let libraryStatusFilter = $state<LibraryStatusFilter>("ALL");
+  let libraryGenreFilters = $state<string[]>([]);
+  let libraryTagFilters = $state<string[]>([]);
   let librarySort = $state<LibrarySort>("RELEASE_DESC");
   let libraryRail = $state<HTMLElement | null>(null);
   let releaseDateBackfillChecked = false;
@@ -109,13 +112,40 @@
         normalizedQuery.length === 0 ||
         titleForItem(item).toLocaleLowerCase().includes(normalizedQuery) ||
         item.entry.anilistId.toString().includes(normalizedQuery);
-      return matchesStatus && matchesQuery;
+      const itemGenres = item.media?.genres ?? [];
+      const itemTags = (item.media?.tags ?? []).map((tag) => tag.name);
+      const matchesGenres = libraryGenreFilters.every((genre) =>
+        itemGenres.includes(genre),
+      );
+      const matchesTags = libraryTagFilters.every((tag) =>
+        itemTags.includes(tag),
+      );
+      return matchesStatus && matchesQuery && matchesGenres && matchesTags;
     });
     return [...matchingItems].sort(compareLibraryItems);
   });
 
   const libraryFiltersActive = $derived(
-    libraryQuery.trim().length > 0 || libraryStatusFilter !== "ALL",
+    libraryQuery.trim().length > 0 ||
+      libraryStatusFilter !== "ALL" ||
+      libraryGenreFilters.length > 0 ||
+      libraryTagFilters.length > 0,
+  );
+
+  const libraryGenreOptions = $derived.by(() =>
+    uniqueLibraryLabels(
+      (insights?.libraryItems ?? []).flatMap((item) =>
+        item.media === null ? [] : item.media.genres,
+      ),
+    ),
+  );
+
+  const libraryTagOptions = $derived.by(() =>
+    uniqueLibraryLabels(
+      (insights?.libraryItems ?? []).flatMap((item) =>
+        item.media === null ? [] : item.media.tags.map((tag) => tag.name),
+      ),
+    ),
   );
 
   onMount(() => {
@@ -227,10 +257,44 @@
     resetLibraryScroll();
   }
 
+  function changeLibraryGenreFilters(values: string[]): void {
+    libraryGenreFilters = values;
+    resetLibraryScroll();
+  }
+
+  function changeLibraryTagFilters(values: string[]): void {
+    libraryTagFilters = values;
+    resetLibraryScroll();
+  }
+
+  function uniqueLibraryLabels(
+    values: string[],
+  ): { value: string; label: string }[] {
+    return [...new Set(values)]
+      .sort((left, right) =>
+        left.localeCompare(right, undefined, { sensitivity: "base" }),
+      )
+      .map((value) => ({ value, label: value }));
+  }
+
   function resetLibraryFilters(): void {
     libraryQuery = "";
     libraryStatusFilter = "ALL";
+    libraryGenreFilters = [];
+    libraryTagFilters = [];
     resetLibraryScroll();
+  }
+
+  function removeLibraryGenreFilter(genre: string): void {
+    changeLibraryGenreFilters(
+      libraryGenreFilters.filter((candidate) => candidate !== genre),
+    );
+  }
+
+  function removeLibraryTagFilter(tag: string): void {
+    changeLibraryTagFilters(
+      libraryTagFilters.filter((candidate) => candidate !== tag),
+    );
   }
 
   function resetLibraryScroll(): void {
@@ -1011,7 +1075,7 @@
           <div
             role="search"
             aria-label="Filter library index"
-            class="glass-control control-rounded border-border relative z-20 grid min-w-0 gap-3 border p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-[minmax(15rem,1fr)_minmax(10rem,0.45fr)_minmax(11rem,0.55fr)_auto] lg:items-end"
+            class="glass-control control-rounded border-border relative z-20 grid min-w-0 gap-3 border p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-3 xl:grid-cols-[minmax(14rem,1.2fr)_repeat(4,minmax(8.5rem,0.6fr))_auto] xl:items-end"
           >
             <label class="grid min-w-0 gap-1.5">
               <span
@@ -1047,6 +1111,38 @@
               <span
                 class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
               >
+                genres
+              </span>
+              <GlassMultiSelect
+                id="library-genre-filter"
+                label="genre"
+                defaultLabel="All genres"
+                selectedValues={libraryGenreFilters}
+                options={libraryGenreOptions}
+                onChange={changeLibraryGenreFilters}
+              />
+            </div>
+
+            <div class="grid min-w-0 gap-1.5">
+              <span
+                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
+              >
+                tags
+              </span>
+              <GlassMultiSelect
+                id="library-tag-filter"
+                label="tag"
+                defaultLabel="All tags"
+                selectedValues={libraryTagFilters}
+                options={libraryTagOptions}
+                onChange={changeLibraryTagFilters}
+              />
+            </div>
+
+            <div class="grid min-w-0 gap-1.5">
+              <span
+                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
+              >
                 sort by
               </span>
               <GlassSelect
@@ -1066,6 +1162,50 @@
             >
               clear filters
             </button>
+
+            {#if libraryGenreFilters.length > 0 || libraryTagFilters.length > 0}
+              <div
+                role="group"
+                aria-label="Active genre and tag filters"
+                class="flex min-w-0 flex-wrap items-center gap-2 sm:col-span-2 lg:col-span-3 xl:col-span-6"
+              >
+                <span
+                  class="text-muted mr-1 text-[0.62rem] tracking-[0.1em] uppercase"
+                >
+                  must include
+                </span>
+                {#each libraryGenreFilters as genre (genre)}
+                  <button
+                    type="button"
+                    aria-label={`remove genre ${genre}`}
+                    class="glass-interactive control-rounded border-border text-foreground flex min-h-8 items-center gap-2 border px-2.5 py-1 text-xs transition-colors"
+                    onclick={() => removeLibraryGenreFilter(genre)}
+                  >
+                    <span
+                      class="text-accent text-[0.58rem] tracking-[0.08em] uppercase"
+                      >genre</span
+                    >
+                    <span>{genre}</span>
+                    <span aria-hidden="true" class="text-muted">×</span>
+                  </button>
+                {/each}
+                {#each libraryTagFilters as tag (tag)}
+                  <button
+                    type="button"
+                    aria-label={`remove tag ${tag}`}
+                    class="glass-interactive control-rounded border-border text-foreground flex min-h-8 items-center gap-2 border px-2.5 py-1 text-xs transition-colors"
+                    onclick={() => removeLibraryTagFilter(tag)}
+                  >
+                    <span
+                      class="text-accent text-[0.58rem] tracking-[0.08em] uppercase"
+                      >tag</span
+                    >
+                    <span>{tag}</span>
+                    <span aria-hidden="true" class="text-muted">×</span>
+                  </button>
+                {/each}
+              </div>
+            {/if}
           </div>
 
           <div class="flex flex-wrap items-center justify-between gap-2">
@@ -1087,8 +1227,8 @@
                   No titles match these filters.
                 </h3>
                 <p class="text-muted mt-2 text-xs leading-5">
-                  Try another title or status, or clear the filters to restore
-                  your full library.
+                  Try another title, status, genre, or tag, or clear the filters
+                  to restore your full library.
                 </p>
                 <button
                   type="button"

@@ -248,6 +248,61 @@ const indexedLibraryItems = [
   indexedItem(507, "Gamma Garden", "WATCHING", 8, 10, 7),
 ];
 
+const facetedLibraryItems = indexedLibraryItems.map((item) => {
+  const facets: Record<
+    number,
+    Pick<LibraryMediaSnapshot, "genres" | "tags">
+  > = {
+    501: {
+      genres: ["Drama"],
+      tags: [{ name: "Found Family", rank: 90 }],
+    },
+    502: {
+      genres: ["Action", "Comedy"],
+      tags: [
+        { name: "Found Family", rank: 82 },
+        { name: "Tournament", rank: 91 },
+      ],
+    },
+    503: {
+      genres: ["Drama", "Mystery"],
+      tags: [
+        { name: "Archives", rank: 88 },
+        { name: "Found Family", rank: 76 },
+      ],
+    },
+    504: {
+      genres: ["Fantasy"],
+      tags: [{ name: "Space", rank: 80 }],
+    },
+    505: {
+      genres: ["Action", "Drama"],
+      tags: [
+        { name: "Archives", rank: 84 },
+        { name: "Tournament", rank: 93 },
+      ],
+    },
+    506: {
+      genres: ["Comedy"],
+      tags: [{ name: "Found Family", rank: 87 }],
+    },
+    507: {
+      genres: ["Action", "Drama"],
+      tags: [
+        { name: "Found Family", rank: 89 },
+        { name: "Space", rank: 94 },
+      ],
+    },
+  };
+  return {
+    ...item,
+    media:
+      item.media === null
+        ? null
+        : { ...item.media, ...facets[item.entry.anilistId] },
+  };
+});
+
 const indexedInsights: DashboardInsights = {
   ...populatedInsights,
   libraryItems: indexedLibraryItems,
@@ -258,6 +313,11 @@ const indexedInsights: DashboardInsights = {
     planning: 2,
     currentProgress: 40,
   },
+};
+
+const facetedInsights: DashboardInsights = {
+  ...indexedInsights,
+  libraryItems: facetedLibraryItems,
 };
 
 const emptyInsights: DashboardInsights = {
@@ -439,6 +499,12 @@ describe("DashboardPage", () => {
       expect(
         screen.getByRole("combobox", { name: "status" }),
       ).toHaveTextContent("All statuses");
+      expect(screen.getByRole("combobox", { name: "genre" })).toHaveTextContent(
+        "All genres",
+      );
+      expect(screen.getByRole("combobox", { name: "tag" })).toHaveTextContent(
+        "All tags",
+      );
       expect(
         screen.getByRole("combobox", { name: "sort by" }),
       ).toHaveTextContent("Newest release");
@@ -615,6 +681,63 @@ describe("DashboardPage", () => {
       "Alpha Archive",
       "Foxtrot Fable",
     ]);
+  });
+
+  it("multi-selects genres and tags and requires every selected facet", async () => {
+    const user = userEvent.setup();
+    render(DashboardPage, {
+      loadInsights: vi.fn().mockResolvedValue(facetedInsights),
+      refreshMetadata: vi.fn(),
+    });
+
+    const results = await screen.findByRole("list", {
+      name: "Library index results",
+    });
+    const visibleTitles = () =>
+      within(results)
+        .getAllByRole("button")
+        .map((button) =>
+          button
+            .getAttribute("aria-label")
+            ?.replace("Open library details for ", ""),
+        );
+
+    await user.click(screen.getByRole("combobox", { name: "genre" }));
+    expect(
+      screen.getByRole("listbox", { name: "genre options" }),
+    ).toHaveAttribute("aria-multiselectable", "true");
+    await user.click(screen.getByRole("option", { name: "Action" }));
+    await user.click(screen.getByRole("option", { name: "Drama" }));
+    expect(screen.getByRole("combobox", { name: "genre" })).toHaveTextContent(
+      "2 genres",
+    );
+    expect(visibleTitles()).toEqual(["Gamma Garden", "Echo Expedition"]);
+
+    await user.click(screen.getByRole("combobox", { name: "tag" }));
+    await user.click(screen.getByRole("option", { name: "Found Family" }));
+    await user.click(screen.getByRole("option", { name: "Space" }));
+    expect(screen.getByRole("combobox", { name: "tag" })).toHaveTextContent(
+      "2 tags",
+    );
+    expect(visibleTitles()).toEqual(["Gamma Garden"]);
+
+    const activeFacets = screen.getByRole("group", {
+      name: "Active genre and tag filters",
+    });
+    expect(activeFacets).toHaveTextContent(/genre.*Action/i);
+    expect(activeFacets).toHaveTextContent(/tag.*Space/i);
+    await user.click(
+      within(activeFacets).getByRole("button", { name: "remove tag Space" }),
+    );
+    expect(visibleTitles()).toEqual(["Gamma Garden"]);
+
+    await user.click(screen.getByRole("button", { name: "clear filters" }));
+    expect(visibleTitles()).toHaveLength(7);
+    expect(
+      screen.queryByRole("group", {
+        name: "Active genre and tag filters",
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it("backfills upgraded snapshots before relying on the release-date sort", async () => {
