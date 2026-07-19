@@ -432,6 +432,7 @@ describe("MediaDetailsDialog", () => {
     await user.click(saveButton);
 
     expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAccessibleName("Changes saved");
     expect(saveButton).toHaveClass("glass-control", "text-muted");
     expect(saveButton).not.toHaveClass("glass-accent", "opacity-55");
     expect(

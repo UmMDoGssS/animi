@@ -554,7 +554,11 @@
         {#if busyOperation === "saving"}
           {entry === null ? "Adding…" : "Saving…"}
         {:else}
-          {entry === null ? "Add to library" : "Save changes"}
+          {entry === null
+            ? "Add to library"
+            : hasUnsavedChanges
+              ? "Save changes"
+              : "Changes saved"}
         {/if}
       </button>
 
