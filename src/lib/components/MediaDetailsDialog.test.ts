@@ -433,9 +433,9 @@ describe("MediaDetailsDialog", () => {
             }),
         ).toBeInTheDocument();
         expect(onLibraryChanged).toHaveBeenNthCalledWith(1, saved);
-        expect(
-            within(dialog).getByText("Added to your library."),
-        ).toBeInTheDocument();
+        expect(within(dialog).getByText("Added to your library.")).toHaveClass(
+            "mb-4",
+        );
 
         await user.type(
             within(dialog).getByLabelText(/private notes/i),
@@ -481,7 +481,7 @@ describe("MediaDetailsDialog", () => {
             within(dialog).getByText(
                 "Removed from your library. Watch history was kept.",
             ),
-        ).toBeInTheDocument();
+        ).toHaveClass("mb-4");
     });
 
     it("closes through the close control and removes modal state", async () => {

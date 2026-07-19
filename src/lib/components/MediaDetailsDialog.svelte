@@ -446,7 +446,7 @@
                 {#if libraryMessage && trackingError === null}
                     <p
                         role="status"
-                        class="control-rounded border-success/45 bg-success/10 text-success mt-3 border px-3 py-2 text-xs leading-5"
+                        class="control-rounded border-success/45 bg-success/10 text-success mt-3 mb-4 border px-3 py-2 text-xs leading-5"
                     >
                         {libraryMessage}
                     </p>
