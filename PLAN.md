@@ -427,9 +427,9 @@ The final clean-tree gate passes `bun run format:check`, `bun run lint`, `bun ru
 
 **Evidence:** The details dialog renders theme-aware semantic dividers, a semantic `time` value for known release dates, and an explicit unknown state when AniList has no date. The focused component suite passes all 8 tests, Svelte type checking reports zero diagnostics, and formatting and diff checks pass.
 
-- [x] **2026-07-19 - Library save feedback:** Replace the clipped edit-success banner with a disabled, translucent Save button whenever the form matches its durable saved state. Keep add and remove confirmations visible.
+- [x] **2026-07-19 - Library save feedback:** Replace the clipped edit-success banner with a disabled Save button that uses the same translucent glass state as Home's caught-up episode action whenever the form matches its durable saved state. Keep add and remove confirmations visible.
 
-**Evidence:** The library editor tracks status, progress, score, and notes against the latest successful save, enables Save only for a changed draft, and returns it to its inactive state after persistence. All 15 focused editor and details-dialog tests pass without rendering `Changes saved.`; Svelte type checking reports zero diagnostics, and lint, formatting, and diff checks pass.
+**Evidence:** The library editor tracks status, progress, score, and notes against the latest successful save, enables the accent Save action only for a changed draft, and returns it to the muted `glass-control` state after persistence. All 15 focused editor and details-dialog tests pass without rendering `Changes saved.`; Svelte type checking reports zero diagnostics, and lint, formatting, and diff checks pass.
 
 ## Quality Gates
 

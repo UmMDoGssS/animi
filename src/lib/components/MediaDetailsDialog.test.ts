@@ -432,6 +432,8 @@ describe("MediaDetailsDialog", () => {
     await user.click(saveButton);
 
     expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveClass("glass-control", "text-muted");
+    expect(saveButton).not.toHaveClass("glass-accent", "opacity-55");
     expect(
       within(dialog).queryByText("Changes saved."),
     ).not.toBeInTheDocument();

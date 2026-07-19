@@ -544,7 +544,11 @@
     >
       <button
         type="submit"
-        class="glass-accent control-rounded min-h-11 px-5 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40"
+        class="control-rounded min-h-11 px-5 py-2.5 text-sm font-medium transition disabled:cursor-default"
+        class:glass-accent={hasUnsavedChanges}
+        class:glass-control={!hasUnsavedChanges}
+        class:text-muted={!hasUnsavedChanges}
+        class:opacity-55={hasUnsavedChanges && isBusy}
         disabled={isBusy || !hasUnsavedChanges}
       >
         {#if busyOperation === "saving"}

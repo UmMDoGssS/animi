@@ -127,7 +127,8 @@ describe("LibraryEntryEditor", () => {
     expect(screen.getByText(/known episode total: 28/i)).toBeInTheDocument();
     const saveButton = screen.getByRole("button", { name: "Save changes" });
     expect(saveButton).toBeDisabled();
-    expect(saveButton).toHaveClass("disabled:opacity-40");
+    expect(saveButton).toHaveClass("glass-control", "text-muted");
+    expect(saveButton).not.toHaveClass("glass-accent", "opacity-55");
 
     await user.click(screen.getByRole("radio", { name: /completed/i }));
     await fireEvent.input(
@@ -144,6 +145,8 @@ describe("LibraryEntryEditor", () => {
     await user.clear(screen.getByLabelText(/private notes/i));
     await user.type(screen.getByLabelText(/private notes/i), "A keeper.");
     expect(saveButton).toBeEnabled();
+    expect(saveButton).toHaveClass("glass-accent");
+    expect(saveButton).not.toHaveClass("glass-control", "text-muted");
     await user.click(saveButton);
 
     expect(saveEntry).toHaveBeenCalledWith({
@@ -155,6 +158,8 @@ describe("LibraryEntryEditor", () => {
       notes: "A keeper.",
     });
     expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveClass("glass-control", "text-muted");
+    expect(saveButton).not.toHaveClass("glass-accent", "opacity-55");
     expect(screen.queryByText("Changes saved.")).not.toBeInTheDocument();
   });
 
