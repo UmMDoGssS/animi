@@ -254,30 +254,28 @@
         >
           {media.title}
         </h2>
-        <dl
-          class="border-border mt-5 grid grid-cols-2 gap-4 border-y py-4 sm:grid-cols-3"
-        >
-          <div>
+        <dl class="border-border mt-5 grid divide-y border-y">
+          <div class="flex items-baseline justify-between gap-4 py-3">
             <dt class="text-muted text-[0.62rem] tracking-[0.12em] uppercase">
               episodes
             </dt>
-            <dd class="text-foreground mt-1 text-sm">
+            <dd class="text-foreground text-right text-sm">
               {episodeLabel(media.episodes)}
             </dd>
           </div>
-          <div>
+          <div class="flex items-baseline justify-between gap-4 py-3">
             <dt class="text-muted text-[0.62rem] tracking-[0.12em] uppercase">
               duration
             </dt>
-            <dd class="text-foreground mt-1 text-sm">
+            <dd class="text-foreground text-right text-sm">
               {durationLabel(media.durationMinutes)}
             </dd>
           </div>
-          <div class="col-span-2 sm:col-span-1">
+          <div class="flex items-baseline justify-between gap-4 py-3">
             <dt class="text-muted text-[0.62rem] tracking-[0.12em] uppercase">
               release date
             </dt>
-            <dd class="text-foreground mt-1 text-sm">
+            <dd class="text-foreground text-right text-sm">
               {#if media.releaseDate}
                 <time datetime={media.releaseDate}>
                   {formatCalendarDate(media.releaseDate)}

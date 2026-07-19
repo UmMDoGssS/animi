@@ -423,7 +423,7 @@ The final clean-tree gate passes `bun run format:check`, `bun run lint`, `bun ru
 
 **Evidence:** The controlled Settings radios, inline preview, app-wide forced panel, replay behavior, return-to-Settings path, and reset to live content have component coverage. The frontend gate passes formatting, lint, Svelte type checking with zero diagnostics, all 113 tests across 14 files, and the production web build. Live browser checks at 1280px and 390px confirm the forced loader, control layout, keyboard-accessible semantics, zero document-level horizontal overflow, and no console errors.
 
-- [x] **2026-07-19 - Details release date:** Show the authoritative AniList release date in the anime details summary while preserving day, month, or year precision and presenting missing dates explicitly.
+- [x] **2026-07-19 - Details release date:** Show episodes, duration, and the authoritative AniList release date as separate summary rows while preserving day, month, or year precision and presenting missing dates explicitly.
 
 **Evidence:** The details dialog renders a semantic `time` value for known release dates and an explicit unknown state when AniList has no date. The focused component suite passes all 8 tests, Svelte type checking reports zero diagnostics, and formatting and diff checks pass.
 

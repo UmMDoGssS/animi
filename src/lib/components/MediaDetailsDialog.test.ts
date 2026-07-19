@@ -225,6 +225,15 @@ describe("MediaDetailsDialog", () => {
     expect(screen.getByText("Duration unknown")).toBeInTheDocument();
     expect(screen.getByText("release date")).toBeInTheDocument();
     expect(screen.getByText("Unknown")).toBeInTheDocument();
+    const metadataList = screen.getByText("episodes").closest("dl");
+    expect(metadataList).toHaveClass("grid", "divide-y");
+    expect(metadataList?.children).toHaveLength(3);
+    for (const label of ["episodes", "duration", "release date"]) {
+      expect(screen.getByText(label).closest("div")).toHaveClass(
+        "flex",
+        "justify-between",
+      );
+    }
     expect(screen.getByText("Genres are unavailable.")).toBeInTheDocument();
     expect(
       screen.getByText("Ranked tags are unavailable."),
