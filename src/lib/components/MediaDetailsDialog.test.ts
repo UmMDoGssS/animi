@@ -226,7 +226,13 @@ describe("MediaDetailsDialog", () => {
     expect(screen.getByText("release date")).toBeInTheDocument();
     expect(screen.getByText("Unknown")).toBeInTheDocument();
     const metadataList = screen.getByText("episodes").closest("dl");
-    expect(metadataList).toHaveClass("grid", "divide-y", "divide-border");
+    expect(metadataList).toHaveClass(
+      "grid",
+      "divide-y",
+      "divide-border",
+      "border-t",
+    );
+    expect(metadataList).not.toHaveClass("border-y");
     expect(metadataList?.children).toHaveLength(3);
     for (const label of ["episodes", "duration", "release date"]) {
       expect(screen.getByText(label).closest("div")).toHaveClass(
