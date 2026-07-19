@@ -68,7 +68,7 @@
   aria-atomic="true"
   aria-busy={status === "loading"}
   data-status={status}
-  class="glass-control control-rounded border-border min-w-0 border {compact
+  class="async-state-notice glass-control control-rounded border-border min-w-0 border {compact
     ? 'p-3'
     : 'p-4 sm:p-5'}"
 >
@@ -107,3 +107,27 @@
     </div>
   </div>
 </section>
+
+<style>
+  .async-state-notice {
+    animation: async-notice-enter 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  @keyframes async-notice-enter {
+    from {
+      opacity: 0;
+      transform: translateY(0.35rem) scale(0.995);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .async-state-notice {
+      animation: none;
+    }
+  }
+</style>

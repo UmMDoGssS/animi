@@ -61,6 +61,7 @@ function renderSettings(
   overrides: Partial<ReturnType<typeof services>> = {},
 ) {
   const recoveryServices = { ...services(), ...overrides };
+  const setDebugPresentationMode = vi.fn();
   return {
     ...render(SettingsPage, {
       themePreference: "SYSTEM",
@@ -68,10 +69,13 @@ function renderSettings(
       themeError: null,
       selectThemePreference,
       retryThemePreference: vi.fn().mockResolvedValue(undefined),
+      debugPresentationMode: "off",
+      setDebugPresentationMode,
       ...recoveryServices,
     }),
     recoveryServices,
     selectThemePreference,
+    setDebugPresentationMode,
   };
 }
 
@@ -87,6 +91,7 @@ describe("SettingsPage", () => {
       ).toBeInTheDocument();
       for (const sectionHeading of [
         "Appearance",
+        "State debugger",
         "Backup & recovery",
         "Clear local data",
       ]) {
@@ -106,6 +111,22 @@ describe("SettingsPage", () => {
       ).not.toBeNull();
     },
   );
+
+  it("offers session-only forced states without changing durable settings", async () => {
+    const user = userEvent.setup();
+    const { setDebugPresentationMode, recoveryServices } = renderSettings();
+
+    expect(screen.getByRole("radio", { name: /Live app/ })).toBeChecked();
+    expect(screen.getByText("Session only")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("radio", { name: /^Loading/ }));
+    expect(setDebugPresentationMode).toHaveBeenCalledWith("loading");
+    expect(recoveryServices.localStateChanged).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole("radio", { name: /^Error/ }));
+    expect(setDebugPresentationMode).toHaveBeenCalledWith("error");
+    expect(recoveryServices.localStateChanged).not.toHaveBeenCalled();
+  });
 
   it("keeps the persisted appearance control live and keyboard operable", async () => {
     const user = userEvent.setup();

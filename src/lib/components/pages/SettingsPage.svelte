@@ -10,7 +10,12 @@
     ImportPreviewResponse,
     ThemePreference,
   } from "$lib/ipc/types";
+  import {
+    debugPresentationOptions,
+    type DebugPresentationMode,
+  } from "$lib/state/debugPresentation";
 
+  import AsyncStateNotice from "../AsyncStateNotice.svelte";
   import ThemePreferenceControl from "../ThemePreferenceControl.svelte";
 
   const CLEAR_CONFIRMATION = "CLEAR MY LOCAL DATA";
@@ -21,6 +26,8 @@
     themeError: CommandError | null;
     selectThemePreference: (preference: ThemePreference) => Promise<void>;
     retryThemePreference: () => Promise<void>;
+    debugPresentationMode: DebugPresentationMode;
+    setDebugPresentationMode: (mode: DebugPresentationMode) => void;
     saveBackup: () => Promise<ExportBackupResponse | null>;
     chooseImport: () => Promise<ImportPreviewResponse | null>;
     restoreBackup: (
@@ -38,6 +45,8 @@
     themeError,
     selectThemePreference,
     retryThemePreference,
+    debugPresentationMode,
+    setDebugPresentationMode,
     saveBackup,
     chooseImport,
     restoreBackup,
@@ -59,6 +68,13 @@
   let clearStatus = $state<"idle" | "working" | "success" | "error">("idle");
   let clearResult = $state<ClearLocalDataResponse | null>(null);
   let clearError = $state<CommandError | null>(null);
+  let debugReplayKey = $state(0);
+
+  const debugError: CommandError = {
+    code: "DEBUG_FORCED_ERROR",
+    message: "This is a simulated error from the Settings state debugger.",
+    retryable: true,
+  };
 
   const clearIsConfirmed = $derived(clearConfirmation === CLEAR_CONFIRMATION);
 
@@ -152,6 +168,98 @@
     selectPreference={selectThemePreference}
     retryPreference={retryThemePreference}
   />
+
+  <section
+    aria-labelledby="state-debugger-heading"
+    class="glass-panel panel-large border-border min-w-0 border p-5 sm:p-6"
+  >
+    <div
+      class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+    >
+      <div class="min-w-0">
+        <h2
+          id="state-debugger-heading"
+          class="text-foreground text-xl font-light tracking-[0.03em]"
+        >
+          State debugger
+        </h2>
+        <p
+          class="text-muted mt-3 max-w-3xl text-xs leading-5 sm:text-sm sm:leading-6"
+        >
+          Force every main page into a loading, error, or edge-state
+          presentation. Settings stays available so you can switch it off.
+        </p>
+      </div>
+      <span
+        class="border-accent/50 bg-accent/10 text-accent control-rounded w-fit shrink-0 border px-2.5 py-1 text-[0.62rem] tracking-[0.12em] uppercase"
+      >
+        Session only
+      </span>
+    </div>
+
+    <fieldset class="mt-5">
+      <legend class="text-foreground text-sm font-medium">
+        Forced presentation
+      </legend>
+      <div class="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {#each debugPresentationOptions as option (option.value)}
+          <label
+            class="glass-control glass-interactive control-rounded border-border flex min-h-16 cursor-pointer items-start gap-3 border p-3 {debugPresentationMode ===
+            option.value
+              ? 'border-accent bg-accent/10'
+              : ''}"
+          >
+            <input
+              type="radio"
+              name="debug-presentation"
+              value={option.value}
+              checked={debugPresentationMode === option.value}
+              onchange={() => setDebugPresentationMode(option.value)}
+              class="mt-0.5 size-4 shrink-0 accent-[var(--accent)]"
+            />
+            <span class="min-w-0">
+              <span class="text-foreground block text-xs font-medium">
+                {option.label}
+              </span>
+              <span class="text-muted mt-1 block text-xs leading-5">
+                {option.description}
+              </span>
+            </span>
+          </label>
+        {/each}
+      </div>
+    </fieldset>
+
+    {#if debugPresentationMode !== "off"}
+      <div class="border-border mt-5 border-t pt-5">
+        <div class="mb-3 flex items-center justify-between gap-3">
+          <p class="text-muted text-xs tracking-[0.08em] uppercase">
+            Settings preview
+          </p>
+          <button
+            type="button"
+            onclick={() => (debugReplayKey += 1)}
+            class="glass-control glass-interactive control-rounded border-border min-h-9 border px-3 py-1.5 text-xs"
+          >
+            Replay animation
+          </button>
+        </div>
+        {#key debugReplayKey}
+          <AsyncStateNotice
+            status={debugPresentationMode}
+            error={debugPresentationMode === "error" ? debugError : null}
+            onRetry={debugPresentationMode === "error"
+              ? () => {
+                  debugReplayKey += 1;
+                }
+              : undefined}
+            retryLabel="Replay error"
+            compact
+          />
+        {/key}
+      </div>
+    {/if}
+  </section>
 
   <section
     aria-labelledby="backup-recovery-heading"

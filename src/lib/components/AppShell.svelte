@@ -37,10 +37,12 @@
     UpsertLibraryEntryRequest,
   } from "$lib/ipc/types";
   import type { PrimaryViewId } from "$lib/navigation";
+  import type { DebugPresentationMode } from "$lib/state/debugPresentation";
   import { applyThemePreference } from "$lib/theme/theme";
 
   import AppNavigation from "./AppNavigation.svelte";
   import DashboardPage from "./pages/DashboardPage.svelte";
+  import ForcedPresentationPanel from "./ForcedPresentationPanel.svelte";
   import DiscoveryPage from "./pages/DiscoveryPage.svelte";
   import HomePage from "./pages/HomePage.svelte";
   import SettingsPage from "./pages/SettingsPage.svelte";
@@ -108,6 +110,7 @@
   let themeStatus = $state<"loading" | "ready" | "saving" | "error">("loading");
   let themeError = $state<CommandError | null>(null);
   let failedThemeOperation = $state<FailedThemeOperation | null>(null);
+  let debugPresentationMode = $state<DebugPresentationMode>("off");
 
   onMount(() => {
     void loadPreference();
@@ -178,6 +181,7 @@
 <div
   class="app-chrome bg-surface text-foreground relative min-h-screen overflow-clip"
   data-page={activeView}
+  data-debug-presentation={debugPresentationMode}
 >
   <div
     aria-hidden="true"
@@ -207,7 +211,7 @@
       </header>
 
       <main id="main-content" tabindex="-1" class="min-w-0 px-1 pt-2 sm:px-3">
-        <div hidden={activeView !== "home"}>
+        <div hidden={activeView !== "home" || debugPresentationMode !== "off"}>
           <HomePage
             loadAiring={p5Services.loadAiring}
             advanceProgress={p5Services.advanceProgress}
@@ -218,7 +222,29 @@
             openDiscovery={() => selectView("discovery")}
           />
         </div>
-        {#if activeView === "discovery"}
+        {#if activeView === "settings"}
+          <SettingsPage
+            {themePreference}
+            {themeStatus}
+            {themeError}
+            {selectThemePreference}
+            {retryThemePreference}
+            {debugPresentationMode}
+            setDebugPresentationMode={(mode: DebugPresentationMode) =>
+              (debugPresentationMode = mode)}
+            saveBackup={p6Services.saveBackup ?? exportBackup}
+            chooseImport={p6Services.chooseImport ?? previewImport}
+            restoreBackup={p6Services.restoreBackup ?? importBackup}
+            clearData={p6Services.clearData ?? clearLocalData}
+            localStateChanged={loadPreference}
+          />
+        {:else if debugPresentationMode !== "off"}
+          <ForcedPresentationPanel
+            view={activeView}
+            mode={debugPresentationMode}
+            openSettings={() => selectView("settings")}
+          />
+        {:else if activeView === "discovery"}
           <DiscoveryPage
             loadTrending={p4Services.loadTrending}
             searchAnime={p4Services.searchAnime}
@@ -236,19 +262,6 @@
             saveEntry={p4Services.saveEntry}
             deleteEntry={p4Services.deleteEntry}
             openDiscovery={() => selectView("discovery")}
-          />
-        {:else if activeView === "settings"}
-          <SettingsPage
-            {themePreference}
-            {themeStatus}
-            {themeError}
-            {selectThemePreference}
-            {retryThemePreference}
-            saveBackup={p6Services.saveBackup ?? exportBackup}
-            chooseImport={p6Services.chooseImport ?? previewImport}
-            restoreBackup={p6Services.restoreBackup ?? importBackup}
-            clearData={p6Services.clearData ?? clearLocalData}
-            localStateChanged={loadPreference}
           />
         {/if}
       </main>

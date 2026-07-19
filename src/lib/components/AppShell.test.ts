@@ -137,9 +137,11 @@ describe("AppShell", () => {
         within(screen.getByRole("tab", { name: "Home" })).getByText("Home"),
       ).toHaveAttribute("aria-hidden", "true");
       expect(screen.queryByText("Private & local")).not.toBeInTheDocument();
-      expect(
-        document.querySelector('pre[aria-hidden="true"]'),
-      ).not.toBeInTheDocument();
+      await waitFor(() =>
+        expect(
+          document.querySelector('pre[aria-hidden="true"]'),
+        ).not.toBeInTheDocument(),
+      );
       expect(
         within(screen.getByRole("tab", { name: "Home" })).getByText("Home"),
       ).toHaveClass("top-0.5");
@@ -247,6 +249,55 @@ describe("AppShell", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Settings" }),
     ).toBeInTheDocument();
+  });
+
+  it("forces and replays shared app states from Settings", async () => {
+    const user = userEvent.setup();
+    render(AppShell, {
+      loadThemePreference: vi.fn().mockResolvedValue("SYSTEM"),
+      saveThemePreference: vi.fn(),
+      p4Services: p4Services(),
+      p6Services: p6Services(),
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Settings" }));
+    await user.click(screen.getByRole("radio", { name: /^Loading/ }));
+    expect(screen.getByText("Settings preview")).toBeInTheDocument();
+    expect(
+      document.querySelector("[data-sleeping-cat-loader]"),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("tab", { name: "Home" }));
+    expect(document.querySelector(".app-chrome")).toHaveAttribute(
+      "data-debug-presentation",
+      "loading",
+    );
+    expect(screen.getByText("Debug override active")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveAttribute(
+      "data-status",
+      "loading",
+    );
+    await user.click(screen.getByRole("button", { name: "Replay animation" }));
+    expect(
+      document.querySelector("[data-sleeping-cat-loader]"),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Debug settings" }));
+    await user.click(screen.getByRole("radio", { name: /^Error/ }));
+    await user.click(screen.getByRole("tab", { name: "Dashboard" }));
+    expect(screen.getByRole("alert")).toHaveAttribute("data-status", "error");
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      /simulated error from the Settings state debugger/i,
+    );
+
+    await user.click(screen.getByRole("tab", { name: "Settings" }));
+    await user.click(screen.getByRole("radio", { name: /^Live app/ }));
+    await user.click(screen.getByRole("tab", { name: "Home" }));
+    expect(document.querySelector(".app-chrome")).toHaveAttribute(
+      "data-debug-presentation",
+      "off",
+    );
+    expect(screen.queryByText("Debug override active")).not.toBeInTheDocument();
   });
 
   it("keeps Discover selected while media details open secondarily", async () => {

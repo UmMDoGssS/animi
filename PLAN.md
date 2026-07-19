@@ -417,6 +417,12 @@ Every immutable v0001, v0002, and v0003 profile fixture upgrades to schema 7, pr
 
 The final clean-tree gate passes `bun run format:check`, `bun run lint`, `bun run check` with zero diagnostics, `bun run test` (110 tests across 14 files), `bun run build`, `bun run release:audit`, Cargo formatting, Clippy with warnings denied, and `cargo test --all-features` (84 unit tests plus 18 integration/persistence tests). No dependency was added. `bun run release:build` produced the private unsigned NSIS installer `src-tauri/target/release/bundle/nsis/Animi_1.0.0_x64-setup.exe` at 4,184,139 bytes with SHA-256 `0393694EC30906839646C7A61D2CA9D720E1A07BB7169F00E7E2993652209BEA`. The artifact audit found no updater, secret, real user data, bundled database/backup/cache, non-Bun frontend lockfile, or expanded Tauri capability; the only committed SQLite files are synthetic immutable migration fixtures.
 
+## Completed Follow-up Work
+
+- [x] **2026-07-19 - Session state debugger:** Add a Settings control that can force Home, Discover, and Dashboard into the shared loading, retryable error, offline, stale, or empty presentation without changing durable settings. Keep Settings reachable, allow the selected presentation to be replayed, reset the override on relaunch, and preserve reduced-motion behavior.
+
+**Evidence:** The controlled Settings radios, inline preview, app-wide forced panel, replay behavior, return-to-Settings path, and reset to live content have component coverage. The frontend gate passes formatting, lint, Svelte type checking with zero diagnostics, all 113 tests across 14 files, and the production web build. Live browser checks at 1280px and 390px confirm the forced loader, control layout, keyboard-accessible semantics, zero document-level horizontal overflow, and no console errors.
+
 ## Quality Gates
 
 Run focused tests throughout a phase. Run the complete gate before v1 acceptance and after changes to shared contracts, migrations, packaging, or release configuration:
@@ -490,3 +496,4 @@ Future phases have no schedule, implementation status, or permission to begin. P
 | 2026-07-17 | Bound Home quick progress by known episode totals independently of airing schedules | Users may record watched episodes even when AniList has no future schedule; release state and viewing progress are separate concerns |
 | 2026-07-17 | Keep version 1 private and package only current-user NSIS with no updater | AniList permission remains unresolved, while a stable identity, downgrade protection, and documented retained app data make private upgrades recoverable |
 | 2026-07-17 | Guard the packaged release-smoke data root behind two explicit environment values | Windows known-folder resolution ignores a simple `APPDATA` override; the paired guard enables isolated installer QA without changing normal profile resolution |
+| 2026-07-19 | Keep forced presentation debugging in session-only frontend state | The control must exercise shared UI states without changing the authoritative SQLite settings, backups, or normal startup behavior |
