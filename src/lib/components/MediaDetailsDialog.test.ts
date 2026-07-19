@@ -53,6 +53,7 @@ const freshDetails: MediaDetailsResponse = {
     title: "Paper Cranes, Renewed",
     episodes: 13,
     durationMinutes: 25,
+    releaseDate: "2026-04-03",
     genres: ["Drama", "Fantasy"],
     tags: [{ name: "Reunion", rank: 94 }],
     sequels: [],
@@ -178,6 +179,11 @@ describe("MediaDetailsDialog", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText("may be out of date")).not.toBeInTheDocument();
     expect(screen.getByText("13 episodes")).toBeInTheDocument();
+    expect(screen.getByText("Apr 3, 2026")).toBeInTheDocument();
+    expect(screen.getByText("Apr 3, 2026").closest("time")).toHaveAttribute(
+      "datetime",
+      "2026-04-03",
+    );
     expect(screen.getByText("Reunion")).toBeInTheDocument();
     expect(
       screen.queryByText("Showing available details"),
@@ -217,6 +223,8 @@ describe("MediaDetailsDialog", () => {
     await screen.findByRole("dialog", { name: unknownDetails.media.title });
     expect(screen.getByText("Episode total unknown")).toBeInTheDocument();
     expect(screen.getByText("Duration unknown")).toBeInTheDocument();
+    expect(screen.getByText("release date")).toBeInTheDocument();
+    expect(screen.getByText("Unknown")).toBeInTheDocument();
     expect(screen.getByText("Genres are unavailable.")).toBeInTheDocument();
     expect(
       screen.getByText("Ranked tags are unavailable."),
