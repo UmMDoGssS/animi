@@ -2,6 +2,8 @@
   import type { CommandError } from "$lib/ipc/types";
   import type { AsyncPresentationStatus } from "$lib/state/asyncState";
 
+  import SleepingCatLoader from "./SleepingCatLoader.svelte";
+
   interface Props {
     status: AsyncPresentationStatus;
     title?: string;
@@ -70,16 +72,18 @@
     ? 'p-3'
     : 'p-4 sm:p-5'}"
 >
-  <div class="flex min-w-0 gap-3">
-    <span
-      aria-hidden="true"
-      class="mt-1.5 size-2 shrink-0 rounded-full"
-      class:bg-accent={status === "loading"}
-      class:animate-pulse={status === "loading"}
-      class:bg-muted={status === "empty"}
-      class:bg-warning={status === "offline" || status === "stale"}
-      class:bg-danger={status === "error"}
-    ></span>
+  <div class="flex min-w-0 items-center gap-3">
+    {#if status === "loading"}
+      <SleepingCatLoader {compact} />
+    {:else}
+      <span
+        aria-hidden="true"
+        class="size-2 shrink-0 rounded-full"
+        class:bg-muted={status === "empty"}
+        class:bg-warning={status === "offline" || status === "stale"}
+        class:bg-danger={status === "error"}
+      ></span>
+    {/if}
 
     <div class="min-w-0 flex-1">
       <p

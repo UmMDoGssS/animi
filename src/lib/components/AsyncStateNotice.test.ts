@@ -129,4 +129,18 @@ describe("AsyncStateNotice", () => {
       "Complete a few anime to shape this list.",
     );
   });
+
+  it("shows the sleeping cat animation only while loading", () => {
+    const { rerender } = render(AsyncStateNotice, { status: "loading" });
+
+    const cat = document.querySelector("[data-sleeping-cat-loader]");
+    expect(cat).toBeInTheDocument();
+    expect(cat).toHaveAttribute("aria-hidden", "true");
+    expect(cat).toHaveTextContent("ZZZzz");
+
+    rerender({ status: "empty" });
+    expect(
+      document.querySelector("[data-sleeping-cat-loader]"),
+    ).not.toBeInTheDocument();
+  });
 });
