@@ -450,7 +450,10 @@ describe("DashboardPage", () => {
         screen.queryByRole("navigation", { name: "Library index pages" }),
       ).not.toBeInTheDocument();
       expect(screen.getAllByText("AniList #404")).toHaveLength(2);
-      expect(screen.getAllByText("episode total unknown")).toHaveLength(2);
+      expect(
+        screen.queryByText("episode total unknown"),
+      ).not.toBeInTheDocument();
+      expect(libraryIndex).toHaveTextContent("0 / ?? eps");
       expect(screen.getByText(/score \/\/ 7 \/ 10/i)).toBeInTheDocument();
       expect(screen.queryByText(/stale cache/i)).not.toBeInTheDocument();
     },

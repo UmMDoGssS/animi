@@ -1161,11 +1161,6 @@
                         >
                           {progressLabel(item)}
                         </span>
-                        {#if item.media?.episodes === null || item.media === null}
-                          <span class="text-warning mt-1 block text-[0.62rem]">
-                            episode total unknown
-                          </span>
-                        {/if}
                         {#if item.entry.score !== null}
                           <span class="text-muted mt-1 block text-[0.62rem]">
                             score // {item.entry.score} / 10

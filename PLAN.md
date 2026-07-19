@@ -435,6 +435,10 @@ The final clean-tree gate passes `bun run format:check`, `bun run lint`, `bun ru
 
 **Evidence:** Both refresh controls use the same compact glass icon button, expose their purpose without visible text, and animate the icon only during active work under the existing reduced-motion safeguard. All 22 focused Home and Dashboard tests pass with the icon-only presentation and preserved command behavior; Svelte type checking reports zero diagnostics, and lint, formatting, and diff checks pass.
 
+- [x] **2026-07-19 - Unknown episode card density:** Remove the redundant `episode total unknown` warning from Dashboard library cards while retaining `??` in the visible and accessible progress summary.
+
+**Evidence:** All 11 focused Dashboard tests verify that unknown totals remain represented as `progress / ?? eps` without the duplicate warning line. Svelte type checking reports zero diagnostics, and lint, formatting, and diff checks pass.
+
 ## Quality Gates
 
 Run focused tests throughout a phase. Run the complete gate before v1 acceptance and after changes to shared contracts, migrations, packaging, or release configuration:
