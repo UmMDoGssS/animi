@@ -1,0 +1,424 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 3,
+  "filesSkipped": [],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 3,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 3,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "results": [
+    {
+      "path": "src/lib/ipc/client.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 143,
+      "nonEmptyLines": 121,
+      "functions": [
+        {
+          "name": "checkBackend",
+          "startLine": 33,
+          "endLine": 37,
+          "params": [
+            "simulateError"
+          ]
+        },
+        {
+          "name": "listLibrary",
+          "startLine": 39,
+          "endLine": 41,
+          "params": []
+        },
+        {
+          "name": "getHomeAiring",
+          "startLine": 43,
+          "endLine": 45,
+          "params": []
+        },
+        {
+          "name": "advanceLibraryProgress",
+          "startLine": 47,
+          "endLine": 51,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "getDashboardInsights",
+          "startLine": 53,
+          "endLine": 55,
+          "params": []
+        },
+        {
+          "name": "upsertLibraryEntry",
+          "startLine": 57,
+          "endLine": 61,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "removeLibraryEntry",
+          "startLine": 63,
+          "endLine": 69,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "getThemePreference",
+          "startLine": 71,
+          "endLine": 73,
+          "params": []
+        },
+        {
+          "name": "setThemePreference",
+          "startLine": 75,
+          "endLine": 79,
+          "params": [
+            "preference"
+          ]
+        },
+        {
+          "name": "exportBackup",
+          "startLine": 81,
+          "endLine": 83,
+          "params": []
+        },
+        {
+          "name": "previewImport",
+          "startLine": 85,
+          "endLine": 87,
+          "params": []
+        },
+        {
+          "name": "importBackup",
+          "startLine": 89,
+          "endLine": 93,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "getSettingsOverview",
+          "startLine": 95,
+          "endLine": 97,
+          "params": []
+        },
+        {
+          "name": "clearLocalData",
+          "startLine": 99,
+          "endLine": 103,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "searchMedia",
+          "startLine": 105,
+          "endLine": 109,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "listTrending",
+          "startLine": 111,
+          "endLine": 115,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "getMediaDetails",
+          "startLine": 117,
+          "endLine": 121,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "refreshLibraryMetadata",
+          "startLine": 123,
+          "endLine": 125,
+          "params": []
+        },
+        {
+          "name": "getRecommendations",
+          "startLine": 127,
+          "endLine": 131,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "normalizeCommandError",
+          "startLine": 133,
+          "endLine": 143,
+          "params": [
+            "error"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "checkBackend",
+          "line": 33,
+          "isDefault": false
+        },
+        {
+          "name": "listLibrary",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "getHomeAiring",
+          "line": 43,
+          "isDefault": false
+        },
+        {
+          "name": "advanceLibraryProgress",
+          "line": 47,
+          "isDefault": false
+        },
+        {
+          "name": "getDashboardInsights",
+          "line": 53,
+          "isDefault": false
+        },
+        {
+          "name": "upsertLibraryEntry",
+          "line": 57,
+          "isDefault": false
+        },
+        {
+          "name": "removeLibraryEntry",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "getThemePreference",
+          "line": 71,
+          "isDefault": false
+        },
+        {
+          "name": "setThemePreference",
+          "line": 75,
+          "isDefault": false
+        },
+        {
+          "name": "exportBackup",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "previewImport",
+          "line": 85,
+          "isDefault": false
+        },
+        {
+          "name": "importBackup",
+          "line": 89,
+          "isDefault": false
+        },
+        {
+          "name": "getSettingsOverview",
+          "line": 95,
+          "isDefault": false
+        },
+        {
+          "name": "clearLocalData",
+          "line": 99,
+          "isDefault": false
+        },
+        {
+          "name": "searchMedia",
+          "line": 105,
+          "isDefault": false
+        },
+        {
+          "name": "listTrending",
+          "line": 111,
+          "isDefault": false
+        },
+        {
+          "name": "getMediaDetails",
+          "line": 117,
+          "isDefault": false
+        },
+        {
+          "name": "refreshLibraryMetadata",
+          "line": 123,
+          "isDefault": false
+        },
+        {
+          "name": "getRecommendations",
+          "line": 127,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeCommandError",
+          "line": 133,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "checkBackend",
+          "callee": "invoke",
+          "lineNumber": 36
+        },
+        {
+          "caller": "listLibrary",
+          "callee": "invoke",
+          "lineNumber": 40
+        },
+        {
+          "caller": "getHomeAiring",
+          "callee": "invoke",
+          "lineNumber": 44
+        },
+        {
+          "caller": "advanceLibraryProgress",
+          "callee": "invoke",
+          "lineNumber": 50
+        },
+        {
+          "caller": "getDashboardInsights",
+          "callee": "invoke",
+          "lineNumber": 54
+        },
+        {
+          "caller": "upsertLibraryEntry",
+          "callee": "invoke",
+          "lineNumber": 60
+        },
+        {
+          "caller": "removeLibraryEntry",
+          "callee": "invoke",
+          "lineNumber": 66
+        },
+        {
+          "caller": "getThemePreference",
+          "callee": "invoke",
+          "lineNumber": 72
+        },
+        {
+          "caller": "setThemePreference",
+          "callee": "invoke",
+          "lineNumber": 78
+        },
+        {
+          "caller": "exportBackup",
+          "callee": "invoke",
+          "lineNumber": 82
+        },
+        {
+          "caller": "previewImport",
+          "callee": "invoke",
+          "lineNumber": 86
+        },
+        {
+          "caller": "importBackup",
+          "callee": "invoke",
+          "lineNumber": 92
+        },
+        {
+          "caller": "getSettingsOverview",
+          "callee": "invoke",
+          "lineNumber": 96
+        },
+        {
+          "caller": "clearLocalData",
+          "callee": "invoke",
+          "lineNumber": 102
+        },
+        {
+          "caller": "searchMedia",
+          "callee": "invoke",
+          "lineNumber": 108
+        },
+        {
+          "caller": "listTrending",
+          "callee": "invoke",
+          "lineNumber": 114
+        },
+        {
+          "caller": "getMediaDetails",
+          "callee": "invoke",
+          "lineNumber": 120
+        },
+        {
+          "caller": "refreshLibraryMetadata",
+          "callee": "invoke",
+          "lineNumber": 124
+        },
+        {
+          "caller": "getRecommendations",
+          "callee": "invoke",
+          "lineNumber": 130
+        },
+        {
+          "caller": "normalizeCommandError",
+          "callee": "isCommandError",
+          "lineNumber": 134
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 20,
+        "functionCount": 20,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/ipc/types.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 208,
+      "nonEmptyLines": 192,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/ipc/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 335,
+      "nonEmptyLines": 287,
+      "functions": [
+        {
+          "name": "isCommandError",
+          "startLine": 324,
+          "endLine": 335,
+          "params": [
+            "value"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "isCommandError",
+          "line": 324,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    }
+  ]
+}

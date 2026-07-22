@@ -1,0 +1,117 @@
+[
+    {
+        "order": 1,
+        "title": "Purpose and Boundaries",
+        "description": "Start with Animi's private, local-first purpose, Windows desktop scope, and development workflow. README.md gives the practical orientation, while PROJECT.md explains the architectural contract: Rust owns durable state and external metadata access, and the Svelte frontend reaches those capabilities only through typed commands.",
+        "nodeIds": [
+            "document:README.md",
+            "document:PROJECT.md"
+        ]
+    },
+    {
+        "order": 2,
+        "title": "Frontend Entry and Shell",
+        "description": "With the product boundaries established, follow the root SvelteKit route into AppShell, the coordinator for Animi's dashboard, discovery, home, settings, backup, and library experiences. This pair shows how a very small route entry delegates application-wide initialization, theme handling, navigation, and service wiring to a focused top-level component.",
+        "nodeIds": [
+            "file:src/routes/+page.svelte",
+            "file:src/lib/components/AppShell.svelte"
+        ],
+        "languageLesson": "Svelte components keep markup, state, and behavior close together; composing the route from an application shell lets the route remain declarative while the shell owns cross-page coordination."
+    },
+    {
+        "order": 3,
+        "title": "Typed IPC Bridge",
+        "description": "AppShell does not access SQLite or AniList directly; it uses a typed frontend adapter whose DTOs define the complete Svelte-to-Rust contract. Reading the contract before the implementations makes later command, freshness, error, recommendation, settings, and backup flows easier to trace across the language boundary.",
+        "nodeIds": [
+            "file:src/lib/ipc/types.ts",
+            "file:src/lib/ipc/client.ts"
+        ],
+        "languageLesson": "TypeScript's structural types make the IPC adapter a compile-time contract, but runtime command failures still need explicit validation and structured error handling because the boundary crosses processes and languages."
+    },
+    {
+        "order": 4,
+        "title": "Native Runtime Bootstrap",
+        "description": "The typed calls from Step 3 land in the Tauri runtime assembled by the Rust crate entry point. The Windows binary starts that shared library, which initializes storage, AniList services, plugins, and the registered command surface before launching the desktop application.",
+        "nodeIds": [
+            "file:src-tauri/src/main.rs",
+            "file:src-tauri/src/lib.rs",
+            "file:src-tauri/src/commands/mod.rs"
+        ],
+        "languageLesson": "Rust separates the thin binary entry point from a reusable library crate, making runtime assembly testable without duplicating startup logic."
+    },
+    {
+        "order": 5,
+        "title": "Commands and Domain Contracts",
+        "description": "Building on the registered runtime, thin library and discovery commands translate frontend requests into validated domain operations. The shared library models and structured error type keep statuses, progress bounds, media data, activity records, and retryable failures consistent between command handlers and lower-level services.",
+        "nodeIds": [
+            "file:src-tauri/src/commands/library.rs",
+            "file:src-tauri/src/commands/discovery.rs",
+            "file:src-tauri/src/domain/library.rs",
+            "file:src-tauri/src/domain/error.rs"
+        ],
+        "languageLesson": "Rust enums and validated request types encode legal domain states directly, while Result propagates typed failures without relying on exceptions."
+    },
+    {
+        "order": 6,
+        "title": "Local Data Authority",
+        "description": "The domain operations from Step 5 ultimately rely on SQLite as Animi's authoritative store. Database initialization and repository composition sit beside transactional library operations and cache freshness records, keeping durable user state local while allowing metadata to be refreshed independently.",
+        "nodeIds": [
+            "file:src-tauri/src/database/mod.rs",
+            "file:src-tauri/src/database/library.rs",
+            "file:src-tauri/src/database/cache.rs"
+        ]
+    },
+    {
+        "order": 7,
+        "title": "Schema Evolution",
+        "description": "The repository layer is backed by append-only migrations that begin with library entries, settings, media snapshots, airing data, and response caches, then add durable watch activity. These tables separate user-owned library state from refreshable AniList metadata and preserve a history that later migrations can evolve without rewriting released schemas.",
+        "nodeIds": [
+            "table:src-tauri/migrations/0001_initial.sql:migration",
+            "table:src-tauri/migrations/0001_initial.sql:library_entries",
+            "table:src-tauri/migrations/0001_initial.sql:media_snapshots",
+            "table:src-tauri/migrations/0001_initial.sql:response_caches",
+            "table:src-tauri/migrations/0002_watch_activity.sql:watch_activity"
+        ],
+        "languageLesson": "SQLite migrations apply ordered, incremental schema changes. Foreign keys and transactions preserve relationships and rollback safety, while append-only migration history keeps existing user databases forward-migratable."
+    },
+    {
+        "order": 8,
+        "title": "AniList Metadata Boundary",
+        "description": "With the local schema understood, examine how Animi treats AniList as an on-demand metadata provider rather than application storage. The GraphQL client maps network, contract, and rate-limit failures into stable domain data, while the service applies validation, cache policies, stale fallbacks, metadata refreshes, and recommendation inputs.",
+        "nodeIds": [
+            "file:src-tauri/src/anilist/client.rs",
+            "file:src-tauri/src/anilist/service.rs"
+        ],
+        "languageLesson": "GraphQL provides a typed response contract, but clients must still handle partial errors, malformed payloads, rate-limit headers, and retry windows at runtime."
+    },
+    {
+        "order": 9,
+        "title": "Recommendations and Recovery",
+        "description": "The service data from Step 8 feeds a deterministic local ranker that blends library-derived preferences with trending signals and produces human-readable explanations. Alongside it, backup import validates complete versioned documents, resolves conflicts, and restores data inside a guarded transaction, showing how personalization and recovery both respect the local authority established in Steps 6-7.",
+        "nodeIds": [
+            "file:src-tauri/src/recommendations/mod.rs",
+            "file:src-tauri/src/backups/import.rs"
+        ]
+    },
+    {
+        "order": 10,
+        "title": "Toolchain and Packaging",
+        "description": "After following the runtime behavior, these manifests show how the two halves are built and shipped together. Bun owns the Svelte, Vite, Vitest, ESLint, and Tauri scripts; Cargo owns native dependencies; and the Tauri configuration fixes the Windows identity, window policy, CSP, build hooks, icons, and current-user NSIS installer behavior.",
+        "nodeIds": [
+            "config:package.json",
+            "config:src-tauri/Cargo.toml",
+            "config:src-tauri/tauri.conf.json"
+        ]
+    },
+    {
+        "order": 11,
+        "title": "Deterministic Release Safety",
+        "description": "The tour closes with the evidence that protects the architecture described above. Repository integration tests exercise CRUD, bounds, transactions, caches, foreign keys, and every released migration fixture; release tests and the audit document additionally lock down the stable Windows identity, packaging settings, privacy boundaries, accessibility expectations, and production readiness.",
+        "nodeIds": [
+            "file:src-tauri/tests/persistence.rs",
+            "file:src-tauri/tests/p7_release.rs",
+            "document:docs/RELEASE_AUDIT.md",
+            "document:src-tauri/tests/fixtures/README.md"
+        ]
+    }
+]

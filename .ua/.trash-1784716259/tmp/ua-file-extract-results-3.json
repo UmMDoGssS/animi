@@ -1,0 +1,982 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 7,
+  "filesSkipped": [
+    "src/lib/components/AppShell.svelte",
+    "src/lib/components/pages/DashboardPage.svelte",
+    "src/lib/components/pages/DiscoveryPage.svelte",
+    "src/lib/components/pages/HomePage.svelte",
+    "src/lib/components/pages/SettingsPage.svelte"
+  ],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 7,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 7,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "results": [
+    {
+      "path": "src/lib/components/AppShell.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 491,
+      "nonEmptyLines": 448,
+      "functions": [
+        {
+          "name": "p4Services",
+          "startLine": 69,
+          "endLine": 101,
+          "params": []
+        },
+        {
+          "name": "p6Services",
+          "startLine": 103,
+          "endLine": 110,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "p4Services",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 71
+        },
+        {
+          "caller": "p4Services",
+          "callee": "vi.fn",
+          "lineNumber": 71
+        },
+        {
+          "caller": "p4Services",
+          "callee": "vi.fn",
+          "lineNumber": 81
+        },
+        {
+          "caller": "p4Services",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 82
+        },
+        {
+          "caller": "p4Services",
+          "callee": "vi.fn",
+          "lineNumber": 82
+        },
+        {
+          "caller": "p4Services",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 83
+        },
+        {
+          "caller": "p4Services",
+          "callee": "vi.fn",
+          "lineNumber": 83
+        },
+        {
+          "caller": "p4Services",
+          "callee": "vi.fn",
+          "lineNumber": 92
+        },
+        {
+          "caller": "p4Services",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 97
+        },
+        {
+          "caller": "p4Services",
+          "callee": "vi.fn",
+          "lineNumber": 97
+        },
+        {
+          "caller": "p4Services",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 98
+        },
+        {
+          "caller": "p4Services",
+          "callee": "vi.fn",
+          "lineNumber": 98
+        },
+        {
+          "caller": "p4Services",
+          "callee": "vi.fn",
+          "lineNumber": 99
+        },
+        {
+          "caller": "p6Services",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 105
+        },
+        {
+          "caller": "p6Services",
+          "callee": "vi.fn",
+          "lineNumber": 105
+        },
+        {
+          "caller": "p6Services",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 106
+        },
+        {
+          "caller": "p6Services",
+          "callee": "vi.fn",
+          "lineNumber": 106
+        },
+        {
+          "caller": "p6Services",
+          "callee": "vi.fn",
+          "lineNumber": 107
+        },
+        {
+          "caller": "p6Services",
+          "callee": "vi.fn",
+          "lineNumber": 108
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/components/P4Flow.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 437,
+      "nonEmptyLines": 411,
+      "functions": [
+        {
+          "name": "createStatefulP4Services",
+          "startLine": 84,
+          "endLine": 268,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "value",
+          "callee": "this.setAttribute",
+          "lineNumber": 51
+        },
+        {
+          "caller": "value",
+          "callee": "this.removeAttribute",
+          "lineNumber": 57
+        },
+        {
+          "caller": "value",
+          "callee": "this.dispatchEvent",
+          "lineNumber": 58
+        },
+        {
+          "caller": "mediaSnapshot",
+          "callee": "freshness",
+          "lineNumber": 114
+        },
+        {
+          "caller": "mediaSnapshot",
+          "callee": "freshness",
+          "lineNumber": 115
+        },
+        {
+          "caller": "libraryItems",
+          "callee": "mediaSnapshot",
+          "lineNumber": 122
+        },
+        {
+          "caller": "dashboard",
+          "callee": "libraryItems",
+          "lineNumber": 132
+        },
+        {
+          "caller": "dashboard",
+          "callee": "media.genres.map",
+          "lineNumber": 146
+        },
+        {
+          "caller": "dashboard",
+          "callee": "media.tags.map",
+          "lineNumber": 149
+        },
+        {
+          "caller": "dashboard",
+          "callee": "activity.reduce",
+          "lineNumber": 158
+        },
+        {
+          "caller": "dashboard",
+          "callee": "activity.reduce",
+          "lineNumber": 162
+        },
+        {
+          "caller": "dashboard",
+          "callee": "activity.reduce",
+          "lineNumber": 170
+        },
+        {
+          "caller": "dashboard",
+          "callee": "activity.reduce",
+          "lineNumber": 177
+        },
+        {
+          "caller": "dashboard",
+          "callee": "activity.at",
+          "lineNumber": 185
+        },
+        {
+          "caller": "dashboard",
+          "callee": "activity.map",
+          "lineNumber": 189
+        },
+        {
+          "caller": "createStatefulP4Services",
+          "callee": "vi.fn",
+          "lineNumber": 194
+        },
+        {
+          "caller": "createStatefulP4Services",
+          "callee": "activity.unshift",
+          "lineNumber": 198
+        },
+        {
+          "caller": "createStatefulP4Services",
+          "callee": "vi.fn",
+          "lineNumber": 221
+        },
+        {
+          "caller": "pageResponse",
+          "callee": "freshness",
+          "lineNumber": 230
+        },
+        {
+          "caller": "createStatefulP4Services",
+          "callee": "vi.fn",
+          "lineNumber": 235
+        },
+        {
+          "caller": "createStatefulP4Services",
+          "callee": "pageResponse",
+          "lineNumber": 235
+        },
+        {
+          "caller": "createStatefulP4Services",
+          "callee": "vi.fn",
+          "lineNumber": 236
+        },
+        {
+          "caller": "createStatefulP4Services",
+          "callee": "pageResponse",
+          "lineNumber": 236
+        },
+        {
+          "caller": "createStatefulP4Services",
+          "callee": "vi.fn",
+          "lineNumber": 237
+        },
+        {
+          "caller": "createStatefulP4Services",
+          "callee": "libraryItems",
+          "lineNumber": 237
+        },
+        {
+          "caller": "createStatefulP4Services",
+          "callee": "vi.fn",
+          "lineNumber": 238
+        },
+        {
+          "caller": "createStatefulP4Services",
+          "callee": "freshness",
+          "lineNumber": 248
+        },
+        {
+          "caller": "createStatefulP4Services",
+          "callee": "vi.fn",
+          "lineNumber": 253
+        },
+        {
+          "caller": "createStatefulP4Services",
+          "callee": "dashboard",
+          "lineNumber": 253
+        },
+        {
+          "caller": "createStatefulP4Services",
+          "callee": "vi.fn",
+          "lineNumber": 254
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/components/pages/DashboardPage.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1136,
+      "nonEmptyLines": 1072,
+      "functions": [
+        {
+          "name": "entry",
+          "startLine": 89,
+          "endLine": 105,
+          "params": [
+            "anilistId",
+            "status",
+            "progress",
+            "score"
+          ]
+        },
+        {
+          "name": "media",
+          "startLine": 107,
+          "endLine": 126,
+          "params": [
+            "title",
+            "overrides"
+          ]
+        },
+        {
+          "name": "indexedItem",
+          "startLine": 222,
+          "endLine": 243,
+          "params": [
+            "anilistId",
+            "title",
+            "status",
+            "progress",
+            "score",
+            "updatedDay",
+            "releaseDay"
+          ]
+        },
+        {
+          "name": "detailsFor",
+          "startLine": 359,
+          "endLine": 383,
+          "params": [
+            "item"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "value",
+          "callee": "this.setAttribute",
+          "lineNumber": 56
+        },
+        {
+          "caller": "value",
+          "callee": "this.removeAttribute",
+          "lineNumber": 62
+        },
+        {
+          "caller": "value",
+          "callee": "this.dispatchEvent",
+          "lineNumber": 63
+        },
+        {
+          "caller": "indexedItem",
+          "callee": "entry",
+          "lineNumber": 233
+        },
+        {
+          "caller": "indexedItem",
+          "callee": "updatedDay.toString().padStart",
+          "lineNumber": 234
+        },
+        {
+          "caller": "indexedItem",
+          "callee": "updatedDay.toString",
+          "lineNumber": 234
+        },
+        {
+          "caller": "indexedItem",
+          "callee": "media",
+          "lineNumber": 236
+        },
+        {
+          "caller": "indexedItem",
+          "callee": "releaseDay.toString().padStart",
+          "lineNumber": 240
+        },
+        {
+          "caller": "indexedItem",
+          "callee": "releaseDay.toString",
+          "lineNumber": 240
+        },
+        {
+          "caller": "chooseOption",
+          "callee": "user.click",
+          "lineNumber": 601
+        },
+        {
+          "caller": "chooseOption",
+          "callee": "within(searchControls).getByRole",
+          "lineNumber": 602
+        },
+        {
+          "caller": "chooseOption",
+          "callee": "within",
+          "lineNumber": 602
+        },
+        {
+          "caller": "chooseOption",
+          "callee": "user.click",
+          "lineNumber": 606
+        },
+        {
+          "caller": "chooseOption",
+          "callee": "screen.getByRole",
+          "lineNumber": 606
+        },
+        {
+          "caller": "visibleTitles",
+          "callee": "within(screen.getByRole(\"list\", { name: \"Library index results\" }))\n                .getAllByRole(\"button\")\n                .map",
+          "lineNumber": 609
+        },
+        {
+          "caller": "visibleTitles",
+          "callee": "within(screen.getByRole(\"list\", { name: \"Library index results\" }))\n                .getAllByRole",
+          "lineNumber": 609
+        },
+        {
+          "caller": "visibleTitles",
+          "callee": "within",
+          "lineNumber": 609
+        },
+        {
+          "caller": "visibleTitles",
+          "callee": "screen.getByRole",
+          "lineNumber": 609
+        },
+        {
+          "caller": "visibleTitles",
+          "callee": "button\n                        .getAttribute(\"aria-label\")\n                        ?.replace",
+          "lineNumber": 612
+        },
+        {
+          "caller": "visibleTitles",
+          "callee": "button\n                        .getAttribute",
+          "lineNumber": 612
+        },
+        {
+          "caller": "visibleTitles",
+          "callee": "within(results)\n                .getAllByRole(\"button\")\n                .map",
+          "lineNumber": 728
+        },
+        {
+          "caller": "visibleTitles",
+          "callee": "within(results)\n                .getAllByRole",
+          "lineNumber": 728
+        },
+        {
+          "caller": "visibleTitles",
+          "callee": "within",
+          "lineNumber": 728
+        },
+        {
+          "caller": "visibleTitles",
+          "callee": "button\n                        .getAttribute(\"aria-label\")\n                        ?.replace",
+          "lineNumber": 731
+        },
+        {
+          "caller": "visibleTitles",
+          "callee": "button\n                        .getAttribute",
+          "lineNumber": 731
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/components/pages/DiscoveryPage.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 628,
+      "nonEmptyLines": 570,
+      "functions": [
+        {
+          "name": "pageResponse",
+          "startLine": 88,
+          "endLine": 93,
+          "params": [
+            "items",
+            "freshness"
+          ]
+        },
+        {
+          "name": "recommendationsResponse",
+          "startLine": 95,
+          "endLine": 109,
+          "params": [
+            "items",
+            "isFallback"
+          ]
+        },
+        {
+          "name": "detailsResponse",
+          "startLine": 111,
+          "endLine": 116,
+          "params": [
+            "summary"
+          ]
+        },
+        {
+          "name": "libraryItem",
+          "startLine": 118,
+          "endLine": 120,
+          "params": [
+            "entry"
+          ]
+        },
+        {
+          "name": "savedEntry",
+          "startLine": 122,
+          "endLine": 133,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "discoveryProps",
+          "startLine": 135,
+          "endLine": 155,
+          "params": [
+            "overrides"
+          ]
+        },
+        {
+          "name": "deferred",
+          "startLine": 157,
+          "endLine": 165,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "recommendationsResponse",
+          "callee": "items.map",
+          "lineNumber": 100
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "vi\n            .fn()\n            .mockResolvedValue",
+          "lineNumber": 137
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "vi\n            .fn",
+          "lineNumber": 137
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "pageResponse",
+          "lineNumber": 139
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "vi\n            .fn()\n            .mockResolvedValue",
+          "lineNumber": 140
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "vi\n            .fn",
+          "lineNumber": 140
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "recommendationsResponse",
+          "lineNumber": 142
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 143
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "vi.fn",
+          "lineNumber": 143
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "pageResponse",
+          "lineNumber": 143
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "vi\n            .fn()\n            .mockResolvedValue",
+          "lineNumber": 144
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "vi\n            .fn",
+          "lineNumber": 144
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "detailsResponse",
+          "lineNumber": 146
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 147
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "vi.fn",
+          "lineNumber": 147
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "libraryItem",
+          "lineNumber": 147
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "vi.fn",
+          "lineNumber": 148
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "savedEntry",
+          "lineNumber": 149
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 151
+        },
+        {
+          "caller": "discoveryProps",
+          "callee": "vi.fn",
+          "lineNumber": 151
+        },
+        {
+          "caller": "value",
+          "callee": "this.setAttribute",
+          "lineNumber": 180
+        },
+        {
+          "caller": "value",
+          "callee": "this.removeAttribute",
+          "lineNumber": 186
+        },
+        {
+          "caller": "value",
+          "callee": "this.dispatchEvent",
+          "lineNumber": 187
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/components/pages/HomePage.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 441,
+      "nonEmptyLines": 404,
+      "functions": [
+        {
+          "name": "entry",
+          "startLine": 18,
+          "endLine": 29,
+          "params": [
+            "id",
+            "progress"
+          ]
+        },
+        {
+          "name": "item",
+          "startLine": 31,
+          "endLine": 76,
+          "params": [
+            "id",
+            "title",
+            "progress",
+            "nextEpisode",
+            "stale",
+            "mediaStatus",
+            "episodes",
+            "airingInHours"
+          ]
+        },
+        {
+          "name": "response",
+          "startLine": 78,
+          "endLine": 80,
+          "params": [
+            "items"
+          ]
+        },
+        {
+          "name": "detailsFor",
+          "startLine": 82,
+          "endLine": 105,
+          "params": [
+            "homeItem"
+          ]
+        },
+        {
+          "name": "homeProps",
+          "startLine": 107,
+          "endLine": 131,
+          "params": [
+            "items"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "item",
+          "callee": "entry",
+          "lineNumber": 43
+        },
+        {
+          "caller": "item",
+          "callee": "new Date(\n                          Date.now() + airingInHours * 60 * 60 * 1000,\n                      ).toISOString",
+          "lineNumber": 64
+        },
+        {
+          "caller": "item",
+          "callee": "Date.now",
+          "lineNumber": 65
+        },
+        {
+          "caller": "homeProps",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 109
+        },
+        {
+          "caller": "homeProps",
+          "callee": "vi.fn",
+          "lineNumber": 109
+        },
+        {
+          "caller": "homeProps",
+          "callee": "response",
+          "lineNumber": 109
+        },
+        {
+          "caller": "homeProps",
+          "callee": "vi.fn",
+          "lineNumber": 110
+        },
+        {
+          "caller": "homeProps",
+          "callee": "items.find",
+          "lineNumber": 111
+        },
+        {
+          "caller": "homeProps",
+          "callee": "vi.fn",
+          "lineNumber": 121
+        },
+        {
+          "caller": "homeProps",
+          "callee": "items.find",
+          "lineNumber": 122
+        },
+        {
+          "caller": "homeProps",
+          "callee": "detailsFor",
+          "lineNumber": 126
+        },
+        {
+          "caller": "homeProps",
+          "callee": "vi.fn",
+          "lineNumber": 128
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/components/pages/SettingsPage.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 281,
+      "nonEmptyLines": 260,
+      "functions": [
+        {
+          "name": "services",
+          "startLine": 35,
+          "endLine": 57,
+          "params": []
+        },
+        {
+          "name": "renderSettings",
+          "startLine": 59,
+          "endLine": 80,
+          "params": [
+            "selectThemePreference",
+            "overrides"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "services",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 37
+        },
+        {
+          "caller": "services",
+          "callee": "vi.fn",
+          "lineNumber": 37
+        },
+        {
+          "caller": "services",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 44
+        },
+        {
+          "caller": "services",
+          "callee": "vi.fn",
+          "lineNumber": 44
+        },
+        {
+          "caller": "services",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 45
+        },
+        {
+          "caller": "services",
+          "callee": "vi.fn",
+          "lineNumber": 45
+        },
+        {
+          "caller": "services",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 49
+        },
+        {
+          "caller": "services",
+          "callee": "vi.fn",
+          "lineNumber": 49
+        },
+        {
+          "caller": "services",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 55
+        },
+        {
+          "caller": "services",
+          "callee": "vi.fn",
+          "lineNumber": 55
+        },
+        {
+          "caller": "renderSettings",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 60
+        },
+        {
+          "caller": "renderSettings",
+          "callee": "vi.fn",
+          "lineNumber": 60
+        },
+        {
+          "caller": "renderSettings",
+          "callee": "services",
+          "lineNumber": 63
+        },
+        {
+          "caller": "renderSettings",
+          "callee": "vi.fn",
+          "lineNumber": 64
+        },
+        {
+          "caller": "renderSettings",
+          "callee": "render",
+          "lineNumber": 66
+        },
+        {
+          "caller": "renderSettings",
+          "callee": "vi.fn().mockResolvedValue",
+          "lineNumber": 71
+        },
+        {
+          "caller": "renderSettings",
+          "callee": "vi.fn",
+          "lineNumber": 71
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/test/viewports.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 18,
+      "nonEmptyLines": 16,
+      "functions": [
+        {
+          "name": "setTestViewport",
+          "startLine": 12,
+          "endLine": 18,
+          "params": [
+            "viewport"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "testViewports",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "setTestViewport",
+          "line": 12,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "setTestViewport",
+          "callee": "Object.defineProperties",
+          "lineNumber": 13
+        },
+        {
+          "caller": "setTestViewport",
+          "callee": "window.dispatchEvent",
+          "lineNumber": 17
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    }
+  ]
+}

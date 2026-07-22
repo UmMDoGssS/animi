@@ -1,0 +1,249 @@
+{
+    "projectRoot":  "C:\\Users\\Some random laptop\\Workspace\\animi",
+    "batchFiles":  [
+                       {
+                           "path":  "src-tauri/src/backups/import.rs",
+                           "language":  "rust",
+                           "sizeLines":  1680,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/backups/mod.rs",
+                           "language":  "rust",
+                           "sizeLines":  684,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/commands/backups.rs",
+                           "language":  "rust",
+                           "sizeLines":  246,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/commands/dashboard.rs",
+                           "language":  "rust",
+                           "sizeLines":  101,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/commands/library.rs",
+                           "language":  "rust",
+                           "sizeLines":  264,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/commands/mod.rs",
+                           "language":  "rust",
+                           "sizeLines":  16,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/commands/settings.rs",
+                           "language":  "rust",
+                           "sizeLines":  130,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/commands/smoke.rs",
+                           "language":  "rust",
+                           "sizeLines":  36,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/database/activity.rs",
+                           "language":  "rust",
+                           "sizeLines":  62,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/database/backups.rs",
+                           "language":  "rust",
+                           "sizeLines":  195,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/database/cache.rs",
+                           "language":  "rust",
+                           "sizeLines":  65,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/database/dashboard.rs",
+                           "language":  "rust",
+                           "sizeLines":  108,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/database/error.rs",
+                           "language":  "rust",
+                           "sizeLines":  32,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/database/library.rs",
+                           "language":  "rust",
+                           "sizeLines":  756,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/database/metadata.rs",
+                           "language":  "rust",
+                           "sizeLines":  245,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/database/mod.rs",
+                           "language":  "rust",
+                           "sizeLines":  478,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/database/records.rs",
+                           "language":  "rust",
+                           "sizeLines":  51,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/database/settings.rs",
+                           "language":  "rust",
+                           "sizeLines":  64,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/domain/dashboard.rs",
+                           "language":  "rust",
+                           "sizeLines":  588,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/domain/error.rs",
+                           "language":  "rust",
+                           "sizeLines":  28,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/domain/library.rs",
+                           "language":  "rust",
+                           "sizeLines":  390,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/domain/mod.rs",
+                           "language":  "rust",
+                           "sizeLines":  19,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/domain/settings.rs",
+                           "language":  "rust",
+                           "sizeLines":  10,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/domain/smoke.rs",
+                           "language":  "rust",
+                           "sizeLines":  19,
+                           "fileCategory":  "code"
+                       }
+                   ],
+    "batchImportData":  {
+                            "src-tauri/src/backups/import.rs":  [
+                                                                    "src-tauri/src/database/mod.rs",
+                                                                    "src-tauri/src/domain/mod.rs"
+                                                                ],
+                            "src-tauri/src/backups/mod.rs":  [
+                                                                 "src-tauri/src/backups/import.rs",
+                                                                 "src-tauri/src/database/mod.rs",
+                                                                 "src-tauri/src/domain/mod.rs"
+                                                             ],
+                            "src-tauri/src/commands/backups.rs":  [
+                                                                      "src-tauri/src/backups/mod.rs",
+                                                                      "src-tauri/src/database/mod.rs",
+                                                                      "src-tauri/src/domain/mod.rs"
+                                                                  ],
+                            "src-tauri/src/commands/dashboard.rs":  [
+                                                                        "src-tauri/src/database/mod.rs",
+                                                                        "src-tauri/src/domain/mod.rs"
+                                                                    ],
+                            "src-tauri/src/commands/library.rs":  [
+                                                                      "src-tauri/src/database/mod.rs",
+                                                                      "src-tauri/src/domain/mod.rs"
+                                                                  ],
+                            "src-tauri/src/commands/mod.rs":  [
+                                                                  "src-tauri/src/commands/backups.rs",
+                                                                  "src-tauri/src/commands/dashboard.rs",
+                                                                  "src-tauri/src/commands/discovery.rs",
+                                                                  "src-tauri/src/commands/library.rs",
+                                                                  "src-tauri/src/commands/settings.rs",
+                                                                  "src-tauri/src/commands/smoke.rs"
+                                                              ],
+                            "src-tauri/src/commands/settings.rs":  [
+                                                                       "src-tauri/src/database/mod.rs",
+                                                                       "src-tauri/src/domain/mod.rs"
+                                                                   ],
+                            "src-tauri/src/commands/smoke.rs":  [
+                                                                    "src-tauri/src/domain/mod.rs"
+                                                                ],
+                            "src-tauri/src/database/activity.rs":  [
+                                                                       "src-tauri/src/domain/mod.rs"
+                                                                   ],
+                            "src-tauri/src/database/backups.rs":  [
+                                                                      "src-tauri/src/domain/mod.rs"
+                                                                  ],
+                            "src-tauri/src/database/cache.rs":  [
+                                                                    "src-tauri/src/domain/mod.rs"
+                                                                ],
+                            "src-tauri/src/database/dashboard.rs":  [
+                                                                        "src-tauri/src/domain/mod.rs"
+                                                                    ],
+                            "src-tauri/src/database/error.rs":  [
+                                                                    "src-tauri/src/domain/mod.rs"
+                                                                ],
+                            "src-tauri/src/database/library.rs":  [
+                                                                      "src-tauri/src/domain/mod.rs"
+                                                                  ],
+                            "src-tauri/src/database/metadata.rs":  [
+                                                                       "src-tauri/src/domain/mod.rs"
+                                                                   ],
+                            "src-tauri/src/database/mod.rs":  [
+                                                                  "src-tauri/src/database/activity.rs",
+                                                                  "src-tauri/src/database/backups.rs",
+                                                                  "src-tauri/src/database/cache.rs",
+                                                                  "src-tauri/src/database/dashboard.rs",
+                                                                  "src-tauri/src/database/error.rs",
+                                                                  "src-tauri/src/database/library.rs",
+                                                                  "src-tauri/src/database/metadata.rs",
+                                                                  "src-tauri/src/database/records.rs",
+                                                                  "src-tauri/src/database/settings.rs",
+                                                                  "src-tauri/src/domain/mod.rs"
+                                                              ],
+                            "src-tauri/src/database/records.rs":  [
+                                                                      "src-tauri/src/domain/mod.rs"
+                                                                  ],
+                            "src-tauri/src/database/settings.rs":  [
+                                                                       "src-tauri/src/domain/mod.rs"
+                                                                   ],
+                            "src-tauri/src/domain/dashboard.rs":  [
+
+                                                                  ],
+                            "src-tauri/src/domain/error.rs":  [
+
+                                                              ],
+                            "src-tauri/src/domain/library.rs":  [
+
+                                                                ],
+                            "src-tauri/src/domain/mod.rs":  [
+                                                                "src-tauri/src/domain/dashboard.rs",
+                                                                "src-tauri/src/domain/error.rs",
+                                                                "src-tauri/src/domain/library.rs",
+                                                                "src-tauri/src/domain/settings.rs",
+                                                                "src-tauri/src/domain/smoke.rs"
+                                                            ],
+                            "src-tauri/src/domain/settings.rs":  [
+
+                                                                 ],
+                            "src-tauri/src/domain/smoke.rs":  [
+
+                                                              ]
+                        }
+}

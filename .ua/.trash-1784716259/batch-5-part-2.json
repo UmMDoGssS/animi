@@ -1,0 +1,872 @@
+{
+    "nodes": [
+        {
+            "id": "file:src-tauri/src/anilist/queries.rs",
+            "type": "file",
+            "name": "queries.rs",
+            "filePath": "src-tauri/src/anilist/queries.rs",
+            "summary": "Static AniList GraphQL query documents for anime search, trending pages, library batches, media details, relations, and airing schedules.",
+            "tags": [
+                "anilist",
+                "graphql",
+                "service"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "file:src-tauri/src/anilist/service.rs",
+            "type": "file",
+            "name": "service.rs",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "summary": "Application-facing AniList service that validates requests, applies cache policies and stale fallbacks, refreshes library metadata, and feeds deterministic recommendations and airing data.",
+            "tags": [
+                "anilist",
+                "graphql",
+                "service"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:ttl",
+            "type": "function",
+            "name": "ttl",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                30,
+                36
+            ],
+            "summary": "Implements ttl behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:new",
+            "type": "function",
+            "name": "new",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                132,
+                134
+            ],
+            "summary": "Implements new behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:search_media",
+            "type": "function",
+            "name": "search_media",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                136,
+                170
+            ],
+            "summary": "Implements search media behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:list_trending",
+            "type": "function",
+            "name": "list_trending",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                172,
+                195
+            ],
+            "summary": "Implements list trending behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:recommendations",
+            "type": "function",
+            "name": "recommendations",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                197,
+                227
+            ],
+            "summary": "Implements recommendations behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:get_media_details",
+            "type": "function",
+            "name": "get_media_details",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                229,
+                244
+            ],
+            "summary": "Implements get media details behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:airing_schedule",
+            "type": "function",
+            "name": "airing_schedule",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                246,
+                298
+            ],
+            "summary": "Implements airing schedule behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:home_airing",
+            "type": "function",
+            "name": "home_airing",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                300,
+                334
+            ],
+            "summary": "Implements home airing behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:refresh_library_metadata",
+            "type": "function",
+            "name": "refresh_library_metadata",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                336,
+                401
+            ],
+            "summary": "Implements refresh library metadata behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:cached_media_details",
+            "type": "function",
+            "name": "cached_media_details",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                403,
+                413
+            ],
+            "summary": "Implements cached media details behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:fetch_cached",
+            "type": "function",
+            "name": "fetch_cached",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                415,
+                485
+            ],
+            "summary": "Reads a cached payload, refreshes it under the requested policy, and returns fresh, stale, or offline fallback data with explicit freshness metadata.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:media_snapshot",
+            "type": "function",
+            "name": "media_snapshot",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                488,
+                502
+            ],
+            "summary": "Implements media snapshot behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:media_summary_snapshot",
+            "type": "function",
+            "name": "media_summary_snapshot",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                504,
+                529
+            ],
+            "summary": "Implements media summary snapshot behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:into_command_error",
+            "type": "function",
+            "name": "into_command_error",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                532,
+                570
+            ],
+            "summary": "Implements into command error behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "error-handling",
+                "validation",
+                "runtime"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:validate_page",
+            "type": "function",
+            "name": "validate_page",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                573,
+                589
+            ],
+            "summary": "Implements validate page behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "validation",
+                "serialization",
+                "utility"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:validate_anilist_id",
+            "type": "function",
+            "name": "validate_anilist_id",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                591,
+                600
+            ],
+            "summary": "Implements validate anilist id behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "validation",
+                "serialization",
+                "utility"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/anilist/service.rs:freshness",
+            "type": "function",
+            "name": "freshness",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                602,
+                613
+            ],
+            "summary": "Implements freshness behavior within service.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/anilist/service.rs:CachePolicy",
+            "type": "class",
+            "name": "CachePolicy",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                22,
+                27
+            ],
+            "summary": "CachePolicy encapsulates state and behavior used by service.rs as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "class",
+                "domain-model",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/anilist/service.rs:Freshness",
+            "type": "class",
+            "name": "Freshness",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                41,
+                46
+            ],
+            "summary": "Freshness encapsulates state and behavior used by service.rs as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "class",
+                "domain-model",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/anilist/service.rs:MediaPageResponse",
+            "type": "class",
+            "name": "MediaPageResponse",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                50,
+                54
+            ],
+            "summary": "MediaPageResponse encapsulates state and behavior used by service.rs as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "class",
+                "domain-model",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/anilist/service.rs:MediaDetailsResponse",
+            "type": "class",
+            "name": "MediaDetailsResponse",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                58,
+                61
+            ],
+            "summary": "MediaDetailsResponse encapsulates state and behavior used by service.rs as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "class",
+                "domain-model",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/anilist/service.rs:RecommendationsResponse",
+            "type": "class",
+            "name": "RecommendationsResponse",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                65,
+                70
+            ],
+            "summary": "RecommendationsResponse encapsulates state and behavior used by service.rs as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "class",
+                "domain-model",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/anilist/service.rs:AiringScheduleResponse",
+            "type": "class",
+            "name": "AiringScheduleResponse",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                74,
+                78
+            ],
+            "summary": "AiringScheduleResponse encapsulates state and behavior used by service.rs as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "class",
+                "domain-model",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/anilist/service.rs:HomeAiringItem",
+            "type": "class",
+            "name": "HomeAiringItem",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                82,
+                87
+            ],
+            "summary": "HomeAiringItem encapsulates state and behavior used by service.rs as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "class",
+                "domain-model",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/anilist/service.rs:HomeAiringResponse",
+            "type": "class",
+            "name": "HomeAiringResponse",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                91,
+                94
+            ],
+            "summary": "HomeAiringResponse encapsulates state and behavior used by service.rs as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "class",
+                "domain-model",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/anilist/service.rs:MetadataRefreshFailure",
+            "type": "class",
+            "name": "MetadataRefreshFailure",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                98,
+                101
+            ],
+            "summary": "MetadataRefreshFailure encapsulates state and behavior used by service.rs as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "class",
+                "domain-model",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/anilist/service.rs:RefreshLibraryMetadataResponse",
+            "type": "class",
+            "name": "RefreshLibraryMetadataResponse",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                105,
+                110
+            ],
+            "summary": "RefreshLibraryMetadataResponse encapsulates state and behavior used by service.rs as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "class",
+                "domain-model",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/anilist/service.rs:AniListService",
+            "type": "class",
+            "name": "AniListService",
+            "filePath": "src-tauri/src/anilist/service.rs",
+            "lineRange": [
+                126,
+                129
+            ],
+            "summary": "Application-facing service that composes the local database with the AniList client, caching policies, stale fallbacks, and recommendation logic.",
+            "tags": [
+                "service",
+                "dependency-injection",
+                "domain-boundary"
+            ],
+            "complexity": "moderate"
+        }
+    ],
+    "edges": [
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:ttl",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:ttl",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:new",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:new",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:search_media",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:search_media",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:list_trending",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:list_trending",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:recommendations",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:recommendations",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:get_media_details",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:get_media_details",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:airing_schedule",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:airing_schedule",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:home_airing",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:home_airing",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:refresh_library_metadata",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:refresh_library_metadata",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:cached_media_details",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:fetch_cached",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:media_snapshot",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:media_summary_snapshot",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:into_command_error",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:into_command_error",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:validate_page",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:validate_anilist_id",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "function:src-tauri/src/anilist/service.rs:freshness",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:CachePolicy",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:CachePolicy",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:Freshness",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:Freshness",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:MediaPageResponse",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:MediaPageResponse",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:MediaDetailsResponse",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:MediaDetailsResponse",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:RecommendationsResponse",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:RecommendationsResponse",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:AiringScheduleResponse",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:AiringScheduleResponse",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:HomeAiringItem",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:HomeAiringItem",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:HomeAiringResponse",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:HomeAiringResponse",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:MetadataRefreshFailure",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:MetadataRefreshFailure",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:RefreshLibraryMetadataResponse",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:RefreshLibraryMetadataResponse",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:AniListService",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "class:src-tauri/src/anilist/service.rs:AniListService",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "file:src-tauri/src/database/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "file:src-tauri/src/domain/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/anilist/service.rs",
+            "target": "file:src-tauri/src/recommendations/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        }
+    ]
+}

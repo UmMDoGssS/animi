@@ -1,0 +1,132 @@
+{
+    "nodes": [
+        {
+            "id": "config:.prettierrc.json",
+            "type": "config",
+            "name": ".prettierrc.json",
+            "filePath": ".prettierrc.json",
+            "summary": "Configures Prettier to enforce the repository's four-space indentation and Svelte-aware formatting conventions.",
+            "tags": [
+                "configuration",
+                "formatting",
+                "development"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "document:AGENTS.md",
+            "type": "document",
+            "name": "AGENTS.md",
+            "filePath": "AGENTS.md",
+            "summary": "Repository-wide contributor guidance covering architecture boundaries, formatting, testing, accessibility, and completion expectations.",
+            "tags": [
+                "documentation",
+                "architecture",
+                "project-guidance"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "document:PLAN.md",
+            "type": "document",
+            "name": "PLAN.md",
+            "filePath": "PLAN.md",
+            "summary": "Detailed delivery roadmap and implementation-status ledger for Animi's milestones, acceptance criteria, and quality gates.",
+            "tags": [
+                "documentation",
+                "roadmap",
+                "project-guidance"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "document:PROJECT.md",
+            "type": "document",
+            "name": "PROJECT.md",
+            "filePath": "PROJECT.md",
+            "summary": "Product and architecture source of truth for the local-first anime tracker, including scope, data ownership, caching, and UI constraints.",
+            "tags": [
+                "documentation",
+                "architecture",
+                "project-guidance"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "document:README.md",
+            "type": "document",
+            "name": "README.md",
+            "filePath": "README.md",
+            "summary": "Project overview with the current feature set, technology stack, setup commands, and development workflow.",
+            "tags": [
+                "documentation",
+                "architecture",
+                "project-guidance"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "config:package.json",
+            "type": "config",
+            "name": "package.json",
+            "filePath": "package.json",
+            "summary": "Defines Bun-managed frontend scripts and dependencies for the Svelte 5, Vite, Vitest, ESLint, and Tauri toolchain.",
+            "tags": [
+                "configuration",
+                "build-system",
+                "frontend"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "config:tsconfig.json",
+            "type": "config",
+            "name": "tsconfig.json",
+            "filePath": "tsconfig.json",
+            "summary": "Configures strict TypeScript checking for the SvelteKit frontend while extending generated framework settings.",
+            "tags": [
+                "configuration",
+                "typescript",
+                "strict-mode"
+            ],
+            "complexity": "simple"
+        }
+    ],
+    "edges": [
+        {
+            "source": "config:package.json",
+            "target": "config:tsconfig.json",
+            "type": "related",
+            "direction": "forward",
+            "weight": 0.5
+        },
+        {
+            "source": "config:.prettierrc.json",
+            "target": "config:tsconfig.json",
+            "type": "related",
+            "direction": "forward",
+            "weight": 0.5
+        },
+        {
+            "source": "document:PROJECT.md",
+            "target": "document:PLAN.md",
+            "type": "related",
+            "direction": "forward",
+            "weight": 0.5
+        },
+        {
+            "source": "document:README.md",
+            "target": "document:PROJECT.md",
+            "type": "related",
+            "direction": "forward",
+            "weight": 0.5
+        },
+        {
+            "source": "document:AGENTS.md",
+            "target": "document:PROJECT.md",
+            "type": "documents",
+            "direction": "forward",
+            "weight": 0.5
+        }
+    ]
+}

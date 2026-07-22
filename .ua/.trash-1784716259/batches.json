@@ -1,0 +1,2915 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "louvain",
+  "totalFiles": 203,
+  "totalBatches": 18,
+  "exportsByPath": {
+    ".gitattributes": [],
+    ".prettierignore": [],
+    ".svelte-kit/ambient.d.ts": [],
+    ".svelte-kit/env.d.ts": [],
+    ".svelte-kit/generated/client-optimized/app.js": [
+      "matchers",
+      "nodes",
+      "server_loads",
+      "dictionary",
+      "hooks",
+      "decoders",
+      "encoders",
+      "hash",
+      "decode",
+      "root",
+      "get_error_template"
+    ],
+    ".svelte-kit/generated/client-optimized/matchers.js": [
+      "matchers"
+    ],
+    ".svelte-kit/generated/client-optimized/nodes/0.js": [
+      "universal",
+      "component"
+    ],
+    ".svelte-kit/generated/client-optimized/nodes/1.js": [
+      "component"
+    ],
+    ".svelte-kit/generated/client-optimized/nodes/2.js": [
+      "component"
+    ],
+    ".svelte-kit/generated/client/app.js": [
+      "matchers",
+      "nodes",
+      "server_loads",
+      "dictionary",
+      "hooks",
+      "decoders",
+      "encoders",
+      "hash",
+      "decode",
+      "root",
+      "get_error_template"
+    ],
+    ".svelte-kit/generated/client/matchers.js": [
+      "matchers"
+    ],
+    ".svelte-kit/generated/client/nodes/0.js": [
+      "universal",
+      "component"
+    ],
+    ".svelte-kit/generated/client/nodes/1.js": [
+      "component"
+    ],
+    ".svelte-kit/generated/client/nodes/2.js": [
+      "component"
+    ],
+    ".svelte-kit/generated/root.js": [],
+    ".svelte-kit/generated/root.svelte": [],
+    ".svelte-kit/generated/server/internal.js": [
+      "options",
+      "get_hooks",
+      "set_assets",
+      "set_building",
+      "set_manifest",
+      "set_prerendering",
+      "set_private_env",
+      "set_public_env",
+      "set_read_implementation"
+    ],
+    ".svelte-kit/generated/shared/error-template.js": [],
+    ".svelte-kit/non-ambient.d.ts": [],
+    ".svelte-kit/output/client/_app/immutable/chunks/BT13aeJw.js": [
+      "a",
+      "d",
+      "e",
+      "h",
+      "m",
+      "r",
+      "s",
+      "u"
+    ],
+    ".svelte-kit/output/client/_app/immutable/chunks/C5mcA7yD.js": [
+      "$",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R",
+      "S",
+      "T",
+      "U",
+      "V",
+      "W",
+      "X",
+      "Y",
+      "Z",
+      "_",
+      "a",
+      "a$",
+      "a0",
+      "a1",
+      "a2",
+      "a3",
+      "a4",
+      "a5",
+      "a6",
+      "a7",
+      "a8",
+      "a9",
+      "aA",
+      "aB",
+      "aC",
+      "aD",
+      "aE",
+      "aF",
+      "aG",
+      "aH",
+      "aI",
+      "aJ",
+      "aK",
+      "aL",
+      "aM",
+      "aN",
+      "aO",
+      "aP",
+      "aQ",
+      "aR",
+      "aS",
+      "aT",
+      "aU",
+      "aV",
+      "aW",
+      "aX",
+      "aY",
+      "aZ",
+      "a_",
+      "aa",
+      "ab",
+      "ac",
+      "ad",
+      "ae",
+      "af",
+      "ag",
+      "ah",
+      "ai",
+      "aj",
+      "ak",
+      "al",
+      "am",
+      "an",
+      "ao",
+      "ap",
+      "aq",
+      "ar",
+      "as",
+      "at",
+      "au",
+      "av",
+      "aw",
+      "ax",
+      "ay",
+      "az",
+      "b",
+      "b0",
+      "b1",
+      "b2",
+      "b3",
+      "b4",
+      "b5",
+      "b6",
+      "b7",
+      "b8",
+      "b9",
+      "ba",
+      "bb",
+      "bc",
+      "bd",
+      "be",
+      "bf",
+      "bg",
+      "bh",
+      "bi",
+      "bj",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g",
+      "h",
+      "i",
+      "j",
+      "k",
+      "l",
+      "m",
+      "n",
+      "o",
+      "p",
+      "q",
+      "r",
+      "s",
+      "t",
+      "u",
+      "v",
+      "w",
+      "x",
+      "y",
+      "z"
+    ],
+    ".svelte-kit/output/client/_app/immutable/chunks/DO3MnSMT.js": [
+      "a",
+      "l",
+      "p",
+      "s"
+    ],
+    ".svelte-kit/output/client/_app/immutable/chunks/DTzoEBl6.js": [
+      "B"
+    ],
+    ".svelte-kit/output/client/_app/immutable/chunks/EmT_Y5gv.js": [
+      "b",
+      "i",
+      "p"
+    ],
+    ".svelte-kit/output/client/_app/immutable/chunks/cV_cZL-o.js": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "f",
+      "t"
+    ],
+    ".svelte-kit/output/client/_app/immutable/chunks/wbPk3Yxo.js": [
+      "default"
+    ],
+    ".svelte-kit/output/client/_app/immutable/entry/app.BIqaKXsw.js": [
+      "decode",
+      "decoders",
+      "dictionary",
+      "encoders",
+      "get_error_template",
+      "hash",
+      "hooks",
+      "matchers",
+      "nodes",
+      "root",
+      "server_loads"
+    ],
+    ".svelte-kit/output/client/_app/immutable/entry/start.DNSRco4I.js": [
+      "load_css",
+      "start"
+    ],
+    ".svelte-kit/output/client/_app/immutable/nodes/0.QEHZMop1.js": [
+      "component",
+      "universal"
+    ],
+    ".svelte-kit/output/client/_app/immutable/nodes/1.BPu-DpZk.js": [
+      "component"
+    ],
+    ".svelte-kit/output/client/_app/immutable/nodes/2.l1YNo64C.js": [
+      "component"
+    ],
+    ".svelte-kit/output/server/chunks/exports.js": [
+      "S",
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g",
+      "h",
+      "m",
+      "n",
+      "r",
+      "v",
+      "w"
+    ],
+    ".svelte-kit/output/server/chunks/false.js": [
+      "D"
+    ],
+    ".svelte-kit/output/server/chunks/index.js": [
+      "$",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R",
+      "S",
+      "T",
+      "U",
+      "V",
+      "W",
+      "X",
+      "Y",
+      "Z",
+      "_",
+      "a",
+      "a0",
+      "a1",
+      "a2",
+      "a3",
+      "a4",
+      "a5",
+      "a6",
+      "a7",
+      "a8",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g",
+      "h",
+      "i",
+      "j",
+      "k",
+      "l",
+      "m",
+      "n",
+      "o",
+      "p",
+      "q",
+      "r",
+      "s",
+      "t",
+      "u",
+      "v",
+      "w",
+      "x",
+      "y",
+      "z"
+    ],
+    ".svelte-kit/output/server/chunks/internal.js": [
+      "a",
+      "b",
+      "c",
+      "g",
+      "o",
+      "p",
+      "r",
+      "s"
+    ],
+    ".svelte-kit/output/server/chunks/root.js": [
+      "r",
+      "s"
+    ],
+    ".svelte-kit/output/server/chunks/server.js": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "o",
+      "p",
+      "r",
+      "s"
+    ],
+    ".svelte-kit/output/server/chunks/utils.js": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "I",
+      "M",
+      "P",
+      "S",
+      "T",
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g",
+      "h",
+      "i",
+      "j",
+      "k",
+      "l",
+      "m",
+      "n",
+      "o",
+      "p",
+      "q",
+      "r",
+      "s",
+      "t",
+      "u",
+      "v",
+      "w",
+      "x",
+      "y",
+      "z"
+    ],
+    ".svelte-kit/output/server/chunks/utils2.js": [
+      "a",
+      "b",
+      "g",
+      "t"
+    ],
+    ".svelte-kit/output/server/entries/fallbacks/error.svelte.js": [
+      "default"
+    ],
+    ".svelte-kit/output/server/entries/pages/_layout.svelte.js": [
+      "default"
+    ],
+    ".svelte-kit/output/server/entries/pages/_layout.ts.js": [
+      "ssr"
+    ],
+    ".svelte-kit/output/server/entries/pages/_page.svelte.js": [
+      "default"
+    ],
+    ".svelte-kit/output/server/env.js": [
+      "dynamic_private_env",
+      "explicit_public_env",
+      "rendered_env",
+      "set_env",
+      "variables"
+    ],
+    ".svelte-kit/output/server/index.js": [
+      "Server"
+    ],
+    ".svelte-kit/output/server/internal.js": [
+      "get_hooks",
+      "options",
+      "set_assets",
+      "set_building",
+      "set_manifest",
+      "set_prerendering",
+      "set_private_env",
+      "set_public_env",
+      "set_read_implementation"
+    ],
+    ".svelte-kit/output/server/manifest-full.js": [
+      "manifest"
+    ],
+    ".svelte-kit/output/server/manifest.js": [
+      "manifest"
+    ],
+    ".svelte-kit/output/server/nodes/0.js": [
+      "index",
+      "universal",
+      "universal_id",
+      "imports",
+      "stylesheets",
+      "fonts"
+    ],
+    ".svelte-kit/output/server/nodes/1.js": [
+      "index",
+      "imports",
+      "stylesheets",
+      "fonts"
+    ],
+    ".svelte-kit/output/server/nodes/2.js": [
+      "index",
+      "imports",
+      "stylesheets",
+      "fonts"
+    ],
+    ".svelte-kit/output/server/remote-entry.js": [
+      "command",
+      "form",
+      "prerender",
+      "query",
+      "requested"
+    ],
+    ".svelte-kit/types/src/routes/$types.d.ts": [],
+    ".ua/.understandignore": [],
+    "eslint.config.js": [],
+    "scripts/release-audit.ts": [],
+    "src-tauri/build.rs": [],
+    "src-tauri/icons/icon.icns": [],
+    "src-tauri/src/anilist/client.rs": [
+      "AniListRequest",
+      "AniListResponse",
+      "header",
+      "TransportError",
+      "AniListTransport",
+      "AniListClock",
+      "SystemClock",
+      "NetworkDisabledTransport",
+      "ReqwestTransport",
+      "new",
+      "AniListError",
+      "contract",
+      "retryable",
+      "AniListClient",
+      "new",
+      "with_clock",
+      "now",
+      "search_media",
+      "trending_media",
+      "library_media",
+      "media_details",
+      "airing_schedule"
+    ],
+    "src-tauri/src/anilist/mod.rs": [],
+    "src-tauri/src/anilist/queries.rs": [],
+    "src-tauri/src/anilist/service.rs": [
+      "CachePolicy",
+      "ttl",
+      "Freshness",
+      "MediaPageResponse",
+      "MediaDetailsResponse",
+      "RecommendationsResponse",
+      "AiringScheduleResponse",
+      "HomeAiringItem",
+      "HomeAiringResponse",
+      "MetadataRefreshFailure",
+      "RefreshLibraryMetadataResponse",
+      "AniListService",
+      "new",
+      "search_media",
+      "list_trending",
+      "recommendations",
+      "get_media_details",
+      "airing_schedule",
+      "home_airing",
+      "refresh_library_metadata",
+      "into_command_error"
+    ],
+    "src-tauri/src/anilist/tests.rs": [],
+    "src-tauri/src/anilist/types.rs": [
+      "MediaTag",
+      "MediaSummary",
+      "Sequel",
+      "MediaDetails",
+      "AiringSchedule",
+      "GraphQlEnvelope",
+      "GraphQlError",
+      "MediaPageData",
+      "MediaPage",
+      "PageInfo",
+      "MediaDetailsData",
+      "AiringPageData",
+      "AiringPage",
+      "RawAiringSchedule",
+      "RawMedia",
+      "RawTitle",
+      "RawCoverImage",
+      "RawTag",
+      "RawRelations",
+      "RawRelationEdge",
+      "RawRelationNode",
+      "RawFuzzyDate",
+      "into_sequel"
+    ],
+    "src-tauri/src/backups/import.rs": [
+      "ImportValidationIssue",
+      "ImportChangeSummary",
+      "ImportPreviewResponse",
+      "ImportBackupRequest",
+      "ImportBackupResponse",
+      "ClearLocalDataRequest",
+      "ClearLocalDataResponse",
+      "SettingsOverview",
+      "ImportSessionStore",
+      "preview_import_from_path",
+      "import_backup",
+      "get_settings_overview",
+      "clear_local_data"
+    ],
+    "src-tauri/src/backups/mod.rs": [
+      "BackupEnvelopeV1",
+      "BackupSettingV1",
+      "BackupLibraryEntryV1",
+      "BackupWatchActivityV1",
+      "ExportBackupResponse",
+      "export_backup_to_path",
+      "export_backup_to_path_at"
+    ],
+    "src-tauri/src/commands/backups.rs": [
+      "BackupDestinationPicker",
+      "BackupSourcePicker",
+      "for_app",
+      "fixed_path",
+      "for_app",
+      "fixed_path",
+      "export_backup",
+      "export_backup_with_database",
+      "preview_import",
+      "import_backup",
+      "get_settings_overview",
+      "clear_local_data"
+    ],
+    "src-tauri/src/commands/dashboard.rs": [
+      "get_dashboard_insights",
+      "get_dashboard_insights_with_database"
+    ],
+    "src-tauri/src/commands/discovery.rs": [
+      "SearchMediaRequest",
+      "MediaPageRequest",
+      "MediaDetailsRequest",
+      "RecommendationsRequest",
+      "search_media",
+      "list_trending",
+      "get_media_details",
+      "refresh_library_metadata",
+      "get_recommendations",
+      "get_home_airing",
+      "search_media_with_service",
+      "list_trending_with_service",
+      "get_media_details_with_service",
+      "refresh_library_metadata_with_service",
+      "get_recommendations_with_service",
+      "get_home_airing_with_service"
+    ],
+    "src-tauri/src/commands/library.rs": [
+      "list_library",
+      "upsert_library_entry",
+      "remove_library_entry",
+      "advance_library_progress",
+      "list_library_with_database",
+      "upsert_library_entry_with_database",
+      "remove_library_entry_with_database",
+      "advance_library_progress_with_database"
+    ],
+    "src-tauri/src/commands/mod.rs": [],
+    "src-tauri/src/commands/settings.rs": [
+      "get_theme_preference",
+      "set_theme_preference",
+      "get_theme_preference_with_database",
+      "set_theme_preference_with_database"
+    ],
+    "src-tauri/src/commands/smoke.rs": [
+      "smoke_check"
+    ],
+    "src-tauri/src/database/activity.rs": [
+      "ActivityRepository",
+      "new",
+      "list",
+      "list_on"
+    ],
+    "src-tauri/src/database/backups.rs": [
+      "BackupSnapshotRecord",
+      "BackupSettingRecord",
+      "BackupLibraryEntryRecord",
+      "BackupWatchActivityRecord",
+      "BackupRepository",
+      "new",
+      "snapshot"
+    ],
+    "src-tauri/src/database/cache.rs": [
+      "CacheRepository",
+      "new",
+      "upsert",
+      "get"
+    ],
+    "src-tauri/src/database/dashboard.rs": [
+      "DashboardRepository",
+      "new",
+      "load"
+    ],
+    "src-tauri/src/database/error.rs": [
+      "DatabaseError",
+      "into_command_error"
+    ],
+    "src-tauri/src/database/library.rs": [
+      "LibraryRepository",
+      "new",
+      "list",
+      "list_items",
+      "list_items_at",
+      "list_items_on",
+      "upsert",
+      "upsert_at",
+      "advance_home_progress",
+      "advance_home_progress_at",
+      "remove"
+    ],
+    "src-tauri/src/database/metadata.rs": [
+      "MediaRepository",
+      "new",
+      "upsert_snapshot",
+      "upsert_snapshots",
+      "get_snapshot",
+      "upsert_airing",
+      "replace_airing",
+      "list_airing"
+    ],
+    "src-tauri/src/database/mod.rs": [
+      "DatabasePaths",
+      "from_root",
+      "root",
+      "database",
+      "Database",
+      "connect",
+      "library",
+      "activity",
+      "backups",
+      "dashboard",
+      "media",
+      "settings",
+      "cache",
+      "storage_root",
+      "pool",
+      "foreign_keys_enabled",
+      "close"
+    ],
+    "src-tauri/src/database/records.rs": [
+      "MediaTag",
+      "MediaSnapshotRecord",
+      "AiringDataRecord",
+      "SettingRecord",
+      "CacheRecord"
+    ],
+    "src-tauri/src/database/settings.rs": [
+      "SettingsRepository",
+      "new",
+      "upsert_many",
+      "get"
+    ],
+    "src-tauri/src/domain/dashboard.rs": [
+      "DashboardLibraryTotals",
+      "DashboardGenreSignal",
+      "DashboardTagSignal",
+      "DashboardPreferenceSignals",
+      "DashboardActivitySummary",
+      "DashboardActivityBucket",
+      "DashboardInsights",
+      "build",
+      "build_at"
+    ],
+    "src-tauri/src/domain/error.rs": [
+      "CommandError",
+      "new"
+    ],
+    "src-tauri/src/domain/library.rs": [
+      "format_utc",
+      "MediaKind",
+      "as_str",
+      "parse",
+      "LibraryStatus",
+      "as_str",
+      "parse",
+      "UpsertLibraryEntryRequest",
+      "validate",
+      "ValidatedLibraryEntry",
+      "RemoveLibraryEntryRequest",
+      "AdvanceLibraryProgressRequest",
+      "validate",
+      "LibraryEntry",
+      "LibraryMediaTag",
+      "LibraryMediaSnapshot",
+      "LibraryItem",
+      "WatchActivity",
+      "RemoveLibraryEntryResponse"
+    ],
+    "src-tauri/src/domain/mod.rs": [],
+    "src-tauri/src/domain/settings.rs": [
+      "ThemePreference"
+    ],
+    "src-tauri/src/domain/smoke.rs": [
+      "SmokeResponse",
+      "ready"
+    ],
+    "src-tauri/src/lib.rs": [
+      "register_commands",
+      "run"
+    ],
+    "src-tauri/src/main.rs": [],
+    "src-tauri/src/recommendations/mod.rs": [
+      "RecommendationWeights",
+      "total",
+      "Recommendation",
+      "RecommendationSet",
+      "rank_recommendations"
+    ],
+    "src-tauri/tests/fixtures/database/v0001.sqlite3": [],
+    "src-tauri/tests/fixtures/database/v0002.sqlite3": [],
+    "src-tauri/tests/fixtures/database/v0003.sqlite3": [],
+    "src-tauri/tests/p4_ipc.rs": [],
+    "src-tauri/tests/p5_ipc.rs": [],
+    "src-tauri/tests/p6_ipc.rs": [],
+    "src-tauri/tests/p7_release.rs": [],
+    "src-tauri/tests/persistence.rs": [],
+    "src/lib/components/AppNavigation.svelte": [],
+    "src/lib/components/AppShell.svelte": [],
+    "src/lib/components/AppShell.test.ts": [],
+    "src/lib/components/AsyncStateNotice.svelte": [],
+    "src/lib/components/AsyncStateNotice.test.ts": [],
+    "src/lib/components/ForcedPresentationPanel.svelte": [],
+    "src/lib/components/GlassMultiSelect.svelte": [],
+    "src/lib/components/GlassMultiSelect.test.ts": [],
+    "src/lib/components/GlassSelect.svelte": [],
+    "src/lib/components/GlassSelect.test.ts": [],
+    "src/lib/components/HomePreviewCover.svelte": [],
+    "src/lib/components/LibraryEntryEditor.svelte": [],
+    "src/lib/components/LibraryEntryEditor.test.ts": [],
+    "src/lib/components/MediaCover.svelte": [],
+    "src/lib/components/MediaCover.test.ts": [],
+    "src/lib/components/MediaDetailsDialog.svelte": [],
+    "src/lib/components/MediaDetailsDialog.test.ts": [],
+    "src/lib/components/NavigationIcon.svelte": [],
+    "src/lib/components/P4Flow.test.ts": [],
+    "src/lib/components/PagePlaceholder.svelte": [],
+    "src/lib/components/RefreshIcon.svelte": [],
+    "src/lib/components/SleepingCatLoader.svelte": [],
+    "src/lib/components/StaticCatArt.svelte": [],
+    "src/lib/components/ThemePreferenceControl.svelte": [],
+    "src/lib/components/pages/DashboardPage.svelte": [],
+    "src/lib/components/pages/DashboardPage.test.ts": [],
+    "src/lib/components/pages/DiscoveryPage.svelte": [],
+    "src/lib/components/pages/DiscoveryPage.test.ts": [],
+    "src/lib/components/pages/HomePage.svelte": [],
+    "src/lib/components/pages/HomePage.test.ts": [],
+    "src/lib/components/pages/SettingsPage.svelte": [],
+    "src/lib/components/pages/SettingsPage.test.ts": [],
+    "src/lib/ipc/client.ts": [
+      "checkBackend",
+      "listLibrary",
+      "getHomeAiring",
+      "advanceLibraryProgress",
+      "getDashboardInsights",
+      "upsertLibraryEntry",
+      "removeLibraryEntry",
+      "getThemePreference",
+      "setThemePreference",
+      "exportBackup",
+      "previewImport",
+      "importBackup",
+      "getSettingsOverview",
+      "clearLocalData",
+      "searchMedia",
+      "listTrending",
+      "getMediaDetails",
+      "refreshLibraryMetadata",
+      "getRecommendations",
+      "normalizeCommandError"
+    ],
+    "src/lib/ipc/types.test.ts": [],
+    "src/lib/ipc/types.ts": [
+      "isCommandError"
+    ],
+    "src/lib/navigation.ts": [
+      "navigationItems"
+    ],
+    "src/lib/releaseHardening.test.ts": [],
+    "src/lib/state/asyncState.ts": [],
+    "src/lib/state/debugPresentation.ts": [
+      "debugPresentationOptions"
+    ],
+    "src/lib/theme/theme.test.ts": [],
+    "src/lib/theme/theme.ts": [
+      "themeIds",
+      "themeOptions",
+      "applyThemePreference",
+      "semanticColorTokens",
+      "translucentSurfaceTokens",
+      "pageAccentTokens"
+    ],
+    "src/routes/+layout.svelte": [],
+    "src/routes/+layout.ts": [
+      "ssr"
+    ],
+    "src/routes/+page.svelte": [],
+    "src/test/setup.ts": [],
+    "src/test/viewports.ts": [
+      "testViewports",
+      "setTestViewport"
+    ],
+    "svelte.config.js": [],
+    "vite.config.ts": []
+  },
+  "batches": [
+    {
+      "batchIndex": 1,
+      "files": [
+        {
+          "path": "src-tauri/src/backups/import.rs",
+          "language": "rust",
+          "sizeLines": 1680,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/backups/mod.rs",
+          "language": "rust",
+          "sizeLines": 684,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/commands/backups.rs",
+          "language": "rust",
+          "sizeLines": 246,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/commands/dashboard.rs",
+          "language": "rust",
+          "sizeLines": 101,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/commands/library.rs",
+          "language": "rust",
+          "sizeLines": 264,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/commands/mod.rs",
+          "language": "rust",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/commands/settings.rs",
+          "language": "rust",
+          "sizeLines": 130,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/commands/smoke.rs",
+          "language": "rust",
+          "sizeLines": 36,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/database/activity.rs",
+          "language": "rust",
+          "sizeLines": 62,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/database/backups.rs",
+          "language": "rust",
+          "sizeLines": 195,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/database/cache.rs",
+          "language": "rust",
+          "sizeLines": 65,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/database/dashboard.rs",
+          "language": "rust",
+          "sizeLines": 108,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/database/error.rs",
+          "language": "rust",
+          "sizeLines": 32,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/database/library.rs",
+          "language": "rust",
+          "sizeLines": 756,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/database/metadata.rs",
+          "language": "rust",
+          "sizeLines": 245,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/database/mod.rs",
+          "language": "rust",
+          "sizeLines": 478,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/database/records.rs",
+          "language": "rust",
+          "sizeLines": 51,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/database/settings.rs",
+          "language": "rust",
+          "sizeLines": 64,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/domain/dashboard.rs",
+          "language": "rust",
+          "sizeLines": 588,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/domain/error.rs",
+          "language": "rust",
+          "sizeLines": 28,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/domain/library.rs",
+          "language": "rust",
+          "sizeLines": 390,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/domain/mod.rs",
+          "language": "rust",
+          "sizeLines": 19,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/domain/settings.rs",
+          "language": "rust",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/domain/smoke.rs",
+          "language": "rust",
+          "sizeLines": 19,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src-tauri/src/backups/import.rs": [
+          "src-tauri/src/database/mod.rs",
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/backups/mod.rs": [
+          "src-tauri/src/backups/import.rs",
+          "src-tauri/src/database/mod.rs",
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/commands/backups.rs": [
+          "src-tauri/src/backups/mod.rs",
+          "src-tauri/src/database/mod.rs",
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/commands/dashboard.rs": [
+          "src-tauri/src/database/mod.rs",
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/commands/library.rs": [
+          "src-tauri/src/database/mod.rs",
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/commands/mod.rs": [
+          "src-tauri/src/commands/backups.rs",
+          "src-tauri/src/commands/dashboard.rs",
+          "src-tauri/src/commands/discovery.rs",
+          "src-tauri/src/commands/library.rs",
+          "src-tauri/src/commands/settings.rs",
+          "src-tauri/src/commands/smoke.rs"
+        ],
+        "src-tauri/src/commands/settings.rs": [
+          "src-tauri/src/database/mod.rs",
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/commands/smoke.rs": [
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/database/activity.rs": [
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/database/backups.rs": [
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/database/cache.rs": [
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/database/dashboard.rs": [
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/database/error.rs": [
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/database/library.rs": [
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/database/metadata.rs": [
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/database/mod.rs": [
+          "src-tauri/src/database/activity.rs",
+          "src-tauri/src/database/backups.rs",
+          "src-tauri/src/database/cache.rs",
+          "src-tauri/src/database/dashboard.rs",
+          "src-tauri/src/database/error.rs",
+          "src-tauri/src/database/library.rs",
+          "src-tauri/src/database/metadata.rs",
+          "src-tauri/src/database/records.rs",
+          "src-tauri/src/database/settings.rs",
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/database/records.rs": [
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/database/settings.rs": [
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/domain/dashboard.rs": [],
+        "src-tauri/src/domain/error.rs": [],
+        "src-tauri/src/domain/library.rs": [],
+        "src-tauri/src/domain/mod.rs": [
+          "src-tauri/src/domain/dashboard.rs",
+          "src-tauri/src/domain/error.rs",
+          "src-tauri/src/domain/library.rs",
+          "src-tauri/src/domain/settings.rs",
+          "src-tauri/src/domain/smoke.rs"
+        ],
+        "src-tauri/src/domain/settings.rs": [],
+        "src-tauri/src/domain/smoke.rs": []
+      },
+      "neighborMap": {
+        "src-tauri/src/backups/mod.rs": [
+          {
+            "path": "src-tauri/src/lib.rs",
+            "batchIndex": 5,
+            "symbols": [
+              "register_commands",
+              "run"
+            ]
+          }
+        ],
+        "src-tauri/src/commands/mod.rs": [
+          {
+            "path": "src-tauri/src/commands/discovery.rs",
+            "batchIndex": 5,
+            "symbols": [
+              "SearchMediaRequest",
+              "MediaPageRequest",
+              "MediaDetailsRequest",
+              "RecommendationsRequest",
+              "search_media",
+              "list_trending",
+              "get_media_details",
+              "refresh_library_metadata",
+              "get_recommendations",
+              "get_home_airing",
+              "search_media_with_service",
+              "list_trending_with_service",
+              "get_media_details_with_service",
+              "refresh_library_metadata_with_service",
+              "get_recommendations_with_service",
+              "get_home_airing_with_service"
+            ]
+          },
+          {
+            "path": "src-tauri/src/lib.rs",
+            "batchIndex": 5,
+            "symbols": [
+              "register_commands",
+              "run"
+            ]
+          }
+        ],
+        "src-tauri/src/database/mod.rs": [
+          {
+            "path": "src-tauri/src/anilist/service.rs",
+            "batchIndex": 5,
+            "symbols": [
+              "CachePolicy",
+              "ttl",
+              "Freshness",
+              "MediaPageResponse",
+              "MediaDetailsResponse",
+              "RecommendationsResponse",
+              "AiringScheduleResponse",
+              "HomeAiringItem",
+              "HomeAiringResponse",
+              "MetadataRefreshFailure",
+              "RefreshLibraryMetadataResponse",
+              "AniListService",
+              "new",
+              "search_media",
+              "list_trending",
+              "recommendations",
+              "get_media_details",
+              "airing_schedule",
+              "home_airing",
+              "refresh_library_metadata",
+              "into_command_error"
+            ]
+          },
+          {
+            "path": "src-tauri/src/lib.rs",
+            "batchIndex": 5,
+            "symbols": [
+              "register_commands",
+              "run"
+            ]
+          }
+        ],
+        "src-tauri/src/domain/mod.rs": [
+          {
+            "path": "src-tauri/src/anilist/service.rs",
+            "batchIndex": 5,
+            "symbols": [
+              "CachePolicy",
+              "ttl",
+              "Freshness",
+              "MediaPageResponse",
+              "MediaDetailsResponse",
+              "RecommendationsResponse",
+              "AiringScheduleResponse",
+              "HomeAiringItem",
+              "HomeAiringResponse",
+              "MetadataRefreshFailure",
+              "RefreshLibraryMetadataResponse",
+              "AniListService",
+              "new",
+              "search_media",
+              "list_trending",
+              "recommendations",
+              "get_media_details",
+              "airing_schedule",
+              "home_airing",
+              "refresh_library_metadata",
+              "into_command_error"
+            ]
+          },
+          {
+            "path": "src-tauri/src/commands/discovery.rs",
+            "batchIndex": 5,
+            "symbols": [
+              "SearchMediaRequest",
+              "MediaPageRequest",
+              "MediaDetailsRequest",
+              "RecommendationsRequest",
+              "search_media",
+              "list_trending",
+              "get_media_details",
+              "refresh_library_metadata",
+              "get_recommendations",
+              "get_home_airing",
+              "search_media_with_service",
+              "list_trending_with_service",
+              "get_media_details_with_service",
+              "refresh_library_metadata_with_service",
+              "get_recommendations_with_service",
+              "get_home_airing_with_service"
+            ]
+          },
+          {
+            "path": "src-tauri/src/lib.rs",
+            "batchIndex": 5,
+            "symbols": [
+              "register_commands",
+              "run"
+            ]
+          },
+          {
+            "path": "src-tauri/src/recommendations/mod.rs",
+            "batchIndex": 5,
+            "symbols": [
+              "RecommendationWeights",
+              "total",
+              "Recommendation",
+              "RecommendationSet",
+              "rank_recommendations"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 2,
+      "files": [
+        {
+          "path": ".svelte-kit/output/server/chunks/exports.js",
+          "language": "javascript",
+          "sizeLines": 231,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/chunks/false.js",
+          "language": "javascript",
+          "sizeLines": 4,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/chunks/index.js",
+          "language": "javascript",
+          "sizeLines": 1279,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/chunks/internal.js",
+          "language": "javascript",
+          "sizeLines": 135,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/chunks/root.js",
+          "language": "javascript",
+          "sizeLines": 2981,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/chunks/server.js",
+          "language": "javascript",
+          "sizeLines": 34,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/chunks/utils.js",
+          "language": "javascript",
+          "sizeLines": 1014,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/chunks/utils2.js",
+          "language": "javascript",
+          "sizeLines": 41,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/entries/fallbacks/error.svelte.js",
+          "language": "javascript",
+          "sizeLines": 57,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/entries/pages/_page.svelte.js",
+          "language": "javascript",
+          "sizeLines": 303,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/index.js",
+          "language": "javascript",
+          "sizeLines": 3971,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/internal.js",
+          "language": "javascript",
+          "sizeLines": 14,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/remote-entry.js",
+          "language": "javascript",
+          "sizeLines": 1167,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".svelte-kit/output/server/chunks/exports.js": [
+          ".svelte-kit/output/server/chunks/index.js",
+          ".svelte-kit/output/server/chunks/root.js"
+        ],
+        ".svelte-kit/output/server/chunks/false.js": [],
+        ".svelte-kit/output/server/chunks/index.js": [],
+        ".svelte-kit/output/server/chunks/internal.js": [
+          ".svelte-kit/output/server/chunks/root.js",
+          ".svelte-kit/output/server/chunks/server.js"
+        ],
+        ".svelte-kit/output/server/chunks/root.js": [
+          ".svelte-kit/output/server/chunks/false.js",
+          ".svelte-kit/output/server/chunks/index.js"
+        ],
+        ".svelte-kit/output/server/chunks/server.js": [],
+        ".svelte-kit/output/server/chunks/utils.js": [
+          ".svelte-kit/output/server/chunks/utils2.js"
+        ],
+        ".svelte-kit/output/server/chunks/utils2.js": [],
+        ".svelte-kit/output/server/entries/fallbacks/error.svelte.js": [
+          ".svelte-kit/output/server/chunks/exports.js",
+          ".svelte-kit/output/server/chunks/index.js",
+          ".svelte-kit/output/server/chunks/root.js",
+          ".svelte-kit/output/server/chunks/utils2.js"
+        ],
+        ".svelte-kit/output/server/entries/pages/_page.svelte.js": [
+          ".svelte-kit/output/server/chunks/index.js"
+        ],
+        ".svelte-kit/output/server/index.js": [
+          ".svelte-kit/output/server/chunks/exports.js",
+          ".svelte-kit/output/server/chunks/false.js",
+          ".svelte-kit/output/server/chunks/internal.js",
+          ".svelte-kit/output/server/chunks/server.js",
+          ".svelte-kit/output/server/chunks/utils.js",
+          ".svelte-kit/output/server/chunks/utils2.js"
+        ],
+        ".svelte-kit/output/server/internal.js": [
+          ".svelte-kit/output/server/chunks/internal.js",
+          ".svelte-kit/output/server/chunks/root.js",
+          ".svelte-kit/output/server/chunks/server.js"
+        ],
+        ".svelte-kit/output/server/remote-entry.js": [
+          ".svelte-kit/output/server/chunks/false.js",
+          ".svelte-kit/output/server/chunks/server.js",
+          ".svelte-kit/output/server/chunks/utils.js"
+        ]
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 3,
+      "files": [
+        {
+          "path": "src/lib/components/AppShell.svelte",
+          "language": "svelte",
+          "sizeLines": 288,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/AppShell.test.ts",
+          "language": "typescript",
+          "sizeLines": 491,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/P4Flow.test.ts",
+          "language": "typescript",
+          "sizeLines": 437,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/pages/DashboardPage.svelte",
+          "language": "svelte",
+          "sizeLines": 1457,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/pages/DashboardPage.test.ts",
+          "language": "typescript",
+          "sizeLines": 1136,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/pages/DiscoveryPage.svelte",
+          "language": "svelte",
+          "sizeLines": 845,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/pages/DiscoveryPage.test.ts",
+          "language": "typescript",
+          "sizeLines": 628,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/pages/HomePage.svelte",
+          "language": "svelte",
+          "sizeLines": 763,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/pages/HomePage.test.ts",
+          "language": "typescript",
+          "sizeLines": 441,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/pages/SettingsPage.svelte",
+          "language": "svelte",
+          "sizeLines": 552,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/pages/SettingsPage.test.ts",
+          "language": "typescript",
+          "sizeLines": 281,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/test/viewports.ts",
+          "language": "typescript",
+          "sizeLines": 18,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/lib/components/AppShell.svelte": [],
+        "src/lib/components/AppShell.test.ts": [
+          "src/lib/components/AppShell.svelte",
+          "src/test/viewports.ts"
+        ],
+        "src/lib/components/P4Flow.test.ts": [
+          "src/lib/components/AppShell.svelte"
+        ],
+        "src/lib/components/pages/DashboardPage.svelte": [],
+        "src/lib/components/pages/DashboardPage.test.ts": [
+          "src/lib/components/pages/DashboardPage.svelte",
+          "src/test/viewports.ts"
+        ],
+        "src/lib/components/pages/DiscoveryPage.svelte": [],
+        "src/lib/components/pages/DiscoveryPage.test.ts": [
+          "src/lib/components/pages/DiscoveryPage.svelte",
+          "src/test/viewports.ts"
+        ],
+        "src/lib/components/pages/HomePage.svelte": [],
+        "src/lib/components/pages/HomePage.test.ts": [
+          "src/lib/components/pages/HomePage.svelte",
+          "src/test/viewports.ts"
+        ],
+        "src/lib/components/pages/SettingsPage.svelte": [],
+        "src/lib/components/pages/SettingsPage.test.ts": [
+          "src/lib/components/pages/SettingsPage.svelte",
+          "src/test/viewports.ts"
+        ],
+        "src/test/viewports.ts": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 4,
+      "files": [
+        {
+          "path": ".svelte-kit/output/client/_app/immutable/chunks/BT13aeJw.js",
+          "language": "javascript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/client/_app/immutable/chunks/C5mcA7yD.js",
+          "language": "javascript",
+          "sizeLines": 46,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/client/_app/immutable/chunks/DO3MnSMT.js",
+          "language": "javascript",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/client/_app/immutable/chunks/DTzoEBl6.js",
+          "language": "javascript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/client/_app/immutable/chunks/EmT_Y5gv.js",
+          "language": "javascript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/client/_app/immutable/chunks/cV_cZL-o.js",
+          "language": "javascript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/client/_app/immutable/entry/app.BIqaKXsw.js",
+          "language": "javascript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/client/_app/immutable/entry/start.DNSRco4I.js",
+          "language": "javascript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/client/_app/immutable/nodes/0.QEHZMop1.js",
+          "language": "javascript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/client/_app/immutable/nodes/1.BPu-DpZk.js",
+          "language": "javascript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/client/_app/immutable/nodes/2.l1YNo64C.js",
+          "language": "javascript",
+          "sizeLines": 28,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".svelte-kit/output/client/_app/immutable/chunks/BT13aeJw.js": [
+          ".svelte-kit/output/client/_app/immutable/chunks/C5mcA7yD.js",
+          ".svelte-kit/output/client/_app/immutable/chunks/cV_cZL-o.js"
+        ],
+        ".svelte-kit/output/client/_app/immutable/chunks/C5mcA7yD.js": [],
+        ".svelte-kit/output/client/_app/immutable/chunks/DO3MnSMT.js": [
+          ".svelte-kit/output/client/_app/immutable/chunks/C5mcA7yD.js"
+        ],
+        ".svelte-kit/output/client/_app/immutable/chunks/DTzoEBl6.js": [
+          ".svelte-kit/output/client/_app/immutable/chunks/C5mcA7yD.js"
+        ],
+        ".svelte-kit/output/client/_app/immutable/chunks/EmT_Y5gv.js": [
+          ".svelte-kit/output/client/_app/immutable/chunks/C5mcA7yD.js",
+          ".svelte-kit/output/client/_app/immutable/chunks/DTzoEBl6.js"
+        ],
+        ".svelte-kit/output/client/_app/immutable/chunks/cV_cZL-o.js": [
+          ".svelte-kit/output/client/_app/immutable/chunks/C5mcA7yD.js"
+        ],
+        ".svelte-kit/output/client/_app/immutable/entry/app.BIqaKXsw.js": [
+          ".svelte-kit/output/client/_app/immutable/chunks/BT13aeJw.js",
+          ".svelte-kit/output/client/_app/immutable/chunks/C5mcA7yD.js",
+          ".svelte-kit/output/client/_app/immutable/chunks/DTzoEBl6.js",
+          ".svelte-kit/output/client/_app/immutable/chunks/EmT_Y5gv.js",
+          ".svelte-kit/output/client/_app/immutable/chunks/cV_cZL-o.js"
+        ],
+        ".svelte-kit/output/client/_app/immutable/entry/start.DNSRco4I.js": [
+          ".svelte-kit/output/client/_app/immutable/chunks/DO3MnSMT.js"
+        ],
+        ".svelte-kit/output/client/_app/immutable/nodes/0.QEHZMop1.js": [
+          ".svelte-kit/output/client/_app/immutable/chunks/C5mcA7yD.js",
+          ".svelte-kit/output/client/_app/immutable/chunks/DTzoEBl6.js",
+          ".svelte-kit/output/client/_app/immutable/chunks/cV_cZL-o.js"
+        ],
+        ".svelte-kit/output/client/_app/immutable/nodes/1.BPu-DpZk.js": [
+          ".svelte-kit/output/client/_app/immutable/chunks/BT13aeJw.js",
+          ".svelte-kit/output/client/_app/immutable/chunks/C5mcA7yD.js",
+          ".svelte-kit/output/client/_app/immutable/chunks/DO3MnSMT.js",
+          ".svelte-kit/output/client/_app/immutable/chunks/cV_cZL-o.js"
+        ],
+        ".svelte-kit/output/client/_app/immutable/nodes/2.l1YNo64C.js": [
+          ".svelte-kit/output/client/_app/immutable/chunks/BT13aeJw.js",
+          ".svelte-kit/output/client/_app/immutable/chunks/C5mcA7yD.js",
+          ".svelte-kit/output/client/_app/immutable/chunks/DTzoEBl6.js",
+          ".svelte-kit/output/client/_app/immutable/chunks/EmT_Y5gv.js",
+          ".svelte-kit/output/client/_app/immutable/chunks/cV_cZL-o.js"
+        ]
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 5,
+      "files": [
+        {
+          "path": "src-tauri/src/anilist/client.rs",
+          "language": "rust",
+          "sizeLines": 418,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/anilist/mod.rs",
+          "language": "rust",
+          "sizeLines": 20,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/anilist/queries.rs",
+          "language": "rust",
+          "sizeLines": 104,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/anilist/service.rs",
+          "language": "rust",
+          "sizeLines": 1387,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/anilist/tests.rs",
+          "language": "rust",
+          "sizeLines": 368,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/anilist/types.rs",
+          "language": "rust",
+          "sizeLines": 324,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/commands/discovery.rs",
+          "language": "rust",
+          "sizeLines": 123,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/lib.rs",
+          "language": "rust",
+          "sizeLines": 137,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/recommendations/mod.rs",
+          "language": "rust",
+          "sizeLines": 423,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src-tauri/src/anilist/client.rs": [],
+        "src-tauri/src/anilist/mod.rs": [
+          "src-tauri/src/anilist/client.rs",
+          "src-tauri/src/anilist/queries.rs",
+          "src-tauri/src/anilist/service.rs",
+          "src-tauri/src/anilist/tests.rs",
+          "src-tauri/src/anilist/types.rs"
+        ],
+        "src-tauri/src/anilist/queries.rs": [],
+        "src-tauri/src/anilist/service.rs": [
+          "src-tauri/src/database/mod.rs",
+          "src-tauri/src/domain/mod.rs",
+          "src-tauri/src/recommendations/mod.rs"
+        ],
+        "src-tauri/src/anilist/tests.rs": [],
+        "src-tauri/src/anilist/types.rs": [],
+        "src-tauri/src/commands/discovery.rs": [
+          "src-tauri/src/anilist/mod.rs",
+          "src-tauri/src/domain/mod.rs"
+        ],
+        "src-tauri/src/lib.rs": [
+          "src-tauri/src/anilist/mod.rs",
+          "src-tauri/src/backups/mod.rs",
+          "src-tauri/src/commands/mod.rs",
+          "src-tauri/src/database/mod.rs",
+          "src-tauri/src/domain/mod.rs",
+          "src-tauri/src/recommendations/mod.rs"
+        ],
+        "src-tauri/src/recommendations/mod.rs": [
+          "src-tauri/src/anilist/mod.rs",
+          "src-tauri/src/domain/mod.rs"
+        ]
+      },
+      "neighborMap": {
+        "src-tauri/src/anilist/service.rs": [
+          {
+            "path": "src-tauri/src/database/mod.rs",
+            "batchIndex": 1,
+            "symbols": [
+              "DatabasePaths",
+              "from_root",
+              "root",
+              "database",
+              "Database",
+              "connect",
+              "library",
+              "activity",
+              "backups",
+              "dashboard",
+              "media",
+              "settings",
+              "cache",
+              "storage_root",
+              "pool",
+              "foreign_keys_enabled",
+              "close"
+            ]
+          },
+          {
+            "path": "src-tauri/src/domain/mod.rs",
+            "batchIndex": 1,
+            "symbols": []
+          }
+        ],
+        "src-tauri/src/commands/discovery.rs": [
+          {
+            "path": "src-tauri/src/domain/mod.rs",
+            "batchIndex": 1,
+            "symbols": []
+          },
+          {
+            "path": "src-tauri/src/commands/mod.rs",
+            "batchIndex": 1,
+            "symbols": []
+          }
+        ],
+        "src-tauri/src/lib.rs": [
+          {
+            "path": "src-tauri/src/backups/mod.rs",
+            "batchIndex": 1,
+            "symbols": [
+              "BackupEnvelopeV1",
+              "BackupSettingV1",
+              "BackupLibraryEntryV1",
+              "BackupWatchActivityV1",
+              "ExportBackupResponse",
+              "export_backup_to_path",
+              "export_backup_to_path_at"
+            ]
+          },
+          {
+            "path": "src-tauri/src/commands/mod.rs",
+            "batchIndex": 1,
+            "symbols": []
+          },
+          {
+            "path": "src-tauri/src/database/mod.rs",
+            "batchIndex": 1,
+            "symbols": [
+              "DatabasePaths",
+              "from_root",
+              "root",
+              "database",
+              "Database",
+              "connect",
+              "library",
+              "activity",
+              "backups",
+              "dashboard",
+              "media",
+              "settings",
+              "cache",
+              "storage_root",
+              "pool",
+              "foreign_keys_enabled",
+              "close"
+            ]
+          },
+          {
+            "path": "src-tauri/src/domain/mod.rs",
+            "batchIndex": 1,
+            "symbols": []
+          }
+        ],
+        "src-tauri/src/recommendations/mod.rs": [
+          {
+            "path": "src-tauri/src/domain/mod.rs",
+            "batchIndex": 1,
+            "symbols": []
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 6,
+      "files": [
+        {
+          "path": ".svelte-kit/generated/root.js",
+          "language": "javascript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/generated/root.svelte",
+          "language": "svelte",
+          "sizeLines": 67,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/generated/server/internal.js",
+          "language": "javascript",
+          "sizeLines": 55,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/generated/shared/error-template.js",
+          "language": "javascript",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".svelte-kit/generated/root.js": [
+          ".svelte-kit/generated/root.svelte"
+        ],
+        ".svelte-kit/generated/root.svelte": [],
+        ".svelte-kit/generated/server/internal.js": [
+          ".svelte-kit/generated/root.js",
+          ".svelte-kit/generated/shared/error-template.js"
+        ],
+        ".svelte-kit/generated/shared/error-template.js": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 7,
+      "files": [
+        {
+          "path": ".svelte-kit/generated/client-optimized/nodes/0.js",
+          "language": "javascript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/generated/client/nodes/0.js",
+          "language": "javascript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/+layout.ts",
+          "language": "typescript",
+          "sizeLines": 5,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".svelte-kit/generated/client-optimized/nodes/0.js": [
+          "src/routes/+layout.ts"
+        ],
+        ".svelte-kit/generated/client/nodes/0.js": [
+          "src/routes/+layout.ts"
+        ],
+        "src/routes/+layout.ts": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 8,
+      "files": [
+        {
+          "path": "src/lib/ipc/client.ts",
+          "language": "typescript",
+          "sizeLines": 143,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/ipc/types.test.ts",
+          "language": "typescript",
+          "sizeLines": 208,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/ipc/types.ts",
+          "language": "typescript",
+          "sizeLines": 335,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/lib/ipc/client.ts": [
+          "src/lib/ipc/types.ts"
+        ],
+        "src/lib/ipc/types.test.ts": [
+          "src/lib/ipc/types.ts"
+        ],
+        "src/lib/ipc/types.ts": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 9,
+      "files": [
+        {
+          "path": "src-tauri/migrations/0001_initial.sql",
+          "language": "sql",
+          "sizeLines": 58,
+          "fileCategory": "data"
+        },
+        {
+          "path": "src-tauri/migrations/0002_watch_activity.sql",
+          "language": "sql",
+          "sizeLines": 19,
+          "fileCategory": "data"
+        },
+        {
+          "path": "src-tauri/migrations/0003_activity_progress.sql",
+          "language": "sql",
+          "sizeLines": 5,
+          "fileCategory": "data"
+        },
+        {
+          "path": "src-tauri/migrations/0004_watch_activity_identity.sql",
+          "language": "sql",
+          "sizeLines": 50,
+          "fileCategory": "data"
+        },
+        {
+          "path": "src-tauri/migrations/0005_record_initial_watch_activity.sql",
+          "language": "sql",
+          "sizeLines": 38,
+          "fileCategory": "data"
+        },
+        {
+          "path": "src-tauri/migrations/0006_media_release_date.sql",
+          "language": "sql",
+          "sizeLines": 2,
+          "fileCategory": "data"
+        },
+        {
+          "path": "src-tauri/migrations/0007_refresh_missing_release_dates.sql",
+          "language": "sql",
+          "sizeLines": 3,
+          "fileCategory": "data"
+        }
+      ],
+      "batchImportData": {
+        "src-tauri/migrations/0001_initial.sql": [],
+        "src-tauri/migrations/0002_watch_activity.sql": [],
+        "src-tauri/migrations/0003_activity_progress.sql": [],
+        "src-tauri/migrations/0004_watch_activity_identity.sql": [],
+        "src-tauri/migrations/0005_record_initial_watch_activity.sql": [],
+        "src-tauri/migrations/0006_media_release_date.sql": [],
+        "src-tauri/migrations/0007_refresh_missing_release_dates.sql": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 10,
+      "files": [
+        {
+          "path": ".prettierrc.json",
+          "language": "json",
+          "sizeLines": 9,
+          "fileCategory": "config"
+        },
+        {
+          "path": "AGENTS.md",
+          "language": "markdown",
+          "sizeLines": 101,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "PLAN.md",
+          "language": "markdown",
+          "sizeLines": 519,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "PROJECT.md",
+          "language": "markdown",
+          "sizeLines": 89,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "README.md",
+          "language": "markdown",
+          "sizeLines": 62,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "package.json",
+          "language": "json",
+          "sizeLines": 53,
+          "fileCategory": "config"
+        },
+        {
+          "path": "tsconfig.json",
+          "language": "json",
+          "sizeLines": 19,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        ".prettierrc.json": [],
+        "AGENTS.md": [],
+        "PLAN.md": [],
+        "PROJECT.md": [],
+        "README.md": [],
+        "package.json": [],
+        "tsconfig.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 11,
+      "files": [
+        {
+          "path": "docs/RELEASE_AUDIT.md",
+          "language": "markdown",
+          "sizeLines": 51,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/RELEASE_NOTES_1.0.0.md",
+          "language": "markdown",
+          "sizeLines": 30,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "docs/THIRD_PARTY_NOTICES.md",
+          "language": "markdown",
+          "sizeLines": 25,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        "docs/RELEASE_AUDIT.md": [],
+        "docs/RELEASE_NOTES_1.0.0.md": [],
+        "docs/THIRD_PARTY_NOTICES.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 12,
+      "files": [
+        {
+          "path": "src-tauri/gen/schemas/acl-manifests.json",
+          "language": "json",
+          "sizeLines": 0,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/gen/schemas/capabilities.json",
+          "language": "json",
+          "sizeLines": 0,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/gen/schemas/desktop-schema.json",
+          "language": "json",
+          "sizeLines": 2357,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/gen/schemas/windows-schema.json",
+          "language": "json",
+          "sizeLines": 2357,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        "src-tauri/gen/schemas/acl-manifests.json": [],
+        "src-tauri/gen/schemas/capabilities.json": [],
+        "src-tauri/gen/schemas/desktop-schema.json": [],
+        "src-tauri/gen/schemas/windows-schema.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 13,
+      "files": [
+        {
+          "path": "src-tauri/tests/fixtures/anilist/airing-empty.json",
+          "language": "json",
+          "sizeLines": 8,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/anilist/airing-success.json",
+          "language": "json",
+          "sizeLines": 8,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/anilist/details-incomplete.json",
+          "language": "json",
+          "sizeLines": 70,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/anilist/details-known.json",
+          "language": "json",
+          "sizeLines": 27,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/anilist/duration-invalid.json",
+          "language": "json",
+          "sizeLines": 26,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/anilist/forbidden.json",
+          "language": "json",
+          "sizeLines": 4,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/anilist/library-media-success.json",
+          "language": "json",
+          "sizeLines": 43,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/anilist/malformed.json",
+          "language": "json",
+          "sizeLines": 8,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/anilist/offline.json",
+          "language": "json",
+          "sizeLines": 4,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/anilist/partial-errors.json",
+          "language": "json",
+          "sizeLines": 31,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/anilist/rate-limited.json",
+          "language": "json",
+          "sizeLines": 4,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/anilist/recommendation-success.json",
+          "language": "json",
+          "sizeLines": 48,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/anilist/search-success.json",
+          "language": "json",
+          "sizeLines": 32,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/anilist/smoke-success.json",
+          "language": "json",
+          "sizeLines": 7,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        "src-tauri/tests/fixtures/anilist/airing-empty.json": [],
+        "src-tauri/tests/fixtures/anilist/airing-success.json": [],
+        "src-tauri/tests/fixtures/anilist/details-incomplete.json": [],
+        "src-tauri/tests/fixtures/anilist/details-known.json": [],
+        "src-tauri/tests/fixtures/anilist/duration-invalid.json": [],
+        "src-tauri/tests/fixtures/anilist/forbidden.json": [],
+        "src-tauri/tests/fixtures/anilist/library-media-success.json": [],
+        "src-tauri/tests/fixtures/anilist/malformed.json": [],
+        "src-tauri/tests/fixtures/anilist/offline.json": [],
+        "src-tauri/tests/fixtures/anilist/partial-errors.json": [],
+        "src-tauri/tests/fixtures/anilist/rate-limited.json": [],
+        "src-tauri/tests/fixtures/anilist/recommendation-success.json": [],
+        "src-tauri/tests/fixtures/anilist/search-success.json": [],
+        "src-tauri/tests/fixtures/anilist/smoke-success.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 14,
+      "files": [
+        {
+          "path": "src-tauri/tests/fixtures/database/README.md",
+          "language": "markdown",
+          "sizeLines": 19,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/database/v0001.json",
+          "language": "json",
+          "sizeLines": 13,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/database/v0002.json",
+          "language": "json",
+          "sizeLines": 18,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/database/v0003.json",
+          "language": "json",
+          "sizeLines": 19,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        "src-tauri/tests/fixtures/database/README.md": [],
+        "src-tauri/tests/fixtures/database/v0001.json": [],
+        "src-tauri/tests/fixtures/database/v0002.json": [],
+        "src-tauri/tests/fixtures/database/v0003.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 15,
+      "files": [
+        {
+          "path": ".gitattributes",
+          "language": "unknown",
+          "sizeLines": 5,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".prettierignore",
+          "language": "unknown",
+          "sizeLines": 9,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/ambient.d.ts",
+          "language": "typescript",
+          "sizeLines": 422,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/env.d.ts",
+          "language": "typescript",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/generated/client-optimized/app.js",
+          "language": "javascript",
+          "sizeLines": 38,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/generated/client-optimized/matchers.js",
+          "language": "javascript",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/generated/client-optimized/nodes/1.js",
+          "language": "javascript",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/generated/client-optimized/nodes/2.js",
+          "language": "javascript",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/generated/client/app.js",
+          "language": "javascript",
+          "sizeLines": 38,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/generated/client/matchers.js",
+          "language": "javascript",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/generated/client/nodes/1.js",
+          "language": "javascript",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/generated/client/nodes/2.js",
+          "language": "javascript",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/non-ambient.d.ts",
+          "language": "typescript",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/client/.vite/manifest.json",
+          "language": "json",
+          "sizeLines": 121,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".svelte-kit/output/client/_app/immutable/assets/0.Crjr9yLG.css",
+          "language": "css",
+          "sizeLines": 1,
+          "fileCategory": "markup"
+        },
+        {
+          "path": ".svelte-kit/output/client/_app/immutable/assets/2.DvHeiOHa.css",
+          "language": "css",
+          "sizeLines": 1,
+          "fileCategory": "markup"
+        },
+        {
+          "path": ".svelte-kit/output/client/_app/immutable/chunks/wbPk3Yxo.js",
+          "language": "javascript",
+          "sizeLines": 81,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/client/_app/version.json",
+          "language": "json",
+          "sizeLines": 0,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".svelte-kit/output/server/.vite/manifest.json",
+          "language": "json",
+          "sizeLines": 129,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".svelte-kit/output/server/_app/immutable/assets/_layout.Wv22E8_W.css",
+          "language": "css",
+          "sizeLines": 1,
+          "fileCategory": "markup"
+        },
+        {
+          "path": ".svelte-kit/output/server/_app/immutable/assets/_page.DiTwi92V.css",
+          "language": "css",
+          "sizeLines": 1,
+          "fileCategory": "markup"
+        },
+        {
+          "path": ".svelte-kit/output/server/entries/pages/_layout.svelte.js",
+          "language": "javascript",
+          "sizeLines": 9,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/entries/pages/_layout.ts.js",
+          "language": "javascript",
+          "sizeLines": 4,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/env.js",
+          "language": "javascript",
+          "sizeLines": 13,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/manifest-full.js",
+          "language": "javascript",
+          "sizeLines": 39,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".gitattributes": [],
+        ".prettierignore": [],
+        ".svelte-kit/ambient.d.ts": [],
+        ".svelte-kit/env.d.ts": [],
+        ".svelte-kit/generated/client-optimized/app.js": [],
+        ".svelte-kit/generated/client-optimized/matchers.js": [],
+        ".svelte-kit/generated/client-optimized/nodes/1.js": [],
+        ".svelte-kit/generated/client-optimized/nodes/2.js": [],
+        ".svelte-kit/generated/client/app.js": [],
+        ".svelte-kit/generated/client/matchers.js": [],
+        ".svelte-kit/generated/client/nodes/1.js": [],
+        ".svelte-kit/generated/client/nodes/2.js": [],
+        ".svelte-kit/non-ambient.d.ts": [],
+        ".svelte-kit/output/client/.vite/manifest.json": [],
+        ".svelte-kit/output/client/_app/immutable/assets/0.Crjr9yLG.css": [],
+        ".svelte-kit/output/client/_app/immutable/assets/2.DvHeiOHa.css": [],
+        ".svelte-kit/output/client/_app/immutable/chunks/wbPk3Yxo.js": [],
+        ".svelte-kit/output/client/_app/version.json": [],
+        ".svelte-kit/output/server/.vite/manifest.json": [],
+        ".svelte-kit/output/server/_app/immutable/assets/_layout.Wv22E8_W.css": [],
+        ".svelte-kit/output/server/_app/immutable/assets/_page.DiTwi92V.css": [],
+        ".svelte-kit/output/server/entries/pages/_layout.svelte.js": [],
+        ".svelte-kit/output/server/entries/pages/_layout.ts.js": [],
+        ".svelte-kit/output/server/env.js": [],
+        ".svelte-kit/output/server/manifest-full.js": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 16,
+      "files": [
+        {
+          "path": ".svelte-kit/output/server/manifest.js",
+          "language": "javascript",
+          "sizeLines": 39,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/nodes/0.js",
+          "language": "javascript",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/nodes/1.js",
+          "language": "javascript",
+          "sizeLines": 6,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/output/server/nodes/2.js",
+          "language": "javascript",
+          "sizeLines": 6,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".svelte-kit/tsconfig.json",
+          "language": "json",
+          "sizeLines": 55,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".svelte-kit/types/route_meta_data.json",
+          "language": "json",
+          "sizeLines": 5,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".svelte-kit/types/src/routes/$types.d.ts",
+          "language": "typescript",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".ua/.understandignore",
+          "language": "unknown",
+          "sizeLines": 76,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".ua/config.json",
+          "language": "json",
+          "sizeLines": 3,
+          "fileCategory": "config"
+        },
+        {
+          "path": "eslint.config.js",
+          "language": "javascript",
+          "sizeLines": 35,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/release-audit.ts",
+          "language": "typescript",
+          "sizeLines": 139,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/Cargo.toml",
+          "language": "toml",
+          "sizeLines": 35,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/build.rs",
+          "language": "rust",
+          "sizeLines": 20,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/capabilities/default.json",
+          "language": "json",
+          "sizeLines": 7,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/icons/icon.icns",
+          "language": "icns",
+          "sizeLines": 610,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/main.rs",
+          "language": "rust",
+          "sizeLines": 6,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/tauri.conf.json",
+          "language": "json",
+          "sizeLines": 56,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/README.md",
+          "language": "markdown",
+          "sizeLines": 8,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/database/v0001.sqlite3",
+          "language": "sqlite3",
+          "sizeLines": 56,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/database/v0002.sqlite3",
+          "language": "sqlite3",
+          "sizeLines": 122,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/tests/fixtures/database/v0003.sqlite3",
+          "language": "sqlite3",
+          "sizeLines": 146,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/tests/p4_ipc.rs",
+          "language": "rust",
+          "sizeLines": 319,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/tests/p5_ipc.rs",
+          "language": "rust",
+          "sizeLines": 244,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/tests/p6_ipc.rs",
+          "language": "rust",
+          "sizeLines": 308,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/tests/p7_release.rs",
+          "language": "rust",
+          "sizeLines": 88,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".svelte-kit/output/server/manifest.js": [],
+        ".svelte-kit/output/server/nodes/0.js": [],
+        ".svelte-kit/output/server/nodes/1.js": [],
+        ".svelte-kit/output/server/nodes/2.js": [],
+        ".svelte-kit/tsconfig.json": [],
+        ".svelte-kit/types/route_meta_data.json": [],
+        ".svelte-kit/types/src/routes/$types.d.ts": [],
+        ".ua/.understandignore": [],
+        ".ua/config.json": [],
+        "eslint.config.js": [],
+        "scripts/release-audit.ts": [],
+        "src-tauri/Cargo.toml": [],
+        "src-tauri/build.rs": [],
+        "src-tauri/capabilities/default.json": [],
+        "src-tauri/icons/icon.icns": [],
+        "src-tauri/src/main.rs": [],
+        "src-tauri/tauri.conf.json": [],
+        "src-tauri/tests/fixtures/README.md": [],
+        "src-tauri/tests/fixtures/database/v0001.sqlite3": [],
+        "src-tauri/tests/fixtures/database/v0002.sqlite3": [],
+        "src-tauri/tests/fixtures/database/v0003.sqlite3": [],
+        "src-tauri/tests/p4_ipc.rs": [],
+        "src-tauri/tests/p5_ipc.rs": [],
+        "src-tauri/tests/p6_ipc.rs": [],
+        "src-tauri/tests/p7_release.rs": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 17,
+      "files": [
+        {
+          "path": "src-tauri/tests/persistence.rs",
+          "language": "rust",
+          "sizeLines": 669,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app.css",
+          "language": "css",
+          "sizeLines": 462,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "src/app.html",
+          "language": "html",
+          "sizeLines": 13,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "src/lib/components/AppNavigation.svelte",
+          "language": "svelte",
+          "sizeLines": 86,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/AsyncStateNotice.svelte",
+          "language": "svelte",
+          "sizeLines": 130,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/AsyncStateNotice.test.ts",
+          "language": "typescript",
+          "sizeLines": 209,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/ForcedPresentationPanel.svelte",
+          "language": "svelte",
+          "sizeLines": 88,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/GlassMultiSelect.svelte",
+          "language": "svelte",
+          "sizeLines": 246,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/GlassMultiSelect.test.ts",
+          "language": "typescript",
+          "sizeLines": 76,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/GlassSelect.svelte",
+          "language": "svelte",
+          "sizeLines": 196,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/GlassSelect.test.ts",
+          "language": "typescript",
+          "sizeLines": 71,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/HomePreviewCover.svelte",
+          "language": "svelte",
+          "sizeLines": 130,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/LibraryEntryEditor.svelte",
+          "language": "svelte",
+          "sizeLines": 735,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/LibraryEntryEditor.test.ts",
+          "language": "typescript",
+          "sizeLines": 394,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/MediaCover.svelte",
+          "language": "svelte",
+          "sizeLines": 62,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/MediaCover.test.ts",
+          "language": "typescript",
+          "sizeLines": 84,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/MediaDetailsDialog.svelte",
+          "language": "svelte",
+          "sizeLines": 549,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/MediaDetailsDialog.test.ts",
+          "language": "typescript",
+          "sizeLines": 542,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/NavigationIcon.svelte",
+          "language": "svelte",
+          "sizeLines": 37,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/PagePlaceholder.svelte",
+          "language": "svelte",
+          "sizeLines": 41,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/RefreshIcon.svelte",
+          "language": "svelte",
+          "sizeLines": 15,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/SleepingCatLoader.svelte",
+          "language": "svelte",
+          "sizeLines": 155,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/StaticCatArt.svelte",
+          "language": "svelte",
+          "sizeLines": 85,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/components/ThemePreferenceControl.svelte",
+          "language": "svelte",
+          "sizeLines": 128,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/navigation.ts",
+          "language": "typescript",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src-tauri/tests/persistence.rs": [],
+        "src/app.css": [],
+        "src/app.html": [],
+        "src/lib/components/AppNavigation.svelte": [],
+        "src/lib/components/AsyncStateNotice.svelte": [],
+        "src/lib/components/AsyncStateNotice.test.ts": [
+          "src/lib/components/AsyncStateNotice.svelte"
+        ],
+        "src/lib/components/ForcedPresentationPanel.svelte": [],
+        "src/lib/components/GlassMultiSelect.svelte": [],
+        "src/lib/components/GlassMultiSelect.test.ts": [
+          "src/lib/components/GlassMultiSelect.svelte"
+        ],
+        "src/lib/components/GlassSelect.svelte": [],
+        "src/lib/components/GlassSelect.test.ts": [
+          "src/lib/components/GlassSelect.svelte"
+        ],
+        "src/lib/components/HomePreviewCover.svelte": [],
+        "src/lib/components/LibraryEntryEditor.svelte": [],
+        "src/lib/components/LibraryEntryEditor.test.ts": [
+          "src/lib/components/LibraryEntryEditor.svelte"
+        ],
+        "src/lib/components/MediaCover.svelte": [],
+        "src/lib/components/MediaCover.test.ts": [
+          "src/lib/components/MediaCover.svelte"
+        ],
+        "src/lib/components/MediaDetailsDialog.svelte": [],
+        "src/lib/components/MediaDetailsDialog.test.ts": [
+          "src/lib/components/MediaDetailsDialog.svelte"
+        ],
+        "src/lib/components/NavigationIcon.svelte": [],
+        "src/lib/components/PagePlaceholder.svelte": [],
+        "src/lib/components/RefreshIcon.svelte": [],
+        "src/lib/components/SleepingCatLoader.svelte": [],
+        "src/lib/components/StaticCatArt.svelte": [],
+        "src/lib/components/ThemePreferenceControl.svelte": [],
+        "src/lib/navigation.ts": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 18,
+      "files": [
+        {
+          "path": "src/lib/releaseHardening.test.ts",
+          "language": "typescript",
+          "sizeLines": 84,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/state/asyncState.ts",
+          "language": "typescript",
+          "sizeLines": 19,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/state/debugPresentation.ts",
+          "language": "typescript",
+          "sizeLines": 40,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/theme/theme.test.ts",
+          "language": "typescript",
+          "sizeLines": 270,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/theme/theme.ts",
+          "language": "typescript",
+          "sizeLines": 85,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/+layout.svelte",
+          "language": "svelte",
+          "sizeLines": 7,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/routes/+page.svelte",
+          "language": "svelte",
+          "sizeLines": 13,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/test/setup.ts",
+          "language": "typescript",
+          "sizeLines": 9,
+          "fileCategory": "code"
+        },
+        {
+          "path": "svelte.config.js",
+          "language": "javascript",
+          "sizeLines": 18,
+          "fileCategory": "code"
+        },
+        {
+          "path": "vite.config.ts",
+          "language": "typescript",
+          "sizeLines": 33,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/lib/releaseHardening.test.ts": [],
+        "src/lib/state/asyncState.ts": [],
+        "src/lib/state/debugPresentation.ts": [
+          "src/lib/state/asyncState.ts"
+        ],
+        "src/lib/theme/theme.test.ts": [
+          "src/lib/theme/theme.ts"
+        ],
+        "src/lib/theme/theme.ts": [],
+        "src/routes/+layout.svelte": [],
+        "src/routes/+page.svelte": [],
+        "src/test/setup.ts": [],
+        "svelte.config.js": [],
+        "vite.config.ts": []
+      },
+      "neighborMap": {}
+    }
+  ]
+}

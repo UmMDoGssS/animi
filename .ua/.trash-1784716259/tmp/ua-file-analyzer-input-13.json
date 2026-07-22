@@ -1,0 +1,133 @@
+{
+    "projectRoot":  "C:\\Users\\Some random laptop\\Workspace\\animi",
+    "batchFiles":  [
+                       {
+                           "path":  "src-tauri/tests/fixtures/anilist/airing-empty.json",
+                           "language":  "json",
+                           "sizeLines":  8,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  "src-tauri/tests/fixtures/anilist/airing-success.json",
+                           "language":  "json",
+                           "sizeLines":  8,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  "src-tauri/tests/fixtures/anilist/details-incomplete.json",
+                           "language":  "json",
+                           "sizeLines":  70,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  "src-tauri/tests/fixtures/anilist/details-known.json",
+                           "language":  "json",
+                           "sizeLines":  27,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  "src-tauri/tests/fixtures/anilist/duration-invalid.json",
+                           "language":  "json",
+                           "sizeLines":  26,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  "src-tauri/tests/fixtures/anilist/forbidden.json",
+                           "language":  "json",
+                           "sizeLines":  4,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  "src-tauri/tests/fixtures/anilist/library-media-success.json",
+                           "language":  "json",
+                           "sizeLines":  43,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  "src-tauri/tests/fixtures/anilist/malformed.json",
+                           "language":  "json",
+                           "sizeLines":  8,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  "src-tauri/tests/fixtures/anilist/offline.json",
+                           "language":  "json",
+                           "sizeLines":  4,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  "src-tauri/tests/fixtures/anilist/partial-errors.json",
+                           "language":  "json",
+                           "sizeLines":  31,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  "src-tauri/tests/fixtures/anilist/rate-limited.json",
+                           "language":  "json",
+                           "sizeLines":  4,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  "src-tauri/tests/fixtures/anilist/recommendation-success.json",
+                           "language":  "json",
+                           "sizeLines":  48,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  "src-tauri/tests/fixtures/anilist/search-success.json",
+                           "language":  "json",
+                           "sizeLines":  32,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  "src-tauri/tests/fixtures/anilist/smoke-success.json",
+                           "language":  "json",
+                           "sizeLines":  7,
+                           "fileCategory":  "config"
+                       }
+                   ],
+    "batchImportData":  {
+                            "src-tauri/tests/fixtures/anilist/airing-empty.json":  [
+
+                                                                                   ],
+                            "src-tauri/tests/fixtures/anilist/airing-success.json":  [
+
+                                                                                     ],
+                            "src-tauri/tests/fixtures/anilist/details-incomplete.json":  [
+
+                                                                                         ],
+                            "src-tauri/tests/fixtures/anilist/details-known.json":  [
+
+                                                                                    ],
+                            "src-tauri/tests/fixtures/anilist/duration-invalid.json":  [
+
+                                                                                       ],
+                            "src-tauri/tests/fixtures/anilist/forbidden.json":  [
+
+                                                                                ],
+                            "src-tauri/tests/fixtures/anilist/library-media-success.json":  [
+
+                                                                                            ],
+                            "src-tauri/tests/fixtures/anilist/malformed.json":  [
+
+                                                                                ],
+                            "src-tauri/tests/fixtures/anilist/offline.json":  [
+
+                                                                              ],
+                            "src-tauri/tests/fixtures/anilist/partial-errors.json":  [
+
+                                                                                     ],
+                            "src-tauri/tests/fixtures/anilist/rate-limited.json":  [
+
+                                                                                   ],
+                            "src-tauri/tests/fixtures/anilist/recommendation-success.json":  [
+
+                                                                                             ],
+                            "src-tauri/tests/fixtures/anilist/search-success.json":  [
+
+                                                                                     ],
+                            "src-tauri/tests/fixtures/anilist/smoke-success.json":  [
+
+                                                                                    ]
+                        }
+}

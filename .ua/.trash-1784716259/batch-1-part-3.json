@@ -1,0 +1,1790 @@
+{
+    "nodes": [
+        {
+            "id": "file:src-tauri/src/database/error.rs",
+            "type": "file",
+            "name": "error.rs",
+            "filePath": "src-tauri/src/database/error.rs",
+            "summary": "Maps rusqlite failures into the application's typed database error boundary.",
+            "tags": [
+                "database",
+                "repository",
+                "sqlite"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/error.rs:into_command_error",
+            "type": "function",
+            "name": "into_command_error",
+            "filePath": "src-tauri/src/database/error.rs",
+            "lineRange": [
+                18,
+                31
+            ],
+            "summary": "Implements into command error behavior within error.rs, supporting the file's maps rusqlite failures into the application's typed database error boundary.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/database/error.rs:DatabaseError",
+            "type": "class",
+            "name": "DatabaseError",
+            "filePath": "src-tauri/src/database/error.rs",
+            "lineRange": [
+                4,
+                15
+            ],
+            "summary": "Defines the DatabaseError type and its role in maps rusqlite failures into the application's typed database error boundary.",
+            "tags": [
+                "data-model",
+                "type-definition",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "file:src-tauri/src/database/library.rs",
+            "type": "file",
+            "name": "library.rs",
+            "filePath": "src-tauri/src/database/library.rs",
+            "summary": "Implements transactional SQLite repository operations for anime library entries, progress updates, and joined metadata views.",
+            "tags": [
+                "database",
+                "repository",
+                "sqlite"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "function:src-tauri/src/database/library.rs:new",
+            "type": "function",
+            "name": "new",
+            "filePath": "src-tauri/src/database/library.rs",
+            "lineRange": [
+                30,
+                32
+            ],
+            "summary": "Implements new behavior within library.rs, supporting the file's implements transactional sqlite repository operations for anime library entries, progress updates, and joined metadata views.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/library.rs:list",
+            "type": "function",
+            "name": "list",
+            "filePath": "src-tauri/src/database/library.rs",
+            "lineRange": [
+                34,
+                43
+            ],
+            "summary": "Implements list behavior within library.rs, supporting the file's implements transactional sqlite repository operations for anime library entries, progress updates, and joined metadata views.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/library.rs:list_items",
+            "type": "function",
+            "name": "list_items",
+            "filePath": "src-tauri/src/database/library.rs",
+            "lineRange": [
+                45,
+                47
+            ],
+            "summary": "Implements list items behavior within library.rs, supporting the file's implements transactional sqlite repository operations for anime library entries, progress updates, and joined metadata views.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/library.rs:list_items_at",
+            "type": "function",
+            "name": "list_items_at",
+            "filePath": "src-tauri/src/database/library.rs",
+            "lineRange": [
+                49,
+                58
+            ],
+            "summary": "Implements list items at behavior within library.rs, supporting the file's implements transactional sqlite repository operations for anime library entries, progress updates, and joined metadata views.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/library.rs:list_items_on",
+            "type": "function",
+            "name": "list_items_on",
+            "filePath": "src-tauri/src/database/library.rs",
+            "lineRange": [
+                60,
+                69
+            ],
+            "summary": "Implements list items on behavior within library.rs, supporting the file's implements transactional sqlite repository operations for anime library entries, progress updates, and joined metadata views.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/library.rs:upsert",
+            "type": "function",
+            "name": "upsert",
+            "filePath": "src-tauri/src/database/library.rs",
+            "lineRange": [
+                71,
+                76
+            ],
+            "summary": "Implements upsert behavior within library.rs, supporting the file's implements transactional sqlite repository operations for anime library entries, progress updates, and joined metadata views.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/library.rs:upsert_at",
+            "type": "function",
+            "name": "upsert_at",
+            "filePath": "src-tauri/src/database/library.rs",
+            "lineRange": [
+                78,
+                166
+            ],
+            "summary": "Implements upsert at behavior within library.rs, supporting the file's implements transactional sqlite repository operations for anime library entries, progress updates, and joined metadata views.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:src-tauri/src/database/library.rs:advance_home_progress",
+            "type": "function",
+            "name": "advance_home_progress",
+            "filePath": "src-tauri/src/database/library.rs",
+            "lineRange": [
+                168,
+                173
+            ],
+            "summary": "Implements advance home progress behavior within library.rs, supporting the file's implements transactional sqlite repository operations for anime library entries, progress updates, and joined metadata views.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/library.rs:advance_home_progress_at",
+            "type": "function",
+            "name": "advance_home_progress_at",
+            "filePath": "src-tauri/src/database/library.rs",
+            "lineRange": [
+                175,
+                270
+            ],
+            "summary": "Implements advance home progress at behavior within library.rs, supporting the file's implements transactional sqlite repository operations for anime library entries, progress updates, and joined metadata views.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:src-tauri/src/database/library.rs:remove",
+            "type": "function",
+            "name": "remove",
+            "filePath": "src-tauri/src/database/library.rs",
+            "lineRange": [
+                272,
+                285
+            ],
+            "summary": "Implements remove behavior within library.rs, supporting the file's implements transactional sqlite repository operations for anime library entries, progress updates, and joined metadata views.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/library.rs:into_item",
+            "type": "function",
+            "name": "into_item",
+            "filePath": "src-tauri/src/database/library.rs",
+            "lineRange": [
+                345,
+                402
+            ],
+            "summary": "Implements into item behavior within library.rs, supporting the file's implements transactional sqlite repository operations for anime library entries, progress updates, and joined metadata views.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:src-tauri/src/database/library.rs:try_from",
+            "type": "function",
+            "name": "try_from",
+            "filePath": "src-tauri/src/database/library.rs",
+            "lineRange": [
+                408,
+                424
+            ],
+            "summary": "Implements try from behavior within library.rs, supporting the file's implements transactional sqlite repository operations for anime library entries, progress updates, and joined metadata views.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/database/library.rs:LibraryRepository",
+            "type": "class",
+            "name": "LibraryRepository",
+            "filePath": "src-tauri/src/database/library.rs",
+            "lineRange": [
+                25,
+                27
+            ],
+            "summary": "Defines the LibraryRepository type and its role in implements transactional sqlite repository operations for anime library entries, progress updates, and joined metadata views.",
+            "tags": [
+                "data-model",
+                "type-definition",
+                "database"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "class:src-tauri/src/database/library.rs:LibraryItemRow",
+            "type": "class",
+            "name": "LibraryItemRow",
+            "filePath": "src-tauri/src/database/library.rs",
+            "lineRange": [
+                323,
+                342
+            ],
+            "summary": "Defines the LibraryItemRow type and its role in implements transactional sqlite repository operations for anime library entries, progress updates, and joined metadata views.",
+            "tags": [
+                "data-model",
+                "type-definition",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "file:src-tauri/src/database/metadata.rs",
+            "type": "file",
+            "name": "metadata.rs",
+            "filePath": "src-tauri/src/database/metadata.rs",
+            "summary": "Stores and retrieves cached AniList media metadata, genres, tags, and freshness state.",
+            "tags": [
+                "database",
+                "repository",
+                "sqlite"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "function:src-tauri/src/database/metadata.rs:new",
+            "type": "function",
+            "name": "new",
+            "filePath": "src-tauri/src/database/metadata.rs",
+            "lineRange": [
+                13,
+                15
+            ],
+            "summary": "Implements new behavior within metadata.rs, supporting the file's stores and retrieves cached ani list media metadata, genres, tags, and freshness state.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/metadata.rs:upsert_snapshot",
+            "type": "function",
+            "name": "upsert_snapshot",
+            "filePath": "src-tauri/src/database/metadata.rs",
+            "lineRange": [
+                17,
+                24
+            ],
+            "summary": "Implements upsert snapshot behavior within metadata.rs, supporting the file's stores and retrieves cached ani list media metadata, genres, tags, and freshness state.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/metadata.rs:upsert_snapshots",
+            "type": "function",
+            "name": "upsert_snapshots",
+            "filePath": "src-tauri/src/database/metadata.rs",
+            "lineRange": [
+                26,
+                72
+            ],
+            "summary": "Implements upsert snapshots behavior within metadata.rs, supporting the file's stores and retrieves cached ani list media metadata, genres, tags, and freshness state.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/metadata.rs:get_snapshot",
+            "type": "function",
+            "name": "get_snapshot",
+            "filePath": "src-tauri/src/database/metadata.rs",
+            "lineRange": [
+                74,
+                89
+            ],
+            "summary": "Implements get snapshot behavior within metadata.rs, supporting the file's stores and retrieves cached ani list media metadata, genres, tags, and freshness state.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/metadata.rs:upsert_airing",
+            "type": "function",
+            "name": "upsert_airing",
+            "filePath": "src-tauri/src/database/metadata.rs",
+            "lineRange": [
+                91,
+                107
+            ],
+            "summary": "Implements upsert airing behavior within metadata.rs, supporting the file's stores and retrieves cached ani list media metadata, genres, tags, and freshness state.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/metadata.rs:replace_airing",
+            "type": "function",
+            "name": "replace_airing",
+            "filePath": "src-tauri/src/database/metadata.rs",
+            "lineRange": [
+                109,
+                145
+            ],
+            "summary": "Implements replace airing behavior within metadata.rs, supporting the file's stores and retrieves cached ani list media metadata, genres, tags, and freshness state.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/metadata.rs:list_airing",
+            "type": "function",
+            "name": "list_airing",
+            "filePath": "src-tauri/src/database/metadata.rs",
+            "lineRange": [
+                147,
+                162
+            ],
+            "summary": "Implements list airing behavior within metadata.rs, supporting the file's stores and retrieves cached ani list media metadata, genres, tags, and freshness state.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/metadata.rs:try_from",
+            "type": "function",
+            "name": "try_from",
+            "filePath": "src-tauri/src/database/metadata.rs",
+            "lineRange": [
+                184,
+                203
+            ],
+            "summary": "Implements try from behavior within metadata.rs, supporting the file's stores and retrieves cached ani list media metadata, genres, tags, and freshness state.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/metadata.rs:validate_release_date",
+            "type": "function",
+            "name": "validate_release_date",
+            "filePath": "src-tauri/src/database/metadata.rs",
+            "lineRange": [
+                206,
+                220
+            ],
+            "summary": "Implements validate release date behavior within metadata.rs, supporting the file's stores and retrieves cached ani list media metadata, genres, tags, and freshness state.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/database/metadata.rs:MediaRepository",
+            "type": "class",
+            "name": "MediaRepository",
+            "filePath": "src-tauri/src/database/metadata.rs",
+            "lineRange": [
+                8,
+                10
+            ],
+            "summary": "Defines the MediaRepository type and its role in stores and retrieves cached ani list media metadata, genres, tags, and freshness state.",
+            "tags": [
+                "data-model",
+                "type-definition",
+                "database"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "file:src-tauri/src/database/mod.rs",
+            "type": "file",
+            "name": "mod.rs",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "summary": "Owns database initialization, migration execution, connection configuration, and repository composition for the local SQLite authority.",
+            "tags": [
+                "database",
+                "repository",
+                "sqlite"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:from_root",
+            "type": "function",
+            "name": "from_root",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                55,
+                67
+            ],
+            "summary": "Implements from root behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:root",
+            "type": "function",
+            "name": "root",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                69,
+                71
+            ],
+            "summary": "Implements root behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:database",
+            "type": "function",
+            "name": "database",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                73,
+                75
+            ],
+            "summary": "Implements database behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:connect",
+            "type": "function",
+            "name": "connect",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                85,
+                119
+            ],
+            "summary": "Implements connect behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:library",
+            "type": "function",
+            "name": "library",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                121,
+                123
+            ],
+            "summary": "Implements library behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:activity",
+            "type": "function",
+            "name": "activity",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                125,
+                127
+            ],
+            "summary": "Implements activity behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:backups",
+            "type": "function",
+            "name": "backups",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                129,
+                131
+            ],
+            "summary": "Implements backups behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:dashboard",
+            "type": "function",
+            "name": "dashboard",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                133,
+                135
+            ],
+            "summary": "Implements dashboard behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:media",
+            "type": "function",
+            "name": "media",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                137,
+                139
+            ],
+            "summary": "Implements media behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:settings",
+            "type": "function",
+            "name": "settings",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                141,
+                143
+            ],
+            "summary": "Implements settings behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:cache",
+            "type": "function",
+            "name": "cache",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                145,
+                147
+            ],
+            "summary": "Implements cache behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:storage_root",
+            "type": "function",
+            "name": "storage_root",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                149,
+                151
+            ],
+            "summary": "Implements storage root behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:pool",
+            "type": "function",
+            "name": "pool",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                153,
+                155
+            ],
+            "summary": "Implements pool behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:foreign_keys_enabled",
+            "type": "function",
+            "name": "foreign_keys_enabled",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                157,
+                162
+            ],
+            "summary": "Implements foreign keys enabled behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:close",
+            "type": "function",
+            "name": "close",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                164,
+                166
+            ],
+            "summary": "Implements close behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/mod.rs:reconcile_combined_activity_migration",
+            "type": "function",
+            "name": "reconcile_combined_activity_migration",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                169,
+                238
+            ],
+            "summary": "Implements reconcile combined activity migration behavior within mod.rs, supporting the file's owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "class:src-tauri/src/database/mod.rs:DatabasePaths",
+            "type": "class",
+            "name": "DatabasePaths",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                49,
+                52
+            ],
+            "summary": "Defines the DatabasePaths type and its role in owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "data-model",
+                "type-definition",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/database/mod.rs:Database",
+            "type": "class",
+            "name": "Database",
+            "filePath": "src-tauri/src/database/mod.rs",
+            "lineRange": [
+                79,
+                82
+            ],
+            "summary": "Defines the Database type and its role in owns database initialization, migration execution, connection configuration, and repository composition for the local sqlite authority.",
+            "tags": [
+                "data-model",
+                "type-definition",
+                "database"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "file:src-tauri/src/database/records.rs",
+            "type": "file",
+            "name": "records.rs",
+            "filePath": "src-tauri/src/database/records.rs",
+            "summary": "Defines internal database record shapes used to transfer rows between repositories and domain models.",
+            "tags": [
+                "database",
+                "repository",
+                "sqlite"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/database/records.rs:MediaTag",
+            "type": "class",
+            "name": "MediaTag",
+            "filePath": "src-tauri/src/database/records.rs",
+            "lineRange": [
+                8,
+                11
+            ],
+            "summary": "Defines the MediaTag type and its role in defines internal database record shapes used to transfer rows between repositories and domain models.",
+            "tags": [
+                "data-model",
+                "type-definition",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/database/records.rs:MediaSnapshotRecord",
+            "type": "class",
+            "name": "MediaSnapshotRecord",
+            "filePath": "src-tauri/src/database/records.rs",
+            "lineRange": [
+                14,
+                27
+            ],
+            "summary": "Defines the MediaSnapshotRecord type and its role in defines internal database record shapes used to transfer rows between repositories and domain models.",
+            "tags": [
+                "data-model",
+                "type-definition",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/database/records.rs:AiringDataRecord",
+            "type": "class",
+            "name": "AiringDataRecord",
+            "filePath": "src-tauri/src/database/records.rs",
+            "lineRange": [
+                30,
+                36
+            ],
+            "summary": "Defines the AiringDataRecord type and its role in defines internal database record shapes used to transfer rows between repositories and domain models.",
+            "tags": [
+                "data-model",
+                "type-definition",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/database/records.rs:SettingRecord",
+            "type": "class",
+            "name": "SettingRecord",
+            "filePath": "src-tauri/src/database/records.rs",
+            "lineRange": [
+                39,
+                43
+            ],
+            "summary": "Defines the SettingRecord type and its role in defines internal database record shapes used to transfer rows between repositories and domain models.",
+            "tags": [
+                "data-model",
+                "type-definition",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/database/records.rs:CacheRecord",
+            "type": "class",
+            "name": "CacheRecord",
+            "filePath": "src-tauri/src/database/records.rs",
+            "lineRange": [
+                46,
+                51
+            ],
+            "summary": "Defines the CacheRecord type and its role in defines internal database record shapes used to transfer rows between repositories and domain models.",
+            "tags": [
+                "data-model",
+                "type-definition",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "file:src-tauri/src/database/settings.rs",
+            "type": "file",
+            "name": "settings.rs",
+            "filePath": "src-tauri/src/database/settings.rs",
+            "summary": "Persists application settings and applies typed defaults when values have not yet been stored.",
+            "tags": [
+                "database",
+                "repository",
+                "sqlite"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:src-tauri/src/database/settings.rs:new",
+            "type": "function",
+            "name": "new",
+            "filePath": "src-tauri/src/database/settings.rs",
+            "lineRange": [
+                13,
+                15
+            ],
+            "summary": "Implements new behavior within settings.rs, supporting the file's persists application settings and applies typed defaults when values have not yet been stored.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/settings.rs:upsert_many",
+            "type": "function",
+            "name": "upsert_many",
+            "filePath": "src-tauri/src/database/settings.rs",
+            "lineRange": [
+                17,
+                34
+            ],
+            "summary": "Implements upsert many behavior within settings.rs, supporting the file's persists application settings and applies typed defaults when values have not yet been stored.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/database/settings.rs:get",
+            "type": "function",
+            "name": "get",
+            "filePath": "src-tauri/src/database/settings.rs",
+            "lineRange": [
+                36,
+                44
+            ],
+            "summary": "Implements get behavior within settings.rs, supporting the file's persists application settings and applies typed defaults when values have not yet been stored.",
+            "tags": [
+                "function",
+                "application-logic",
+                "database"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/database/settings.rs:SettingsRepository",
+            "type": "class",
+            "name": "SettingsRepository",
+            "filePath": "src-tauri/src/database/settings.rs",
+            "lineRange": [
+                8,
+                10
+            ],
+            "summary": "Defines the SettingsRepository type and its role in persists application settings and applies typed defaults when values have not yet been stored.",
+            "tags": [
+                "data-model",
+                "type-definition",
+                "database"
+            ],
+            "complexity": "simple"
+        }
+    ],
+    "edges": [
+        {
+            "source": "file:src-tauri/src/database/error.rs",
+            "target": "function:src-tauri/src/database/error.rs:into_command_error",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/error.rs",
+            "target": "function:src-tauri/src/database/error.rs:into_command_error",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/error.rs",
+            "target": "class:src-tauri/src/database/error.rs:DatabaseError",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/error.rs",
+            "target": "class:src-tauri/src/database/error.rs:DatabaseError",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/error.rs",
+            "target": "file:src-tauri/src/domain/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:new",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:new",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:list",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:list",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:list_items",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:list_items",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:list_items_at",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:list_items_at",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:list_items_on",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:list_items_on",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:upsert",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:upsert",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:upsert_at",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:upsert_at",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:advance_home_progress",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:advance_home_progress",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:advance_home_progress_at",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:advance_home_progress_at",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:remove",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:remove",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:into_item",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "function:src-tauri/src/database/library.rs:try_from",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "class:src-tauri/src/database/library.rs:LibraryRepository",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "class:src-tauri/src/database/library.rs:LibraryRepository",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "class:src-tauri/src/database/library.rs:LibraryItemRow",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/library.rs",
+            "target": "file:src-tauri/src/domain/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:new",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:new",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:upsert_snapshot",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:upsert_snapshot",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:upsert_snapshots",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:upsert_snapshots",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:get_snapshot",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:get_snapshot",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:upsert_airing",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:upsert_airing",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:replace_airing",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:replace_airing",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:list_airing",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:list_airing",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:try_from",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "function:src-tauri/src/database/metadata.rs:validate_release_date",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "class:src-tauri/src/database/metadata.rs:MediaRepository",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "class:src-tauri/src/database/metadata.rs:MediaRepository",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/metadata.rs",
+            "target": "file:src-tauri/src/domain/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:from_root",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:from_root",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:root",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:root",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:database",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:database",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:connect",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:connect",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:library",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:library",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:activity",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:activity",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:backups",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:backups",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:dashboard",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:dashboard",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:media",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:media",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:settings",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:settings",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:cache",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:cache",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:storage_root",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:storage_root",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:pool",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:pool",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:foreign_keys_enabled",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:foreign_keys_enabled",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:close",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:close",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "function:src-tauri/src/database/mod.rs:reconcile_combined_activity_migration",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "class:src-tauri/src/database/mod.rs:DatabasePaths",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "class:src-tauri/src/database/mod.rs:DatabasePaths",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "class:src-tauri/src/database/mod.rs:Database",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "class:src-tauri/src/database/mod.rs:Database",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "file:src-tauri/src/database/activity.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "file:src-tauri/src/database/backups.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "file:src-tauri/src/database/cache.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "file:src-tauri/src/database/dashboard.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "file:src-tauri/src/database/error.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "file:src-tauri/src/database/library.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "file:src-tauri/src/database/metadata.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "file:src-tauri/src/database/records.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "file:src-tauri/src/database/settings.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/database/mod.rs",
+            "target": "file:src-tauri/src/domain/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/database/records.rs",
+            "target": "class:src-tauri/src/database/records.rs:MediaTag",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/records.rs",
+            "target": "class:src-tauri/src/database/records.rs:MediaTag",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/records.rs",
+            "target": "class:src-tauri/src/database/records.rs:MediaSnapshotRecord",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/records.rs",
+            "target": "class:src-tauri/src/database/records.rs:MediaSnapshotRecord",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/records.rs",
+            "target": "class:src-tauri/src/database/records.rs:AiringDataRecord",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/records.rs",
+            "target": "class:src-tauri/src/database/records.rs:AiringDataRecord",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/records.rs",
+            "target": "class:src-tauri/src/database/records.rs:SettingRecord",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/records.rs",
+            "target": "class:src-tauri/src/database/records.rs:SettingRecord",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/records.rs",
+            "target": "class:src-tauri/src/database/records.rs:CacheRecord",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/records.rs",
+            "target": "class:src-tauri/src/database/records.rs:CacheRecord",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/records.rs",
+            "target": "file:src-tauri/src/domain/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/database/settings.rs",
+            "target": "function:src-tauri/src/database/settings.rs:new",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/settings.rs",
+            "target": "function:src-tauri/src/database/settings.rs:new",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/settings.rs",
+            "target": "function:src-tauri/src/database/settings.rs:upsert_many",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/settings.rs",
+            "target": "function:src-tauri/src/database/settings.rs:upsert_many",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/settings.rs",
+            "target": "function:src-tauri/src/database/settings.rs:get",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/settings.rs",
+            "target": "function:src-tauri/src/database/settings.rs:get",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/settings.rs",
+            "target": "class:src-tauri/src/database/settings.rs:SettingsRepository",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/database/settings.rs",
+            "target": "class:src-tauri/src/database/settings.rs:SettingsRepository",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/database/settings.rs",
+            "target": "file:src-tauri/src/domain/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        }
+    ]
+}

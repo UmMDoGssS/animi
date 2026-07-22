@@ -1,0 +1,1510 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 8,
+  "filesSkipped": [
+    "src/app.css",
+    "src/app.html",
+    "src/lib/components/AppNavigation.svelte",
+    "src/lib/components/AsyncStateNotice.svelte",
+    "src/lib/components/ForcedPresentationPanel.svelte",
+    "src/lib/components/GlassMultiSelect.svelte",
+    "src/lib/components/GlassSelect.svelte",
+    "src/lib/components/HomePreviewCover.svelte",
+    "src/lib/components/LibraryEntryEditor.svelte",
+    "src/lib/components/MediaCover.svelte",
+    "src/lib/components/MediaDetailsDialog.svelte",
+    "src/lib/components/NavigationIcon.svelte",
+    "src/lib/components/PagePlaceholder.svelte",
+    "src/lib/components/RefreshIcon.svelte",
+    "src/lib/components/SleepingCatLoader.svelte",
+    "src/lib/components/StaticCatArt.svelte",
+    "src/lib/components/ThemePreferenceControl.svelte"
+  ],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 8,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 8,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "results": [
+    {
+      "path": "src-tauri/tests/persistence.rs",
+      "language": "rust",
+      "fileCategory": "code",
+      "totalLines": 669,
+      "nonEmptyLines": 631,
+      "functions": [
+        {
+          "name": "library_request",
+          "startLine": 20,
+          "endLine": 29,
+          "params": [
+            "progress",
+            "status"
+          ]
+        },
+        {
+          "name": "snapshot",
+          "startLine": 31,
+          "endLine": 49,
+          "params": [
+            "total_units"
+          ]
+        },
+        {
+          "name": "timestamp",
+          "startLine": 51,
+          "endLine": 53,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "repository_crud_status_transition_and_restart_persistence",
+          "startLine": 56,
+          "endLine": 112,
+          "params": []
+        },
+        {
+          "name": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "startLine": 115,
+          "endLine": 143,
+          "params": []
+        },
+        {
+          "name": "settings_batch_rolls_back_and_foreign_keys_are_enforced",
+          "startLine": 146,
+          "endLine": 181,
+          "params": []
+        },
+        {
+          "name": "metadata_settings_and_cache_records_round_trip",
+          "startLine": 184,
+          "endLine": 254,
+          "params": []
+        },
+        {
+          "name": "metadata_snapshot_batches_roll_back_on_any_invalid_record",
+          "startLine": 257,
+          "endLine": 280,
+          "params": []
+        },
+        {
+          "name": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "startLine": 283,
+          "endLine": 375,
+          "params": []
+        },
+        {
+          "name": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "startLine": 378,
+          "endLine": 513,
+          "params": []
+        },
+        {
+          "name": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "startLine": 516,
+          "endLine": 669,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "library_request",
+          "callee": "Some",
+          "lineNumber": 26
+        },
+        {
+          "caller": "library_request",
+          "callee": "Some",
+          "lineNumber": 27
+        },
+        {
+          "caller": "library_request",
+          "callee": "\"  comfort show  \".to_owned",
+          "lineNumber": 27
+        },
+        {
+          "caller": "snapshot",
+          "callee": "\"A Test Anime\".to_owned",
+          "lineNumber": 35
+        },
+        {
+          "caller": "snapshot",
+          "callee": "Some",
+          "lineNumber": 36
+        },
+        {
+          "caller": "snapshot",
+          "callee": "\"https://example.invalid/cover.jpg\".to_owned",
+          "lineNumber": 36
+        },
+        {
+          "caller": "snapshot",
+          "callee": "Some",
+          "lineNumber": 37
+        },
+        {
+          "caller": "snapshot",
+          "callee": "\"TV\".to_owned",
+          "lineNumber": 37
+        },
+        {
+          "caller": "snapshot",
+          "callee": "Some",
+          "lineNumber": 43
+        },
+        {
+          "caller": "snapshot",
+          "callee": "\"FINISHED\".to_owned",
+          "lineNumber": 43
+        },
+        {
+          "caller": "snapshot",
+          "callee": "Some",
+          "lineNumber": 45
+        },
+        {
+          "caller": "snapshot",
+          "callee": "Some",
+          "lineNumber": 46
+        },
+        {
+          "caller": "snapshot",
+          "callee": "\"2025-10-04\".to_owned",
+          "lineNumber": 46
+        },
+        {
+          "caller": "snapshot",
+          "callee": "timestamp",
+          "lineNumber": 47
+        },
+        {
+          "caller": "timestamp",
+          "callee": "value.parse().expect",
+          "lineNumber": 52
+        },
+        {
+          "caller": "timestamp",
+          "callee": "value.parse",
+          "lineNumber": 52
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "tempdir().expect",
+          "lineNumber": 57
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "tempdir",
+          "lineNumber": 57
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "DatabasePaths::from_root(root.path()).expect",
+          "lineNumber": 58
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 58
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "root.path",
+          "lineNumber": 58
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "Database::connect(&paths).await.expect",
+          "lineNumber": 59
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "Database::connect",
+          "lineNumber": 59
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "database\n        .media()\n        .upsert_snapshot(&snapshot(Some(12)))\n        .await.expect",
+          "lineNumber": 60
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "database\n        .media().upsert_snapshot",
+          "lineNumber": 60
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "database.media",
+          "lineNumber": 60
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "snapshot",
+          "lineNumber": 62
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "Some",
+          "lineNumber": 62
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "database\n        .library()\n        .upsert(library_request(2, LibraryStatus::Watching))\n        .await.expect",
+          "lineNumber": 66
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "database\n        .library().upsert",
+          "lineNumber": 66
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "database.library",
+          "lineNumber": 66
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "library_request",
+          "lineNumber": 68
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "database\n        .library()\n        .upsert(library_request(12, LibraryStatus::Completed))\n        .await.expect",
+          "lineNumber": 73
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "database\n        .library().upsert",
+          "lineNumber": 73
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "database.library",
+          "lineNumber": 73
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "library_request",
+          "lineNumber": 75
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "database.close",
+          "lineNumber": 93
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "Database::connect(&paths).await.expect",
+          "lineNumber": 94
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "Database::connect",
+          "lineNumber": 94
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "reopened.library().list().await.expect",
+          "lineNumber": 95
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "reopened.library().list",
+          "lineNumber": 95
+        },
+        {
+          "caller": "repository_crud_status_transition_and_restart_persistence",
+          "callee": "reopened.library",
+          "lineNumber": 95
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "tempdir().expect",
+          "lineNumber": 116
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "tempdir",
+          "lineNumber": 116
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "DatabasePaths::from_root(root.path()).expect",
+          "lineNumber": 117
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 117
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "root.path",
+          "lineNumber": 117
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "Database::connect(&paths).await.expect",
+          "lineNumber": 118
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "Database::connect",
+          "lineNumber": 118
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "database\n        .media()\n        .upsert_snapshot(&snapshot(Some(12)))\n        .await.expect",
+          "lineNumber": 119
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "database\n        .media().upsert_snapshot",
+          "lineNumber": 119
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "database.media",
+          "lineNumber": 119
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "snapshot",
+          "lineNumber": 121
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "Some",
+          "lineNumber": 121
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "database\n        .library()\n        .upsert(library_request(13, LibraryStatus::Watching))\n        .await.expect_err",
+          "lineNumber": 125
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "database\n        .library().upsert",
+          "lineNumber": 125
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "database.library",
+          "lineNumber": 125
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "library_request",
+          "lineNumber": 127
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "database\n        .media()\n        .upsert_snapshot(&snapshot(None))\n        .await.expect",
+          "lineNumber": 133
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "database\n        .media().upsert_snapshot",
+          "lineNumber": 133
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "database.media",
+          "lineNumber": 133
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "snapshot",
+          "lineNumber": 135
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "database\n        .library()\n        .upsert(library_request(13, LibraryStatus::Watching))\n        .await.expect",
+          "lineNumber": 138
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "database\n        .library().upsert",
+          "lineNumber": 138
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "database.library",
+          "lineNumber": 138
+        },
+        {
+          "caller": "progress_bounds_use_known_totals_and_allow_unknown_totals",
+          "callee": "library_request",
+          "lineNumber": 140
+        },
+        {
+          "caller": "settings_batch_rolls_back_and_foreign_keys_are_enforced",
+          "callee": "tempdir().expect",
+          "lineNumber": 147
+        },
+        {
+          "caller": "settings_batch_rolls_back_and_foreign_keys_are_enforced",
+          "callee": "tempdir",
+          "lineNumber": 147
+        },
+        {
+          "caller": "settings_batch_rolls_back_and_foreign_keys_are_enforced",
+          "callee": "DatabasePaths::from_root(root.path()).expect",
+          "lineNumber": 148
+        },
+        {
+          "caller": "settings_batch_rolls_back_and_foreign_keys_are_enforced",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 148
+        },
+        {
+          "caller": "settings_batch_rolls_back_and_foreign_keys_are_enforced",
+          "callee": "root.path",
+          "lineNumber": 148
+        },
+        {
+          "caller": "settings_batch_rolls_back_and_foreign_keys_are_enforced",
+          "callee": "Database::connect(&paths).await.expect",
+          "lineNumber": 149
+        },
+        {
+          "caller": "settings_batch_rolls_back_and_foreign_keys_are_enforced",
+          "callee": "Database::connect",
+          "lineNumber": 149
+        },
+        {
+          "caller": "settings_batch_rolls_back_and_foreign_keys_are_enforced",
+          "callee": "timestamp",
+          "lineNumber": 150
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "tempdir().expect",
+          "lineNumber": 185
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "tempdir",
+          "lineNumber": 185
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "DatabasePaths::from_root(root.path()).expect",
+          "lineNumber": 186
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 186
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "root.path",
+          "lineNumber": 186
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "Database::connect(&paths).await.expect",
+          "lineNumber": 187
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "Database::connect",
+          "lineNumber": 187
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "snapshot",
+          "lineNumber": 188
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "Some",
+          "lineNumber": 188
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "database\n        .media()\n        .upsert_snapshot(&snapshot)\n        .await.expect",
+          "lineNumber": 189
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "database\n        .media().upsert_snapshot",
+          "lineNumber": 189
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "database.media",
+          "lineNumber": 189
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "timestamp",
+          "lineNumber": 207
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "timestamp",
+          "lineNumber": 208
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "database\n        .media()\n        .upsert_airing(&airing)\n        .await.expect",
+          "lineNumber": 210
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "database\n        .media().upsert_airing",
+          "lineNumber": 210
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "database.media",
+          "lineNumber": 210
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "\"theme\".to_owned",
+          "lineNumber": 225
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "timestamp",
+          "lineNumber": 227
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "database\n        .settings()\n        .upsert_many(std::slice::from_ref(&setting))\n        .await.expect",
+          "lineNumber": 229
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "database\n        .settings().upsert_many",
+          "lineNumber": 229
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "database.settings",
+          "lineNumber": 229
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "std::slice::from_ref",
+          "lineNumber": 231
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "\"trending:anime:1\".to_owned",
+          "lineNumber": 240
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "timestamp",
+          "lineNumber": 242
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "timestamp",
+          "lineNumber": 243
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "database.cache().upsert(&cache).await.expect",
+          "lineNumber": 245
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "database.cache().upsert",
+          "lineNumber": 245
+        },
+        {
+          "caller": "metadata_settings_and_cache_records_round_trip",
+          "callee": "database.cache",
+          "lineNumber": 245
+        },
+        {
+          "caller": "metadata_snapshot_batches_roll_back_on_any_invalid_record",
+          "callee": "tempdir().expect",
+          "lineNumber": 258
+        },
+        {
+          "caller": "metadata_snapshot_batches_roll_back_on_any_invalid_record",
+          "callee": "tempdir",
+          "lineNumber": 258
+        },
+        {
+          "caller": "metadata_snapshot_batches_roll_back_on_any_invalid_record",
+          "callee": "DatabasePaths::from_root(root.path()).expect",
+          "lineNumber": 259
+        },
+        {
+          "caller": "metadata_snapshot_batches_roll_back_on_any_invalid_record",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 259
+        },
+        {
+          "caller": "metadata_snapshot_batches_roll_back_on_any_invalid_record",
+          "callee": "root.path",
+          "lineNumber": 259
+        },
+        {
+          "caller": "metadata_snapshot_batches_roll_back_on_any_invalid_record",
+          "callee": "Database::connect(&paths).await.expect",
+          "lineNumber": 260
+        },
+        {
+          "caller": "metadata_snapshot_batches_roll_back_on_any_invalid_record",
+          "callee": "Database::connect",
+          "lineNumber": 260
+        },
+        {
+          "caller": "metadata_snapshot_batches_roll_back_on_any_invalid_record",
+          "callee": "snapshot",
+          "lineNumber": 261
+        },
+        {
+          "caller": "metadata_snapshot_batches_roll_back_on_any_invalid_record",
+          "callee": "Some",
+          "lineNumber": 261
+        },
+        {
+          "caller": "metadata_snapshot_batches_roll_back_on_any_invalid_record",
+          "callee": "snapshot",
+          "lineNumber": 262
+        },
+        {
+          "caller": "metadata_snapshot_batches_roll_back_on_any_invalid_record",
+          "callee": "Some",
+          "lineNumber": 262
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "tempdir().expect",
+          "lineNumber": 284
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "tempdir",
+          "lineNumber": 284
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "DatabasePaths::from_root(root.path()).expect",
+          "lineNumber": 285
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 285
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "root.path",
+          "lineNumber": 285
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "std::path::PathBuf::from(env!(\"CARGO_MANIFEST_DIR\")).join",
+          "lineNumber": 286
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "std::path::PathBuf::from",
+          "lineNumber": 286
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "std::fs::copy(&fixture, paths.database()).expect",
+          "lineNumber": 288
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "std::fs::copy",
+          "lineNumber": 288
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "paths.database",
+          "lineNumber": 288
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "Database::connect(&paths).await.expect",
+          "lineNumber": 290
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "Database::connect",
+          "lineNumber": 290
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database\n        .library()\n        .list_items()\n        .await.expect",
+          "lineNumber": 291
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database\n        .library().list_items",
+          "lineNumber": 291
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database.library",
+          "lineNumber": 291
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database\n        .cache()\n        .get(\"details:anime:101\")\n        .await\n        .expect(\"cache lookup\").expect",
+          "lineNumber": 331
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database\n        .cache()\n        .get(\"details:anime:101\")\n        .await.expect",
+          "lineNumber": 331
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database\n        .cache().get",
+          "lineNumber": 331
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database.cache",
+          "lineNumber": 331
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database.activity().list().await.expect",
+          "lineNumber": 339
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database.activity().list",
+          "lineNumber": 339
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database.activity",
+          "lineNumber": 339
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database\n        .library()\n        .upsert(library_request(4, LibraryStatus::Watching))\n        .await.expect",
+          "lineNumber": 344
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database\n        .library().upsert",
+          "lineNumber": 344
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database.library",
+          "lineNumber": 344
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "library_request",
+          "lineNumber": 346
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database.activity().list().await.expect",
+          "lineNumber": 349
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database.activity().list",
+          "lineNumber": 349
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database.activity",
+          "lineNumber": 349
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "database.close",
+          "lineNumber": 355
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "Database::connect(&paths).await.expect",
+          "lineNumber": 356
+        },
+        {
+          "caller": "v0001_fixture_upgrades_without_losing_authoritative_records",
+          "callee": "Database::connect",
+          "lineNumber": 356
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "tempdir().expect",
+          "lineNumber": 379
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "tempdir",
+          "lineNumber": 379
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "DatabasePaths::from_root(root.path()).expect",
+          "lineNumber": 380
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 380
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "root.path",
+          "lineNumber": 380
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "std::path::PathBuf::from(env!(\"CARGO_MANIFEST_DIR\")).join",
+          "lineNumber": 381
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "std::path::PathBuf::from",
+          "lineNumber": 381
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "std::fs::copy(&fixture, paths.database()).expect",
+          "lineNumber": 383
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "std::fs::copy",
+          "lineNumber": 383
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "paths.database",
+          "lineNumber": 383
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "Database::connect(&paths).await.expect",
+          "lineNumber": 385
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "Database::connect",
+          "lineNumber": 385
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "database\n        .library()\n        .list_items()\n        .await.expect",
+          "lineNumber": 386
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "database\n        .library().list_items",
+          "lineNumber": 386
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "database.library",
+          "lineNumber": 386
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "database\n        .activity()\n        .list()\n        .await.expect",
+          "lineNumber": 430
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "database\n        .activity().list",
+          "lineNumber": 430
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "database.activity",
+          "lineNumber": 430
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "SqliteConnectOptions::new()\n        .filename(paths.database()).read_only",
+          "lineNumber": 443
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "SqliteConnectOptions::new().filename",
+          "lineNumber": 443
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "SqliteConnectOptions::new",
+          "lineNumber": 443
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "paths.database",
+          "lineNumber": 444
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "SqliteConnection::connect_with(&options)\n        .await.expect",
+          "lineNumber": 446
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "SqliteConnection::connect_with",
+          "lineNumber": 446
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "sqlx::query_scalar::<_, i64>(\n        \"SELECT activity_progress FROM library_entries \\\n         WHERE anilist_id = 101 AND media_kind = 'ANIME'\",\n    )\n    .fetch_one(&mut inspection)\n    .await.expect",
+          "lineNumber": 449
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "sqlx::query_scalar::<_, i64>(\n        \"SELECT activity_progress FROM library_entries \\\n         WHERE anilist_id = 101 AND media_kind = 'ANIME'\",\n    ).fetch_one",
+          "lineNumber": 449
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "sqlx::query_scalar::<_, i64>",
+          "lineNumber": 449
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "sqlx::query_as::<_, (i64, String)>(\n        \"SELECT version, lower(hex(checksum)) FROM _sqlx_migrations ORDER BY version\",\n    )\n    .fetch_all(&mut inspection)\n    .await.expect",
+          "lineNumber": 458
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "sqlx::query_as::<_, (i64, String)>(\n        \"SELECT version, lower(hex(checksum)) FROM _sqlx_migrations ORDER BY version\",\n    ).fetch_all",
+          "lineNumber": 458
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "sqlx::query_as::<_, (i64, String)>",
+          "lineNumber": 458
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "inspection\n        .close()\n        .await.expect",
+          "lineNumber": 476
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "inspection.close",
+          "lineNumber": 476
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "database\n        .library()\n        .upsert(library_request(4, LibraryStatus::Watching))\n        .await.expect",
+          "lineNumber": 481
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "database\n        .library().upsert",
+          "lineNumber": 481
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "database.library",
+          "lineNumber": 481
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "library_request",
+          "lineNumber": 483
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "database.activity().list().await.expect",
+          "lineNumber": 486
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "database.activity().list",
+          "lineNumber": 486
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "database.activity",
+          "lineNumber": 486
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "database.close",
+          "lineNumber": 493
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "Database::connect(&paths).await.expect",
+          "lineNumber": 494
+        },
+        {
+          "caller": "v0002_fixture_preserves_activity_and_applies_activity_progress_migration",
+          "callee": "Database::connect",
+          "lineNumber": 494
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "tempdir().expect",
+          "lineNumber": 517
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "tempdir",
+          "lineNumber": 517
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "DatabasePaths::from_root(root.path()).expect",
+          "lineNumber": 518
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 518
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "root.path",
+          "lineNumber": 518
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "std::path::PathBuf::from(env!(\"CARGO_MANIFEST_DIR\")).join",
+          "lineNumber": 519
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "std::path::PathBuf::from",
+          "lineNumber": 519
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "std::fs::copy(&fixture, paths.database()).expect",
+          "lineNumber": 521
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "std::fs::copy",
+          "lineNumber": 521
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "paths.database",
+          "lineNumber": 521
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "Database::connect(&paths).await.expect",
+          "lineNumber": 523
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "Database::connect",
+          "lineNumber": 523
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "database\n        .activity()\n        .list()\n        .await.expect",
+          "lineNumber": 536
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "database\n        .activity().list",
+          "lineNumber": 536
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "database.activity",
+          "lineNumber": 536
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "SqliteConnectOptions::new()\n        .filename(paths.database()).read_only",
+          "lineNumber": 551
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "SqliteConnectOptions::new().filename",
+          "lineNumber": 551
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "SqliteConnectOptions::new",
+          "lineNumber": 551
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "paths.database",
+          "lineNumber": 552
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "SqliteConnection::connect_with(&options)\n        .await.expect",
+          "lineNumber": 554
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "SqliteConnection::connect_with",
+          "lineNumber": 554
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "sqlx::query_as::<_, (i64, String)>(\n        \"SELECT id, event_id FROM watch_activity WHERE anilist_id = 101 ORDER BY id ASC\",\n    )\n    .fetch_all(&mut inspection)\n    .await.expect",
+          "lineNumber": 557
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "sqlx::query_as::<_, (i64, String)>(\n        \"SELECT id, event_id FROM watch_activity WHERE anilist_id = 101 ORDER BY id ASC\",\n    ).fetch_all",
+          "lineNumber": 557
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "sqlx::query_as::<_, (i64, String)>",
+          "lineNumber": 557
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "uuid::Uuid::parse_str(event_id).expect",
+          "lineNumber": 566
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "uuid::Uuid::parse_str",
+          "lineNumber": 566
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "sqlx::query_as::<_, (i64, String)>(\n        \"SELECT version, lower(hex(checksum)) FROM _sqlx_migrations ORDER BY version\",\n    )\n    .fetch_all(&mut inspection)\n    .await.expect",
+          "lineNumber": 570
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "sqlx::query_as::<_, (i64, String)>(\n        \"SELECT version, lower(hex(checksum)) FROM _sqlx_migrations ORDER BY version\",\n    ).fetch_all",
+          "lineNumber": 570
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "sqlx::query_as::<_, (i64, String)>",
+          "lineNumber": 570
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "inspection\n        .close()\n        .await.expect",
+          "lineNumber": 588
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "inspection.close",
+          "lineNumber": 588
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "database\n        .library()\n        .upsert(library_request(4, LibraryStatus::Watching))\n        .await.expect",
+          "lineNumber": 593
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "database\n        .library().upsert",
+          "lineNumber": 593
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "database.library",
+          "lineNumber": 593
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "library_request",
+          "lineNumber": 595
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "database.activity().list().await.expect",
+          "lineNumber": 598
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "database.activity().list",
+          "lineNumber": 598
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "database.activity",
+          "lineNumber": 598
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "SqliteConnectOptions::new()\n        .filename(paths.database()).read_only",
+          "lineNumber": 604
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "SqliteConnectOptions::new().filename",
+          "lineNumber": 604
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "SqliteConnectOptions::new",
+          "lineNumber": 604
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "paths.database",
+          "lineNumber": 605
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "SqliteConnection::connect_with(&options)\n        .await.expect",
+          "lineNumber": 607
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "SqliteConnection::connect_with",
+          "lineNumber": 607
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "sqlx::query_as::<_, (i64, String)>(\n        \"SELECT id, event_id FROM watch_activity ORDER BY id ASC\",\n    )\n    .fetch_all(&mut inspection)\n    .await.expect",
+          "lineNumber": 610
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "sqlx::query_as::<_, (i64, String)>(\n        \"SELECT id, event_id FROM watch_activity ORDER BY id ASC\",\n    ).fetch_all",
+          "lineNumber": 610
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "sqlx::query_as::<_, (i64, String)>",
+          "lineNumber": 610
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "uuid::Uuid::parse_str(&post_insert_event_rows[2].1).expect",
+          "lineNumber": 621
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "uuid::Uuid::parse_str",
+          "lineNumber": 621
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "inspection\n        .close()\n        .await.expect",
+          "lineNumber": 631
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "inspection.close",
+          "lineNumber": 631
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "database.close",
+          "lineNumber": 636
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "Database::connect(&paths).await.expect",
+          "lineNumber": 637
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "Database::connect",
+          "lineNumber": 637
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "SqliteConnectOptions::new()\n        .filename(paths.database()).read_only",
+          "lineNumber": 642
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "SqliteConnectOptions::new().filename",
+          "lineNumber": 642
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "SqliteConnectOptions::new",
+          "lineNumber": 642
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "paths.database",
+          "lineNumber": 643
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "SqliteConnection::connect_with(&options)\n        .await.expect",
+          "lineNumber": 645
+        },
+        {
+          "caller": "v0003_fixture_adds_stable_identity_and_repairs_skipped_initial_progress",
+          "callee": "SqliteConnection::connect_with",
+          "lineNumber": 645
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 11,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/components/AsyncStateNotice.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 209,
+      "nonEmptyLines": 189,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/components/GlassMultiSelect.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 76,
+      "nonEmptyLines": 66,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/components/GlassSelect.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 71,
+      "nonEmptyLines": 61,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/components/LibraryEntryEditor.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 394,
+      "nonEmptyLines": 357,
+      "functions": [
+        {
+          "name": "savedEntry",
+          "startLine": 24,
+          "endLine": 38,
+          "params": [
+            "request",
+            "original"
+          ]
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/components/MediaCover.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 84,
+      "nonEmptyLines": 72,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/components/MediaDetailsDialog.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 542,
+      "nonEmptyLines": 494,
+      "functions": [
+        {
+          "name": "detailsResponse",
+          "startLine": 75,
+          "endLine": 80,
+          "params": [
+            "mediaSummary"
+          ]
+        },
+        {
+          "name": "savedEntry",
+          "startLine": 82,
+          "endLine": 93,
+          "params": [
+            "request"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "value",
+          "callee": "this.setAttribute",
+          "lineNumber": 108
+        },
+        {
+          "caller": "value",
+          "callee": "this.removeAttribute",
+          "lineNumber": 114
+        },
+        {
+          "caller": "value",
+          "callee": "this.dispatchEvent",
+          "lineNumber": 115
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/navigation.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 25,
+      "nonEmptyLines": 24,
+      "exports": [
+        {
+          "name": "navigationItems",
+          "line": 1,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

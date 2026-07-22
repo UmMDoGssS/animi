@@ -1,0 +1,707 @@
+{
+    "nodes": [
+        {
+            "id": "file:src/lib/components/AppShell.svelte",
+            "type": "file",
+            "name": "AppShell.svelte",
+            "filePath": "src/lib/components/AppShell.svelte",
+            "summary": "Top-level Animi UI coordinator that switches primary views, initializes theme and local data, and wires dashboard, discovery, home, settings, backup, and library services.",
+            "tags": [
+                "component",
+                "svelte",
+                "user-interface"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "file:src/lib/components/AppShell.test.ts",
+            "type": "file",
+            "name": "AppShell.test.ts",
+            "filePath": "src/lib/components/AppShell.test.ts",
+            "summary": "Component tests for application-shell navigation, theme initialization, responsive behavior, and injected service orchestration.",
+            "tags": [
+                "test",
+                "component-testing",
+                "regression"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "function:src/lib/components/AppShell.test.ts:p4Services",
+            "type": "function",
+            "name": "p4Services",
+            "filePath": "src/lib/components/AppShell.test.ts",
+            "lineRange": [
+                69,
+                101
+            ],
+            "summary": "Builds deterministic p4 services fixture data or service state used by this test suite.",
+            "tags": [
+                "test",
+                "fixture",
+                "validation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "file:src/lib/components/P4Flow.test.ts",
+            "type": "file",
+            "name": "P4Flow.test.ts",
+            "filePath": "src/lib/components/P4Flow.test.ts",
+            "summary": "End-to-end-style component flow tests for discovery, media details, library mutations, dashboard updates, and persistence-facing UI behavior.",
+            "tags": [
+                "test",
+                "component-testing",
+                "regression"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "function:src/lib/components/P4Flow.test.ts:createStatefulP4Services",
+            "type": "function",
+            "name": "createStatefulP4Services",
+            "filePath": "src/lib/components/P4Flow.test.ts",
+            "lineRange": [
+                84,
+                268
+            ],
+            "summary": "Builds deterministic create stateful p4 services fixture data or service state used by this test suite.",
+            "tags": [
+                "test",
+                "fixture",
+                "validation"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "file:src/lib/components/pages/DashboardPage.svelte",
+            "type": "file",
+            "name": "DashboardPage.svelte",
+            "filePath": "src/lib/components/pages/DashboardPage.svelte",
+            "summary": "Library dashboard page with insights, activity visualization, filtering and sorting, metadata refresh, progress editing, and media detail controls.",
+            "tags": [
+                "component",
+                "svelte",
+                "user-interface"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "file:src/lib/components/pages/DashboardPage.test.ts",
+            "type": "file",
+            "name": "DashboardPage.test.ts",
+            "filePath": "src/lib/components/pages/DashboardPage.test.ts",
+            "summary": "Component tests covering dashboard insights, filters, sorting, responsive layouts, metadata refresh, progress changes, and error states.",
+            "tags": [
+                "test",
+                "component-testing",
+                "regression"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "function:src/lib/components/pages/DashboardPage.test.ts:entry",
+            "type": "function",
+            "name": "entry",
+            "filePath": "src/lib/components/pages/DashboardPage.test.ts",
+            "lineRange": [
+                89,
+                105
+            ],
+            "summary": "Builds deterministic entry fixture data or service state used by this test suite.",
+            "tags": [
+                "test",
+                "fixture",
+                "validation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src/lib/components/pages/DashboardPage.test.ts:media",
+            "type": "function",
+            "name": "media",
+            "filePath": "src/lib/components/pages/DashboardPage.test.ts",
+            "lineRange": [
+                107,
+                126
+            ],
+            "summary": "Builds deterministic media fixture data or service state used by this test suite.",
+            "tags": [
+                "test",
+                "fixture",
+                "validation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src/lib/components/pages/DashboardPage.test.ts:indexedItem",
+            "type": "function",
+            "name": "indexedItem",
+            "filePath": "src/lib/components/pages/DashboardPage.test.ts",
+            "lineRange": [
+                222,
+                243
+            ],
+            "summary": "Builds deterministic indexed item fixture data or service state used by this test suite.",
+            "tags": [
+                "test",
+                "fixture",
+                "validation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src/lib/components/pages/DashboardPage.test.ts:detailsFor",
+            "type": "function",
+            "name": "detailsFor",
+            "filePath": "src/lib/components/pages/DashboardPage.test.ts",
+            "lineRange": [
+                359,
+                383
+            ],
+            "summary": "Builds deterministic details for fixture data or service state used by this test suite.",
+            "tags": [
+                "test",
+                "fixture",
+                "validation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "file:src/lib/components/pages/DiscoveryPage.svelte",
+            "type": "file",
+            "name": "DiscoveryPage.svelte",
+            "filePath": "src/lib/components/pages/DiscoveryPage.svelte",
+            "summary": "Anime discovery page that coordinates trending titles, recommendations, debounced search, library membership, pagination, and media details.",
+            "tags": [
+                "component",
+                "svelte",
+                "user-interface"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "file:src/lib/components/pages/DiscoveryPage.test.ts",
+            "type": "file",
+            "name": "DiscoveryPage.test.ts",
+            "filePath": "src/lib/components/pages/DiscoveryPage.test.ts",
+            "summary": "Component tests for discovery loading, search races, recommendations, pagination, library mutations, details, and responsive states.",
+            "tags": [
+                "test",
+                "component-testing",
+                "regression"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "function:src/lib/components/pages/DiscoveryPage.test.ts:recommendationsResponse",
+            "type": "function",
+            "name": "recommendationsResponse",
+            "filePath": "src/lib/components/pages/DiscoveryPage.test.ts",
+            "lineRange": [
+                95,
+                109
+            ],
+            "summary": "Builds deterministic recommendations response fixture data or service state used by this test suite.",
+            "tags": [
+                "test",
+                "fixture",
+                "validation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src/lib/components/pages/DiscoveryPage.test.ts:savedEntry",
+            "type": "function",
+            "name": "savedEntry",
+            "filePath": "src/lib/components/pages/DiscoveryPage.test.ts",
+            "lineRange": [
+                122,
+                133
+            ],
+            "summary": "Builds deterministic saved entry fixture data or service state used by this test suite.",
+            "tags": [
+                "test",
+                "fixture",
+                "validation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src/lib/components/pages/DiscoveryPage.test.ts:discoveryProps",
+            "type": "function",
+            "name": "discoveryProps",
+            "filePath": "src/lib/components/pages/DiscoveryPage.test.ts",
+            "lineRange": [
+                135,
+                155
+            ],
+            "summary": "Builds deterministic discovery props fixture data or service state used by this test suite.",
+            "tags": [
+                "test",
+                "fixture",
+                "validation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "file:src/lib/components/pages/HomePage.svelte",
+            "type": "file",
+            "name": "HomePage.svelte",
+            "filePath": "src/lib/components/pages/HomePage.svelte",
+            "summary": "Home page for upcoming episodes and catch-up progress, with periodic refresh, carousel navigation, library mutation, and media details.",
+            "tags": [
+                "component",
+                "svelte",
+                "user-interface"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "file:src/lib/components/pages/HomePage.test.ts",
+            "type": "file",
+            "name": "HomePage.test.ts",
+            "filePath": "src/lib/components/pages/HomePage.test.ts",
+            "summary": "Component tests for home airing order, countdown and catch-up behavior, progress updates, details, refresh, and responsive presentation.",
+            "tags": [
+                "test",
+                "component-testing",
+                "regression"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "function:src/lib/components/pages/HomePage.test.ts:entry",
+            "type": "function",
+            "name": "entry",
+            "filePath": "src/lib/components/pages/HomePage.test.ts",
+            "lineRange": [
+                18,
+                29
+            ],
+            "summary": "Builds deterministic entry fixture data or service state used by this test suite.",
+            "tags": [
+                "test",
+                "fixture",
+                "validation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src/lib/components/pages/HomePage.test.ts:item",
+            "type": "function",
+            "name": "item",
+            "filePath": "src/lib/components/pages/HomePage.test.ts",
+            "lineRange": [
+                31,
+                76
+            ],
+            "summary": "Builds deterministic item fixture data or service state used by this test suite.",
+            "tags": [
+                "test",
+                "fixture",
+                "validation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src/lib/components/pages/HomePage.test.ts:detailsFor",
+            "type": "function",
+            "name": "detailsFor",
+            "filePath": "src/lib/components/pages/HomePage.test.ts",
+            "lineRange": [
+                82,
+                105
+            ],
+            "summary": "Builds deterministic details for fixture data or service state used by this test suite.",
+            "tags": [
+                "test",
+                "fixture",
+                "validation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src/lib/components/pages/HomePage.test.ts:homeProps",
+            "type": "function",
+            "name": "homeProps",
+            "filePath": "src/lib/components/pages/HomePage.test.ts",
+            "lineRange": [
+                107,
+                131
+            ],
+            "summary": "Builds deterministic home props fixture data or service state used by this test suite.",
+            "tags": [
+                "test",
+                "fixture",
+                "validation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "file:src/lib/components/pages/SettingsPage.svelte",
+            "type": "file",
+            "name": "SettingsPage.svelte",
+            "filePath": "src/lib/components/pages/SettingsPage.svelte",
+            "summary": "Settings page for theme selection, debug presentation modes, versioned backup export/import, and explicitly confirmed local-data deletion.",
+            "tags": [
+                "component",
+                "svelte",
+                "user-interface"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "file:src/lib/components/pages/SettingsPage.test.ts",
+            "type": "file",
+            "name": "SettingsPage.test.ts",
+            "filePath": "src/lib/components/pages/SettingsPage.test.ts",
+            "summary": "Component tests for theme controls, backup workflows, import previews, destructive-data confirmation, and settings error handling.",
+            "tags": [
+                "test",
+                "component-testing",
+                "regression"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "function:src/lib/components/pages/SettingsPage.test.ts:services",
+            "type": "function",
+            "name": "services",
+            "filePath": "src/lib/components/pages/SettingsPage.test.ts",
+            "lineRange": [
+                35,
+                57
+            ],
+            "summary": "Builds deterministic services fixture data or service state used by this test suite.",
+            "tags": [
+                "test",
+                "fixture",
+                "validation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src/lib/components/pages/SettingsPage.test.ts:renderSettings",
+            "type": "function",
+            "name": "renderSettings",
+            "filePath": "src/lib/components/pages/SettingsPage.test.ts",
+            "lineRange": [
+                59,
+                80
+            ],
+            "summary": "Builds deterministic render settings fixture data or service state used by this test suite.",
+            "tags": [
+                "test",
+                "fixture",
+                "validation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "file:src/test/viewports.ts",
+            "type": "file",
+            "name": "viewports.ts",
+            "filePath": "src/test/viewports.ts",
+            "summary": "Shared test utility defining representative narrow and desktop viewport dimensions and applying them to the DOM test environment.",
+            "tags": [
+                "test",
+                "utility",
+                "responsive"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src/test/viewports.ts:setTestViewport",
+            "type": "function",
+            "name": "setTestViewport",
+            "filePath": "src/test/viewports.ts",
+            "lineRange": [
+                12,
+                18
+            ],
+            "summary": "Implements set test viewport behavior within viewports.ts, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        }
+    ],
+    "edges": [
+        {
+            "source": "file:src/lib/components/AppShell.test.ts",
+            "target": "function:src/lib/components/AppShell.test.ts:p4Services",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/lib/components/AppShell.test.ts",
+            "target": "file:src/lib/components/AppShell.svelte",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src/lib/components/AppShell.test.ts",
+            "target": "file:src/lib/components/AppShell.svelte",
+            "type": "tested_by",
+            "direction": "forward",
+            "weight": 0.5
+        },
+        {
+            "source": "file:src/lib/components/AppShell.test.ts",
+            "target": "file:src/test/viewports.ts",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src/lib/components/AppShell.test.ts",
+            "target": "file:src/test/viewports.ts",
+            "type": "tested_by",
+            "direction": "forward",
+            "weight": 0.5
+        },
+        {
+            "source": "file:src/lib/components/P4Flow.test.ts",
+            "target": "function:src/lib/components/P4Flow.test.ts:createStatefulP4Services",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/lib/components/P4Flow.test.ts",
+            "target": "file:src/lib/components/AppShell.svelte",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src/lib/components/P4Flow.test.ts",
+            "target": "file:src/lib/components/AppShell.svelte",
+            "type": "tested_by",
+            "direction": "forward",
+            "weight": 0.5
+        },
+        {
+            "source": "file:src/lib/components/pages/DashboardPage.test.ts",
+            "target": "function:src/lib/components/pages/DashboardPage.test.ts:entry",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/lib/components/pages/DashboardPage.test.ts",
+            "target": "function:src/lib/components/pages/DashboardPage.test.ts:media",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/lib/components/pages/DashboardPage.test.ts",
+            "target": "function:src/lib/components/pages/DashboardPage.test.ts:indexedItem",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/lib/components/pages/DashboardPage.test.ts",
+            "target": "function:src/lib/components/pages/DashboardPage.test.ts:detailsFor",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/lib/components/pages/DashboardPage.test.ts",
+            "target": "file:src/lib/components/pages/DashboardPage.svelte",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src/lib/components/pages/DashboardPage.test.ts",
+            "target": "file:src/lib/components/pages/DashboardPage.svelte",
+            "type": "tested_by",
+            "direction": "forward",
+            "weight": 0.5
+        },
+        {
+            "source": "file:src/lib/components/pages/DashboardPage.test.ts",
+            "target": "file:src/test/viewports.ts",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src/lib/components/pages/DashboardPage.test.ts",
+            "target": "file:src/test/viewports.ts",
+            "type": "tested_by",
+            "direction": "forward",
+            "weight": 0.5
+        },
+        {
+            "source": "file:src/lib/components/pages/DiscoveryPage.test.ts",
+            "target": "function:src/lib/components/pages/DiscoveryPage.test.ts:recommendationsResponse",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/lib/components/pages/DiscoveryPage.test.ts",
+            "target": "function:src/lib/components/pages/DiscoveryPage.test.ts:savedEntry",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/lib/components/pages/DiscoveryPage.test.ts",
+            "target": "function:src/lib/components/pages/DiscoveryPage.test.ts:discoveryProps",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/lib/components/pages/DiscoveryPage.test.ts",
+            "target": "file:src/lib/components/pages/DiscoveryPage.svelte",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src/lib/components/pages/DiscoveryPage.test.ts",
+            "target": "file:src/lib/components/pages/DiscoveryPage.svelte",
+            "type": "tested_by",
+            "direction": "forward",
+            "weight": 0.5
+        },
+        {
+            "source": "file:src/lib/components/pages/DiscoveryPage.test.ts",
+            "target": "file:src/test/viewports.ts",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src/lib/components/pages/DiscoveryPage.test.ts",
+            "target": "file:src/test/viewports.ts",
+            "type": "tested_by",
+            "direction": "forward",
+            "weight": 0.5
+        },
+        {
+            "source": "file:src/lib/components/pages/HomePage.test.ts",
+            "target": "function:src/lib/components/pages/HomePage.test.ts:entry",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/lib/components/pages/HomePage.test.ts",
+            "target": "function:src/lib/components/pages/HomePage.test.ts:item",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/lib/components/pages/HomePage.test.ts",
+            "target": "function:src/lib/components/pages/HomePage.test.ts:detailsFor",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/lib/components/pages/HomePage.test.ts",
+            "target": "function:src/lib/components/pages/HomePage.test.ts:homeProps",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/lib/components/pages/HomePage.test.ts",
+            "target": "file:src/lib/components/pages/HomePage.svelte",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src/lib/components/pages/HomePage.test.ts",
+            "target": "file:src/lib/components/pages/HomePage.svelte",
+            "type": "tested_by",
+            "direction": "forward",
+            "weight": 0.5
+        },
+        {
+            "source": "file:src/lib/components/pages/HomePage.test.ts",
+            "target": "file:src/test/viewports.ts",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src/lib/components/pages/HomePage.test.ts",
+            "target": "file:src/test/viewports.ts",
+            "type": "tested_by",
+            "direction": "forward",
+            "weight": 0.5
+        },
+        {
+            "source": "file:src/lib/components/pages/SettingsPage.test.ts",
+            "target": "function:src/lib/components/pages/SettingsPage.test.ts:services",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/lib/components/pages/SettingsPage.test.ts",
+            "target": "function:src/lib/components/pages/SettingsPage.test.ts:renderSettings",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/lib/components/pages/SettingsPage.test.ts",
+            "target": "file:src/lib/components/pages/SettingsPage.svelte",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src/lib/components/pages/SettingsPage.test.ts",
+            "target": "file:src/lib/components/pages/SettingsPage.svelte",
+            "type": "tested_by",
+            "direction": "forward",
+            "weight": 0.5
+        },
+        {
+            "source": "file:src/lib/components/pages/SettingsPage.test.ts",
+            "target": "file:src/test/viewports.ts",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src/lib/components/pages/SettingsPage.test.ts",
+            "target": "file:src/test/viewports.ts",
+            "type": "tested_by",
+            "direction": "forward",
+            "weight": 0.5
+        },
+        {
+            "source": "file:src/test/viewports.ts",
+            "target": "function:src/test/viewports.ts:setTestViewport",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src/test/viewports.ts",
+            "target": "function:src/test/viewports.ts:setTestViewport",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        }
+    ]
+}

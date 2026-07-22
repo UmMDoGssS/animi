@@ -1,0 +1,605 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 7,
+  "filesSkipped": [],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 7,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 0,
+      "failed": 0,
+      "skipped": 7
+    }
+  },
+  "results": [
+    {
+      "path": ".prettierrc.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 9,
+      "nonEmptyLines": 9,
+      "sections": [
+        {
+          "heading": "tabWidth",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "useTabs",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "plugins",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "overrides",
+          "level": 1,
+          "line": 5
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 4
+      }
+    },
+    {
+      "path": "AGENTS.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 101,
+      "nonEmptyLines": 79,
+      "sections": [
+        {
+          "heading": "Animi Agent Guide",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Purpose and Scope",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "Working Agreement",
+          "level": 2,
+          "line": 11
+        },
+        {
+          "heading": "Formatting Style Guide",
+          "level": 2,
+          "line": 24
+        },
+        {
+          "heading": "Architecture Boundaries",
+          "level": 2,
+          "line": 29
+        },
+        {
+          "heading": "Frontend Style Guide",
+          "level": 2,
+          "line": 42
+        },
+        {
+          "heading": "Visual Design and Accessibility",
+          "level": 2,
+          "line": 52
+        },
+        {
+          "heading": "Rust Style Guide",
+          "level": 2,
+          "line": 63
+        },
+        {
+          "heading": "Testing Guide",
+          "level": 2,
+          "line": 72
+        },
+        {
+          "heading": "Completion Checklist",
+          "level": 2,
+          "line": 95
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 10
+      }
+    },
+    {
+      "path": "PLAN.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 519,
+      "nonEmptyLines": 364,
+      "sections": [
+        {
+          "heading": "Animi Delivery Plan",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Plan Status",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "How to Use This Plan",
+          "level": 2,
+          "line": 18
+        },
+        {
+          "heading": "Version 1 Boundaries",
+          "level": 2,
+          "line": 29
+        },
+        {
+          "heading": "Roadmap Overview",
+          "level": 2,
+          "line": 43
+        },
+        {
+          "heading": "Planned Contracts",
+          "level": 2,
+          "line": 56
+        },
+        {
+          "heading": "Shared domain types",
+          "level": 3,
+          "line": 60
+        },
+        {
+          "heading": "Tauri commands",
+          "level": 3,
+          "line": 73
+        },
+        {
+          "heading": "Backup envelope",
+          "level": 3,
+          "line": 88
+        },
+        {
+          "heading": "Cross-Cutting Definition of Done",
+          "level": 2,
+          "line": 92
+        },
+        {
+          "heading": "Data and architecture",
+          "level": 3,
+          "line": 96
+        },
+        {
+          "heading": "Network and offline behavior",
+          "level": 3,
+          "line": 105
+        },
+        {
+          "heading": "User experience and safety",
+          "level": 3,
+          "line": 112
+        },
+        {
+          "heading": "Verification",
+          "level": 3,
+          "line": 120
+        },
+        {
+          "heading": "P0 - Scaffold and Engineering Foundation",
+          "level": 2,
+          "line": 127
+        },
+        {
+          "heading": "Entry gate",
+          "level": 3,
+          "line": 133
+        },
+        {
+          "heading": "Milestones",
+          "level": 3,
+          "line": 138
+        },
+        {
+          "heading": "Exit gate",
+          "level": 3,
+          "line": 148
+        },
+        {
+          "heading": "P1 - Local Persistence and Typed IPC",
+          "level": 2,
+          "line": 157
+        },
+        {
+          "heading": "Entry gate",
+          "level": 3,
+          "line": 163
+        },
+        {
+          "heading": "Milestones",
+          "level": 3,
+          "line": 168
+        },
+        {
+          "heading": "Exit gate",
+          "level": 3,
+          "line": 178
+        },
+        {
+          "heading": "P2 - AniList Integration and Caching",
+          "level": 2,
+          "line": 187
+        },
+        {
+          "heading": "Entry gate",
+          "level": 3,
+          "line": 193
+        },
+        {
+          "heading": "Milestones",
+          "level": 3,
+          "line": 198
+        },
+        {
+          "heading": "Exit gate",
+          "level": 3,
+          "line": 208
+        },
+        {
+          "heading": "P3 - Application Shell and Design System",
+          "level": 2,
+          "line": 231
+        },
+        {
+          "heading": "Entry gate",
+          "level": 3,
+          "line": 237
+        },
+        {
+          "heading": "Visual approval checkpoints",
+          "level": 3,
+          "line": 242
+        },
+        {
+          "heading": "Milestones",
+          "level": 3,
+          "line": 252
+        },
+        {
+          "heading": "Exit gate",
+          "level": 3,
+          "line": 263
+        },
+        {
+          "heading": "P4 - Discovery, Details, Dashboard, and Library Workflow",
+          "level": 2,
+          "line": 276
+        },
+        {
+          "heading": "Entry gate",
+          "level": 3,
+          "line": 282
+        },
+        {
+          "heading": "Milestones",
+          "level": 3,
+          "line": 287
+        },
+        {
+          "heading": "Exit gate",
+          "level": 3,
+          "line": 298
+        },
+        {
+          "heading": "P5 - Home Airing, Dashboard Insights, and Recommendations",
+          "level": 2,
+          "line": 315
+        },
+        {
+          "heading": "Entry gate",
+          "level": 3,
+          "line": 321
+        },
+        {
+          "heading": "Milestones",
+          "level": 3,
+          "line": 326
+        },
+        {
+          "heading": "Exit gate",
+          "level": 3,
+          "line": 339
+        },
+        {
+          "heading": "P6 - Settings, Backup, and Recovery",
+          "level": 2,
+          "line": 352
+        },
+        {
+          "heading": "Entry gate",
+          "level": 3,
+          "line": 358
+        },
+        {
+          "heading": "Milestones",
+          "level": 3,
+          "line": 363
+        },
+        {
+          "heading": "Exit gate",
+          "level": 3,
+          "line": 374
+        },
+        {
+          "heading": "P7 - Release Hardening and Windows Packaging",
+          "level": 2,
+          "line": 383
+        },
+        {
+          "heading": "Entry gate",
+          "level": 3,
+          "line": 389
+        },
+        {
+          "heading": "Milestones",
+          "level": 3,
+          "line": 394
+        },
+        {
+          "heading": "Version 1 acceptance gate",
+          "level": 3,
+          "line": 405
+        },
+        {
+          "heading": "Completed Follow-up Work",
+          "level": 2,
+          "line": 420
+        },
+        {
+          "heading": "Quality Gates",
+          "level": 2,
+          "line": 446
+        },
+        {
+          "heading": "Risks and Gate Controls",
+          "level": 2,
+          "line": 462
+        },
+        {
+          "heading": "Future Roadmap - Not Approved for Version 1",
+          "level": 2,
+          "line": 474
+        },
+        {
+          "heading": "F1 - Manga workflows",
+          "level": 3,
+          "line": 478
+        },
+        {
+          "heading": "F2 - Tauri mobile clients",
+          "level": 3,
+          "line": 485
+        },
+        {
+          "heading": "F3 - Optional synchronization and background features",
+          "level": 3,
+          "line": 492
+        },
+        {
+          "heading": "Decision Log",
+          "level": 2,
+          "line": 500
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 55
+      }
+    },
+    {
+      "path": "PROJECT.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 89,
+      "nonEmptyLines": 68,
+      "sections": [
+        {
+          "heading": "Animi Desktop-First Plan",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Summary",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "Stack Decision",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "Implementation Architecture",
+          "level": 2,
+          "line": 27
+        },
+        {
+          "heading": "Primary Experience",
+          "level": 2,
+          "line": 39
+        },
+        {
+          "heading": "Interfaces and Data",
+          "level": 2,
+          "line": 51
+        },
+        {
+          "heading": "Test Plan",
+          "level": 2,
+          "line": 75
+        },
+        {
+          "heading": "Assumptions and Prerequisites",
+          "level": 2,
+          "line": 83
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 8
+      }
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 62,
+      "nonEmptyLines": 45,
+      "sections": [
+        {
+          "heading": "Animi",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Prerequisites",
+          "level": 2,
+          "line": 7
+        },
+        {
+          "heading": "Development",
+          "level": 2,
+          "line": 15
+        },
+        {
+          "heading": "Private Windows release",
+          "level": 2,
+          "line": 24
+        },
+        {
+          "heading": "Quality gates",
+          "level": 2,
+          "line": 37
+        },
+        {
+          "heading": "Source layout",
+          "level": 2,
+          "line": 52
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 6
+      }
+    },
+    {
+      "path": "package.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 53,
+      "nonEmptyLines": 53,
+      "sections": [
+        {
+          "heading": "name",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "version",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "description",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "private",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "type",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "packageManager",
+          "level": 1,
+          "line": 7
+        },
+        {
+          "heading": "scripts",
+          "level": 1,
+          "line": 8
+        },
+        {
+          "heading": "license",
+          "level": 1,
+          "line": 23
+        },
+        {
+          "heading": "dependencies",
+          "level": 1,
+          "line": 24
+        },
+        {
+          "heading": "devDependencies",
+          "level": 1,
+          "line": 27
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 10
+      }
+    },
+    {
+      "path": "tsconfig.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 19,
+      "nonEmptyLines": 19,
+      "sections": [
+        {
+          "heading": "extends",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "compilerOptions",
+          "level": 1,
+          "line": 3
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 2
+      }
+    }
+  ]
+}

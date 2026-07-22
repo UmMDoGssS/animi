@@ -1,0 +1,670 @@
+{
+    "nodes": [
+        {
+            "id": "file:src-tauri/src/commands/discovery.rs",
+            "type": "file",
+            "name": "discovery.rs",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "summary": "Thin typed Tauri command adapters for anime search, trending, details, recommendations, home airing, and library metadata refresh.",
+            "tags": [
+                "tauri-command",
+                "ipc",
+                "api-handler"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:src-tauri/src/commands/discovery.rs:search_media",
+            "type": "function",
+            "name": "search_media",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                38,
+                43
+            ],
+            "summary": "Implements search media behavior within discovery.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/commands/discovery.rs:list_trending",
+            "type": "function",
+            "name": "list_trending",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                46,
+                51
+            ],
+            "summary": "Implements list trending behavior within discovery.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/commands/discovery.rs:get_media_details",
+            "type": "function",
+            "name": "get_media_details",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                54,
+                59
+            ],
+            "summary": "Implements get media details behavior within discovery.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/commands/discovery.rs:refresh_library_metadata",
+            "type": "function",
+            "name": "refresh_library_metadata",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                62,
+                66
+            ],
+            "summary": "Implements refresh library metadata behavior within discovery.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/commands/discovery.rs:get_recommendations",
+            "type": "function",
+            "name": "get_recommendations",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                69,
+                74
+            ],
+            "summary": "Implements get recommendations behavior within discovery.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/commands/discovery.rs:get_home_airing",
+            "type": "function",
+            "name": "get_home_airing",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                77,
+                81
+            ],
+            "summary": "Implements get home airing behavior within discovery.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/commands/discovery.rs:search_media_with_service",
+            "type": "function",
+            "name": "search_media_with_service",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                83,
+                90
+            ],
+            "summary": "Implements search media with service behavior within discovery.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/commands/discovery.rs:list_trending_with_service",
+            "type": "function",
+            "name": "list_trending_with_service",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                92,
+                97
+            ],
+            "summary": "Implements list trending with service behavior within discovery.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/commands/discovery.rs:get_media_details_with_service",
+            "type": "function",
+            "name": "get_media_details_with_service",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                99,
+                104
+            ],
+            "summary": "Implements get media details with service behavior within discovery.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/commands/discovery.rs:refresh_library_metadata_with_service",
+            "type": "function",
+            "name": "refresh_library_metadata_with_service",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                106,
+                110
+            ],
+            "summary": "Implements refresh library metadata with service behavior within discovery.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/commands/discovery.rs:get_recommendations_with_service",
+            "type": "function",
+            "name": "get_recommendations_with_service",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                112,
+                117
+            ],
+            "summary": "Implements get recommendations with service behavior within discovery.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/commands/discovery.rs:get_home_airing_with_service",
+            "type": "function",
+            "name": "get_home_airing_with_service",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                119,
+                123
+            ],
+            "summary": "Implements get home airing with service behavior within discovery.rs, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "service",
+                "anilist",
+                "domain-operation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/commands/discovery.rs:SearchMediaRequest",
+            "type": "class",
+            "name": "SearchMediaRequest",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                12,
+                16
+            ],
+            "summary": "SearchMediaRequest encapsulates state and behavior used by discovery.rs as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "class",
+                "domain-model",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/commands/discovery.rs:MediaPageRequest",
+            "type": "class",
+            "name": "MediaPageRequest",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                20,
+                23
+            ],
+            "summary": "MediaPageRequest encapsulates state and behavior used by discovery.rs as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "class",
+                "domain-model",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/commands/discovery.rs:MediaDetailsRequest",
+            "type": "class",
+            "name": "MediaDetailsRequest",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                27,
+                29
+            ],
+            "summary": "MediaDetailsRequest encapsulates state and behavior used by discovery.rs as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "class",
+                "domain-model",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:src-tauri/src/commands/discovery.rs:RecommendationsRequest",
+            "type": "class",
+            "name": "RecommendationsRequest",
+            "filePath": "src-tauri/src/commands/discovery.rs",
+            "lineRange": [
+                33,
+                35
+            ],
+            "summary": "RecommendationsRequest encapsulates state and behavior used by discovery.rs as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "class",
+                "domain-model",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "file:src-tauri/src/lib.rs",
+            "type": "file",
+            "name": "lib.rs",
+            "filePath": "src-tauri/src/lib.rs",
+            "summary": "Rust crate entry point that initializes storage, AniList services, plugins, and the complete typed Tauri command surface before running the desktop application.",
+            "tags": [
+                "entry-point",
+                "tauri",
+                "application-bootstrap"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:src-tauri/src/lib.rs:register_commands",
+            "type": "function",
+            "name": "register_commands",
+            "filePath": "src-tauri/src/lib.rs",
+            "lineRange": [
+                26,
+                48
+            ],
+            "summary": "Registers the complete typed Tauri command surface on an application builder.",
+            "tags": [
+                "entry-point",
+                "tauri",
+                "application-bootstrap"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/lib.rs:select_data_root",
+            "type": "function",
+            "name": "select_data_root",
+            "filePath": "src-tauri/src/lib.rs",
+            "lineRange": [
+                50,
+                62
+            ],
+            "summary": "Selects the normal or isolated release-smoke storage root from validated runtime inputs.",
+            "tags": [
+                "entry-point",
+                "tauri",
+                "application-bootstrap"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:src-tauri/src/lib.rs:run",
+            "type": "function",
+            "name": "run",
+            "filePath": "src-tauri/src/lib.rs",
+            "lineRange": [
+                65,
+                98
+            ],
+            "summary": "Initializes the local database, AniList service, Tauri plugins, managed state, commands, and desktop event loop.",
+            "tags": [
+                "entry-point",
+                "tauri",
+                "application-bootstrap"
+            ],
+            "complexity": "simple"
+        }
+    ],
+    "edges": [
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:search_media",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:search_media",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:list_trending",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:list_trending",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:get_media_details",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:get_media_details",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:refresh_library_metadata",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:refresh_library_metadata",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:get_recommendations",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:get_recommendations",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:get_home_airing",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:get_home_airing",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:search_media_with_service",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:search_media_with_service",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:list_trending_with_service",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:list_trending_with_service",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:get_media_details_with_service",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:get_media_details_with_service",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:refresh_library_metadata_with_service",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:refresh_library_metadata_with_service",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:get_recommendations_with_service",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:get_recommendations_with_service",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:get_home_airing_with_service",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "function:src-tauri/src/commands/discovery.rs:get_home_airing_with_service",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "class:src-tauri/src/commands/discovery.rs:SearchMediaRequest",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "class:src-tauri/src/commands/discovery.rs:SearchMediaRequest",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "class:src-tauri/src/commands/discovery.rs:MediaPageRequest",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "class:src-tauri/src/commands/discovery.rs:MediaPageRequest",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "class:src-tauri/src/commands/discovery.rs:MediaDetailsRequest",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "class:src-tauri/src/commands/discovery.rs:MediaDetailsRequest",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "class:src-tauri/src/commands/discovery.rs:RecommendationsRequest",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "class:src-tauri/src/commands/discovery.rs:RecommendationsRequest",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "file:src-tauri/src/anilist/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/commands/discovery.rs",
+            "target": "file:src-tauri/src/domain/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/lib.rs",
+            "target": "function:src-tauri/src/lib.rs:register_commands",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/lib.rs",
+            "target": "function:src-tauri/src/lib.rs:register_commands",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/lib.rs",
+            "target": "function:src-tauri/src/lib.rs:select_data_root",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/lib.rs",
+            "target": "function:src-tauri/src/lib.rs:run",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:src-tauri/src/lib.rs",
+            "target": "function:src-tauri/src/lib.rs:run",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:src-tauri/src/lib.rs",
+            "target": "file:src-tauri/src/anilist/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/lib.rs",
+            "target": "file:src-tauri/src/backups/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/lib.rs",
+            "target": "file:src-tauri/src/commands/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/lib.rs",
+            "target": "file:src-tauri/src/database/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/lib.rs",
+            "target": "file:src-tauri/src/domain/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:src-tauri/src/lib.rs",
+            "target": "file:src-tauri/src/recommendations/mod.rs",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        }
+    ]
+}

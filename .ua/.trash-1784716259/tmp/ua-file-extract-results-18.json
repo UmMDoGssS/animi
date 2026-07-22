@@ -1,0 +1,464 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 8,
+  "filesSkipped": [
+    "src/routes/+layout.svelte",
+    "src/routes/+page.svelte"
+  ],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 8,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 8,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "results": [
+    {
+      "path": "src/lib/releaseHardening.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 84,
+      "nonEmptyLines": 75,
+      "functions": [
+        {
+          "name": "parsePalette",
+          "startLine": 11,
+          "endLine": 22,
+          "params": [
+            "selector"
+          ]
+        },
+        {
+          "name": "luminance",
+          "startLine": 24,
+          "endLine": 35,
+          "params": [
+            "hex"
+          ]
+        },
+        {
+          "name": "contrast",
+          "startLine": 37,
+          "endLine": 44,
+          "params": [
+            "first",
+            "second"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parsePalette",
+          "callee": "selector.replace",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parsePalette",
+          "callee": "css.match",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parsePalette",
+          "callee": "expect(block, `missing ${selector} palette`).not.toBeNull",
+          "lineNumber": 16
+        },
+        {
+          "caller": "parsePalette",
+          "callee": "expect",
+          "lineNumber": 16
+        },
+        {
+          "caller": "parsePalette",
+          "callee": "Object.fromEntries",
+          "lineNumber": 17
+        },
+        {
+          "caller": "parsePalette",
+          "callee": "[...(block?.[1] ?? \"\").matchAll(/--([\\w-]+):\\s*(#[0-9a-f]{6});/gi)].map",
+          "lineNumber": 18
+        },
+        {
+          "caller": "parsePalette",
+          "callee": "(block?.[1] ?? \"\").matchAll",
+          "lineNumber": 18
+        },
+        {
+          "caller": "luminance",
+          "callee": "[1, 3, 5].map",
+          "lineNumber": 25
+        },
+        {
+          "caller": "luminance",
+          "callee": "Number.parseInt",
+          "lineNumber": 26
+        },
+        {
+          "caller": "luminance",
+          "callee": "hex.slice",
+          "lineNumber": 26
+        },
+        {
+          "caller": "luminance",
+          "callee": "channels.map",
+          "lineNumber": 28
+        },
+        {
+          "caller": "contrast",
+          "callee": "luminance",
+          "lineNumber": 38
+        },
+        {
+          "caller": "contrast",
+          "callee": "luminance",
+          "lineNumber": 39
+        },
+        {
+          "caller": "contrast",
+          "callee": "Math.max",
+          "lineNumber": 41
+        },
+        {
+          "caller": "contrast",
+          "callee": "Math.min",
+          "lineNumber": 42
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/state/asyncState.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 19,
+      "nonEmptyLines": 17,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/state/debugPresentation.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 40,
+      "nonEmptyLines": 38,
+      "exports": [
+        {
+          "name": "debugPresentationOptions",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/theme/theme.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 270,
+      "nonEmptyLines": 227,
+      "functions": [
+        {
+          "name": "cssBlock",
+          "startLine": 35,
+          "endLine": 59,
+          "params": [
+            "marker"
+          ]
+        },
+        {
+          "name": "themeBlock",
+          "startLine": 61,
+          "endLine": 63,
+          "params": [
+            "themeId"
+          ]
+        },
+        {
+          "name": "solidHexToken",
+          "startLine": 65,
+          "endLine": 76,
+          "params": [
+            "block",
+            "token"
+          ]
+        },
+        {
+          "name": "tokenValue",
+          "startLine": 78,
+          "endLine": 85,
+          "params": [
+            "block",
+            "token"
+          ]
+        },
+        {
+          "name": "rgb",
+          "startLine": 87,
+          "endLine": 93,
+          "params": [
+            "hex"
+          ]
+        },
+        {
+          "name": "relativeLuminance",
+          "startLine": 95,
+          "endLine": 110,
+          "params": [
+            "hex"
+          ]
+        },
+        {
+          "name": "contrastRatio",
+          "startLine": 112,
+          "endLine": 122,
+          "params": [
+            "first",
+            "second"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "cssBlock",
+          "callee": "appStyles.indexOf",
+          "lineNumber": 36
+        },
+        {
+          "caller": "cssBlock",
+          "callee": "appStyles.indexOf",
+          "lineNumber": 41
+        },
+        {
+          "caller": "cssBlock",
+          "callee": "appStyles.slice",
+          "lineNumber": 53
+        },
+        {
+          "caller": "themeBlock",
+          "callee": "cssBlock",
+          "lineNumber": 62
+        },
+        {
+          "caller": "solidHexToken",
+          "callee": "block.match",
+          "lineNumber": 66
+        },
+        {
+          "caller": "tokenValue",
+          "callee": "block.match",
+          "lineNumber": 79
+        },
+        {
+          "caller": "tokenValue",
+          "callee": "value.trim",
+          "lineNumber": 84
+        },
+        {
+          "caller": "rgb",
+          "callee": "Number.parseInt",
+          "lineNumber": 89
+        },
+        {
+          "caller": "rgb",
+          "callee": "hex.slice",
+          "lineNumber": 89
+        },
+        {
+          "caller": "rgb",
+          "callee": "Number.parseInt",
+          "lineNumber": 90
+        },
+        {
+          "caller": "rgb",
+          "callee": "hex.slice",
+          "lineNumber": 90
+        },
+        {
+          "caller": "rgb",
+          "callee": "Number.parseInt",
+          "lineNumber": 91
+        },
+        {
+          "caller": "rgb",
+          "callee": "hex.slice",
+          "lineNumber": 91
+        },
+        {
+          "caller": "relativeLuminance",
+          "callee": "rgb",
+          "lineNumber": 103
+        },
+        {
+          "caller": "relativeLuminance",
+          "callee": "linearize",
+          "lineNumber": 106
+        },
+        {
+          "caller": "relativeLuminance",
+          "callee": "linearize",
+          "lineNumber": 107
+        },
+        {
+          "caller": "relativeLuminance",
+          "callee": "linearize",
+          "lineNumber": 108
+        },
+        {
+          "caller": "contrastRatio",
+          "callee": "Math.max",
+          "lineNumber": 113
+        },
+        {
+          "caller": "contrastRatio",
+          "callee": "relativeLuminance",
+          "lineNumber": 114
+        },
+        {
+          "caller": "contrastRatio",
+          "callee": "relativeLuminance",
+          "lineNumber": 115
+        },
+        {
+          "caller": "contrastRatio",
+          "callee": "Math.min",
+          "lineNumber": 117
+        },
+        {
+          "caller": "contrastRatio",
+          "callee": "relativeLuminance",
+          "lineNumber": 118
+        },
+        {
+          "caller": "contrastRatio",
+          "callee": "relativeLuminance",
+          "lineNumber": 119
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/theme/theme.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 85,
+      "nonEmptyLines": 77,
+      "functions": [
+        {
+          "name": "applyThemePreference",
+          "startLine": 29,
+          "endLine": 39,
+          "params": [
+            "preference",
+            "root"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "themeIds",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "themeOptions",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "applyThemePreference",
+          "line": 29,
+          "isDefault": false
+        },
+        {
+          "name": "semanticColorTokens",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "translucentSurfaceTokens",
+          "line": 74,
+          "isDefault": false
+        },
+        {
+          "name": "pageAccentTokens",
+          "line": 80,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "applyThemePreference",
+          "callee": "root.removeAttribute",
+          "lineNumber": 34
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/test/setup.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 9,
+      "nonEmptyLines": 7,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "svelte.config.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 18,
+      "nonEmptyLines": 16,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "vite.config.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 33,
+      "nonEmptyLines": 31,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

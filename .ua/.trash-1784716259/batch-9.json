@@ -1,0 +1,314 @@
+{
+    "nodes": [
+        {
+            "id": "table:src-tauri/migrations/0001_initial.sql:migration",
+            "type": "table",
+            "name": "0001_initial.sql",
+            "filePath": "src-tauri/migrations/0001_initial.sql",
+            "summary": "Initial SQLite schema migration creating the authoritative library, settings, cached media, airing, and response-cache tables with supporting indexes.",
+            "tags": [
+                "database",
+                "migration",
+                "sqlite"
+            ],
+            "complexity": "moderate",
+            "languageNotes": "Append-only SQLite migration using parameter-free DDL or deterministic data repair statements."
+        },
+        {
+            "id": "table:src-tauri/migrations/0001_initial.sql:library_entries",
+            "type": "table",
+            "name": "library_entries",
+            "filePath": "src-tauri/migrations/0001_initial.sql",
+            "lineRange": [
+                3,
+                13
+            ],
+            "summary": "Defines the library_entries SQLite table with 8 persisted fields for Animi's local authoritative state.",
+            "tags": [
+                "database",
+                "table",
+                "schema-definition"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "table:src-tauri/migrations/0001_initial.sql:settings",
+            "type": "table",
+            "name": "settings",
+            "filePath": "src-tauri/migrations/0001_initial.sql",
+            "lineRange": [
+                15,
+                19
+            ],
+            "summary": "Defines the settings SQLite table with 2 persisted fields for Animi's local authoritative state.",
+            "tags": [
+                "database",
+                "table",
+                "schema-definition"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "table:src-tauri/migrations/0001_initial.sql:media_snapshots",
+            "type": "table",
+            "name": "media_snapshots",
+            "filePath": "src-tauri/migrations/0001_initial.sql",
+            "lineRange": [
+                21,
+                33
+            ],
+            "summary": "Defines the media_snapshots SQLite table with 10 persisted fields for Animi's local authoritative state.",
+            "tags": [
+                "database",
+                "table",
+                "schema-definition"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "table:src-tauri/migrations/0001_initial.sql:airing_data",
+            "type": "table",
+            "name": "airing_data",
+            "filePath": "src-tauri/migrations/0001_initial.sql",
+            "lineRange": [
+                35,
+                45
+            ],
+            "summary": "Defines the airing_data SQLite table with 5 persisted fields for Animi's local authoritative state.",
+            "tags": [
+                "database",
+                "table",
+                "schema-definition"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "table:src-tauri/migrations/0001_initial.sql:response_caches",
+            "type": "table",
+            "name": "response_caches",
+            "filePath": "src-tauri/migrations/0001_initial.sql",
+            "lineRange": [
+                47,
+                52
+            ],
+            "summary": "Defines the response_caches SQLite table with 4 persisted fields for Animi's local authoritative state.",
+            "tags": [
+                "database",
+                "table",
+                "schema-definition"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "table:src-tauri/migrations/0002_watch_activity.sql:migration",
+            "type": "table",
+            "name": "0002_watch_activity.sql",
+            "filePath": "src-tauri/migrations/0002_watch_activity.sql",
+            "summary": "Adds durable watch-activity history linked to library entries, including progress deltas, episode duration, timestamps, and query indexes.",
+            "tags": [
+                "database",
+                "migration",
+                "sqlite"
+            ],
+            "complexity": "simple",
+            "languageNotes": "Append-only SQLite migration using parameter-free DDL or deterministic data repair statements."
+        },
+        {
+            "id": "table:src-tauri/migrations/0002_watch_activity.sql:watch_activity",
+            "type": "table",
+            "name": "watch_activity",
+            "filePath": "src-tauri/migrations/0002_watch_activity.sql",
+            "lineRange": [
+                5,
+                13
+            ],
+            "summary": "Defines the watch_activity SQLite table with 6 persisted fields for Animi's local authoritative state.",
+            "tags": [
+                "database",
+                "table",
+                "schema-definition"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "table:src-tauri/migrations/0003_activity_progress.sql:migration",
+            "type": "table",
+            "name": "0003_activity_progress.sql",
+            "filePath": "src-tauri/migrations/0003_activity_progress.sql",
+            "summary": "Extends watch activity with the resulting progress value so timeline events retain the post-update library state.",
+            "tags": [
+                "database",
+                "migration",
+                "sqlite"
+            ],
+            "complexity": "simple",
+            "languageNotes": "Append-only SQLite migration using parameter-free DDL or deterministic data repair statements."
+        },
+        {
+            "id": "table:src-tauri/migrations/0004_watch_activity_identity.sql:migration",
+            "type": "table",
+            "name": "0004_watch_activity_identity.sql",
+            "filePath": "src-tauri/migrations/0004_watch_activity_identity.sql",
+            "summary": "Rebuilds watch activity with stable event identifiers while preserving existing data and restoring its lookup indexes.",
+            "tags": [
+                "database",
+                "migration",
+                "sqlite"
+            ],
+            "complexity": "simple",
+            "languageNotes": "Append-only SQLite migration using parameter-free DDL or deterministic data repair statements."
+        },
+        {
+            "id": "table:src-tauri/migrations/0004_watch_activity_identity.sql:watch_activity_with_identity",
+            "type": "table",
+            "name": "watch_activity_with_identity",
+            "filePath": "src-tauri/migrations/0004_watch_activity_identity.sql",
+            "lineRange": [
+                1,
+                16
+            ],
+            "summary": "Defines the watch_activity_with_identity SQLite table with 7 persisted fields for Animi's local authoritative state.",
+            "tags": [
+                "database",
+                "table",
+                "schema-definition"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "table:src-tauri/migrations/0005_record_initial_watch_activity.sql:migration",
+            "type": "table",
+            "name": "0005_record_initial_watch_activity.sql",
+            "filePath": "src-tauri/migrations/0005_record_initial_watch_activity.sql",
+            "summary": "Backfills an initial watch-activity event for eligible existing library entries without duplicating prior history.",
+            "tags": [
+                "database",
+                "migration",
+                "sqlite"
+            ],
+            "complexity": "simple",
+            "languageNotes": "Append-only SQLite migration using parameter-free DDL or deterministic data repair statements."
+        },
+        {
+            "id": "table:src-tauri/migrations/0006_media_release_date.sql:migration",
+            "type": "table",
+            "name": "0006_media_release_date.sql",
+            "filePath": "src-tauri/migrations/0006_media_release_date.sql",
+            "summary": "Adds a nullable release-date field to cached media snapshots for sorting and display.",
+            "tags": [
+                "database",
+                "migration",
+                "sqlite"
+            ],
+            "complexity": "simple",
+            "languageNotes": "Append-only SQLite migration using parameter-free DDL or deterministic data repair statements."
+        },
+        {
+            "id": "table:src-tauri/migrations/0007_refresh_missing_release_dates.sql:migration",
+            "type": "table",
+            "name": "0007_refresh_missing_release_dates.sql",
+            "filePath": "src-tauri/migrations/0007_refresh_missing_release_dates.sql",
+            "summary": "Expires cached media snapshots whose release date is missing so a later metadata refresh can fill it.",
+            "tags": [
+                "database",
+                "migration",
+                "sqlite"
+            ],
+            "complexity": "simple",
+            "languageNotes": "Append-only SQLite migration using parameter-free DDL or deterministic data repair statements."
+        }
+    ],
+    "edges": [
+        {
+            "source": "table:src-tauri/migrations/0001_initial.sql:migration",
+            "target": "table:src-tauri/migrations/0001_initial.sql:library_entries",
+            "type": "migrates",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "table:src-tauri/migrations/0001_initial.sql:migration",
+            "target": "table:src-tauri/migrations/0001_initial.sql:settings",
+            "type": "migrates",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "table:src-tauri/migrations/0001_initial.sql:migration",
+            "target": "table:src-tauri/migrations/0001_initial.sql:media_snapshots",
+            "type": "migrates",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "table:src-tauri/migrations/0001_initial.sql:migration",
+            "target": "table:src-tauri/migrations/0001_initial.sql:airing_data",
+            "type": "migrates",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "table:src-tauri/migrations/0001_initial.sql:migration",
+            "target": "table:src-tauri/migrations/0001_initial.sql:response_caches",
+            "type": "migrates",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "table:src-tauri/migrations/0002_watch_activity.sql:migration",
+            "target": "table:src-tauri/migrations/0002_watch_activity.sql:watch_activity",
+            "type": "migrates",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "table:src-tauri/migrations/0004_watch_activity_identity.sql:migration",
+            "target": "table:src-tauri/migrations/0004_watch_activity_identity.sql:watch_activity_with_identity",
+            "type": "migrates",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "table:src-tauri/migrations/0003_activity_progress.sql:migration",
+            "target": "table:src-tauri/migrations/0002_watch_activity.sql:watch_activity",
+            "type": "migrates",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "table:src-tauri/migrations/0004_watch_activity_identity.sql:migration",
+            "target": "table:src-tauri/migrations/0002_watch_activity.sql:watch_activity",
+            "type": "migrates",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "table:src-tauri/migrations/0005_record_initial_watch_activity.sql:migration",
+            "target": "table:src-tauri/migrations/0001_initial.sql:library_entries",
+            "type": "migrates",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "table:src-tauri/migrations/0005_record_initial_watch_activity.sql:migration",
+            "target": "table:src-tauri/migrations/0002_watch_activity.sql:watch_activity",
+            "type": "migrates",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "table:src-tauri/migrations/0006_media_release_date.sql:migration",
+            "target": "table:src-tauri/migrations/0001_initial.sql:media_snapshots",
+            "type": "migrates",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "table:src-tauri/migrations/0007_refresh_missing_release_dates.sql:migration",
+            "target": "table:src-tauri/migrations/0001_initial.sql:media_snapshots",
+            "type": "migrates",
+            "direction": "forward",
+            "weight": 0.7
+        }
+    ]
+}

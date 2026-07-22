@@ -1,0 +1,101 @@
+{
+    "projectRoot":  "C:\\Users\\Some random laptop\\Workspace\\animi",
+    "batchFiles":  [
+                       {
+                           "path":  "src-tauri/src/anilist/client.rs",
+                           "language":  "rust",
+                           "sizeLines":  418,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/anilist/mod.rs",
+                           "language":  "rust",
+                           "sizeLines":  20,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/anilist/queries.rs",
+                           "language":  "rust",
+                           "sizeLines":  104,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/anilist/service.rs",
+                           "language":  "rust",
+                           "sizeLines":  1387,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/anilist/tests.rs",
+                           "language":  "rust",
+                           "sizeLines":  368,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/anilist/types.rs",
+                           "language":  "rust",
+                           "sizeLines":  324,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/commands/discovery.rs",
+                           "language":  "rust",
+                           "sizeLines":  123,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/lib.rs",
+                           "language":  "rust",
+                           "sizeLines":  137,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src-tauri/src/recommendations/mod.rs",
+                           "language":  "rust",
+                           "sizeLines":  423,
+                           "fileCategory":  "code"
+                       }
+                   ],
+    "batchImportData":  {
+                            "src-tauri/src/anilist/client.rs":  [
+
+                                                                ],
+                            "src-tauri/src/anilist/mod.rs":  [
+                                                                 "src-tauri/src/anilist/client.rs",
+                                                                 "src-tauri/src/anilist/queries.rs",
+                                                                 "src-tauri/src/anilist/service.rs",
+                                                                 "src-tauri/src/anilist/tests.rs",
+                                                                 "src-tauri/src/anilist/types.rs"
+                                                             ],
+                            "src-tauri/src/anilist/queries.rs":  [
+
+                                                                 ],
+                            "src-tauri/src/anilist/service.rs":  [
+                                                                     "src-tauri/src/database/mod.rs",
+                                                                     "src-tauri/src/domain/mod.rs",
+                                                                     "src-tauri/src/recommendations/mod.rs"
+                                                                 ],
+                            "src-tauri/src/anilist/tests.rs":  [
+
+                                                               ],
+                            "src-tauri/src/anilist/types.rs":  [
+
+                                                               ],
+                            "src-tauri/src/commands/discovery.rs":  [
+                                                                        "src-tauri/src/anilist/mod.rs",
+                                                                        "src-tauri/src/domain/mod.rs"
+                                                                    ],
+                            "src-tauri/src/lib.rs":  [
+                                                         "src-tauri/src/anilist/mod.rs",
+                                                         "src-tauri/src/backups/mod.rs",
+                                                         "src-tauri/src/commands/mod.rs",
+                                                         "src-tauri/src/database/mod.rs",
+                                                         "src-tauri/src/domain/mod.rs",
+                                                         "src-tauri/src/recommendations/mod.rs"
+                                                     ],
+                            "src-tauri/src/recommendations/mod.rs":  [
+                                                                         "src-tauri/src/anilist/mod.rs",
+                                                                         "src-tauri/src/domain/mod.rs"
+                                                                     ]
+                        }
+}

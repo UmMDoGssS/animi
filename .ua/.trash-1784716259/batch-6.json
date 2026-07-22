@@ -1,0 +1,16 @@
+{
+    "nodes": [
+        {"id":"file:.svelte-kit/generated/root.js","type":"file","name":"root.js","filePath":".svelte-kit/generated/root.js","summary":"Generated SvelteKit bridge that exposes the compiled root component to the runtime.","tags":["generated-code","sveltekit","entry-point"],"complexity":"simple"},
+        {"id":"file:.svelte-kit/generated/root.svelte","type":"file","name":"root.svelte","filePath":".svelte-kit/generated/root.svelte","summary":"Generated SvelteKit root renderer that connects page stores, nested route constructors, form data, and navigation announcements.","tags":["generated-code","svelte-component","routing","accessibility"],"complexity":"moderate"},
+        {"id":"file:.svelte-kit/generated/server/internal.js","type":"file","name":"internal.js","filePath":".svelte-kit/generated/server/internal.js","summary":"Generated server runtime configuration containing the HTML template, framework options, environment setters, and lazily resolved hooks.","tags":["generated-code","sveltekit","server-runtime","configuration"],"complexity":"moderate"},
+        {"id":"function:.svelte-kit/generated/server/internal.js:get_hooks","type":"function","name":"get_hooks","filePath":".svelte-kit/generated/server/internal.js","lineRange":[32,53],"summary":"Returns the generated server hook surface with undefined defaults for optional application hooks.","tags":["generated-code","server-runtime","factory"],"complexity":"simple"},
+        {"id":"file:.svelte-kit/generated/shared/error-template.js","type":"file","name":"error-template.js","filePath":".svelte-kit/generated/shared/error-template.js","summary":"Generated module that supplies SvelteKit's fallback error-page template.","tags":["generated-code","error-handling","template"],"complexity":"simple"}
+    ],
+    "edges": [
+        {"source":"file:.svelte-kit/generated/root.js","target":"file:.svelte-kit/generated/root.svelte","type":"imports","direction":"forward","weight":0.7},
+        {"source":"file:.svelte-kit/generated/server/internal.js","target":"file:.svelte-kit/generated/root.js","type":"imports","direction":"forward","weight":0.7},
+        {"source":"file:.svelte-kit/generated/server/internal.js","target":"file:.svelte-kit/generated/shared/error-template.js","type":"imports","direction":"forward","weight":0.7},
+        {"source":"file:.svelte-kit/generated/server/internal.js","target":"function:.svelte-kit/generated/server/internal.js:get_hooks","type":"contains","direction":"forward","weight":1.0},
+        {"source":"file:.svelte-kit/generated/server/internal.js","target":"function:.svelte-kit/generated/server/internal.js:get_hooks","type":"exports","direction":"forward","weight":0.8}
+    ]
+}

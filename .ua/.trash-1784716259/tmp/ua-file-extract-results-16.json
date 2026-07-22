@@ -1,0 +1,2957 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 20,
+  "filesSkipped": [
+    ".ua/.understandignore",
+    "src-tauri/icons/icon.icns",
+    "src-tauri/tests/fixtures/database/v0001.sqlite3",
+    "src-tauri/tests/fixtures/database/v0002.sqlite3",
+    "src-tauri/tests/fixtures/database/v0003.sqlite3"
+  ],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 20,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 13,
+      "failed": 0,
+      "skipped": 7
+    }
+  },
+  "results": [
+    {
+      "path": ".svelte-kit/output/server/manifest.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 39,
+      "nonEmptyLines": 36,
+      "exports": [
+        {
+          "name": "manifest",
+          "line": 1,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "__memo",
+          "callee": "fn",
+          "lineNumber": 4
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": ".svelte-kit/output/server/nodes/0.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 10,
+      "nonEmptyLines": 8,
+      "exports": [
+        {
+          "name": "index",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "universal",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "universal_id",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "imports",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "stylesheets",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "fonts",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": ".svelte-kit/output/server/nodes/1.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 6,
+      "nonEmptyLines": 4,
+      "exports": [
+        {
+          "name": "index",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "imports",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "stylesheets",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "fonts",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 4,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": ".svelte-kit/output/server/nodes/2.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 6,
+      "nonEmptyLines": 4,
+      "exports": [
+        {
+          "name": "index",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "imports",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "stylesheets",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "fonts",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 4,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": ".svelte-kit/tsconfig.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 56,
+      "nonEmptyLines": 56,
+      "sections": [
+        {
+          "heading": "compilerOptions",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "include",
+          "level": 1,
+          "line": 30
+        },
+        {
+          "heading": "exclude",
+          "level": 1,
+          "line": 47
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 3
+      }
+    },
+    {
+      "path": ".svelte-kit/types/route_meta_data.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 6,
+      "nonEmptyLines": 6,
+      "sections": [
+        {
+          "heading": "/",
+          "level": 1,
+          "line": 2
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": ".svelte-kit/types/src/routes/$types.d.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 25,
+      "nonEmptyLines": 23,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": ".ua/config.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 3,
+      "nonEmptyLines": 3,
+      "sections": [
+        {
+          "heading": "outputLanguage",
+          "level": 1,
+          "line": 2
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "eslint.config.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 35,
+      "nonEmptyLines": 34,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/release-audit.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 139,
+      "nonEmptyLines": 126,
+      "functions": [
+        {
+          "name": "fail",
+          "startLine": 10,
+          "endLine": 12,
+          "params": [
+            "message"
+          ]
+        },
+        {
+          "name": "readJson",
+          "startLine": 14,
+          "endLine": 16,
+          "params": [
+            "path"
+          ]
+        },
+        {
+          "name": "object",
+          "startLine": 18,
+          "endLine": 24,
+          "params": [
+            "value",
+            "label"
+          ]
+        },
+        {
+          "name": "collectFiles",
+          "startLine": 26,
+          "endLine": 36,
+          "params": [
+            "directory"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fail",
+          "callee": "failures.push",
+          "lineNumber": 11
+        },
+        {
+          "caller": "readJson",
+          "callee": "JSON.parse",
+          "lineNumber": 15
+        },
+        {
+          "caller": "readJson",
+          "callee": "readFile",
+          "lineNumber": 15
+        },
+        {
+          "caller": "readJson",
+          "callee": "join",
+          "lineNumber": 15
+        },
+        {
+          "caller": "object",
+          "callee": "Array.isArray",
+          "lineNumber": 19
+        },
+        {
+          "caller": "object",
+          "callee": "fail",
+          "lineNumber": 20
+        },
+        {
+          "caller": "collectFiles",
+          "callee": "readdir",
+          "lineNumber": 29
+        },
+        {
+          "caller": "collectFiles",
+          "callee": "ignored.has",
+          "lineNumber": 30
+        },
+        {
+          "caller": "collectFiles",
+          "callee": "join",
+          "lineNumber": 31
+        },
+        {
+          "caller": "collectFiles",
+          "callee": "entry.isDirectory",
+          "lineNumber": 32
+        },
+        {
+          "caller": "collectFiles",
+          "callee": "files.push",
+          "lineNumber": 32
+        },
+        {
+          "caller": "collectFiles",
+          "callee": "collectFiles",
+          "lineNumber": 32
+        },
+        {
+          "caller": "collectFiles",
+          "callee": "files.push",
+          "lineNumber": 33
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src-tauri/Cargo.toml",
+      "language": "toml",
+      "fileCategory": "config",
+      "totalLines": 35,
+      "nonEmptyLines": 30,
+      "sections": [
+        {
+          "heading": "package",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "lib",
+          "level": 1,
+          "line": 11
+        },
+        {
+          "heading": "build-dependencies",
+          "level": 1,
+          "line": 18
+        },
+        {
+          "heading": "dependencies",
+          "level": 1,
+          "line": 21
+        },
+        {
+          "heading": "dev-dependencies",
+          "level": 1,
+          "line": 34
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": "src-tauri/build.rs",
+      "language": "rust",
+      "fileCategory": "code",
+      "totalLines": 20,
+      "nonEmptyLines": 19,
+      "functions": [
+        {
+          "name": "main",
+          "startLine": 1,
+          "endLine": 20,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "main",
+          "callee": "tauri_build::build",
+          "lineNumber": 5
+        },
+        {
+          "caller": "main",
+          "callee": "std::env::var(\"OUT_DIR\").expect",
+          "lineNumber": 11
+        },
+        {
+          "caller": "main",
+          "callee": "std::env::var",
+          "lineNumber": 11
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src-tauri/capabilities/default.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 7,
+      "nonEmptyLines": 7,
+      "sections": [
+        {
+          "heading": "$schema",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "identifier",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "description",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "windows",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "permissions",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": "src-tauri/src/main.rs",
+      "language": "rust",
+      "fileCategory": "code",
+      "totalLines": 6,
+      "nonEmptyLines": 5,
+      "functions": [
+        {
+          "name": "main",
+          "startLine": 4,
+          "endLine": 6,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "main",
+          "callee": "animi_lib::run",
+          "lineNumber": 5
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src-tauri/tauri.conf.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 56,
+      "nonEmptyLines": 56,
+      "sections": [
+        {
+          "heading": "$schema",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "productName",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "version",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "identifier",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "build",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "app",
+          "level": 1,
+          "line": 12
+        },
+        {
+          "heading": "bundle",
+          "level": 1,
+          "line": 26
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    {
+      "path": "src-tauri/tests/fixtures/README.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 8,
+      "nonEmptyLines": 5,
+      "sections": [
+        {
+          "heading": "Backend fixtures",
+          "level": 1,
+          "line": 1
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "src-tauri/tests/p4_ipc.rs",
+      "language": "rust",
+      "fileCategory": "code",
+      "totalLines": 319,
+      "nonEmptyLines": 286,
+      "functions": [
+        {
+          "name": "now",
+          "startLine": 25,
+          "endLine": 27,
+          "params": []
+        },
+        {
+          "name": "new",
+          "startLine": 37,
+          "endLine": 42,
+          "params": [
+            "responses"
+          ]
+        },
+        {
+          "name": "request_count",
+          "startLine": 44,
+          "endLine": 46,
+          "params": []
+        },
+        {
+          "name": "send",
+          "startLine": 50,
+          "endLine": 59,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "fixture_response",
+          "startLine": 62,
+          "endLine": 68,
+          "params": [
+            "body"
+          ]
+        },
+        {
+          "name": "build_test_app",
+          "startLine": 70,
+          "endLine": 75,
+          "params": [
+            "database",
+            "client"
+          ]
+        },
+        {
+          "name": "main_webview",
+          "startLine": 77,
+          "endLine": 81,
+          "params": [
+            "app"
+          ]
+        },
+        {
+          "name": "invoke",
+          "startLine": 83,
+          "endLine": 111,
+          "params": [
+            "webview",
+            "command",
+            "body"
+          ]
+        },
+        {
+          "name": "invoke_ok",
+          "startLine": 113,
+          "endLine": 116,
+          "params": [
+            "webview",
+            "command",
+            "body"
+          ]
+        },
+        {
+          "name": "invoke_error",
+          "startLine": 118,
+          "endLine": 121,
+          "params": [
+            "webview",
+            "command",
+            "body"
+          ]
+        },
+        {
+          "name": "library_request",
+          "startLine": 123,
+          "endLine": 134,
+          "params": [
+            "status",
+            "progress",
+            "score",
+            "notes"
+          ]
+        },
+        {
+          "name": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "startLine": 137,
+          "endLine": 319,
+          "params": []
+        }
+      ],
+      "classes": [
+        {
+          "name": "FixedClock",
+          "startLine": 22,
+          "endLine": 22,
+          "methods": [
+            "now"
+          ],
+          "properties": []
+        },
+        {
+          "name": "FixtureTransport",
+          "startLine": 31,
+          "endLine": 34,
+          "methods": [
+            "new",
+            "request_count",
+            "send"
+          ],
+          "properties": [
+            "responses",
+            "requests"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "new",
+          "callee": "Mutex::new",
+          "lineNumber": 39
+        },
+        {
+          "caller": "new",
+          "callee": "responses.into_iter().collect",
+          "lineNumber": 39
+        },
+        {
+          "caller": "new",
+          "callee": "responses.into_iter",
+          "lineNumber": 39
+        },
+        {
+          "caller": "new",
+          "callee": "Mutex::new",
+          "lineNumber": 40
+        },
+        {
+          "caller": "new",
+          "callee": "Vec::new",
+          "lineNumber": 40
+        },
+        {
+          "caller": "request_count",
+          "callee": "self.requests.lock().expect(\"request lock\").len",
+          "lineNumber": 45
+        },
+        {
+          "caller": "request_count",
+          "callee": "self.requests.lock().expect",
+          "lineNumber": 45
+        },
+        {
+          "caller": "request_count",
+          "callee": "self.requests.lock",
+          "lineNumber": 45
+        },
+        {
+          "caller": "send",
+          "callee": "self.requests.lock().expect(\"request lock\").push",
+          "lineNumber": 51
+        },
+        {
+          "caller": "send",
+          "callee": "self.requests.lock().expect",
+          "lineNumber": 51
+        },
+        {
+          "caller": "send",
+          "callee": "self.requests.lock",
+          "lineNumber": 51
+        },
+        {
+          "caller": "send",
+          "callee": "self\n            .responses\n            .lock()\n            .expect(\"response lock\")\n            .pop_front().expect",
+          "lineNumber": 52
+        },
+        {
+          "caller": "send",
+          "callee": "self\n            .responses\n            .lock()\n            .expect(\"response lock\").pop_front",
+          "lineNumber": 52
+        },
+        {
+          "caller": "send",
+          "callee": "self\n            .responses\n            .lock().expect",
+          "lineNumber": 52
+        },
+        {
+          "caller": "send",
+          "callee": "self\n            .responses.lock",
+          "lineNumber": 52
+        },
+        {
+          "caller": "send",
+          "callee": "Box::pin",
+          "lineNumber": 58
+        },
+        {
+          "caller": "fixture_response",
+          "callee": "Ok",
+          "lineNumber": 63
+        },
+        {
+          "caller": "fixture_response",
+          "callee": "BTreeMap::new",
+          "lineNumber": 65
+        },
+        {
+          "caller": "fixture_response",
+          "callee": "body.to_owned",
+          "lineNumber": 66
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "AniListService::new",
+          "lineNumber": 71
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "database.clone",
+          "lineNumber": 71
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "register_commands(mock_builder().manage(database).manage(service))\n        .build(mock_context(noop_assets())).expect",
+          "lineNumber": 72
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "register_commands(mock_builder().manage(database).manage(service)).build",
+          "lineNumber": 72
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "register_commands",
+          "lineNumber": 72
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "mock_builder().manage(database).manage",
+          "lineNumber": 72
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "mock_builder().manage",
+          "lineNumber": 72
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "mock_builder",
+          "lineNumber": 72
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "mock_context",
+          "lineNumber": 73
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "noop_assets",
+          "lineNumber": 73
+        },
+        {
+          "caller": "main_webview",
+          "callee": "WebviewWindowBuilder::new(app, \"main\", Default::default())\n        .build().expect",
+          "lineNumber": 78
+        },
+        {
+          "caller": "main_webview",
+          "callee": "WebviewWindowBuilder::new(app, \"main\", Default::default()).build",
+          "lineNumber": 78
+        },
+        {
+          "caller": "main_webview",
+          "callee": "WebviewWindowBuilder::new",
+          "lineNumber": 78
+        },
+        {
+          "caller": "main_webview",
+          "callee": "Default::default",
+          "lineNumber": 78
+        },
+        {
+          "caller": "invoke",
+          "callee": "get_ipc_response(\n        webview,\n        InvokeRequest {\n            cmd: command.to_owned(),\n            callback: CallbackFn(0),\n            error: CallbackFn(1),\n            url: if cfg!(any(windows, target_os = \"android\")) {\n                \"http://tauri.localhost\"\n            } else {\n                \"tauri://localhost\"\n            }\n            .parse()\n            .expect(\"valid mock IPC URL\"),\n            body: InvokeBody::Json(body),\n            headers: Default::default(),\n            invoke_key: INVOKE_KEY.to_owned(),\n        },\n    ).map",
+          "lineNumber": 88
+        },
+        {
+          "caller": "invoke",
+          "callee": "get_ipc_response",
+          "lineNumber": 88
+        },
+        {
+          "caller": "invoke",
+          "callee": "command.to_owned",
+          "lineNumber": 91
+        },
+        {
+          "caller": "invoke",
+          "callee": "CallbackFn",
+          "lineNumber": 92
+        },
+        {
+          "caller": "invoke",
+          "callee": "CallbackFn",
+          "lineNumber": 93
+        },
+        {
+          "caller": "invoke",
+          "callee": "if cfg!(any(windows, target_os = \"android\")) {\n                \"http://tauri.localhost\"\n            } else {\n                \"tauri://localhost\"\n            }\n            .parse().expect",
+          "lineNumber": 94
+        },
+        {
+          "caller": "invoke",
+          "callee": "if cfg!(any(windows, target_os = \"android\")) {\n                \"http://tauri.localhost\"\n            } else {\n                \"tauri://localhost\"\n            }.parse",
+          "lineNumber": 94
+        },
+        {
+          "caller": "invoke",
+          "callee": "InvokeBody::Json",
+          "lineNumber": 101
+        },
+        {
+          "caller": "invoke",
+          "callee": "Default::default",
+          "lineNumber": 102
+        },
+        {
+          "caller": "invoke",
+          "callee": "INVOKE_KEY.to_owned",
+          "lineNumber": 103
+        },
+        {
+          "caller": "invoke",
+          "callee": "response\n            .deserialize::<Value>().expect",
+          "lineNumber": 107
+        },
+        {
+          "caller": "invoke",
+          "callee": "response\n            .deserialize::<Value>",
+          "lineNumber": 107
+        },
+        {
+          "caller": "invoke_ok",
+          "callee": "invoke(webview, command, body).unwrap_or_else",
+          "lineNumber": 114
+        },
+        {
+          "caller": "invoke_ok",
+          "callee": "invoke",
+          "lineNumber": 114
+        },
+        {
+          "caller": "invoke_error",
+          "callee": "invoke(webview, command, body).expect_err",
+          "lineNumber": 119
+        },
+        {
+          "caller": "invoke_error",
+          "callee": "invoke",
+          "lineNumber": 119
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "tempdir().expect",
+          "lineNumber": 138
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "tempdir",
+          "lineNumber": 138
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "DatabasePaths::from_root(root.path()).expect",
+          "lineNumber": 139
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 139
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "root.path",
+          "lineNumber": 139
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "tauri::async_runtime::block_on(Database::connect(&paths)).expect",
+          "lineNumber": 141
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "tauri::async_runtime::block_on",
+          "lineNumber": 141
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "Database::connect",
+          "lineNumber": 141
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "Utc::now",
+          "lineNumber": 142
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "Arc::new",
+          "lineNumber": 143
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "FixtureTransport::new",
+          "lineNumber": 143
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "fixture_response",
+          "lineNumber": 144
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "fixture_response",
+          "lineNumber": 147
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "AniListClient::with_clock",
+          "lineNumber": 149
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "transport.clone",
+          "lineNumber": 149
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "Arc::new",
+          "lineNumber": 149
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "FixedClock",
+          "lineNumber": 149
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "build_test_app",
+          "lineNumber": 150
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "database.clone",
+          "lineNumber": 150
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "main_webview",
+          "lineNumber": 151
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "invoke_ok",
+          "lineNumber": 153
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "invoke_ok",
+          "lineNumber": 168
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "invoke_ok",
+          "lineNumber": 178
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "library_request",
+          "lineNumber": 181
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "invoke_ok",
+          "lineNumber": 188
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "library_request",
+          "lineNumber": 191
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "invoke_ok",
+          "lineNumber": 198
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "invoke_error",
+          "lineNumber": 211
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "library_request",
+          "lineNumber": 214
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "invoke_ok",
+          "lineNumber": 219
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "drop",
+          "lineNumber": 226
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "drop",
+          "lineNumber": 227
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "tauri::async_runtime::block_on",
+          "lineNumber": 228
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "database.close",
+          "lineNumber": 228
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "tauri::async_runtime::block_on(Database::connect(&paths)).expect",
+          "lineNumber": 230
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "tauri::async_runtime::block_on",
+          "lineNumber": 230
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "Database::connect",
+          "lineNumber": 230
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "AniListClient::with_clock",
+          "lineNumber": 232
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "Arc::new",
+          "lineNumber": 233
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "Arc::new",
+          "lineNumber": 234
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "FixedClock",
+          "lineNumber": 234
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "Duration::hours",
+          "lineNumber": 234
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "build_test_app",
+          "lineNumber": 236
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "reopened.clone",
+          "lineNumber": 236
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "main_webview",
+          "lineNumber": 237
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "invoke_ok",
+          "lineNumber": 239
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "invoke_ok",
+          "lineNumber": 254
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "persisted[0][\"entry\"].clone",
+          "lineNumber": 255
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "invoke_ok",
+          "lineNumber": 258
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "invoke_ok",
+          "lineNumber": 265
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "invoke_ok",
+          "lineNumber": 267
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "invoke_error",
+          "lineNumber": 271
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "invoke_ok",
+          "lineNumber": 291
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "invoke_ok",
+          "lineNumber": 310
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "drop",
+          "lineNumber": 316
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "drop",
+          "lineNumber": 317
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "tauri::async_runtime::block_on",
+          "lineNumber": 318
+        },
+        {
+          "caller": "p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network",
+          "callee": "reopened.close",
+          "lineNumber": 318
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 12,
+        "classCount": 2
+      }
+    },
+    {
+      "path": "src-tauri/tests/p5_ipc.rs",
+      "language": "rust",
+      "fileCategory": "code",
+      "totalLines": 244,
+      "nonEmptyLines": 225,
+      "functions": [
+        {
+          "name": "now",
+          "startLine": 28,
+          "endLine": 30,
+          "params": []
+        },
+        {
+          "name": "new",
+          "startLine": 38,
+          "endLine": 42,
+          "params": [
+            "responses"
+          ]
+        },
+        {
+          "name": "send",
+          "startLine": 46,
+          "endLine": 54,
+          "params": [
+            "_request"
+          ]
+        },
+        {
+          "name": "fixture_response",
+          "startLine": 57,
+          "endLine": 63,
+          "params": [
+            "body"
+          ]
+        },
+        {
+          "name": "build_test_app",
+          "startLine": 65,
+          "endLine": 70,
+          "params": [
+            "database",
+            "client"
+          ]
+        },
+        {
+          "name": "main_webview",
+          "startLine": 72,
+          "endLine": 76,
+          "params": [
+            "app"
+          ]
+        },
+        {
+          "name": "invoke",
+          "startLine": 78,
+          "endLine": 96,
+          "params": [
+            "webview",
+            "command",
+            "body"
+          ]
+        },
+        {
+          "name": "invoke_ok",
+          "startLine": 98,
+          "endLine": 101,
+          "params": [
+            "webview",
+            "command",
+            "body"
+          ]
+        },
+        {
+          "name": "seed_profile_title",
+          "startLine": 103,
+          "endLine": 149,
+          "params": [
+            "database",
+            "anilist_id",
+            "status",
+            "progress",
+            "total_units",
+            "signals",
+            "now"
+          ]
+        },
+        {
+          "name": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "startLine": 152,
+          "endLine": 244,
+          "params": []
+        }
+      ],
+      "classes": [
+        {
+          "name": "FixedClock",
+          "startLine": 25,
+          "endLine": 25,
+          "methods": [
+            "now"
+          ],
+          "properties": []
+        },
+        {
+          "name": "FixtureTransport",
+          "startLine": 33,
+          "endLine": 35,
+          "methods": [
+            "new",
+            "send"
+          ],
+          "properties": [
+            "responses"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "new",
+          "callee": "Mutex::new",
+          "lineNumber": 40
+        },
+        {
+          "caller": "new",
+          "callee": "responses.into_iter().collect",
+          "lineNumber": 40
+        },
+        {
+          "caller": "new",
+          "callee": "responses.into_iter",
+          "lineNumber": 40
+        },
+        {
+          "caller": "send",
+          "callee": "self\n            .responses\n            .lock()\n            .expect(\"response lock\")\n            .pop_front().expect",
+          "lineNumber": 47
+        },
+        {
+          "caller": "send",
+          "callee": "self\n            .responses\n            .lock()\n            .expect(\"response lock\").pop_front",
+          "lineNumber": 47
+        },
+        {
+          "caller": "send",
+          "callee": "self\n            .responses\n            .lock().expect",
+          "lineNumber": 47
+        },
+        {
+          "caller": "send",
+          "callee": "self\n            .responses.lock",
+          "lineNumber": 47
+        },
+        {
+          "caller": "send",
+          "callee": "Box::pin",
+          "lineNumber": 53
+        },
+        {
+          "caller": "fixture_response",
+          "callee": "Ok",
+          "lineNumber": 58
+        },
+        {
+          "caller": "fixture_response",
+          "callee": "BTreeMap::new",
+          "lineNumber": 60
+        },
+        {
+          "caller": "fixture_response",
+          "callee": "body.into",
+          "lineNumber": 61
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "AniListService::new",
+          "lineNumber": 66
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "database.clone",
+          "lineNumber": 66
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "register_commands(mock_builder().manage(database).manage(service))\n        .build(mock_context(noop_assets())).expect",
+          "lineNumber": 67
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "register_commands(mock_builder().manage(database).manage(service)).build",
+          "lineNumber": 67
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "register_commands",
+          "lineNumber": 67
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "mock_builder().manage(database).manage",
+          "lineNumber": 67
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "mock_builder().manage",
+          "lineNumber": 67
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "mock_builder",
+          "lineNumber": 67
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "mock_context",
+          "lineNumber": 68
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "noop_assets",
+          "lineNumber": 68
+        },
+        {
+          "caller": "main_webview",
+          "callee": "WebviewWindowBuilder::new(app, \"main\", Default::default())\n        .build().expect",
+          "lineNumber": 73
+        },
+        {
+          "caller": "main_webview",
+          "callee": "WebviewWindowBuilder::new(app, \"main\", Default::default()).build",
+          "lineNumber": 73
+        },
+        {
+          "caller": "main_webview",
+          "callee": "WebviewWindowBuilder::new",
+          "lineNumber": 73
+        },
+        {
+          "caller": "main_webview",
+          "callee": "Default::default",
+          "lineNumber": 73
+        },
+        {
+          "caller": "invoke",
+          "callee": "get_ipc_response(\n        webview,\n        InvokeRequest {\n            cmd: command.to_owned(),\n            callback: CallbackFn(0),\n            error: CallbackFn(1),\n            url: \"http://tauri.localhost\".parse().expect(\"mock URL\"),\n            body: InvokeBody::Json(body),\n            headers: Default::default(),\n            invoke_key: INVOKE_KEY.to_owned(),\n        },\n    ).map",
+          "lineNumber": 83
+        },
+        {
+          "caller": "invoke",
+          "callee": "get_ipc_response",
+          "lineNumber": 83
+        },
+        {
+          "caller": "invoke",
+          "callee": "command.to_owned",
+          "lineNumber": 86
+        },
+        {
+          "caller": "invoke",
+          "callee": "CallbackFn",
+          "lineNumber": 87
+        },
+        {
+          "caller": "invoke",
+          "callee": "CallbackFn",
+          "lineNumber": 88
+        },
+        {
+          "caller": "invoke",
+          "callee": "\"http://tauri.localhost\".parse().expect",
+          "lineNumber": 89
+        },
+        {
+          "caller": "invoke",
+          "callee": "\"http://tauri.localhost\".parse",
+          "lineNumber": 89
+        },
+        {
+          "caller": "invoke",
+          "callee": "InvokeBody::Json",
+          "lineNumber": 90
+        },
+        {
+          "caller": "invoke",
+          "callee": "Default::default",
+          "lineNumber": 91
+        },
+        {
+          "caller": "invoke",
+          "callee": "INVOKE_KEY.to_owned",
+          "lineNumber": 92
+        },
+        {
+          "caller": "invoke",
+          "callee": "response.deserialize::<Value>().expect",
+          "lineNumber": 95
+        },
+        {
+          "caller": "invoke",
+          "callee": "response.deserialize::<Value>",
+          "lineNumber": 95
+        },
+        {
+          "caller": "invoke_ok",
+          "callee": "invoke(webview, command, body).unwrap_or_else",
+          "lineNumber": 99
+        },
+        {
+          "caller": "invoke_ok",
+          "callee": "invoke",
+          "lineNumber": 99
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "database\n        .media()\n        .upsert_snapshot(&MediaSnapshotRecord {\n            anilist_id,\n            media_kind: MediaKind::Anime,\n            title: format!(\"Tracked {anilist_id}\"),\n            cover_url: None,\n            media_format: Some(\"TV\".to_owned()),\n            genres: genres.iter().map(|value| (*value).to_owned()).collect(),\n            tags: tags\n                .iter()\n                .map(|(name, rank)| StoredMediaTag {\n                    name: (*name).to_owned(),\n                    rank: *rank,\n                })\n                .collect(),\n            media_status: Some(\"RELEASING\".to_owned()),\n            total_units: Some(total_units),\n            duration_minutes: Some(24),\n            release_date: None,\n            cached_at: now,\n        })\n        .await.expect",
+          "lineNumber": 113
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "database\n        .media().upsert_snapshot",
+          "lineNumber": 113
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "database.media",
+          "lineNumber": 113
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "Some",
+          "lineNumber": 120
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "\"TV\".to_owned",
+          "lineNumber": 120
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "genres.iter().map(|value| (*value).to_owned()).collect",
+          "lineNumber": 121
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "genres.iter().map",
+          "lineNumber": 121
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "genres.iter",
+          "lineNumber": 121
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "(*value).to_owned",
+          "lineNumber": 121
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "tags\n                .iter()\n                .map(|(name, rank)| StoredMediaTag {\n                    name: (*name).to_owned(),\n                    rank: *rank,\n                }).collect",
+          "lineNumber": 122
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "tags\n                .iter().map",
+          "lineNumber": 122
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "tags.iter",
+          "lineNumber": 122
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "(*name).to_owned",
+          "lineNumber": 125
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "Some",
+          "lineNumber": 129
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "\"RELEASING\".to_owned",
+          "lineNumber": 129
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "Some",
+          "lineNumber": 130
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "Some",
+          "lineNumber": 131
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "database\n        .library()\n        .upsert(UpsertLibraryEntryRequest {\n            anilist_id,\n            media_kind: MediaKind::Anime,\n            status,\n            progress,\n            score: None,\n            notes: None,\n        })\n        .await.expect",
+          "lineNumber": 137
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "database\n        .library().upsert",
+          "lineNumber": 137
+        },
+        {
+          "caller": "seed_profile_title",
+          "callee": "database.library",
+          "lineNumber": 137
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "tempdir().expect",
+          "lineNumber": 153
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "tempdir",
+          "lineNumber": 153
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "DatabasePaths::from_root(root.path()).expect",
+          "lineNumber": 154
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 154
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "root.path",
+          "lineNumber": 154
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "tauri::async_runtime::block_on(Database::connect(&paths)).expect",
+          "lineNumber": 156
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "tauri::async_runtime::block_on",
+          "lineNumber": 156
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "Database::connect",
+          "lineNumber": 156
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "Utc::now",
+          "lineNumber": 157
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "tauri::async_runtime::block_on",
+          "lineNumber": 158
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "seed_profile_title",
+          "lineNumber": 158
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "tauri::async_runtime::block_on",
+          "lineNumber": 167
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "seed_profile_title",
+          "lineNumber": 167
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "Arc::new",
+          "lineNumber": 187
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "FixtureTransport::new",
+          "lineNumber": 187
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "fixture_response",
+          "lineNumber": 188
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "airing.to_string",
+          "lineNumber": 188
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "fixture_response",
+          "lineNumber": 189
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "AniListClient::with_clock",
+          "lineNumber": 193
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "Arc::new",
+          "lineNumber": 193
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "FixedClock",
+          "lineNumber": 193
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "build_test_app",
+          "lineNumber": 194
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "database.clone",
+          "lineNumber": 194
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "main_webview",
+          "lineNumber": 195
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 197
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 204
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "invoke(\n        &webview,\n        \"advance_library_progress\",\n        json!({ \"request\": { \"anilistId\": 101 } }),\n    ).expect_err",
+          "lineNumber": 211
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "invoke",
+          "lineNumber": 211
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 219
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 232
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "drop",
+          "lineNumber": 241
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "drop",
+          "lineNumber": 242
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "tauri::async_runtime::block_on",
+          "lineNumber": 243
+        },
+        {
+          "caller": "p5_home_recommendations_and_activity_cross_the_real_ipc_boundary",
+          "callee": "database.close",
+          "lineNumber": 243
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 10,
+        "classCount": 2
+      }
+    },
+    {
+      "path": "src-tauri/tests/p6_ipc.rs",
+      "language": "rust",
+      "fileCategory": "code",
+      "totalLines": 308,
+      "nonEmptyLines": 281,
+      "functions": [
+        {
+          "name": "build_test_app",
+          "startLine": 15,
+          "endLine": 29,
+          "params": [
+            "database",
+            "destination_picker",
+            "source_picker"
+          ]
+        },
+        {
+          "name": "main_webview",
+          "startLine": 31,
+          "endLine": 35,
+          "params": [
+            "app"
+          ]
+        },
+        {
+          "name": "invoke",
+          "startLine": 37,
+          "endLine": 65,
+          "params": [
+            "webview",
+            "command",
+            "body"
+          ]
+        },
+        {
+          "name": "invoke_ok",
+          "startLine": 67,
+          "endLine": 70,
+          "params": [
+            "webview",
+            "command",
+            "body"
+          ]
+        },
+        {
+          "name": "invoke_error",
+          "startLine": 72,
+          "endLine": 77,
+          "params": [
+            "webview",
+            "command",
+            "body"
+          ]
+        },
+        {
+          "name": "library_request",
+          "startLine": 79,
+          "endLine": 90,
+          "params": [
+            "progress"
+          ]
+        },
+        {
+          "name": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "startLine": 93,
+          "endLine": 133,
+          "params": []
+        },
+        {
+          "name": "cancelling_the_native_destination_picker_returns_null_over_ipc",
+          "startLine": 136,
+          "endLine": 149,
+          "params": []
+        },
+        {
+          "name": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "startLine": 152,
+          "endLine": 172,
+          "params": []
+        },
+        {
+          "name": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "startLine": 175,
+          "endLine": 262,
+          "params": []
+        },
+        {
+          "name": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "startLine": 265,
+          "endLine": 288,
+          "params": []
+        },
+        {
+          "name": "cancelling_the_native_source_picker_returns_null_without_changes",
+          "startLine": 291,
+          "endLine": 308,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "build_test_app",
+          "callee": "register_commands(\n        mock_builder()\n            .manage(database)\n            .manage(destination_picker)\n            .manage(source_picker)\n            .manage(ImportSessionStore::default()),\n    )\n    .build(mock_context(noop_assets())).expect",
+          "lineNumber": 20
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "register_commands(\n        mock_builder()\n            .manage(database)\n            .manage(destination_picker)\n            .manage(source_picker)\n            .manage(ImportSessionStore::default()),\n    ).build",
+          "lineNumber": 20
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "register_commands",
+          "lineNumber": 20
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "mock_builder()\n            .manage(database)\n            .manage(destination_picker)\n            .manage(source_picker).manage",
+          "lineNumber": 21
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "mock_builder()\n            .manage(database)\n            .manage(destination_picker).manage",
+          "lineNumber": 21
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "mock_builder()\n            .manage(database).manage",
+          "lineNumber": 21
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "mock_builder().manage",
+          "lineNumber": 21
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "mock_builder",
+          "lineNumber": 21
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "ImportSessionStore::default",
+          "lineNumber": 25
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "mock_context",
+          "lineNumber": 27
+        },
+        {
+          "caller": "build_test_app",
+          "callee": "noop_assets",
+          "lineNumber": 27
+        },
+        {
+          "caller": "main_webview",
+          "callee": "WebviewWindowBuilder::new(app, \"main\", Default::default())\n        .build().expect",
+          "lineNumber": 32
+        },
+        {
+          "caller": "main_webview",
+          "callee": "WebviewWindowBuilder::new(app, \"main\", Default::default()).build",
+          "lineNumber": 32
+        },
+        {
+          "caller": "main_webview",
+          "callee": "WebviewWindowBuilder::new",
+          "lineNumber": 32
+        },
+        {
+          "caller": "main_webview",
+          "callee": "Default::default",
+          "lineNumber": 32
+        },
+        {
+          "caller": "invoke",
+          "callee": "get_ipc_response(\n        webview,\n        InvokeRequest {\n            cmd: command.to_owned(),\n            callback: CallbackFn(0),\n            error: CallbackFn(1),\n            url: if cfg!(any(windows, target_os = \"android\")) {\n                \"http://tauri.localhost\"\n            } else {\n                \"tauri://localhost\"\n            }\n            .parse()\n            .expect(\"valid mock IPC URL\"),\n            body: InvokeBody::Json(body),\n            headers: Default::default(),\n            invoke_key: INVOKE_KEY.to_owned(),\n        },\n    ).map",
+          "lineNumber": 42
+        },
+        {
+          "caller": "invoke",
+          "callee": "get_ipc_response",
+          "lineNumber": 42
+        },
+        {
+          "caller": "invoke",
+          "callee": "command.to_owned",
+          "lineNumber": 45
+        },
+        {
+          "caller": "invoke",
+          "callee": "CallbackFn",
+          "lineNumber": 46
+        },
+        {
+          "caller": "invoke",
+          "callee": "CallbackFn",
+          "lineNumber": 47
+        },
+        {
+          "caller": "invoke",
+          "callee": "if cfg!(any(windows, target_os = \"android\")) {\n                \"http://tauri.localhost\"\n            } else {\n                \"tauri://localhost\"\n            }\n            .parse().expect",
+          "lineNumber": 48
+        },
+        {
+          "caller": "invoke",
+          "callee": "if cfg!(any(windows, target_os = \"android\")) {\n                \"http://tauri.localhost\"\n            } else {\n                \"tauri://localhost\"\n            }.parse",
+          "lineNumber": 48
+        },
+        {
+          "caller": "invoke",
+          "callee": "InvokeBody::Json",
+          "lineNumber": 55
+        },
+        {
+          "caller": "invoke",
+          "callee": "Default::default",
+          "lineNumber": 56
+        },
+        {
+          "caller": "invoke",
+          "callee": "INVOKE_KEY.to_owned",
+          "lineNumber": 57
+        },
+        {
+          "caller": "invoke",
+          "callee": "response\n            .deserialize::<Value>().expect",
+          "lineNumber": 61
+        },
+        {
+          "caller": "invoke",
+          "callee": "response\n            .deserialize::<Value>",
+          "lineNumber": 61
+        },
+        {
+          "caller": "invoke_ok",
+          "callee": "invoke(webview, command, body).unwrap_or_else",
+          "lineNumber": 68
+        },
+        {
+          "caller": "invoke_ok",
+          "callee": "invoke",
+          "lineNumber": 68
+        },
+        {
+          "caller": "invoke_error",
+          "callee": "invoke",
+          "lineNumber": 73
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "tempdir().expect",
+          "lineNumber": 94
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "tempdir",
+          "lineNumber": 94
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "DatabasePaths::from_root(database_root.path()).expect",
+          "lineNumber": 95
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 95
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "database_root.path",
+          "lineNumber": 95
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "tauri::async_runtime::block_on(Database::connect(&paths)).expect",
+          "lineNumber": 97
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "tauri::async_runtime::block_on",
+          "lineNumber": 97
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "Database::connect",
+          "lineNumber": 97
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "tempdir().expect",
+          "lineNumber": 98
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "tempdir",
+          "lineNumber": 98
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "export_root.path().join",
+          "lineNumber": 99
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "export_root.path",
+          "lineNumber": 99
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "build_test_app",
+          "lineNumber": 100
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "BackupDestinationPicker::fixed_path",
+          "lineNumber": 102
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "Some",
+          "lineNumber": 102
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "destination.clone",
+          "lineNumber": 102
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "BackupSourcePicker::fixed_path",
+          "lineNumber": 103
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "main_webview",
+          "lineNumber": 105
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 107
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 112
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "library_request",
+          "lineNumber": 112
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 113
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "library_request",
+          "lineNumber": 113
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 115
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "serde_json::from_str(&std::fs::read_to_string(destination).expect(\"exported backup file\")).expect",
+          "lineNumber": 124
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "serde_json::from_str",
+          "lineNumber": 124
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "std::fs::read_to_string(destination).expect",
+          "lineNumber": 124
+        },
+        {
+          "caller": "export_backup_crosses_the_real_camel_case_ipc_boundary",
+          "callee": "std::fs::read_to_string",
+          "lineNumber": 124
+        },
+        {
+          "caller": "cancelling_the_native_destination_picker_returns_null_over_ipc",
+          "callee": "tempdir().expect",
+          "lineNumber": 137
+        },
+        {
+          "caller": "cancelling_the_native_destination_picker_returns_null_over_ipc",
+          "callee": "tempdir",
+          "lineNumber": 137
+        },
+        {
+          "caller": "cancelling_the_native_destination_picker_returns_null_over_ipc",
+          "callee": "DatabasePaths::from_root(database_root.path()).expect",
+          "lineNumber": 138
+        },
+        {
+          "caller": "cancelling_the_native_destination_picker_returns_null_over_ipc",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 138
+        },
+        {
+          "caller": "cancelling_the_native_destination_picker_returns_null_over_ipc",
+          "callee": "database_root.path",
+          "lineNumber": 138
+        },
+        {
+          "caller": "cancelling_the_native_destination_picker_returns_null_over_ipc",
+          "callee": "tauri::async_runtime::block_on(Database::connect(&paths)).expect",
+          "lineNumber": 140
+        },
+        {
+          "caller": "cancelling_the_native_destination_picker_returns_null_over_ipc",
+          "callee": "tauri::async_runtime::block_on",
+          "lineNumber": 140
+        },
+        {
+          "caller": "cancelling_the_native_destination_picker_returns_null_over_ipc",
+          "callee": "Database::connect",
+          "lineNumber": 140
+        },
+        {
+          "caller": "cancelling_the_native_destination_picker_returns_null_over_ipc",
+          "callee": "build_test_app",
+          "lineNumber": 141
+        },
+        {
+          "caller": "cancelling_the_native_destination_picker_returns_null_over_ipc",
+          "callee": "BackupDestinationPicker::fixed_path",
+          "lineNumber": 143
+        },
+        {
+          "caller": "cancelling_the_native_destination_picker_returns_null_over_ipc",
+          "callee": "BackupSourcePicker::fixed_path",
+          "lineNumber": 144
+        },
+        {
+          "caller": "cancelling_the_native_destination_picker_returns_null_over_ipc",
+          "callee": "main_webview",
+          "lineNumber": 146
+        },
+        {
+          "caller": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "callee": "tempdir().expect",
+          "lineNumber": 153
+        },
+        {
+          "caller": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "callee": "tempdir",
+          "lineNumber": 153
+        },
+        {
+          "caller": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "callee": "DatabasePaths::from_root(database_root.path()).expect",
+          "lineNumber": 154
+        },
+        {
+          "caller": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 154
+        },
+        {
+          "caller": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "callee": "database_root.path",
+          "lineNumber": 154
+        },
+        {
+          "caller": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "callee": "tauri::async_runtime::block_on(Database::connect(&paths)).expect",
+          "lineNumber": 156
+        },
+        {
+          "caller": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "callee": "tauri::async_runtime::block_on",
+          "lineNumber": 156
+        },
+        {
+          "caller": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "callee": "Database::connect",
+          "lineNumber": 156
+        },
+        {
+          "caller": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "callee": "build_test_app",
+          "lineNumber": 157
+        },
+        {
+          "caller": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "callee": "BackupDestinationPicker::fixed_path",
+          "lineNumber": 159
+        },
+        {
+          "caller": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "callee": "Some",
+          "lineNumber": 159
+        },
+        {
+          "caller": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "callee": "\"relative-backup.json\".into",
+          "lineNumber": 159
+        },
+        {
+          "caller": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "callee": "BackupSourcePicker::fixed_path",
+          "lineNumber": 160
+        },
+        {
+          "caller": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "callee": "main_webview",
+          "lineNumber": 162
+        },
+        {
+          "caller": "invalid_picker_results_keep_the_structured_ipc_error_contract",
+          "callee": "invoke_error",
+          "lineNumber": 164
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "tempdir().expect",
+          "lineNumber": 176
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "tempdir",
+          "lineNumber": 176
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "DatabasePaths::from_root(database_root.path()).expect",
+          "lineNumber": 177
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 177
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "database_root.path",
+          "lineNumber": 177
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "tauri::async_runtime::block_on(Database::connect(&paths)).expect",
+          "lineNumber": 179
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "tauri::async_runtime::block_on",
+          "lineNumber": 179
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "Database::connect",
+          "lineNumber": 179
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "tempdir().expect",
+          "lineNumber": 180
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "tempdir",
+          "lineNumber": 180
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "export_root.path().join",
+          "lineNumber": 181
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "export_root.path",
+          "lineNumber": 181
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "build_test_app",
+          "lineNumber": 182
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "BackupDestinationPicker::fixed_path",
+          "lineNumber": 184
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "Some",
+          "lineNumber": 184
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "destination.clone",
+          "lineNumber": 184
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "BackupSourcePicker::fixed_path",
+          "lineNumber": 185
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "Some",
+          "lineNumber": 185
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "destination.clone",
+          "lineNumber": 185
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "main_webview",
+          "lineNumber": 187
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 189
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 194
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "library_request",
+          "lineNumber": 194
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 195
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "library_request",
+          "lineNumber": 195
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 196
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "invoke_error",
+          "lineNumber": 200
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 214
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 226
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 230
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "preview[\"importToken\"]\n        .as_str().expect",
+          "lineNumber": 241
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "preview[\"importToken\"].as_str",
+          "lineNumber": 241
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 245
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 251
+        },
+        {
+          "caller": "export_clear_preview_and_restore_cross_the_real_command_boundary",
+          "callee": "invoke_ok",
+          "lineNumber": 259
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "tempdir().expect",
+          "lineNumber": 266
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "tempdir",
+          "lineNumber": 266
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "DatabasePaths::from_root(database_root.path()).expect",
+          "lineNumber": 267
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 267
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "database_root.path",
+          "lineNumber": 267
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "tauri::async_runtime::block_on(Database::connect(&paths)).expect",
+          "lineNumber": 269
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "tauri::async_runtime::block_on",
+          "lineNumber": 269
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "Database::connect",
+          "lineNumber": 269
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "tempdir().expect",
+          "lineNumber": 270
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "tempdir",
+          "lineNumber": 270
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "import_root.path().join",
+          "lineNumber": 271
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "import_root.path",
+          "lineNumber": 271
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "std::fs::write(&source, r#\"{\"schemaVersion\":99}\"#).expect",
+          "lineNumber": 272
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "std::fs::write",
+          "lineNumber": 272
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "build_test_app",
+          "lineNumber": 273
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "BackupDestinationPicker::fixed_path",
+          "lineNumber": 275
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "BackupSourcePicker::fixed_path",
+          "lineNumber": 276
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "Some",
+          "lineNumber": 276
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "main_webview",
+          "lineNumber": 278
+        },
+        {
+          "caller": "invalid_backup_preview_returns_actionable_validation_without_a_token",
+          "callee": "invoke_ok",
+          "lineNumber": 280
+        },
+        {
+          "caller": "cancelling_the_native_source_picker_returns_null_without_changes",
+          "callee": "tempdir().expect",
+          "lineNumber": 292
+        },
+        {
+          "caller": "cancelling_the_native_source_picker_returns_null_without_changes",
+          "callee": "tempdir",
+          "lineNumber": 292
+        },
+        {
+          "caller": "cancelling_the_native_source_picker_returns_null_without_changes",
+          "callee": "DatabasePaths::from_root(database_root.path()).expect",
+          "lineNumber": 293
+        },
+        {
+          "caller": "cancelling_the_native_source_picker_returns_null_without_changes",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 293
+        },
+        {
+          "caller": "cancelling_the_native_source_picker_returns_null_without_changes",
+          "callee": "database_root.path",
+          "lineNumber": 293
+        },
+        {
+          "caller": "cancelling_the_native_source_picker_returns_null_without_changes",
+          "callee": "tauri::async_runtime::block_on(Database::connect(&paths)).expect",
+          "lineNumber": 295
+        },
+        {
+          "caller": "cancelling_the_native_source_picker_returns_null_without_changes",
+          "callee": "tauri::async_runtime::block_on",
+          "lineNumber": 295
+        },
+        {
+          "caller": "cancelling_the_native_source_picker_returns_null_without_changes",
+          "callee": "Database::connect",
+          "lineNumber": 295
+        },
+        {
+          "caller": "cancelling_the_native_source_picker_returns_null_without_changes",
+          "callee": "build_test_app",
+          "lineNumber": 296
+        },
+        {
+          "caller": "cancelling_the_native_source_picker_returns_null_without_changes",
+          "callee": "BackupDestinationPicker::fixed_path",
+          "lineNumber": 298
+        },
+        {
+          "caller": "cancelling_the_native_source_picker_returns_null_without_changes",
+          "callee": "BackupSourcePicker::fixed_path",
+          "lineNumber": 299
+        },
+        {
+          "caller": "cancelling_the_native_source_picker_returns_null_without_changes",
+          "callee": "main_webview",
+          "lineNumber": 301
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 12,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src-tauri/tests/p7_release.rs",
+      "language": "rust",
+      "fileCategory": "code",
+      "totalLines": 88,
+      "nonEmptyLines": 82,
+      "functions": [
+        {
+          "name": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "startLine": 10,
+          "endLine": 65,
+          "params": []
+        },
+        {
+          "name": "release_configuration_keeps_the_private_windows_identity_stable",
+          "startLine": 68,
+          "endLine": 88,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "tempdir().expect",
+          "lineNumber": 12
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "tempdir",
+          "lineNumber": 12
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "DatabasePaths::from_root(root.path()).expect",
+          "lineNumber": 13
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "DatabasePaths::from_root",
+          "lineNumber": 13
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "root.path",
+          "lineNumber": 13
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "PathBuf::from(env!(\"CARGO_MANIFEST_DIR\"))\n            .join(\"tests/fixtures/database\").join",
+          "lineNumber": 14
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "PathBuf::from(env!(\"CARGO_MANIFEST_DIR\")).join",
+          "lineNumber": 14
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "PathBuf::from",
+          "lineNumber": 14
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "std::fs::copy(fixture, paths.database()).expect",
+          "lineNumber": 17
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "std::fs::copy",
+          "lineNumber": 17
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "paths.database",
+          "lineNumber": 17
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "Database::connect(&paths).await.expect",
+          "lineNumber": 19
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "Database::connect",
+          "lineNumber": 19
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "database\n            .library()\n            .list_items()\n            .await\n            .expect(\"preserved library\")\n            .pop().expect",
+          "lineNumber": 20
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "database\n            .library()\n            .list_items()\n            .await\n            .expect(\"preserved library\").pop",
+          "lineNumber": 20
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "database\n            .library()\n            .list_items()\n            .await.expect",
+          "lineNumber": 20
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "database\n            .library().list_items",
+          "lineNumber": 20
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "database.library",
+          "lineNumber": 20
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "database.close",
+          "lineNumber": 39
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "SqliteConnectOptions::new()\n            .filename(paths.database()).read_only",
+          "lineNumber": 41
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "SqliteConnectOptions::new().filename",
+          "lineNumber": 41
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "SqliteConnectOptions::new",
+          "lineNumber": 41
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "paths.database",
+          "lineNumber": 42
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "SqliteConnection::connect_with(&options)\n            .await.expect",
+          "lineNumber": 44
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "SqliteConnection::connect_with",
+          "lineNumber": 44
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "sqlx::query_as::<_, (i64, bool)>(\n            \"SELECT version, success FROM _sqlx_migrations ORDER BY version\",\n        )\n        .fetch_all(&mut inspection)\n        .await.expect",
+          "lineNumber": 47
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "sqlx::query_as::<_, (i64, bool)>(\n            \"SELECT version, success FROM _sqlx_migrations ORDER BY version\",\n        ).fetch_all",
+          "lineNumber": 47
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "sqlx::query_as::<_, (i64, bool)>",
+          "lineNumber": 47
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "inspection.close().await.expect",
+          "lineNumber": 55
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "inspection.close",
+          "lineNumber": 55
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "Database::connect(&paths)\n            .await.expect",
+          "lineNumber": 57
+        },
+        {
+          "caller": "every_released_profile_fixture_reaches_the_latest_schema_and_reopens",
+          "callee": "Database::connect",
+          "lineNumber": 57
+        },
+        {
+          "caller": "release_configuration_keeps_the_private_windows_identity_stable",
+          "callee": "PathBuf::from",
+          "lineNumber": 69
+        },
+        {
+          "caller": "release_configuration_keeps_the_private_windows_identity_stable",
+          "callee": "serde_json::from_str(\n        &std::fs::read_to_string(root.join(\"tauri.conf.json\")).expect(\"Tauri configuration\"),\n    ).expect",
+          "lineNumber": 70
+        },
+        {
+          "caller": "release_configuration_keeps_the_private_windows_identity_stable",
+          "callee": "serde_json::from_str",
+          "lineNumber": 70
+        },
+        {
+          "caller": "release_configuration_keeps_the_private_windows_identity_stable",
+          "callee": "std::fs::read_to_string(root.join(\"tauri.conf.json\")).expect",
+          "lineNumber": 71
+        },
+        {
+          "caller": "release_configuration_keeps_the_private_windows_identity_stable",
+          "callee": "std::fs::read_to_string",
+          "lineNumber": 71
+        },
+        {
+          "caller": "release_configuration_keeps_the_private_windows_identity_stable",
+          "callee": "root.join",
+          "lineNumber": 71
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    }
+  ]
+}

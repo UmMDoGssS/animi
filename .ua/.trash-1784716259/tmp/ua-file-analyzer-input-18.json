@@ -1,0 +1,97 @@
+{
+    "projectRoot":  "C:\\Users\\Some random laptop\\Workspace\\animi",
+    "batchFiles":  [
+                       {
+                           "path":  "src/lib/releaseHardening.test.ts",
+                           "language":  "typescript",
+                           "sizeLines":  84,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src/lib/state/asyncState.ts",
+                           "language":  "typescript",
+                           "sizeLines":  19,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src/lib/state/debugPresentation.ts",
+                           "language":  "typescript",
+                           "sizeLines":  40,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src/lib/theme/theme.test.ts",
+                           "language":  "typescript",
+                           "sizeLines":  270,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src/lib/theme/theme.ts",
+                           "language":  "typescript",
+                           "sizeLines":  85,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src/routes/+layout.svelte",
+                           "language":  "svelte",
+                           "sizeLines":  7,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src/routes/+page.svelte",
+                           "language":  "svelte",
+                           "sizeLines":  13,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "src/test/setup.ts",
+                           "language":  "typescript",
+                           "sizeLines":  9,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "svelte.config.js",
+                           "language":  "javascript",
+                           "sizeLines":  18,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  "vite.config.ts",
+                           "language":  "typescript",
+                           "sizeLines":  33,
+                           "fileCategory":  "code"
+                       }
+                   ],
+    "batchImportData":  {
+                            "src/lib/releaseHardening.test.ts":  [
+
+                                                                 ],
+                            "src/lib/state/asyncState.ts":  [
+
+                                                            ],
+                            "src/lib/state/debugPresentation.ts":  [
+                                                                       "src/lib/state/asyncState.ts"
+                                                                   ],
+                            "src/lib/theme/theme.test.ts":  [
+                                                                "src/lib/theme/theme.ts"
+                                                            ],
+                            "src/lib/theme/theme.ts":  [
+
+                                                       ],
+                            "src/routes/+layout.svelte":  [
+
+                                                          ],
+                            "src/routes/+page.svelte":  [
+
+                                                        ],
+                            "src/test/setup.ts":  [
+
+                                                  ],
+                            "svelte.config.js":  [
+
+                                                 ],
+                            "vite.config.ts":  [
+
+                                               ]
+                        }
+}

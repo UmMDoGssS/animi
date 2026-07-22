@@ -1,0 +1,1418 @@
+{
+    "nodes": [
+        {
+            "id": "file:.svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "type": "file",
+            "name": "_page.svelte.js",
+            "filePath": ".svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "summary": "Compiled application page bundle containing Animi navigation, loading art, async notices, the home experience, and the top-level shell.",
+            "tags": [
+                "generated",
+                "sveltekit",
+                "build-output"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/entries/pages/_page.svelte.js:NavigationIcon",
+            "type": "function",
+            "name": "NavigationIcon",
+            "filePath": ".svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "lineRange": [
+                30,
+                47
+            ],
+            "summary": "Implements navigation icon behavior within _page.svelte.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/entries/pages/_page.svelte.js:AppNavigation",
+            "type": "function",
+            "name": "AppNavigation",
+            "filePath": ".svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "lineRange": [
+                48,
+                61
+            ],
+            "summary": "Implements app navigation behavior within _page.svelte.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/entries/pages/_page.svelte.js:SleepingCatLoader",
+            "type": "function",
+            "name": "SleepingCatLoader",
+            "filePath": ".svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "lineRange": [
+                62,
+                165
+            ],
+            "summary": "Implements sleeping cat loader behavior within _page.svelte.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/entries/pages/_page.svelte.js:StaticCatArt",
+            "type": "function",
+            "name": "StaticCatArt",
+            "filePath": ".svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "lineRange": [
+                166,
+                188
+            ],
+            "summary": "Implements static cat art behavior within _page.svelte.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/entries/pages/_page.svelte.js:AsyncStateNotice",
+            "type": "function",
+            "name": "AsyncStateNotice",
+            "filePath": ".svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "lineRange": [
+                189,
+                237
+            ],
+            "summary": "Implements async state notice behavior within _page.svelte.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/entries/pages/_page.svelte.js:HomePage",
+            "type": "function",
+            "name": "HomePage",
+            "filePath": ".svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "lineRange": [
+                241,
+                265
+            ],
+            "summary": "Implements home page behavior within _page.svelte.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/entries/pages/_page.svelte.js:AppShell",
+            "type": "function",
+            "name": "AppShell",
+            "filePath": ".svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "lineRange": [
+                266,
+                291
+            ],
+            "summary": "Implements app shell behavior within _page.svelte.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "file:.svelte-kit/output/server/index.js",
+            "type": "file",
+            "name": "index.js",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "summary": "Generated SvelteKit server engine that resolves routes, runs actions and loaders, manages cookies and fetches, renders responses, and handles remote calls.",
+            "tags": [
+                "generated",
+                "sveltekit",
+                "build-output"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:exec",
+            "type": "function",
+            "name": "exec",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                14,
+                53
+            ],
+            "summary": "Implements exec behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:find_route",
+            "type": "function",
+            "name": "find_route",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                54,
+                67
+            ],
+            "summary": "Implements find route behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:hash",
+            "type": "function",
+            "name": "hash",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                93,
+                108
+            ],
+            "summary": "Implements hash behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:render_endpoint",
+            "type": "function",
+            "name": "render_endpoint",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                166,
+                232
+            ],
+            "summary": "Implements render endpoint behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "runtime",
+                "svelte",
+                "state-management"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:handle_action_json_request",
+            "type": "function",
+            "name": "handle_action_json_request",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                254,
+                328
+            ],
+            "summary": "Implements handle action json request behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:handle_action_request",
+            "type": "function",
+            "name": "handle_action_request",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                345,
+                394
+            ],
+            "summary": "Implements handle action request behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:call_action",
+            "type": "function",
+            "name": "call_action",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                402,
+                447
+            ],
+            "summary": "Implements call action behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:try_serialize",
+            "type": "function",
+            "name": "try_serialize",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                466,
+                487
+            ],
+            "summary": "Implements try serialize behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "validation",
+                "serialization",
+                "utility"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:create_async_iterator",
+            "type": "function",
+            "name": "create_async_iterator",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                488,
+                521
+            ],
+            "summary": "Implements create async iterator behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:server_data_serializer",
+            "type": "function",
+            "name": "server_data_serializer",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                522,
+                615
+            ],
+            "summary": "Implements server data serializer behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "validation",
+                "serialization",
+                "utility"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:server_data_serializer_json",
+            "type": "function",
+            "name": "server_data_serializer_json",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                616,
+                701
+            ],
+            "summary": "Implements server data serializer json behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "validation",
+                "serialization",
+                "utility"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:load_server_data",
+            "type": "function",
+            "name": "load_server_data",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                702,
+                806
+            ],
+            "summary": "Implements load server data behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:load_data",
+            "type": "function",
+            "name": "load_data",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                807,
+                851
+            ],
+            "summary": "Implements load data behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:create_universal_fetch",
+            "type": "function",
+            "name": "create_universal_fetch",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                852,
+                1005
+            ],
+            "summary": "Implements create universal fetch behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:stream_to_string",
+            "type": "function",
+            "name": "stream_to_string",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1006,
+                1019
+            ],
+            "summary": "Implements stream to string behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:serialize_data",
+            "type": "function",
+            "name": "serialize_data",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1026,
+                1072
+            ],
+            "summary": "Implements serialize data behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "validation",
+                "serialization",
+                "utility"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:sha256",
+            "type": "function",
+            "name": "sha256",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1073,
+                1120
+            ],
+            "summary": "Implements sha256 behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:precompute",
+            "type": "function",
+            "name": "precompute",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1123,
+                1144
+            ],
+            "summary": "Implements precompute behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:reverse_endianness",
+            "type": "function",
+            "name": "reverse_endianness",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1145,
+                1156
+            ],
+            "summary": "Implements reverse endianness behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:encode",
+            "type": "function",
+            "name": "encode",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1157,
+                1169
+            ],
+            "summary": "Implements encode behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:generate_route_object",
+            "type": "function",
+            "name": "generate_route_object",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1429,
+                1443
+            ],
+            "summary": "Implements generate route object behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:create_client_import",
+            "type": "function",
+            "name": "create_client_import",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1444,
+                1455
+            ],
+            "summary": "Implements create client import behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:resolve_route",
+            "type": "function",
+            "name": "resolve_route",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1456,
+                1468
+            ],
+            "summary": "Implements resolve route behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:create_server_routing_response",
+            "type": "function",
+            "name": "create_server_routing_response",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1469,
+                1481
+            ],
+            "summary": "Implements create server routing response behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:create_css_import",
+            "type": "function",
+            "name": "create_css_import",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1482,
+                1494
+            ],
+            "summary": "Implements create css import behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:handle_remote_call",
+            "type": "function",
+            "name": "handle_remote_call",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1495,
+                1507
+            ],
+            "summary": "Implements handle remote call behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:handle_remote_call_internal",
+            "type": "function",
+            "name": "handle_remote_call_internal",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1508,
+                1727
+            ],
+            "summary": "Implements handle remote call internal behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:collect_remote_data",
+            "type": "function",
+            "name": "collect_remote_data",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1728,
+                1793
+            ],
+            "summary": "Implements collect remote data behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:create_requested_map",
+            "type": "function",
+            "name": "create_requested_map",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1794,
+                1806
+            ],
+            "summary": "Implements create requested map behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "validation",
+                "serialization",
+                "utility"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:handle_remote_form_post",
+            "type": "function",
+            "name": "handle_remote_form_post",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1807,
+                1819
+            ],
+            "summary": "Implements handle remote form post behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:handle_remote_form_post_internal",
+            "type": "function",
+            "name": "handle_remote_form_post_internal",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1820,
+                1879
+            ],
+            "summary": "Implements handle remote form post internal behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:render_response",
+            "type": "function",
+            "name": "render_response",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1890,
+                2317
+            ],
+            "summary": "Implements render response behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "runtime",
+                "svelte",
+                "state-management"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:respond_with_error",
+            "type": "function",
+            "name": "respond_with_error",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                2475,
+                2567
+            ],
+            "summary": "Implements respond with error behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "error-handling",
+                "validation",
+                "runtime"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:render_page",
+            "type": "function",
+            "name": "render_page",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                2569,
+                2837
+            ],
+            "summary": "Implements render page behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "runtime",
+                "svelte",
+                "state-management"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:load_error_components",
+            "type": "function",
+            "name": "load_error_components",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                2838,
+                2857
+            ],
+            "summary": "Implements load error components behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "runtime",
+                "svelte",
+                "state-management"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:render_data",
+            "type": "function",
+            "name": "render_data",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                2858,
+                2972
+            ],
+            "summary": "Implements render data behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "runtime",
+                "svelte",
+                "state-management"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:get_cookies",
+            "type": "function",
+            "name": "get_cookies",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                3000,
+                3129
+            ],
+            "summary": "Implements get cookies behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:add_cookies_to_headers",
+            "type": "function",
+            "name": "add_cookies_to_headers",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                3142,
+                3151
+            ],
+            "summary": "Implements add cookies to headers behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:create_fetch",
+            "type": "function",
+            "name": "create_fetch",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                3152,
+                3250
+            ],
+            "summary": "Implements create fetch behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:internal_fetch",
+            "type": "function",
+            "name": "internal_fetch",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                3257,
+                3285
+            ],
+            "summary": "Implements internal fetch behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:get_public_env",
+            "type": "function",
+            "name": "get_public_env",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                3289,
+                3305
+            ],
+            "summary": "Implements get public env behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "function:.svelte-kit/output/server/index.js:internal_respond",
+            "type": "function",
+            "name": "internal_respond",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                3312,
+                3836
+            ],
+            "summary": "Implements internal respond behavior within index.js, including the validation and state transitions required by its surrounding module.",
+            "tags": [
+                "function",
+                "module-logic",
+                "implementation"
+            ],
+            "complexity": "complex"
+        },
+        {
+            "id": "class:.svelte-kit/output/server/index.js:BaseProvider",
+            "type": "class",
+            "name": "BaseProvider",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1187,
+                1359
+            ],
+            "summary": "BaseProvider encapsulates state and behavior used by index.js as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "generated",
+                "runtime",
+                "sveltekit"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "class:.svelte-kit/output/server/index.js:Csp",
+            "type": "class",
+            "name": "Csp",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                1388,
+                1428
+            ],
+            "summary": "Csp encapsulates state and behavior used by index.js as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "generated",
+                "runtime",
+                "sveltekit"
+            ],
+            "complexity": "simple"
+        },
+        {
+            "id": "class:.svelte-kit/output/server/index.js:Head",
+            "type": "class",
+            "name": "Head",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                2318,
+                2384
+            ],
+            "summary": "Head encapsulates state and behavior used by index.js as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "generated",
+                "runtime",
+                "sveltekit"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "class:.svelte-kit/output/server/index.js:PageNodes",
+            "type": "class",
+            "name": "PageNodes",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                2385,
+                2474
+            ],
+            "summary": "PageNodes encapsulates state and behavior used by index.js as part of its generated or application runtime responsibilities.",
+            "tags": [
+                "generated",
+                "runtime",
+                "sveltekit"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "class:.svelte-kit/output/server/index.js:Server",
+            "type": "class",
+            "name": "Server",
+            "filePath": ".svelte-kit/output/server/index.js",
+            "lineRange": [
+                3862,
+                3968
+            ],
+            "summary": "Generated SvelteKit server runtime that owns the manifest, hooks, environment, routing options, initialization, and request response lifecycle.",
+            "tags": [
+                "generated",
+                "runtime",
+                "sveltekit"
+            ],
+            "complexity": "moderate"
+        },
+        {
+            "id": "file:.svelte-kit/output/server/internal.js",
+            "type": "file",
+            "name": "internal.js",
+            "filePath": ".svelte-kit/output/server/internal.js",
+            "summary": "Generated SvelteKit internal barrel that re-exports runtime environment and request helpers for the server bundle.",
+            "tags": [
+                "generated",
+                "sveltekit",
+                "build-output"
+            ],
+            "complexity": "simple"
+        }
+    ],
+    "edges": [
+        {
+            "source": "file:.svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "target": "function:.svelte-kit/output/server/entries/pages/_page.svelte.js:NavigationIcon",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "target": "function:.svelte-kit/output/server/entries/pages/_page.svelte.js:AppNavigation",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "target": "function:.svelte-kit/output/server/entries/pages/_page.svelte.js:SleepingCatLoader",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "target": "function:.svelte-kit/output/server/entries/pages/_page.svelte.js:StaticCatArt",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "target": "function:.svelte-kit/output/server/entries/pages/_page.svelte.js:AsyncStateNotice",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "target": "function:.svelte-kit/output/server/entries/pages/_page.svelte.js:HomePage",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "target": "function:.svelte-kit/output/server/entries/pages/_page.svelte.js:AppShell",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/entries/pages/_page.svelte.js",
+            "target": "file:.svelte-kit/output/server/chunks/index.js",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:exec",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:find_route",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:hash",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:render_endpoint",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:handle_action_json_request",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:handle_action_request",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:call_action",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:try_serialize",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:create_async_iterator",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:server_data_serializer",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:server_data_serializer_json",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:load_server_data",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:load_data",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:create_universal_fetch",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:stream_to_string",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:serialize_data",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:sha256",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:precompute",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:reverse_endianness",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:encode",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:generate_route_object",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:create_client_import",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:resolve_route",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:create_server_routing_response",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:create_css_import",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:handle_remote_call",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:handle_remote_call_internal",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:collect_remote_data",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:create_requested_map",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:handle_remote_form_post",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:handle_remote_form_post_internal",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:render_response",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:respond_with_error",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:render_page",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:load_error_components",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:render_data",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:get_cookies",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:add_cookies_to_headers",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:create_fetch",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:internal_fetch",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:get_public_env",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "function:.svelte-kit/output/server/index.js:internal_respond",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "class:.svelte-kit/output/server/index.js:BaseProvider",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "class:.svelte-kit/output/server/index.js:Csp",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "class:.svelte-kit/output/server/index.js:Head",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "class:.svelte-kit/output/server/index.js:PageNodes",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "class:.svelte-kit/output/server/index.js:Server",
+            "type": "contains",
+            "direction": "forward",
+            "weight": 1
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "class:.svelte-kit/output/server/index.js:Server",
+            "type": "exports",
+            "direction": "forward",
+            "weight": 0.8
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "file:.svelte-kit/output/server/chunks/exports.js",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "file:.svelte-kit/output/server/chunks/false.js",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "file:.svelte-kit/output/server/chunks/internal.js",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "file:.svelte-kit/output/server/chunks/server.js",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "file:.svelte-kit/output/server/chunks/utils.js",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:.svelte-kit/output/server/index.js",
+            "target": "file:.svelte-kit/output/server/chunks/utils2.js",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:.svelte-kit/output/server/internal.js",
+            "target": "file:.svelte-kit/output/server/chunks/internal.js",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:.svelte-kit/output/server/internal.js",
+            "target": "file:.svelte-kit/output/server/chunks/root.js",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        },
+        {
+            "source": "file:.svelte-kit/output/server/internal.js",
+            "target": "file:.svelte-kit/output/server/chunks/server.js",
+            "type": "imports",
+            "direction": "forward",
+            "weight": 0.7
+        }
+    ]
+}

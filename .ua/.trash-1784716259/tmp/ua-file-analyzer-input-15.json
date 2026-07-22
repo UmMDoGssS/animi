@@ -1,0 +1,232 @@
+{
+    "projectRoot":  "C:\\Users\\Some random laptop\\Workspace\\animi",
+    "batchFiles":  [
+                       {
+                           "path":  ".gitattributes",
+                           "language":  "unknown",
+                           "sizeLines":  5,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".prettierignore",
+                           "language":  "unknown",
+                           "sizeLines":  9,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/ambient.d.ts",
+                           "language":  "typescript",
+                           "sizeLines":  422,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/env.d.ts",
+                           "language":  "typescript",
+                           "sizeLines":  0,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/generated/client-optimized/app.js",
+                           "language":  "javascript",
+                           "sizeLines":  38,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/generated/client-optimized/matchers.js",
+                           "language":  "javascript",
+                           "sizeLines":  0,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/generated/client-optimized/nodes/1.js",
+                           "language":  "javascript",
+                           "sizeLines":  0,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/generated/client-optimized/nodes/2.js",
+                           "language":  "javascript",
+                           "sizeLines":  0,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/generated/client/app.js",
+                           "language":  "javascript",
+                           "sizeLines":  38,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/generated/client/matchers.js",
+                           "language":  "javascript",
+                           "sizeLines":  0,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/generated/client/nodes/1.js",
+                           "language":  "javascript",
+                           "sizeLines":  0,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/generated/client/nodes/2.js",
+                           "language":  "javascript",
+                           "sizeLines":  0,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/non-ambient.d.ts",
+                           "language":  "typescript",
+                           "sizeLines":  42,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/output/client/.vite/manifest.json",
+                           "language":  "json",
+                           "sizeLines":  121,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  ".svelte-kit/output/client/_app/immutable/assets/0.Crjr9yLG.css",
+                           "language":  "css",
+                           "sizeLines":  1,
+                           "fileCategory":  "markup"
+                       },
+                       {
+                           "path":  ".svelte-kit/output/client/_app/immutable/assets/2.DvHeiOHa.css",
+                           "language":  "css",
+                           "sizeLines":  1,
+                           "fileCategory":  "markup"
+                       },
+                       {
+                           "path":  ".svelte-kit/output/client/_app/immutable/chunks/wbPk3Yxo.js",
+                           "language":  "javascript",
+                           "sizeLines":  81,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/output/client/_app/version.json",
+                           "language":  "json",
+                           "sizeLines":  0,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  ".svelte-kit/output/server/.vite/manifest.json",
+                           "language":  "json",
+                           "sizeLines":  129,
+                           "fileCategory":  "config"
+                       },
+                       {
+                           "path":  ".svelte-kit/output/server/_app/immutable/assets/_layout.Wv22E8_W.css",
+                           "language":  "css",
+                           "sizeLines":  1,
+                           "fileCategory":  "markup"
+                       },
+                       {
+                           "path":  ".svelte-kit/output/server/_app/immutable/assets/_page.DiTwi92V.css",
+                           "language":  "css",
+                           "sizeLines":  1,
+                           "fileCategory":  "markup"
+                       },
+                       {
+                           "path":  ".svelte-kit/output/server/entries/pages/_layout.svelte.js",
+                           "language":  "javascript",
+                           "sizeLines":  9,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/output/server/entries/pages/_layout.ts.js",
+                           "language":  "javascript",
+                           "sizeLines":  4,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/output/server/env.js",
+                           "language":  "javascript",
+                           "sizeLines":  13,
+                           "fileCategory":  "code"
+                       },
+                       {
+                           "path":  ".svelte-kit/output/server/manifest-full.js",
+                           "language":  "javascript",
+                           "sizeLines":  39,
+                           "fileCategory":  "code"
+                       }
+                   ],
+    "batchImportData":  {
+                            ".gitattributes":  [
+
+                                               ],
+                            ".prettierignore":  [
+
+                                                ],
+                            ".svelte-kit/ambient.d.ts":  [
+
+                                                         ],
+                            ".svelte-kit/env.d.ts":  [
+
+                                                     ],
+                            ".svelte-kit/generated/client-optimized/app.js":  [
+
+                                                                              ],
+                            ".svelte-kit/generated/client-optimized/matchers.js":  [
+
+                                                                                   ],
+                            ".svelte-kit/generated/client-optimized/nodes/1.js":  [
+
+                                                                                  ],
+                            ".svelte-kit/generated/client-optimized/nodes/2.js":  [
+
+                                                                                  ],
+                            ".svelte-kit/generated/client/app.js":  [
+
+                                                                    ],
+                            ".svelte-kit/generated/client/matchers.js":  [
+
+                                                                         ],
+                            ".svelte-kit/generated/client/nodes/1.js":  [
+
+                                                                        ],
+                            ".svelte-kit/generated/client/nodes/2.js":  [
+
+                                                                        ],
+                            ".svelte-kit/non-ambient.d.ts":  [
+
+                                                             ],
+                            ".svelte-kit/output/client/.vite/manifest.json":  [
+
+                                                                              ],
+                            ".svelte-kit/output/client/_app/immutable/assets/0.Crjr9yLG.css":  [
+
+                                                                                               ],
+                            ".svelte-kit/output/client/_app/immutable/assets/2.DvHeiOHa.css":  [
+
+                                                                                               ],
+                            ".svelte-kit/output/client/_app/immutable/chunks/wbPk3Yxo.js":  [
+
+                                                                                            ],
+                            ".svelte-kit/output/client/_app/version.json":  [
+
+                                                                            ],
+                            ".svelte-kit/output/server/.vite/manifest.json":  [
+
+                                                                              ],
+                            ".svelte-kit/output/server/_app/immutable/assets/_layout.Wv22E8_W.css":  [
+
+                                                                                                     ],
+                            ".svelte-kit/output/server/_app/immutable/assets/_page.DiTwi92V.css":  [
+
+                                                                                                   ],
+                            ".svelte-kit/output/server/entries/pages/_layout.svelte.js":  [
+
+                                                                                          ],
+                            ".svelte-kit/output/server/entries/pages/_layout.ts.js":  [
+
+                                                                                      ],
+                            ".svelte-kit/output/server/env.js":  [
+
+                                                                 ],
+                            ".svelte-kit/output/server/manifest-full.js":  [
+
+                                                                           ]
+                        }
+}
