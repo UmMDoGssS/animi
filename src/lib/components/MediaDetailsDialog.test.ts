@@ -56,6 +56,7 @@ const freshDetails: MediaDetailsResponse = {
         releaseDate: "2026-04-03",
         genres: ["Drama", "Fantasy"],
         tags: [{ name: "Reunion", rank: 94 }],
+        episodesAired: null,
         sequels: [],
     },
     freshness: currentFreshness,
@@ -74,7 +75,7 @@ const existingEntry: LibraryEntry = {
 
 function detailsResponse(mediaSummary = summary): MediaDetailsResponse {
     return {
-        media: { ...mediaSummary, sequels: [] },
+        media: { ...mediaSummary, episodesAired: null, sequels: [] },
         freshness: currentFreshness,
     };
 }
@@ -212,6 +213,7 @@ describe("MediaDetailsDialog", () => {
                 ...summary,
                 title: "The Unscheduled Broadcast",
                 episodes: null,
+                episodesAired: 6,
                 durationMinutes: null,
                 genres: [],
                 tags: [],
@@ -231,7 +233,7 @@ describe("MediaDetailsDialog", () => {
         });
 
         await screen.findByRole("dialog", { name: unknownDetails.media.title });
-        expect(screen.getByText("Episode total unknown")).toBeInTheDocument();
+        expect(screen.getByText("6 episodes aired")).toBeInTheDocument();
         expect(screen.getByText("Duration unknown")).toBeInTheDocument();
         expect(screen.getByText("release date")).toBeInTheDocument();
         expect(screen.getByText("Unknown")).toBeInTheDocument();
@@ -266,6 +268,7 @@ describe("MediaDetailsDialog", () => {
                     { name: "Found Family", rank: 90 },
                     { name: "Slow Burn", rank: 84 },
                 ],
+                episodesAired: null,
                 sequels: [],
             },
             freshness: currentFreshness,
@@ -293,6 +296,7 @@ describe("MediaDetailsDialog", () => {
         const sequelDetails: MediaDetailsResponse = {
             media: {
                 ...summary,
+                episodesAired: null,
                 sequels: [
                     {
                         anilistId: 201,

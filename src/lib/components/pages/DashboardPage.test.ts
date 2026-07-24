@@ -371,6 +371,7 @@ function detailsFor(item: LibraryItem): MediaDetailsResponse {
             genres: summary?.genres ?? [],
             tags: summary?.tags ?? [],
             trending: 0,
+            episodesAired: null,
             sequels: [],
         },
         freshness: {

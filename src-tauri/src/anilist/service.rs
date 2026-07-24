@@ -15,7 +15,7 @@ use super::{AiringSchedule, AniListClient, AniListError, MediaDetails, MediaSumm
 
 // Bump this whenever a persisted detail payload gains a field that library snapshots need.
 // Older payloads deserialize safely, but reusing them would leave the new snapshot field empty.
-const MEDIA_DETAILS_CACHE_SCHEMA_VERSION: u8 = 4;
+const MEDIA_DETAILS_CACHE_SCHEMA_VERSION: u8 = 5;
 const LIBRARY_METADATA_BATCH_SIZE: usize = 50;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -1171,9 +1171,9 @@ mod tests {
         assert!(
             database
                 .cache()
-                .get("details:v4:anime:154587")
+                .get("details:v5:anime:154587")
                 .await
-                .expect("v4 cache lookup")
+                .expect("v5 cache lookup")
                 .is_some()
         );
     }

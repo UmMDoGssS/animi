@@ -72,6 +72,7 @@
 
     const fallbackDetails = $derived<MediaDetails>({
         ...summary,
+        episodesAired: null,
         sequels: [],
     });
     const media = $derived(detailsResponse?.media ?? fallbackDetails);
@@ -174,11 +175,17 @@
             : value.toLocaleLowerCase().replaceAll("_", " ");
     }
 
-    function episodeLabel(episodes: number | null): string {
-        if (episodes === null) {
-            return "Episode total unknown";
+    function episodeLabel(
+        episodes: number | null,
+        episodesAired: number | null,
+    ): string {
+        if (episodes !== null) {
+            return `${episodes} ${episodes === 1 ? "episode" : "episodes"}`;
         }
-        return `${episodes} ${episodes === 1 ? "episode" : "episodes"}`;
+        if (episodesAired !== null) {
+            return `${episodesAired} ${episodesAired === 1 ? "episode" : "episodes"} aired`;
+        }
+        return "Episode total unknown";
     }
 
     function durationLabel(minutes: number | null): string {
@@ -274,7 +281,7 @@
                             episodes
                         </dt>
                         <dd class="text-foreground text-right text-sm">
-                            {episodeLabel(media.episodes)}
+                            {episodeLabel(media.episodes, media.episodesAired)}
                         </dd>
                     </div>
                     <div class="flex items-baseline justify-between gap-4 py-3">

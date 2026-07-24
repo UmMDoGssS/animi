@@ -11,6 +11,7 @@
             "format": "TV",
             "status": "RELEASING",
             "episodes": null,
+            "nextAiringEpisode": { "episode": 7 },
             "duration": null,
             "genres": ["Fantasy"],
             "tags": [],

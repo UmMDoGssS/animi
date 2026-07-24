@@ -239,6 +239,7 @@ export interface Sequel {
 }
 
 export interface MediaDetails extends MediaSummary {
+    episodesAired: number | null;
     sequels: Sequel[];
 }
 

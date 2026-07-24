@@ -81,7 +81,11 @@ function p4Services() {
         searchAnime: vi.fn(),
         loadLibrary: vi.fn().mockResolvedValue([]),
         loadDetails: vi.fn().mockResolvedValue({
-            media: { ...appShellMedia, sequels: [] },
+            media: {
+                ...appShellMedia,
+                episodesAired: null,
+                sequels: [],
+            },
             freshness: {
                 fetchedAt: "2026-07-17T08:00:00.000Z",
                 expiresAt: "2026-07-18T08:00:00.000Z",

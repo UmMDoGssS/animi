@@ -160,6 +160,7 @@ async fn details_preserve_unknown_totals_and_never_infer_sequel_dates() {
     let details = client.media_details(21).await.expect("details response");
 
     assert_eq!(details.summary.episodes, None);
+    assert_eq!(details.episodes_aired, Some(6));
     assert_eq!(details.summary.duration_minutes, None);
     assert_eq!(details.sequels.len(), 1);
     assert_eq!(details.sequels[0].anilist_id, 22);

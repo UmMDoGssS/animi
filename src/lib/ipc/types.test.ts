@@ -37,6 +37,7 @@ describe("AniList IPC contracts", () => {
                 mediaFormat: "TV",
                 status: "RELEASING",
                 episodes: null,
+                episodesAired: 6,
                 durationMinutes: null,
                 releaseDate: null,
                 genres: ["Fantasy"],
@@ -63,6 +64,7 @@ describe("AniList IPC contracts", () => {
         };
 
         expect(response.media.episodes).toBeNull();
+        expect(response.media.episodesAired).toBe(6);
         expect(response.media.durationMinutes).toBeNull();
         expect(response.media.sequels[0]?.releaseDate).toBeNull();
         expect(response.freshness.isStale).toBe(true);

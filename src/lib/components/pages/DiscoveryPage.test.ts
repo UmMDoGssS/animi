@@ -110,7 +110,7 @@ function recommendationsResponse(
 
 function detailsResponse(summary: MediaSummary): MediaDetailsResponse {
     return {
-        media: { ...summary, sequels: [] },
+        media: { ...summary, episodesAired: null, sequels: [] },
         freshness: currentFreshness,
     };
 }

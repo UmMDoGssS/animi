@@ -40,6 +40,8 @@ pub struct Sequel {
 pub struct MediaDetails {
     #[serde(flatten)]
     pub summary: MediaSummary,
+    #[serde(default)]
+    pub episodes_aired: Option<i64>,
     pub sequels: Vec<Sequel>,
 }
 
@@ -117,6 +119,8 @@ pub(super) struct RawMedia {
     pub format: Option<String>,
     pub status: Option<String>,
     pub episodes: Option<i64>,
+    #[serde(rename = "nextAiringEpisode")]
+    pub next_airing_episode: Option<RawNextAiringEpisode>,
     pub duration: Option<i64>,
     #[serde(rename = "startDate")]
     pub start_date: Option<RawFuzzyDate>,
@@ -127,6 +131,11 @@ pub(super) struct RawMedia {
     #[serde(default)]
     pub trending: i64,
     pub relations: Option<RawRelations>,
+}
+
+#[derive(Debug, Deserialize)]
+pub(super) struct RawNextAiringEpisode {
+    pub episode: i64,
 }
 
 #[derive(Debug, Deserialize)]

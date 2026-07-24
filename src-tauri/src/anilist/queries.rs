@@ -70,6 +70,7 @@ query MediaDetails($id: Int!) {
     format
     status
     episodes
+    nextAiringEpisode { episode }
     duration
     startDate { year month day }
     genres

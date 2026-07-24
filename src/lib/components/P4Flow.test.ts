@@ -244,7 +244,11 @@ function createStatefulP4Services() {
                     };
                 }
                 return {
-                    media: { ...media, sequels: [] },
+                    media: {
+                        ...media,
+                        episodesAired: null,
+                        sequels: [],
+                    },
                     freshness: freshness(),
                 };
             }),

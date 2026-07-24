@@ -93,6 +93,7 @@ function detailsFor(homeItem: HomeAiringItem): MediaDetailsResponse {
             genres: homeItem.library.media?.genres ?? [],
             tags: homeItem.library.media?.tags ?? [],
             trending: 0,
+            episodesAired: null,
             sequels: [],
         },
         freshness: {

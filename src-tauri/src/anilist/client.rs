@@ -263,6 +263,15 @@ impl AniListClient {
             .media
             .ok_or_else(|| AniListError::contract("AniList did not return the requested media."))?;
         let relations = media.relations.take();
+        let episodes_aired = match media.next_airing_episode.as_ref() {
+            Some(next_airing) if next_airing.episode > 0 => Some(next_airing.episode - 1),
+            Some(_) => {
+                return Err(AniListError::contract(
+                    "AniList returned an invalid next airing episode number.",
+                ));
+            }
+            None => None,
+        };
         let summary = MediaSummary::try_from(media)?;
         let sequels = relations
             .into_iter()
@@ -273,7 +282,11 @@ impl AniListClient {
             .into_iter()
             .flatten()
             .collect();
-        Ok(MediaDetails { summary, sequels })
+        Ok(MediaDetails {
+            summary,
+            episodes_aired,
+            sequels,
+        })
     }
 
     pub async fn airing_schedule(
