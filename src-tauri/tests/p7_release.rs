@@ -72,7 +72,7 @@ fn release_configuration_keeps_the_private_windows_identity_stable() {
     )
     .expect("valid Tauri configuration JSON");
     assert_eq!(config["identifier"], "app.animi.desktop");
-    assert_eq!(config["version"], "1.0.0");
+    assert_eq!(config["version"], "1.0.1");
     assert_eq!(config["bundle"]["targets"], json!(["nsis"]));
     assert_eq!(config["bundle"]["createUpdaterArtifacts"], false);
     assert_eq!(config["bundle"]["windows"]["allowDowngrades"], false);

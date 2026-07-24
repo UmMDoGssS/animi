@@ -1,6 +1,6 @@
 {
     "name": "animi",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A private, local-first anime tracker and recommendation app.",
     "private": true,
     "type": "module",
