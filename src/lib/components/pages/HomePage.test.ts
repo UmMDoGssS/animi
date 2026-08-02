@@ -406,6 +406,79 @@ describe("HomePage", () => {
         ).toBeInTheDocument();
     });
 
+    it("activates the next episode when its airing time passes", async () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date("2026-07-17T08:00:00.000Z"));
+        const props = homeProps([
+            item(
+                6,
+                "Two Episodes into Summer",
+                2,
+                3,
+                false,
+                "RELEASING",
+                12,
+                1 / 120,
+            ),
+        ]);
+        render(HomePage, props);
+        await vi.advanceTimersByTimeAsync(0);
+
+        const slide = screen.getByRole("group", {
+            name: /Two Episodes into Summer/i,
+        });
+        expect(
+            within(slide).getByRole("button", { name: "all caught up" }),
+        ).toBeDisabled();
+
+        await vi.advanceTimersByTimeAsync(60 * 1000);
+
+        expect(
+            within(slide).getByText(/1 episode waiting/i),
+        ).toBeInTheDocument();
+        expect(
+            within(slide).getByText(/episode 3 is now available/i),
+        ).toBeInTheDocument();
+        expect(
+            within(slide).getByRole("button", { name: "watch ep 3" }),
+        ).toBeEnabled();
+        expect(props.loadAiring).toHaveBeenCalledOnce();
+    });
+
+    it("updates episode availability immediately on manual refresh", async () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date("2026-07-17T08:00:00.000Z"));
+        const props = homeProps([
+            item(
+                6,
+                "Two Episodes into Summer",
+                2,
+                3,
+                false,
+                "RELEASING",
+                12,
+                1 / 120,
+            ),
+        ]);
+        render(HomePage, props);
+        await vi.advanceTimersByTimeAsync(0);
+
+        const slide = screen.getByRole("group", {
+            name: /Two Episodes into Summer/i,
+        });
+        expect(
+            within(slide).getByRole("button", { name: "all caught up" }),
+        ).toBeDisabled();
+
+        vi.setSystemTime(new Date("2026-07-17T08:00:31.000Z"));
+        await fireEvent.click(screen.getByRole("button", { name: "refresh" }));
+
+        expect(props.loadAiring).toHaveBeenCalledTimes(2);
+        expect(
+            within(slide).getByRole("button", { name: "watch ep 3" }),
+        ).toBeEnabled();
+    });
+
     it("checks at launch, an allowed manual action, and the 30-minute interval", async () => {
         vi.useFakeTimers();
         vi.setSystemTime(new Date("2026-07-17T08:00:00.000Z"));

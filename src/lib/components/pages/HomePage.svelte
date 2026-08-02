@@ -100,6 +100,7 @@
     });
 
     async function refreshAiring(): Promise<void> {
+        now = Date.now();
         if (response === null) loading = true;
         loadError = null;
         try {
@@ -222,10 +223,9 @@
             return remainingEpisodes(item);
         }
         if (item.nextAiring === null) return 0;
-        return Math.max(
-            0,
-            item.nextAiring.episode - 1 - item.library.entry.progress,
-        );
+        const availableEpisodes = availableEpisodeCount(item);
+        if (availableEpisodes === null) return 0;
+        return Math.max(0, availableEpisodes - item.library.entry.progress);
     }
 
     function compareAiringItems(
@@ -249,15 +249,32 @@
     }
 
     function canAdvance(item: HomeAiringItem): boolean {
-        const total = item.library.media?.episodes;
-        if (total === null || total === undefined) return false;
-
-        const availableEpisodes =
-            item.library.media?.status !== "FINISHED" &&
-            item.nextAiring !== null
-                ? Math.min(total, Math.max(0, item.nextAiring.episode - 1))
-                : total;
+        const availableEpisodes = availableEpisodeCount(item);
+        if (availableEpisodes === null) return false;
         return item.library.entry.progress < availableEpisodes;
+    }
+
+    function availableEpisodeCount(item: HomeAiringItem): number | null {
+        const total = item.library.media?.episodes;
+        if (total === null || total === undefined) return null;
+        if (
+            item.library.media?.status === "FINISHED" ||
+            item.nextAiring === null
+        ) {
+            return total;
+        }
+
+        const scheduledEpisode = Math.max(
+            0,
+            item.nextAiring.episode - (scheduledEpisodeHasAired(item) ? 0 : 1),
+        );
+        return Math.min(total, scheduledEpisode);
+    }
+
+    function scheduledEpisodeHasAired(item: HomeAiringItem): boolean {
+        if (item.nextAiring === null) return false;
+        const airingAt = new Date(item.nextAiring.airingAt).getTime();
+        return Number.isFinite(airingAt) && airingAt <= now;
     }
 
     function remainingEpisodes(item: HomeAiringItem): number {
@@ -605,7 +622,9 @@
                                         {item.library.media?.status ===
                                         "FINISHED"
                                             ? "Finished airing."
-                                            : `Episode ${item.nextAiring?.episode} airs in ${countdown(item)}.`}
+                                            : scheduledEpisodeHasAired(item)
+                                              ? `Episode ${item.nextAiring?.episode} is now available.`
+                                              : `Episode ${item.nextAiring?.episode} airs in ${countdown(item)}.`}
                                     </p>
                                 {:else if scheduleState(item) === "on-time"}
                                     <p
