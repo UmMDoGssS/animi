@@ -5,11 +5,11 @@
 | Field | Value |
 |---|---|
 | Product | Animi |
-| Release | Version 1, Windows desktop |
-| Overall status | Version 1 complete; private distribution only |
-| Current phase | P7 complete |
+| Release | Version 1.1, Windows desktop |
+| Overall status | Version 1.0.1 complete; version 1.1 planned; private distribution only |
+| Current phase | P8 ready to begin |
 | Schedule | Dependency-driven; no calendar commitment |
-| Last updated | 2026-07-17 |
+| Last updated | 2026-08-02 |
 
 This document is the living execution roadmap for Animi. [`PROJECT.md`](PROJECT.md) is authoritative for product scope, architecture, fixed behavior, and technical decisions. This plan is authoritative for implementation order, milestone status, dependencies, and release readiness.
 
@@ -24,19 +24,26 @@ If product scope or architecture changes, approve and record the change in `PROJ
 - Exit gates are cumulative. Later work must not regress an earlier gate.
 - Record blockers beside the affected milestone. Do not mark blocked or deferred work complete.
 - Keep implementation changes small enough to verify with focused tests before running the broader phase gate.
-- Items under Future Roadmap are context, not approved v1 work.
+- Items under Future Roadmap are context, not approved version 1.1 work.
 
-## Version 1 Boundaries
+## Release Boundaries
 
-Version 1 is a private, local-first, anime-focused Windows desktop application. The local SQLite database is authoritative. Rust owns durable state, AniList access, caching, backups, and imports; Svelte communicates with Rust only through typed Tauri commands.
+Version 1.0.1 is the latest completed private, local-first, anime-focused Windows desktop release. Version 1.1 is an additive manga-capability release on the same architecture. The local SQLite database remains authoritative. Rust owns durable state, AniList access, caching, recommendations, backups, and imports; Svelte communicates with Rust only through typed Tauri commands.
 
-The following remain outside v1:
+Version 1.1 includes:
 
-- Manga workflows, even though shared types and storage leave room for them.
+- AniList `MANGA` media, including manga, novel, and one-shot formats with explicit format labels.
+- Manga discovery, details, local library management, Continue Reading, Dashboard insights, and same-kind recommendations.
+- Independent chapter and volume progress with durable activity and correction-safe high-water marks.
+- Append-only upgrade of every supported 1.0 database and import compatibility for backup schemas 1 and 2.
+
+The following remain outside version 1.1:
+
+- A built-in content reader, per-chapter history, inferred chapter availability or release schedules, and reading-time estimates.
 - Mobile clients and live cross-device synchronization.
 - A server, cloud database, accounts, analytics, or AniList OAuth.
 - Closed-app refresh or notifications.
-- Predicted or inferred sequel announcements.
+- Predicted or inferred sequel, continuation, episode, or chapter announcements.
 - Bulk collection of AniList data or use of AniList as application storage.
 - Public distribution until the AniList terms and permission concern in `PROJECT.md` is resolved.
 
@@ -52,20 +59,25 @@ The following remain outside v1:
 | P5 | Home airing workflow, insights, and recommendations | P2, P4 | Complete | Home airing/progress, Dashboard insights, and deterministic recommendation behavior pass |
 | P6 | Settings, backup, and recovery | P1, P3, P4 | Complete | Backup round trips and rollback guarantees pass |
 | P7 | Release hardening and Windows packaging | P0-P6 | Complete | Full quality gate and production NSIS acceptance pass |
+| P8 | Manga domain, persistence, and compatibility | P7; approved 1.1 contracts | Not started | Existing 1.0.x profiles upgrade without loss and manga progress is durable |
+| P9 | AniList manga integration and cache isolation | P8 contracts; existing P2 transport | Not started | Mocked manga discovery, details, cache, offline, and throttling behavior passes |
+| P10 | Media-aware application workflows | P8, P9; existing P3-P4 UI | Not started | Manga discovery-to-library and Dashboard flows pass end to end |
+| P11 | Continue Reading, activity, and recommendations | P8-P10; existing P5 behavior | Not started | Manga Home, reading activity, and same-kind recommendations pass |
+| P12 | Version 1.1 release hardening | P8-P11 | Not started | Full gate and NSIS upgrade acceptance pass from Animi 1.0.1 |
 
 ## Planned Contracts
 
-These are implementation targets, not interfaces already present in the repository. The detailed shapes must remain compatible with the decisions in `PROJECT.md`.
+The version 1.0 portions of these contracts are implemented. The version 1.1 additions are implementation targets and must remain compatible with the decisions in `PROJECT.md`.
 
 ### Shared domain types
 
-- `MediaKind`: `ANIME | MANGA`; v1 commands and views expose only anime workflows.
-- `LibraryStatus`: `WATCHING | COMPLETED | PLANNING`.
-- `LibraryEntry`: AniList ID, media kind, status, progress, timestamps, optional score, and optional notes.
-- `MediaSnapshot`: titles, cover URL, format, genres, weighted tags, status, episode or chapter total, and cache timestamp.
-- `AiringInfo`: episode number, airing timestamp, and fetch timestamp.
-- `WatchActivity`: AniList ID, media kind, progress delta, best-known episode duration, and UTC occurrence time.
-- `Recommendation`: media summary, local score, and concise explanation labels.
+- `MediaKind`: `ANIME | MANGA`; version 1.1 exposes both kinds through kind-scoped workflows.
+- `LibraryStatus`: `WATCHING | COMPLETED | PLANNING`; `WATCHING` is presented as Reading for manga without changing the durable enum.
+- `LibraryEntry`: AniList ID, media kind, status, primary progress, nullable volume progress, independent activity high-water marks, timestamps, optional score, and optional notes. Primary progress means episodes for anime and chapters for manga; volume progress is null for anime and a nonnegative integer for manga.
+- `MediaSnapshot`: media kind, titles, cover URL, format, genres, weighted tags, status, anime episode total and duration, manga chapter and volume totals, release date, and cache timestamp.
+- `AiringInfo`: anime-only episode number, airing timestamp, and fetch timestamp.
+- `ProgressActivity`: AniList ID, media kind, nonnegative primary and volume deltas with at least one positive, optional best-known anime episode duration, stable event ID, and UTC occurrence time.
+- `Recommendation`: same-kind media summary, local score, and concise explanation labels.
 - `CommandError`: `code`, `message`, and `retryable` at the IPC boundary.
 
 All JSON fields crossing the Tauri boundary use camelCase. Rust may use snake_case internally with explicit Serde renaming. Timestamps cross the boundary as UTC values in one documented representation.
@@ -74,20 +86,21 @@ All JSON fields crossing the Tauri boundary use camelCase. Rust may use snake_ca
 
 | Area | Commands | Planned phase |
 |---|---|---|
-| Discovery | `search_media`, `get_media_details`, `list_trending` | P2, surfaced in P4 |
-| Library | `list_library`, `upsert_library_entry`, `advance_library_progress`, `remove_library_entry` | P1, extended and surfaced in P4-P5 |
-| Metadata | `refresh_library_metadata` | P2, surfaced in P4-P5 |
-| Recommendations | `get_recommendations` | P5 |
-| Dashboard | `get_dashboard_insights` | P4 base aggregates/events; P5 monthly/yearly series |
-| Backup | `export_backup`, `preview_import`, `import_backup` | P6 |
+| Discovery | `search_media`, `get_media_details`, `list_trending` | P2/P4 anime; add `mediaKind` in P9-P10 |
+| Library | `list_library`, `upsert_library_entry`, `advance_library_progress`, `remove_library_entry` | P1/P4-P5 anime; extend for manga in P8/P10-P11 |
+| Home | `get_home_airing`, `get_home_reading` | P5 anime airing; add manga reading in P11 |
+| Metadata | `refresh_library_metadata` | P2/P4-P5 anime; add media-kind scope in P9-P10 |
+| Recommendations | `get_recommendations` | P5 anime; add media-kind scope in P9/P11 |
+| Dashboard | `get_dashboard_insights` | P4-P5 anime; add media-kind scope and reading aggregates in P8/P10-P11 |
+| Backup | `export_backup`, `preview_import`, `import_backup` | P6 schema 1; add schema 2 and schema 1 compatibility in P8 |
 
 Commands remain thin adapters. Validation, database behavior, AniList behavior, recommendation logic, and backup logic live in testable Rust modules.
 
-For P4, `list_library` returns authoritative local entry fields enriched with optional cached media presentation fields and freshness needed by Dashboard and library cards. Missing cached metadata must not hide a local entry, and metadata refreshes never overwrite local status, progress, score, or notes.
+`list_library` returns authoritative local entry fields enriched with optional cached media presentation fields and freshness needed by Home, Dashboard, and library cards. Missing cached metadata must not hide a local entry, and metadata refreshes never overwrite local status, progress, score, notes, or activity.
 
 ### Backup envelope
 
-Backups use versioned JSON containing `schemaVersion`, `exportedAt`, settings, local library entries, and user-owned watch activity. Backup-only library records preserve the activity high-water mark, and watch activity carries stable event IDs so repeated imports can be idempotent. An existing event ID with an identical payload is a no-op; a reused event ID with a different payload is a validation error before writes. Cache records and downloaded images are excluded. Import validates the complete file before opening one write transaction. Library and setting conflicts use the greatest `updatedAt`, with equal timestamps keeping local data. Same-`createdAt` library records retain the greatest activity high-water mark; different `createdAt` values are separate incarnations and the winning incarnation retains its own high-water mark. Import never deletes unrelated local entries.
+Animi 1.1 exports versioned JSON with `schemaVersion: 2`, `exportedAt`, settings, local anime and manga library entries, and user-owned generalized progress activity. Backup-only library records preserve both primary and volume activity high-water marks, and activity carries stable event IDs so repeated imports are idempotent. Import accepts schema 1 and schema 2. Schema 1 `progressDelta` is interpreted by its existing `mediaKind` as anime episodes or manga chapters, manga volume progress starts at zero, and event IDs plus valid anime duration snapshots remain unchanged; an impossible manga duration snapshot is a validation error. An existing event ID with an identical payload is a no-op; a reused event ID with a different payload is a validation error before writes. Cache records and downloaded images are excluded. Import validates the complete file before opening one write transaction. Library and setting conflicts use the greatest `updatedAt`, with equal timestamps keeping local data. Same-`createdAt` library records retain the greatest compatible activity high-water marks; different `createdAt` values are separate incarnations and the winning incarnation retains its own high-water marks. Import never deletes unrelated local entries.
 
 ## Cross-Cutting Definition of Done
 
@@ -443,9 +456,150 @@ The final clean-tree gate passes `bun run format:check`, `bun run lint`, `bun ru
 
 **Evidence:** The reusable glass multi-select and Dashboard integration have focused pointer and keyboard coverage, including multiple simultaneous genre and tag selections, conjunctive matching, visible active-filter chips, individual removal, and full reset. The complete frontend gate passes formatting, lint, Svelte type checking with zero diagnostics, all tests, and the production web build.
 
+## Version 1.1 Execution Roadmap
+
+Version 1.1 work begins at P8. P0-P7 and Completed Follow-up Work describe the shipped Animi 1.0.x baseline and must remain regression-safe.
+
+## P8 - Manga Domain, Persistence, and Compatibility
+
+**Objective:** Establish migration-safe manga contracts and durable chapter, volume, and activity behavior before any new UI or network workflow depends on them.
+
+**Depends on:** P7; approved version 1.1 decisions in `PROJECT.md`.
+
+### Entry gate
+
+- [ ] **P8-E1** Audit the current repository state, schema version, immutable migration fixtures, backup schema 1 fixtures, and unrelated user changes before editing.
+- [ ] **P8-E2** Freeze representative Animi 1.0.1 IPC, database, and backup fixtures that prove the pre-1.1 compatibility baseline.
+
+### Milestones
+
+- [ ] **P8-M1 - Kind-aware contracts:** Add `mediaKind` to media summaries and every discovery, details, progress, recommendation, refresh, and Dashboard request where kind cannot be safely inferred. Add nullable `chapters`, `volumes`, and `volumeProgress` fields; require volume progress to be null for anime and nonnegative for manga, and reject other cross-kind combinations such as manga episode duration.
+- [ ] **P8-M2 - Append-only migration:** Keep the existing `progress` and `total_units` columns as kind-scoped primary values for anime episodes or manga chapters. Add manga volume total, volume progress, an independent volume activity high-water mark, and generalized activity deltas through new forward migrations only. Preserve every existing anime row and any pre-existing row carrying `MediaKind.MANGA`, plus event IDs, valid duration snapshots, timestamps, and every released migration file.
+- [ ] **P8-M3 - Progress rules:** Implement episode-or-chapter primary progress and independent manga volume progress. Enforce nonnegative values and known totals without guessing unknown totals; apply initial-save, correction, restore, and newly-unrecorded-delta behavior independently to both progress dimensions in one transaction.
+- [ ] **P8-M4 - Repositories and IPC:** Extend library, snapshot, activity, Dashboard, and settings repositories plus their thin Tauri adapters for both media kinds. Missing manga metadata must not hide a local entry, and removal must preserve generalized user-owned activity.
+- [ ] **P8-M5 - Backup schema 2:** Export schema 2 with anime and manga library records, generalized progress activity, stable event IDs, and both high-water marks. Import schemas 1 and 2 through one fully validated preview/apply flow; interpret schema 1 progress by its existing media kind, initialize manga volume progress to zero, reject impossible manga duration snapshots, and never export a lossy schema 1 file.
+- [ ] **P8-M6 - Compatibility fixtures:** Add immutable profile and backup fixtures covering fresh 1.1 data, every released pre-1.1 schema, schema 1 import, schema 2 round trip, duplicate imports, event-ID collision, stale preview, transaction rollback, and mixed anime/manga libraries.
+
+### Exit gate
+
+- [ ] **P8-G1** Every supported Animi 1.0.x profile upgrades to the new schema, preserves all anime data and event IDs, and reopens cleanly.
+- [ ] **P8-G2** Manga library CRUD, chapter progress, volume progress, corrections, high-water behavior, removal, and restart persistence pass through the command boundary.
+- [ ] **P8-G3** Backup schema 2 round trips mixed libraries, schema 1 restores anime data without loss, and repeated import remains idempotent.
+- [ ] **P8-G4** Invalid kind/field combinations and simulated database failures return structured errors without partial writes.
+
+## P9 - AniList Manga Integration and Cache Isolation
+
+**Objective:** Extend the existing mocked AniList boundary to manga while keeping anime and manga requests, caches, and recommendations isolated.
+
+**Depends on:** P8 contracts and the existing P2 transport, cache, and rate-limit behavior.
+
+### Entry gate
+
+- [ ] **P9-E1** Deterministic fixtures exist for manga, novel, one-shot, missing totals, malformed data, partial GraphQL errors, offline, `403`, and `429 Retry-After` responses.
+- [ ] **P9-E2** The request builder and cache-key strategy can express media kind without duplicating the transport or bypassing test network isolation.
+
+### Milestones
+
+- [ ] **P9-M1 - Kind-parameterized queries:** Parameterize search, trending, details, and tracked-library queries by `MediaKind`; request chapters and volumes for manga and episodes and duration for anime. Keep airing queries anime-only and exclude adult content for both kinds.
+- [ ] **P9-M2 - Validated mapping:** Map manga formats, publication statuses, fuzzy release dates, chapter and volume totals, genres, weighted tags, and official same-kind continuation relations into stable DTOs. Treat missing totals as unknown and reject impossible or negative provider values.
+- [ ] **P9-M3 - Discovery commands and caches:** Extend `search_media`, `get_media_details`, and `list_trending` with media-kind input. Version cache payloads and include kind in every cache key so one kind cannot satisfy the other's request; retain the existing 24-hour details and 6-hour discovery TTLs.
+- [ ] **P9-M4 - Metadata refresh:** Refresh tracked anime and manga in bounded same-kind batches without holding a database transaction across network work. Preserve per-title failures, stale fallback, and authoritative local fields.
+- [ ] **P9-M5 - Recommendation candidates:** Fetch, cache, and rank recommendation candidates within the requested media kind only. Manga profiles use Reading and Completed manga; anime profiles continue to use Watching and Completed anime.
+- [ ] **P9-M6 - Contract coverage:** Cover pagination, cache hits, expired refresh, offline stale reads, empty uncached failure, kind mismatch, missing chapter or volume totals, supported manga formats, relations, malformed GraphQL data, `403`, and `429 Retry-After` entirely through mocks.
+
+### Exit gate
+
+- [ ] **P9-G1** Manga discovery and details return stable kind-aware DTOs from live-shaped fixtures without contacting AniList in tests.
+- [ ] **P9-G2** Anime and manga cache entries cannot collide, and both kinds retain deterministic fresh, stale, offline, and throttled behavior.
+- [ ] **P9-G3** Manga metadata refresh updates only cache-owned fields and leaves local progress, status, score, notes, and activity unchanged.
+- [ ] **P9-G4** Existing anime AniList, caching, airing, and recommendation contract tests remain green.
+
+## P10 - Media-Aware Application Workflows
+
+**Objective:** Deliver the complete manga discovery-to-library and Dashboard experience within the established four-destination shell.
+
+**Depends on:** P8, P9, and the existing P3-P4 application shell and library workflow.
+
+### Entry gate
+
+- [ ] **P10-E1** Kind-aware frontend DTOs and command adapters compile in strict TypeScript without `any` or unvalidated compatibility casts.
+- [ ] **P10-E2** The shared selector and unit-label conventions are defined for keyboard, screen-reader, desktop, narrow, Latte, and Macchiato behavior.
+
+### Milestones
+
+- [ ] **P10-M1 - Media-kind selector:** Add one reusable Anime/Manga selector to Home, Discover, and Dashboard. Selection is session-only and defaults to Anime on launch to preserve the 1.0 startup experience; switching kind clears incompatible search pagination, selected details, retry state, and stale announcements.
+- [ ] **P10-M2 - Manga Discover and details:** Connect manga search and trending collections to the shared cover-card system. Details show precise format, publication status, release date precision, chapters, volumes, genres, tags, freshness, and official continuation relations with explicit unknown states.
+- [ ] **P10-M3 - Manga library editor:** Present Reading, Completed, and Planning labels while retaining the durable status enum. Provide separate chapter and volume controls, known-total guidance, unknown-total behavior, draft/save feedback, score and notes, and explicit local removal confirmation.
+- [ ] **P10-M4 - Manga Dashboard:** Scope totals, preference signals, search, status filters, genre/tag filters, sorting, and library cards to manga. Display chapter and volume progress without combining them with anime units, and keep local entries visible when metadata is missing or stale.
+- [ ] **P10-M5 - Refresh and failure states:** Extend metadata refresh, loading, empty, offline, stale, retryable error, terminal error, and session debugger behavior to the selected kind. Kind switches and retries must not leave an indefinite spinner or show the previous kind's content.
+- [ ] **P10-M6 - Responsive and accessible presentation:** Verify kind controls, manga cards, unknown totals, editor controls, dialogs, filter overflow, focus restoration, reduced motion, and alternative text at desktop and 390-pixel widths in both themes.
+- [ ] **P10-M7 - Core end-to-end flow:** Cover manga search, details, add, chapter and volume edits, corrections, Dashboard presentation, metadata refresh, restart persistence, cached offline use, and confirmed removal while an existing anime library remains unchanged.
+
+### Exit gate
+
+- [ ] **P10-G1** The complete manga discovery-to-library and Dashboard flow passes through the packaged application boundary using mocked AniList data and isolated storage.
+- [ ] **P10-G2** Media-kind switching is keyboard operable, resets incompatible view state, and never mixes anime and manga labels, units, cache content, or preference signals.
+- [ ] **P10-G3** Manga known-total, unknown-total, missing-metadata, loading, empty, offline, stale, validation, and command-error states are covered.
+- [ ] **P10-G4** Existing anime Home, Discover, details, Dashboard, library, and accessibility tests remain green.
+
+## P11 - Continue Reading, Activity, and Recommendations
+
+**Objective:** Complete the manga-specific daily-use loop without claiming schedule or time data that the provider does not supply.
+
+**Depends on:** P8-P10 and the existing P5 Home, activity, and recommendation behavior.
+
+### Entry gate
+
+- [ ] **P11-E1** Manga progress activity crosses the real IPC boundary with stable units and timestamps, including chapter-only and chapter-plus-volume saves.
+- [ ] **P11-E2** Recommendation fixtures contain sufficient and insufficient same-kind history, already-tracked candidates, missing metadata, stale cache, and offline fallback cases.
+
+### Milestones
+
+- [ ] **P11-M1 - Continue Reading data:** Implement `get_home_reading` from locally authoritative `WATCHING` manga, enriched by optional cached metadata and ordered by most recently updated local entry. Do not infer unread availability, chapter release dates, or publication cadence.
+- [ ] **P11-M2 - Chapter quick progress:** Add an accessible `+1 chapter` action that records progress and activity transactionally, stops at a known chapter total, remains usable for unknown totals, and never changes volume progress implicitly.
+- [ ] **P11-M3 - Reading Home presentation:** Add distinct active, completed-at-known-total, unknown-total, missing-metadata, empty, stale, and error presentations. Preserve the anime airing carousel and prevent its 30-minute refresh loop from treating manga as airing media.
+- [ ] **P11-M4 - Reading activity:** Generalize Dashboard activity presentation so manga reports chapter and volume deltas in monthly and yearly buckets while anime retains episode counts and watch minutes. Never sum or convert chapters, volumes, episodes, or minutes into one value.
+- [ ] **P11-M5 - Manga recommendations:** Reuse the deterministic 55/25/20 scoring model with only Reading and Completed manga as profile signals, exclude tracked manga, explain the strongest same-kind tags, and fall back to manga trending when history is insufficient.
+- [ ] **P11-M6 - Daily-loop coverage:** Test chapter and volume activity high-water semantics, quick progress at known and unknown totals, restart persistence, Continue Reading ordering, missing metadata, recommendation isolation, cached offline fallback, and both media kinds in one profile.
+
+### Exit gate
+
+- [ ] **P11-G1** A user can resume a manga from Home, advance one chapter safely, and see the durable reading activity after restart.
+- [ ] **P11-G2** Manga activity reports only chapters and volumes; anime activity retains its existing episode and watch-time behavior.
+- [ ] **P11-G3** Recommendations never mix profile signals or candidates across media kinds and remain deterministic under offline stale fallback.
+- [ ] **P11-G4** Home and recommendation flows pass at desktop and narrow widths with keyboard, focus, screen-reader status, and reduced-motion coverage.
+
+## P12 - Version 1.1 Release Hardening
+
+**Objective:** Prove that Animi 1.1 is a safe private upgrade for fresh and existing Windows profiles.
+
+**Depends on:** P8-P11 and every cumulative P0-P7 release gate.
+
+### Entry gate
+
+- [ ] **P12-E1** Every P8-P11 milestone and exit gate is complete with recorded evidence and no unresolved data-loss, privacy, migration, backup, or accessibility blocker.
+- [ ] **P12-E2** Release configuration is ready for version `1.1.0` without enabling public publishing, an updater, or expanded capabilities.
+
+### Milestones
+
+- [ ] **P12-M1 - Migration and backup acceptance:** Upgrade isolated copies of every immutable database fixture and a representative 1.0.1 profile; verify anime preservation, new manga writes, schema 1 import, schema 2 round trip, failure rollback, reinstall retention, and downgrade protection.
+- [ ] **P12-M2 - Regression matrix:** Exercise Home, Discover, details, Dashboard, Settings, both media kinds, online and offline states, fresh and stale caches, both themes, desktop and narrow widths, keyboard use, focus, alternative text, contrast, and reduced motion.
+- [ ] **P12-M3 - Full automated gate:** Run frontend formatting, lint, strict checks, tests, production build, release audit, Rust formatting, Clippy with warnings denied, all Rust tests, migration fixtures, and critical-flow coverage from a clean worktree.
+- [ ] **P12-M4 - Release documentation:** Update the README, release notes, release audit, known limitations, backup compatibility, data location, private-distribution restriction, dependency notices, and any user-facing migration or recovery guidance.
+- [ ] **P12-M5 - Windows package acceptance:** Build the private current-user NSIS installer, perform fresh install and same-identity upgrade from 1.0.1, launch online and offline against isolated profiles, reinstall, uninstall, and verify the documented retained-data behavior.
+- [ ] **P12-M6 - Artifact audit:** Confirm the installer and repository contain no secrets, real user data, bundled databases, backups, caches, updater, analytics, public publishing path, non-Bun lockfile, accidental capability expansion, or undocumented dependency.
+
+### Exit gate
+
+- [ ] **P12-G1** Anime and manga critical flows pass from the packaged Windows application, including offline use of previously cached tracked titles.
+- [ ] **P12-G2** A production installer upgrades Animi 1.0.1 without losing or changing anime library, settings, watch activity, event IDs, or backup compatibility.
+- [ ] **P12-G3** Fresh and upgraded profiles can create, back up, clear in isolation, and restore mixed anime/manga data transactionally.
+- [ ] **P12-G4** The complete clean-tree quality gate passes and the release audit records reproducible evidence.
+- [ ] **P12-G5** Version 1.1 remains private, local-only, adult-content-filtered, and within every boundary in `PROJECT.md`.
+
 ## Quality Gates
 
-Run focused tests throughout a phase. Run the complete gate before v1 acceptance and after changes to shared contracts, migrations, packaging, or release configuration:
+Run focused tests throughout a phase. Run the complete gate before release acceptance and after changes to shared contracts, migrations, packaging, or release configuration:
 
 ```powershell
 bun run format:check
@@ -463,24 +617,20 @@ Documentation-only changes may skip runtime suites when the handoff states that 
 
 | Risk | Control | Release gate |
 |---|---|---|
-| Missing Windows native prerequisites | Verify them before scaffolding and again on the packaging machine | P0, P7 |
-| AniList outage, malformed data, or throttling | Typed adapters, bounded caching, stale fallback, `Retry-After`, and deterministic mocks | P2, P7 |
-| Local data loss | Transactions, foreign keys, append-only migrations, explicit confirmation, backups, and rollback tests | P1, P6, P7 |
-| Recommendation behavior becomes opaque or unstable | Pure deterministic scoring, fixed fixtures, and user-visible explanation labels | P5 |
-| Responsive or accessible behavior regresses | Desktop/narrow tests, keyboard checks, both themes, and reduced-motion review | P3, P7 |
-| Manga, mobile, sync, or notification scope enters v1 | Keep future work non-actionable until `PROJECT.md` is approved and revised | All phases |
-| Public distribution conflicts with AniList terms | Keep v1 private unless permission or a compatible product change is documented | P7 |
+| Missing Windows native prerequisites | Verify them before scaffolding and again on the packaging machine | P0, P7, P12 |
+| AniList outage, malformed data, or throttling | Typed adapters, bounded kind-scoped caching, stale fallback, `Retry-After`, and deterministic mocks | P2, P7, P9, P12 |
+| Existing 1.0.x data or backups are damaged by manga migrations | Append-only migrations, immutable upgrade fixtures, schema 1 import coverage, stable event IDs, transactional rollback, and packaged upgrade QA | P8, P12 |
+| Anime and manga fields, caches, progress units, or preferences leak across kinds | Carry `MediaKind` through keys and DTOs, validate cross-kind fields, and run mixed-profile isolation tests | P8-P12 |
+| Chapter and volume progress becomes inconsistent | Treat them as independent user assertions with separate bounds and high-water marks; never infer one from the other | P8, P10, P11 |
+| Manga UI implies unavailable schedule or reading-time data | Use local recency for Continue Reading and report chapters or volumes only; explicitly label unknown totals | P9-P12 |
+| Recommendation behavior becomes opaque or unstable | Pure deterministic same-kind scoring, fixed fixtures, and user-visible explanation labels | P5, P9, P11 |
+| Responsive or accessible behavior regresses | Desktop/narrow tests, keyboard checks, both themes, screen-reader status, and reduced-motion review | P3, P7, P10-P12 |
+| Mobile, sync, reader, OAuth, or notification scope enters version 1.1 | Keep future work non-actionable until `PROJECT.md` is approved and revised | P8-P12 |
+| Public distribution conflicts with AniList terms | Keep version 1.1 private unless permission or a compatible product change is documented | P12 |
 
-## Future Roadmap - Not Approved for Version 1
+## Future Roadmap - Not Approved for Version 1.1
 
 Future phases have no schedule, implementation status, or permission to begin. Promote one into the active roadmap only after its product and architecture decisions are added to `PROJECT.md`.
-
-### F1 - Manga workflows
-
-- Expose manga in search, details, library filtering, and recommendations using the existing `MediaKind` boundary.
-- Add chapter and volume progress semantics without weakening anime progress validation.
-- Extend backups and append-only migrations while preserving all v1 data.
-- Reassess manga-specific metadata, airing-equivalent UX, and test fixtures before implementation.
 
 ### F2 - Tauri mobile clients
 
@@ -517,3 +667,9 @@ Future phases have no schedule, implementation status, or permission to begin. P
 | 2026-07-17 | Keep version 1 private and package only current-user NSIS with no updater | AniList permission remains unresolved, while a stable identity, downgrade protection, and documented retained app data make private upgrades recoverable |
 | 2026-07-17 | Guard the packaged release-smoke data root behind two explicit environment values | Windows known-folder resolution ignores a simple `APPDATA` override; the paired guard enables isolated installer QA without changing normal profile resolution |
 | 2026-07-19 | Keep forced presentation debugging in session-only frontend state | The control must exercise shared UI states without changing the authoritative SQLite settings, backups, or normal startup behavior |
+| 2026-08-02 | Promote future manga work into version 1.1 phases P8-P12 | Manga is now approved release scope and needs a dependency-ordered path from compatibility contracts through Windows packaging |
+| 2026-08-02 | Keep `LibraryStatus.WATCHING` durable and label it Reading for manga | Contextual presentation adds manga language without a risky status-enum migration or loss of backup compatibility |
+| 2026-08-02 | Treat manga primary progress as chapters and store volumes independently | AniList exposes both totals, but neither reliably determines the other; separate validation and high-water marks preserve user intent |
+| 2026-08-02 | Use local recency for Continue Reading and omit manga schedules or time estimates | AniList has no airing-equivalent chapter feed or reliable reading duration, so inferred catch-up and time claims would be misleading |
+| 2026-08-02 | Export backup schema 2 and continue importing schema 1 | Manga requires new progress and activity fields, while every Animi 1.0.x backup must remain recoverable without a lossy downgrade format |
+| 2026-08-02 | Isolate discovery, caches, activity presentation, preferences, and recommendations by media kind | Episodes, chapters, volumes, and profile signals have different meanings and must never be combined implicitly |
