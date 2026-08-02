@@ -77,12 +77,17 @@ pub struct UpsertLibraryEntryRequest {
     pub media_kind: MediaKind,
     pub status: LibraryStatus,
     pub progress: i64,
+    pub volume_progress: Option<i64>,
     pub score: Option<f64>,
     pub notes: Option<String>,
 }
 
 impl UpsertLibraryEntryRequest {
-    pub fn validate(self, known_total: Option<i64>) -> Result<ValidatedLibraryEntry, CommandError> {
+    pub fn validate(
+        self,
+        known_total: Option<i64>,
+        known_volume_total: Option<i64>,
+    ) -> Result<ValidatedLibraryEntry, CommandError> {
         if !(1..=i64::from(i32::MAX)).contains(&self.anilist_id) {
             return Err(CommandError::new(
                 "INVALID_ANILIST_ID",
@@ -105,6 +110,42 @@ impl UpsertLibraryEntryRequest {
                 "Progress cannot exceed the known media total.",
                 false,
             ));
+        }
+
+        match (self.media_kind, self.volume_progress) {
+            (MediaKind::Anime, Some(_)) => {
+                return Err(CommandError::new(
+                    "INVALID_VOLUME_PROGRESS",
+                    "Volume progress must be null for anime.",
+                    false,
+                ));
+            }
+            (MediaKind::Manga, None) => {
+                return Err(CommandError::new(
+                    "INVALID_VOLUME_PROGRESS",
+                    "Volume progress is required for manga.",
+                    false,
+                ));
+            }
+            (MediaKind::Manga, Some(volume_progress))
+                if !(0..=i64::from(i32::MAX)).contains(&volume_progress) =>
+            {
+                return Err(CommandError::new(
+                    "INVALID_VOLUME_PROGRESS",
+                    "Volume progress is outside the supported range.",
+                    false,
+                ));
+            }
+            (MediaKind::Manga, Some(volume_progress))
+                if known_volume_total.is_some_and(|total| volume_progress > total) =>
+            {
+                return Err(CommandError::new(
+                    "VOLUME_PROGRESS_EXCEEDS_TOTAL",
+                    "Volume progress cannot exceed the known volume total.",
+                    false,
+                ));
+            }
+            _ => {}
         }
 
         if self
@@ -139,6 +180,7 @@ impl UpsertLibraryEntryRequest {
             media_kind: self.media_kind,
             status: self.status,
             progress: self.progress,
+            volume_progress: self.volume_progress,
             score: self.score,
             notes,
         })
@@ -151,6 +193,7 @@ pub struct ValidatedLibraryEntry {
     pub media_kind: MediaKind,
     pub status: LibraryStatus,
     pub progress: i64,
+    pub volume_progress: Option<i64>,
     pub score: Option<f64>,
     pub notes: Option<String>,
 }
@@ -167,6 +210,7 @@ pub struct RemoveLibraryEntryRequest {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AdvanceLibraryProgressRequest {
     pub anilist_id: i64,
+    pub media_kind: MediaKind,
 }
 
 impl RemoveLibraryEntryRequest {
@@ -196,6 +240,7 @@ pub struct LibraryEntry {
     pub media_kind: MediaKind,
     pub status: LibraryStatus,
     pub progress: i64,
+    pub volume_progress: Option<i64>,
     pub score: Option<f64>,
     pub notes: Option<String>,
     pub created_at: String,
@@ -219,6 +264,8 @@ pub struct LibraryMediaSnapshot {
     pub tags: Vec<LibraryMediaTag>,
     pub status: Option<String>,
     pub episodes: Option<i64>,
+    pub chapters: Option<i64>,
+    pub volumes: Option<i64>,
     pub duration_minutes: Option<i64>,
     pub release_date: Option<String>,
     pub cached_at: String,
@@ -235,13 +282,17 @@ pub struct LibraryItem {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct WatchActivity {
+pub struct ProgressActivity {
+    pub event_id: String,
     pub anilist_id: i64,
     pub media_kind: MediaKind,
     pub progress_delta: i64,
+    pub volume_delta: i64,
     pub episode_duration_minutes: Option<i64>,
     pub occurred_at: String,
 }
+
+pub type WatchActivity = ProgressActivity;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -259,6 +310,7 @@ mod tests {
             media_kind: MediaKind::Anime,
             status: LibraryStatus::Watching,
             progress,
+            volume_progress: None,
             score: None,
             notes: None,
         }
@@ -267,14 +319,14 @@ mod tests {
     #[test]
     fn rejects_progress_outside_a_known_total() {
         let error = request(13)
-            .validate(Some(12))
+            .validate(Some(12), None)
             .expect_err("progress above a known total should fail");
         assert_eq!(error.code, "PROGRESS_EXCEEDS_TOTAL");
     }
 
     #[test]
     fn accepts_progress_when_the_total_is_unknown() {
-        assert!(request(13).validate(None).is_ok());
+        assert!(request(13).validate(None, None).is_ok());
     }
 
     #[test]
@@ -282,13 +334,17 @@ mod tests {
         let mut value = request(0);
         value.notes = Some("  paws  ".to_owned());
         assert_eq!(
-            value.validate(None).expect("valid notes").notes.as_deref(),
+            value
+                .validate(None, None)
+                .expect("valid notes")
+                .notes
+                .as_deref(),
             Some("paws")
         );
 
         let mut blank = request(0);
         blank.notes = Some("   ".to_owned());
-        assert_eq!(blank.validate(None).expect("blank notes").notes, None);
+        assert_eq!(blank.validate(None, None).expect("blank notes").notes, None);
     }
 
     #[test]
@@ -296,13 +352,16 @@ mod tests {
         let mut invalid_id = request(0);
         invalid_id.anilist_id = 0;
         assert_eq!(
-            invalid_id.validate(None).expect_err("invalid id").code,
+            invalid_id
+                .validate(None, None)
+                .expect_err("invalid id")
+                .code,
             "INVALID_ANILIST_ID"
         );
 
         assert_eq!(
             request(-1)
-                .validate(None)
+                .validate(None, None)
                 .expect_err("negative progress")
                 .code,
             "INVALID_PROGRESS"
@@ -312,7 +371,7 @@ mod tests {
         invalid_score.score = Some(10.1);
         assert_eq!(
             invalid_score
-                .validate(None)
+                .validate(None, None)
                 .expect_err("out-of-range score")
                 .code,
             "INVALID_SCORE"
@@ -326,6 +385,7 @@ mod tests {
             media_kind: MediaKind::Anime,
             status: LibraryStatus::Watching,
             progress: 3,
+            volume_progress: None,
             score: Some(8.5),
             notes: None,
             created_at: "2026-07-16T08:00:00.000Z".to_owned(),
@@ -347,6 +407,7 @@ mod tests {
                 media_kind: MediaKind::Anime,
                 status: LibraryStatus::Watching,
                 progress: 3,
+                volume_progress: None,
                 score: None,
                 notes: None,
                 created_at: "2026-07-16T08:00:00.000Z".to_owned(),
@@ -363,6 +424,8 @@ mod tests {
                 }],
                 status: Some("RELEASING".to_owned()),
                 episodes: Some(12),
+                chapters: None,
+                volumes: None,
                 duration_minutes: Some(24),
                 release_date: None,
                 cached_at: "2026-07-16T08:00:00.000Z".to_owned(),
@@ -371,9 +434,11 @@ mod tests {
             }),
         };
         let activity = super::WatchActivity {
+            event_id: "00000000-0000-4000-a000-000000000101".to_owned(),
             anilist_id: 101,
             media_kind: MediaKind::Anime,
             progress_delta: 2,
+            volume_delta: 0,
             episode_duration_minutes: None,
             occurred_at: "2026-07-16T08:30:00.000Z".to_owned(),
         };

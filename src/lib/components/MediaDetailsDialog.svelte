@@ -112,6 +112,7 @@
 
         try {
             detailsResponse = await loadDetails({
+                mediaKind: summary.mediaKind,
                 anilistId: summary.anilistId,
             });
             await onDetailsLoaded?.(detailsResponse);

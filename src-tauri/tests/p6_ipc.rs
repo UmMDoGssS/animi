@@ -83,6 +83,7 @@ fn library_request(progress: i64) -> Value {
             "mediaKind": "ANIME",
             "status": "WATCHING",
             "progress": progress,
+            "volumeProgress": null,
             "score": 9.0,
             "notes": "IPC recovery fixture"
         }
@@ -114,7 +115,7 @@ fn export_backup_crosses_the_real_camel_case_ipc_boundary() {
 
     let response = invoke_ok(&webview, "export_backup", json!({}));
 
-    assert_eq!(response["schemaVersion"], 1);
+    assert_eq!(response["schemaVersion"], 2);
     assert_eq!(response["settingsCount"], 1);
     assert_eq!(response["libraryEntryCount"], 1);
     assert_eq!(response["watchActivityCount"], 2);

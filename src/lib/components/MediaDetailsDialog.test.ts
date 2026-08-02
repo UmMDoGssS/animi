@@ -20,12 +20,15 @@ import type {
 import MediaDetailsDialog from "./MediaDetailsDialog.svelte";
 
 const summary: MediaSummary = {
+    mediaKind: "ANIME",
     anilistId: 101,
     title: "Paper Cranes at Dawn",
     coverUrl: null,
     mediaFormat: "TV",
     status: "RELEASING",
     episodes: 12,
+    chapters: null,
+    volumes: null,
     durationMinutes: 24,
     releaseDate: null,
     genres: ["Drama"],
@@ -67,6 +70,7 @@ const existingEntry: LibraryEntry = {
     mediaKind: "ANIME",
     status: "WATCHING",
     progress: 3,
+    volumeProgress: null,
     score: 8.5,
     notes: "Waiting for the next episode.",
     createdAt: "2026-07-16T08:00:00.000Z",
@@ -86,6 +90,7 @@ function savedEntry(request: UpsertLibraryEntryRequest): LibraryEntry {
         mediaKind: request.mediaKind,
         status: request.status,
         progress: request.progress,
+        volumeProgress: request.volumeProgress,
         score: request.score,
         notes: request.notes,
         createdAt: "2026-07-17T08:00:00.000Z",
@@ -200,8 +205,14 @@ describe("MediaDetailsDialog", () => {
             screen.queryByText("Showing available details"),
         ).not.toBeInTheDocument();
         expect(loadDetails).toHaveBeenCalledTimes(2);
-        expect(loadDetails).toHaveBeenNthCalledWith(1, { anilistId: 101 });
-        expect(loadDetails).toHaveBeenNthCalledWith(2, { anilistId: 101 });
+        expect(loadDetails).toHaveBeenNthCalledWith(1, {
+            mediaKind: "ANIME",
+            anilistId: 101,
+        });
+        expect(loadDetails).toHaveBeenNthCalledWith(2, {
+            mediaKind: "ANIME",
+            anilistId: 101,
+        });
         expect(onDetailsLoaded).toHaveBeenCalledOnce();
         expect(onDetailsLoaded).toHaveBeenCalledWith(freshDetails);
     });
@@ -428,6 +439,7 @@ describe("MediaDetailsDialog", () => {
             mediaKind: "ANIME",
             status: "PLANNING",
             progress: 0,
+            volumeProgress: null,
             score: null,
             notes: "",
         });

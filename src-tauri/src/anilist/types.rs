@@ -2,6 +2,7 @@ use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 
 use super::AniListError;
+use crate::domain::MediaKind;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -13,12 +14,18 @@ pub struct MediaTag {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MediaSummary {
+    #[serde(default = "anime_media_kind")]
+    pub media_kind: MediaKind,
     pub anilist_id: i64,
     pub title: String,
     pub cover_url: Option<String>,
     pub media_format: Option<String>,
     pub status: Option<String>,
     pub episodes: Option<i64>,
+    #[serde(default)]
+    pub chapters: Option<i64>,
+    #[serde(default)]
+    pub volumes: Option<i64>,
     pub duration_minutes: Option<i64>,
     #[serde(default)]
     pub release_date: Option<String>,
@@ -226,12 +233,15 @@ impl TryFrom<RawMedia> for MediaSummary {
             .collect::<Result<Vec<_>, AniListError>>()?;
 
         Ok(Self {
+            media_kind: MediaKind::Anime,
             anilist_id: media.id,
             title,
             cover_url: media.cover_image.and_then(|cover| cover.large),
             media_format: media.format,
             status: media.status,
             episodes: media.episodes,
+            chapters: None,
+            volumes: None,
             duration_minutes: media.duration,
             release_date: media
                 .start_date
@@ -243,6 +253,10 @@ impl TryFrom<RawMedia> for MediaSummary {
             trending: media.trending,
         })
     }
+}
+
+fn anime_media_kind() -> MediaKind {
+    MediaKind::Anime
 }
 
 impl RawTitle {

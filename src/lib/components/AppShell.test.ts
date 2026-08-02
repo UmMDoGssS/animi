@@ -21,12 +21,15 @@ import { setTestViewport, testViewports } from "../../test/viewports";
 import AppShell from "./AppShell.svelte";
 
 const appShellMedia: MediaSummary = {
+    mediaKind: "ANIME",
     anilistId: 101,
     title: "Paper Cranes at Dawn",
     coverUrl: null,
     mediaFormat: "TV",
     status: "RELEASING",
     episodes: 12,
+    chapters: null,
+    volumes: null,
     durationMinutes: 24,
     releaseDate: null,
     genres: ["Drama"],
@@ -43,6 +46,7 @@ const emptyDashboard: DashboardInsights = {
         completed: 0,
         planning: 0,
         currentProgress: 0,
+        currentVolumeProgress: 0,
     },
     preferenceSignals: {
         eligibleTitles: 0,
@@ -58,6 +62,8 @@ const emptyDashboard: DashboardInsights = {
         knownDurationEpisodes: 0,
         recordedMinutes: 0,
         unknownDurationEpisodes: 0,
+        recordedChapters: 0,
+        recordedVolumes: 0,
         coveredFrom: null,
         coveredTo: null,
         monthly: [],

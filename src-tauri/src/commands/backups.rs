@@ -226,7 +226,7 @@ mod tests {
             .expect("export command")
             .expect("selected destination");
 
-        assert_eq!(response.schema_version, 1);
+        assert_eq!(response.schema_version, 2);
         assert!(destination.is_file());
     }
 

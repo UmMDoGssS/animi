@@ -4,7 +4,7 @@ use crate::domain::{MediaKind, WatchActivity, format_utc};
 
 use super::{DatabaseError, parse_timestamp};
 
-const LIST_ACTIVITY_QUERY: &str = "SELECT anilist_id, media_kind, progress_delta, episode_duration_minutes, occurred_at \
+const LIST_ACTIVITY_QUERY: &str = "SELECT event_id, anilist_id, media_kind, progress_delta, volume_delta, episode_duration_minutes, occurred_at \
      FROM watch_activity ORDER BY occurred_at DESC, id DESC";
 
 #[derive(Debug, Clone)]
@@ -38,9 +38,11 @@ impl ActivityRepository {
 
 #[derive(Debug, FromRow)]
 struct WatchActivityRow {
+    event_id: String,
     anilist_id: i64,
     media_kind: String,
     progress_delta: i64,
+    volume_delta: i64,
     episode_duration_minutes: Option<i64>,
     occurred_at: String,
 }
@@ -52,9 +54,11 @@ impl TryFrom<WatchActivityRow> for WatchActivity {
         let media_kind = MediaKind::parse(&row.media_kind)
             .map_err(|error| DatabaseError::CorruptData(error.message))?;
         Ok(Self {
+            event_id: row.event_id,
             anilist_id: row.anilist_id,
             media_kind,
             progress_delta: row.progress_delta,
+            volume_delta: row.volume_delta,
             episode_duration_minutes: row.episode_duration_minutes,
             occurred_at: format_utc(parse_timestamp(&row.occurred_at)?),
         })

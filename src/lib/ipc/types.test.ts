@@ -31,12 +31,15 @@ describe("AniList IPC contracts", () => {
     it("carry explicit cache freshness and unknown sequel dates", () => {
         const response: MediaDetailsResponse = {
             media: {
+                mediaKind: "ANIME",
                 anilistId: 21,
                 title: "Incomplete Anime",
                 coverUrl: null,
                 mediaFormat: "TV",
                 status: "RELEASING",
                 episodes: null,
+                chapters: null,
+                volumes: null,
                 episodesAired: 6,
                 durationMinutes: null,
                 releaseDate: null,
@@ -78,6 +81,7 @@ describe("library IPC contracts", () => {
             mediaKind: "ANIME",
             status: "WATCHING",
             progress: 3,
+            volumeProgress: null,
             score: 8.5,
             notes: null,
             createdAt: "2026-07-16T08:00:00.000Z",
@@ -95,6 +99,7 @@ describe("library IPC contracts", () => {
                 mediaKind: "ANIME",
                 status: "WATCHING",
                 progress: 3,
+                volumeProgress: null,
                 score: null,
                 notes: null,
                 createdAt: "2026-07-16T08:00:00.000Z",
@@ -108,6 +113,8 @@ describe("library IPC contracts", () => {
                 tags: [{ name: "Cats", rank: 99 }],
                 status: "RELEASING",
                 episodes: 12,
+                chapters: null,
+                volumes: null,
                 durationMinutes: 24,
                 releaseDate: null,
                 cachedAt: "2026-07-16T08:00:00.000Z",
@@ -128,9 +135,11 @@ describe("library IPC contracts", () => {
 
     it("represent progress activity without inventing unknown duration", () => {
         const activity: WatchActivity = {
+            eventId: "00000000-0000-4000-a000-000000000101",
             anilistId: 101,
             mediaKind: "ANIME",
             progressDelta: 2,
+            volumeDelta: 0,
             episodeDurationMinutes: null,
             occurredAt: "2026-07-16T08:30:00.000Z",
         };
@@ -150,6 +159,7 @@ describe("library IPC contracts", () => {
                 completed: 0,
                 planning: 0,
                 currentProgress: 0,
+                currentVolumeProgress: 0,
             },
             preferenceSignals: {
                 eligibleTitles: 0,
@@ -165,15 +175,19 @@ describe("library IPC contracts", () => {
                 knownDurationEpisodes: 0,
                 recordedMinutes: 0,
                 unknownDurationEpisodes: 3,
+                recordedChapters: 0,
+                recordedVolumes: 0,
                 coveredFrom: "2026-07-16T08:30:00.000Z",
                 coveredTo: "2026-07-16T08:30:00.000Z",
                 monthly: [],
                 yearly: [],
                 events: [
                     {
+                        eventId: "00000000-0000-4000-a000-000000000101",
                         anilistId: 101,
                         mediaKind: "ANIME",
                         progressDelta: 3,
+                        volumeDelta: 0,
                         episodeDurationMinutes: null,
                         occurredAt: "2026-07-16T08:30:00.000Z",
                     },
@@ -196,14 +210,14 @@ describe("library IPC contracts", () => {
 describe("backup IPC contracts", () => {
     it("reports the versioned export counts and UTC timestamp", () => {
         const response: ExportBackupResponse = {
-            schemaVersion: 1,
+            schemaVersion: 2,
             exportedAt: "2026-07-17T09:00:00.000Z",
             settingsCount: 1,
             libraryEntryCount: 2,
             watchActivityCount: 3,
         };
 
-        expect(response.schemaVersion).toBe(1);
+        expect(response.schemaVersion).toBe(2);
         expect(response.exportedAt.endsWith("Z")).toBe(true);
         expect(response.watchActivityCount).toBe(3);
     });

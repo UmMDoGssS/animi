@@ -47,12 +47,15 @@ const offlineError: CommandError = {
 };
 
 const violetEvergreen: MediaSummary = {
+    mediaKind: "ANIME",
     anilistId: 101,
     title: "Violet Evergreen",
     coverUrl: "https://example.invalid/covers/violet.jpg",
     mediaFormat: "TV",
     status: "FINISHED",
     episodes: 13,
+    chapters: null,
+    volumes: null,
     durationMinutes: 24,
     releaseDate: null,
     genres: ["Drama", "Fantasy"],
@@ -61,12 +64,15 @@ const violetEvergreen: MediaSummary = {
 };
 
 const orbitalCats: MediaSummary = {
+    mediaKind: "ANIME",
     anilistId: 202,
     title: "Orbital Cats",
     coverUrl: null,
     mediaFormat: "TV_SHORT",
     status: "RELEASING",
     episodes: null,
+    chapters: null,
+    volumes: null,
     durationMinutes: null,
     releaseDate: null,
     genres: ["Comedy"],
@@ -79,6 +85,7 @@ const existingEntry: LibraryEntry = {
     mediaKind: "ANIME",
     status: "WATCHING",
     progress: 3,
+    volumeProgress: null,
     score: 8,
     notes: null,
     createdAt: "2026-07-16T08:00:00.000Z",
@@ -125,6 +132,7 @@ function savedEntry(request: UpsertLibraryEntryRequest): LibraryEntry {
         mediaKind: request.mediaKind,
         status: request.status,
         progress: request.progress,
+        volumeProgress: request.volumeProgress,
         score: request.score,
         notes: request.notes,
         createdAt: "2026-07-17T08:00:00.000Z",
@@ -237,6 +245,7 @@ describe("DiscoveryPage", () => {
                 name: "Trending anime",
             });
             expect(props.loadTrending).toHaveBeenCalledWith({
+                mediaKind: "ANIME",
                 page: 1,
                 perPage: 12,
             });
@@ -279,6 +288,7 @@ describe("DiscoveryPage", () => {
             name: "Recommended anime",
         });
         expect(personalized.loadRecommendations).toHaveBeenCalledWith({
+            mediaKind: "ANIME",
             perPage: 18,
         });
         expect(
@@ -325,6 +335,7 @@ describe("DiscoveryPage", () => {
         expect(searchAnime).not.toHaveBeenCalled();
         await vi.advanceTimersByTimeAsync(1);
         expect(searchAnime).toHaveBeenCalledWith({
+            mediaKind: "ANIME",
             search: "Orbital Cats",
             page: 1,
             perPage: 12,
@@ -335,6 +346,7 @@ describe("DiscoveryPage", () => {
         });
         await fireEvent.submit(search.closest("form") as HTMLFormElement);
         expect(searchAnime).toHaveBeenLastCalledWith({
+            mediaKind: "ANIME",
             search: "Violet Evergreen",
             page: 1,
             perPage: 12,
@@ -523,7 +535,10 @@ describe("DiscoveryPage", () => {
             name: "Violet Evergreen",
         });
         expect(dialog).toHaveAttribute("open");
-        expect(loadDetails).toHaveBeenCalledWith({ anilistId: 101 });
+        expect(loadDetails).toHaveBeenCalledWith({
+            mediaKind: "ANIME",
+            anilistId: 101,
+        });
         const closeButton = within(dialog).getByRole("button", {
             name: "Close details",
         });

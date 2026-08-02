@@ -71,7 +71,7 @@ pub(crate) async fn advance_library_progress_with_database(
 ) -> Result<LibraryEntry, CommandError> {
     database
         .library()
-        .advance_home_progress(request.anilist_id)
+        .advance_home_progress(request.anilist_id, request.media_kind)
         .await
 }
 
@@ -105,6 +105,7 @@ mod tests {
             media_kind: MediaKind::Anime,
             status: LibraryStatus::Planning,
             progress: 0,
+            volume_progress: None,
             score: None,
             notes: None,
         }
@@ -195,6 +196,7 @@ mod tests {
                 }],
                 media_status: Some("RELEASING".to_owned()),
                 total_units: Some(3),
+                volume_total: None,
                 duration_minutes: Some(24),
                 release_date: None,
                 cached_at: now,
@@ -209,7 +211,10 @@ mod tests {
             .upsert(tracked)
             .await
             .expect("tracked entry");
-        let request = AdvanceLibraryProgressRequest { anilist_id: 21 };
+        let request = AdvanceLibraryProgressRequest {
+            anilist_id: 21,
+            media_kind: MediaKind::Anime,
+        };
         let first = advance_library_progress_with_database(&database, request)
             .await
             .expect("episode 2");
@@ -239,6 +244,7 @@ mod tests {
                 tags: vec![],
                 media_status: Some("RELEASING".to_owned()),
                 total_units: None,
+                volume_total: None,
                 duration_minutes: Some(24),
                 release_date: None,
                 cached_at: Utc::now(),
@@ -255,7 +261,10 @@ mod tests {
 
         let error = advance_library_progress_with_database(
             &database,
-            AdvanceLibraryProgressRequest { anilist_id: 21 },
+            AdvanceLibraryProgressRequest {
+                anilist_id: 21,
+                media_kind: MediaKind::Anime,
+            },
         )
         .await
         .expect_err("unknown episode totals are not guessed");

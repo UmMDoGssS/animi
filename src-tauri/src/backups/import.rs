@@ -10,7 +10,10 @@ use uuid::Uuid;
 use crate::database::{Database, DatabaseError};
 use crate::domain::{CommandError, MAX_NOTES_CHARACTERS, MediaKind, format_utc};
 
-use super::{BackupEnvelopeV1, BackupLibraryEntryV1, BackupSettingV1, BackupWatchActivityV1};
+use super::{
+    BackupEnvelopeV1, BackupEnvelopeV2, BackupLibraryEntryV2, BackupProgressActivityV2,
+    BackupSettingV1, SUPPORTED_IMPORT_SCHEMA_VERSIONS,
+};
 
 const MAX_BACKUP_BYTES: u64 = 64 * 1024 * 1024;
 const CLEAR_CONFIRMATION: &str = "CLEAR MY LOCAL DATA";
@@ -96,7 +99,13 @@ pub struct ClearLocalDataResponse {
 #[serde(rename_all = "camelCase")]
 pub struct SettingsOverview {
     pub cached_media_count: i64,
+    pub cached_anime_count: i64,
+    pub cached_manga_count: i64,
     pub stale_media_count: i64,
+    pub library_anime_count: i64,
+    pub library_manga_count: i64,
+    pub anime_activity_count: i64,
+    pub manga_activity_count: i64,
     pub airing_record_count: i64,
     pub stale_airing_count: i64,
     pub response_cache_count: i64,
@@ -106,7 +115,8 @@ pub struct SettingsOverview {
 
 #[derive(Debug, Clone)]
 struct ValidatedBackup {
-    envelope: BackupEnvelopeV1,
+    schema_version: u32,
+    exported_at: String,
     settings: Vec<ValidatedSetting>,
     library_entries: Vec<ValidatedLibraryEntry>,
     watch_activity: Vec<ValidatedActivity>,
@@ -120,14 +130,14 @@ struct ValidatedSetting {
 
 #[derive(Debug, Clone)]
 struct ValidatedLibraryEntry {
-    source: BackupLibraryEntryV1,
+    source: BackupLibraryEntryV2,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ValidatedActivity {
-    source: BackupWatchActivityV1,
+    source: BackupProgressActivityV2,
     event_id: Uuid,
     occurred_at: DateTime<Utc>,
 }
@@ -292,8 +302,8 @@ pub(crate) async fn preview_import_from_path(
         Err(PlanError::ActivityConflict(event_id)) => {
             return Ok(ImportPreviewResponse {
                 file_name,
-                schema_version: Some(backup.envelope.schema_version),
-                exported_at: Some(backup.envelope.exported_at.clone()),
+                schema_version: Some(backup.schema_version),
+                exported_at: Some(backup.exported_at.clone()),
                 settings_count: backup.settings.len(),
                 library_entry_count: backup.library_entries.len(),
                 watch_activity_count: backup.watch_activity.len(),
@@ -317,8 +327,8 @@ pub(crate) async fn preview_import_from_path(
     })?;
     Ok(ImportPreviewResponse {
         file_name,
-        schema_version: Some(backup.envelope.schema_version),
-        exported_at: Some(backup.envelope.exported_at.clone()),
+        schema_version: Some(backup.schema_version),
+        exported_at: Some(backup.exported_at.clone()),
         settings_count: backup.settings.len(),
         library_entry_count: backup.library_entries.len(),
         watch_activity_count: backup.watch_activity.len(),
@@ -347,8 +357,8 @@ fn preview_metadata(
 ) -> (Option<u32>, Option<String>, (usize, usize, usize)) {
     if let Some(valid) = valid {
         return (
-            Some(valid.envelope.schema_version),
-            Some(valid.envelope.exported_at.clone()),
+            Some(valid.schema_version),
+            Some(valid.exported_at.clone()),
             (
                 valid.settings.len(),
                 valid.library_entries.len(),
@@ -402,27 +412,102 @@ fn parse_and_validate(contents: &str) -> Result<ValidatedBackup, Vec<ImportValid
             Some("schemaVersion".to_owned()),
         )]);
     };
-    if version != 1 {
+    let Ok(schema_version) = u32::try_from(version) else {
+        return Err(vec![ImportValidationIssue::new(
+            "BACKUP_SCHEMA_VERSION_UNSUPPORTED",
+            format!("Backup schema version {version} is not supported by this Animi release."),
+            Some("schemaVersion".to_owned()),
+        )]);
+    };
+    if !SUPPORTED_IMPORT_SCHEMA_VERSIONS.contains(&schema_version) {
         return Err(vec![ImportValidationIssue::new(
             "BACKUP_SCHEMA_VERSION_UNSUPPORTED",
             format!("Backup schema version {version} is not supported by this Animi release."),
             Some("schemaVersion".to_owned()),
         )]);
     }
-    let envelope: BackupEnvelopeV1 = serde_json::from_value(value).map_err(|error| {
-        vec![ImportValidationIssue::new(
-            "BACKUP_SHAPE_INVALID",
-            format!("The backup structure is invalid: {error}"),
-            None,
-        )]
-    })?;
+    let (schema_version, exported_at, settings_source, library_source, activity_source) =
+        match schema_version {
+            1 => {
+                let envelope: BackupEnvelopeV1 =
+                    serde_json::from_value(value).map_err(|error| {
+                        vec![ImportValidationIssue::new(
+                            "BACKUP_SHAPE_INVALID",
+                            format!("The backup structure is invalid: {error}"),
+                            None,
+                        )]
+                    })?;
+                (
+                    1,
+                    envelope.exported_at,
+                    envelope.settings,
+                    envelope
+                        .library_entries
+                        .into_iter()
+                        .map(|entry| BackupLibraryEntryV2 {
+                            anilist_id: entry.anilist_id,
+                            media_kind: entry.media_kind,
+                            status: entry.status,
+                            progress: entry.progress,
+                            volume_progress: (entry.media_kind == MediaKind::Manga).then_some(0),
+                            activity_progress: entry.activity_progress,
+                            activity_volume_progress: (entry.media_kind == MediaKind::Manga)
+                                .then_some(0),
+                            score: entry.score,
+                            notes: entry.notes,
+                            created_at: entry.created_at,
+                            updated_at: entry.updated_at,
+                        })
+                        .collect(),
+                    envelope
+                        .watch_activity
+                        .into_iter()
+                        .map(|activity| BackupProgressActivityV2 {
+                            event_id: activity.event_id,
+                            anilist_id: activity.anilist_id,
+                            media_kind: activity.media_kind,
+                            progress_delta: activity.progress_delta,
+                            volume_delta: 0,
+                            episode_duration_minutes: activity.episode_duration_minutes,
+                            occurred_at: activity.occurred_at,
+                        })
+                        .collect(),
+                )
+            }
+            2 => {
+                let envelope: BackupEnvelopeV2 =
+                    serde_json::from_value(value).map_err(|error| {
+                        vec![ImportValidationIssue::new(
+                            "BACKUP_SHAPE_INVALID",
+                            format!("The backup structure is invalid: {error}"),
+                            None,
+                        )]
+                    })?;
+                (
+                    2,
+                    envelope.exported_at,
+                    envelope.settings,
+                    envelope.library_entries,
+                    envelope.watch_activity,
+                )
+            }
+            _ => {
+                return Err(vec![ImportValidationIssue::new(
+                    "BACKUP_SCHEMA_VERSION_UNSUPPORTED",
+                    format!(
+                        "Backup schema version {version} is not supported by this Animi release."
+                    ),
+                    Some("schemaVersion".to_owned()),
+                )]);
+            }
+        };
 
     let mut issues = Vec::new();
-    parse_timestamp(&envelope.exported_at, "exportedAt", &mut issues);
+    parse_timestamp(&exported_at, "exportedAt", &mut issues);
 
     let mut setting_keys = HashSet::new();
-    let mut settings = Vec::with_capacity(envelope.settings.len());
-    for (index, setting) in envelope.settings.iter().cloned().enumerate() {
+    let mut settings = Vec::with_capacity(settings_source.len());
+    for (index, setting) in settings_source.into_iter().enumerate() {
         let base = format!("settings[{index}]");
         if setting.key.trim().is_empty() || setting.key.len() > 256 {
             issues.push(ImportValidationIssue::new(
@@ -463,8 +548,8 @@ fn parse_and_validate(contents: &str) -> Result<ValidatedBackup, Vec<ImportValid
     }
 
     let mut library_keys = HashSet::new();
-    let mut library_entries = Vec::with_capacity(envelope.library_entries.len());
-    for (index, entry) in envelope.library_entries.iter().cloned().enumerate() {
+    let mut library_entries = Vec::with_capacity(library_source.len());
+    for (index, entry) in library_source.into_iter().enumerate() {
         let base = format!("libraryEntries[{index}]");
         validate_anilist_id(entry.anilist_id, &format!("{base}.anilistId"), &mut issues);
         if !(0..=i64::from(i32::MAX)).contains(&entry.progress) {
@@ -479,6 +564,24 @@ fn parse_and_validate(contents: &str) -> Result<ValidatedBackup, Vec<ImportValid
                 "BACKUP_ACTIVITY_PROGRESS_INVALID",
                 "Activity progress must be at least current progress and within the supported range.",
                 Some(format!("{base}.activityProgress")),
+            ));
+        }
+        let volume_values_valid = match entry.media_kind {
+            MediaKind::Anime => {
+                entry.volume_progress.is_none() && entry.activity_volume_progress.is_none()
+            }
+            MediaKind::Manga => matches!(
+                (entry.volume_progress, entry.activity_volume_progress),
+                (Some(progress), Some(high_water))
+                    if (0..=i64::from(i32::MAX)).contains(&progress)
+                        && (progress..=i64::from(i32::MAX)).contains(&high_water)
+            ),
+        };
+        if !volume_values_valid {
+            issues.push(ImportValidationIssue::new(
+                "BACKUP_VOLUME_PROGRESS_INVALID",
+                "Volume progress and its activity high-water mark are incompatible with the media kind.",
+                Some(format!("{base}.volumeProgress")),
             ));
         }
         if entry
@@ -530,20 +633,37 @@ fn parse_and_validate(contents: &str) -> Result<ValidatedBackup, Vec<ImportValid
         }
     }
 
-    let mut activity_ids: HashMap<Uuid, BackupWatchActivityV1> = HashMap::new();
-    let mut watch_activity = Vec::with_capacity(envelope.watch_activity.len());
-    for (index, activity) in envelope.watch_activity.iter().cloned().enumerate() {
+    let mut activity_ids: HashMap<Uuid, BackupProgressActivityV2> = HashMap::new();
+    let mut watch_activity = Vec::with_capacity(activity_source.len());
+    for (index, activity) in activity_source.into_iter().enumerate() {
         let base = format!("watchActivity[{index}]");
         validate_anilist_id(
             activity.anilist_id,
             &format!("{base}.anilistId"),
             &mut issues,
         );
-        if !(1..=i64::from(i32::MAX)).contains(&activity.progress_delta) {
+        if !(0..=i64::from(i32::MAX)).contains(&activity.progress_delta)
+            || !(0..=i64::from(i32::MAX)).contains(&activity.volume_delta)
+            || activity.progress_delta == 0 && activity.volume_delta == 0
+        {
             issues.push(ImportValidationIssue::new(
                 "BACKUP_ACTIVITY_DELTA_INVALID",
-                "Watch activity progressDelta must be positive and within the supported range.",
+                "Progress activity deltas must be nonnegative, in range, and not both zero.",
                 Some(format!("{base}.progressDelta")),
+            ));
+        }
+        if activity.media_kind == MediaKind::Anime && activity.volume_delta != 0 {
+            issues.push(ImportValidationIssue::new(
+                "BACKUP_ACTIVITY_KIND_INVALID",
+                "Anime activity cannot contain a volume delta.",
+                Some(format!("{base}.volumeDelta")),
+            ));
+        }
+        if activity.media_kind == MediaKind::Manga && activity.episode_duration_minutes.is_some() {
+            issues.push(ImportValidationIssue::new(
+                "BACKUP_ACTIVITY_KIND_INVALID",
+                "Manga activity cannot contain an episode-duration snapshot.",
+                Some(format!("{base}.episodeDurationMinutes")),
             ));
         }
         if activity
@@ -611,7 +731,8 @@ fn parse_and_validate(contents: &str) -> Result<ValidatedBackup, Vec<ImportValid
 
     if issues.is_empty() {
         Ok(ValidatedBackup {
-            envelope,
+            schema_version,
+            exported_at,
             settings,
             library_entries,
             watch_activity,
@@ -668,6 +789,7 @@ enum SettingAction {
 struct LibraryAction {
     entry: ValidatedLibraryEntry,
     activity_progress: i64,
+    activity_volume_progress: Option<i64>,
     imported_fields_win: bool,
 }
 
@@ -690,6 +812,7 @@ struct LocalLibraryRow {
     anilist_id: i64,
     media_kind: String,
     activity_progress: i64,
+    activity_volume_progress: Option<i64>,
     created_at: String,
     updated_at: String,
 }
@@ -700,6 +823,7 @@ struct LocalActivityRow {
     anilist_id: i64,
     media_kind: String,
     progress_delta: i64,
+    volume_delta: i64,
     episode_duration_minutes: Option<i64>,
     occurred_at: String,
 }
@@ -722,7 +846,7 @@ async fn build_plan(
         .collect::<Result<HashMap<_, _>, _>>()?;
 
     let library = sqlx::query_as::<_, LocalLibraryRow>(
-        "SELECT anilist_id, media_kind, activity_progress, created_at, updated_at FROM library_entries",
+        "SELECT anilist_id, media_kind, activity_progress, activity_volume_progress, created_at, updated_at FROM library_entries",
     ).fetch_all(&mut **transaction).await.map_err(DatabaseError::from)?;
     let local_library_count = library.len();
     let local_library = library
@@ -738,13 +862,18 @@ async fn build_plan(
                 .with_timezone(&Utc);
             Ok((
                 (row.anilist_id, kind),
-                (row.activity_progress, created_at, updated_at),
+                (
+                    row.activity_progress,
+                    row.activity_volume_progress,
+                    created_at,
+                    updated_at,
+                ),
             ))
         })
         .collect::<Result<HashMap<_, _>, DatabaseError>>()?;
 
     let activities = sqlx::query_as::<_, LocalActivityRow>(
-        "SELECT event_id, anilist_id, media_kind, progress_delta, episode_duration_minutes, occurred_at FROM watch_activity",
+        "SELECT event_id, anilist_id, media_kind, progress_delta, volume_delta, episode_duration_minutes, occurred_at FROM watch_activity",
     ).fetch_all(&mut **transaction).await.map_err(DatabaseError::from)?;
     let local_activities = activities
         .into_iter()
@@ -763,6 +892,7 @@ async fn build_plan(
                     row.anilist_id,
                     kind,
                     row.progress_delta,
+                    row.volume_delta,
                     row.episode_duration_minutes,
                     occurred_at,
                 ),
@@ -806,10 +936,16 @@ async fn build_plan(
                 library_actions.push(LibraryAction {
                     entry: entry.clone(),
                     activity_progress: entry.source.activity_progress,
+                    activity_volume_progress: entry.source.activity_volume_progress,
                     imported_fields_win: true,
                 });
             }
-            Some((local_activity_progress, local_created_at, local_updated_at)) => {
+            Some((
+                local_activity_progress,
+                local_activity_volume_progress,
+                local_created_at,
+                local_updated_at,
+            )) => {
                 summary.library_conflicts += 1;
                 let imported_fields_win = entry.updated_at > *local_updated_at;
                 let activity_progress = if entry.created_at == *local_created_at {
@@ -819,11 +955,28 @@ async fn build_plan(
                 } else {
                     *local_activity_progress
                 };
-                if imported_fields_win || activity_progress != *local_activity_progress {
+                let activity_volume_progress = if entry.created_at == *local_created_at {
+                    match (
+                        entry.source.activity_volume_progress,
+                        *local_activity_volume_progress,
+                    ) {
+                        (Some(imported), Some(local)) => Some(imported.max(local)),
+                        (imported, local) => imported.or(local),
+                    }
+                } else if imported_fields_win {
+                    entry.source.activity_volume_progress
+                } else {
+                    *local_activity_volume_progress
+                };
+                if imported_fields_win
+                    || activity_progress != *local_activity_progress
+                    || activity_volume_progress != *local_activity_volume_progress
+                {
                     summary.library_merged += 1;
                     library_actions.push(LibraryAction {
                         entry: entry.clone(),
                         activity_progress,
+                        activity_volume_progress,
                         imported_fields_win,
                     });
                 } else {
@@ -839,6 +992,7 @@ async fn build_plan(
             activity.source.anilist_id,
             activity.source.media_kind,
             activity.source.progress_delta,
+            activity.source.volume_delta,
             activity.source.episode_duration_minutes,
             activity.occurred_at,
         );
@@ -878,7 +1032,7 @@ pub(crate) async fn import_backup(
         .map_err(ImportError::into_command_error)?;
     sessions.remove(token)?;
     Ok(ImportBackupResponse {
-        schema_version: session.backup.envelope.schema_version,
+        schema_version: session.backup.schema_version,
         changes,
     })
 }
@@ -926,16 +1080,19 @@ async fn apply_import(
     for action in plan.library_actions {
         if action.imported_fields_win {
             sqlx::query(
-                "INSERT INTO library_entries (anilist_id, media_kind, status, progress, activity_progress, score, notes, created_at, updated_at) \
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(anilist_id, media_kind) DO UPDATE SET \
-                 status = excluded.status, progress = excluded.progress, activity_progress = excluded.activity_progress, \
+                "INSERT INTO library_entries (anilist_id, media_kind, status, progress, volume_progress, activity_progress, activity_volume_progress, score, notes, created_at, updated_at) \
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(anilist_id, media_kind) DO UPDATE SET \
+                 status = excluded.status, progress = excluded.progress, volume_progress = excluded.volume_progress, \
+                 activity_progress = excluded.activity_progress, activity_volume_progress = excluded.activity_volume_progress, \
                  score = excluded.score, notes = excluded.notes, created_at = excluded.created_at, updated_at = excluded.updated_at",
             )
             .bind(action.entry.source.anilist_id)
             .bind(action.entry.source.media_kind.as_str())
             .bind(action.entry.source.status.as_str())
             .bind(action.entry.source.progress)
+            .bind(action.entry.source.volume_progress)
             .bind(action.activity_progress)
+            .bind(action.activity_volume_progress)
             .bind(action.entry.source.score)
             .bind(&action.entry.source.notes)
             .bind(format_utc(action.entry.created_at))
@@ -943,9 +1100,10 @@ async fn apply_import(
             .execute(&mut *transaction).await.map_err(DatabaseError::from)?;
         } else {
             sqlx::query(
-                "UPDATE library_entries SET activity_progress = ? WHERE anilist_id = ? AND media_kind = ?",
+                "UPDATE library_entries SET activity_progress = ?, activity_volume_progress = ? WHERE anilist_id = ? AND media_kind = ?",
             )
             .bind(action.activity_progress)
+            .bind(action.activity_volume_progress)
             .bind(action.entry.source.anilist_id)
             .bind(action.entry.source.media_kind.as_str())
             .execute(&mut *transaction).await.map_err(DatabaseError::from)?;
@@ -958,13 +1116,14 @@ async fn apply_import(
     }
     for activity in plan.activities_to_insert {
         sqlx::query(
-            "INSERT INTO watch_activity (event_id, anilist_id, media_kind, progress_delta, episode_duration_minutes, occurred_at) \
-             VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO watch_activity (event_id, anilist_id, media_kind, progress_delta, volume_delta, episode_duration_minutes, occurred_at) \
+             VALUES (?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(activity.event_id.to_string())
         .bind(activity.source.anilist_id)
         .bind(activity.source.media_kind.as_str())
         .bind(activity.source.progress_delta)
+        .bind(activity.source.volume_delta)
         .bind(activity.source.episode_duration_minutes)
         .bind(format_utc(activity.occurred_at))
         .execute(&mut *transaction).await.map_err(DatabaseError::from)?;
@@ -985,10 +1144,18 @@ pub(crate) async fn get_settings_overview(
     let media_stale_before = format_utc(now - Duration::hours(24));
     let airing_stale_before = format_utc(now - Duration::minutes(30));
     let now_string = format_utc(now);
-    let row = sqlx::query_as::<_, (i64, i64, i64, i64, i64, i64, Option<String>)>(
+    let row = sqlx::query_as::<_, (
+        i64, i64, i64, i64, i64, i64, i64, i64, i64, i64, i64, i64, Option<String>
+    )>(
         "SELECT \
           (SELECT COUNT(*) FROM media_snapshots), \
+          (SELECT COUNT(*) FROM media_snapshots WHERE media_kind = 'ANIME'), \
+          (SELECT COUNT(*) FROM media_snapshots WHERE media_kind = 'MANGA'), \
           (SELECT COUNT(*) FROM media_snapshots WHERE cached_at < ?), \
+          (SELECT COUNT(*) FROM library_entries WHERE media_kind = 'ANIME'), \
+          (SELECT COUNT(*) FROM library_entries WHERE media_kind = 'MANGA'), \
+          (SELECT COUNT(*) FROM watch_activity WHERE media_kind = 'ANIME'), \
+          (SELECT COUNT(*) FROM watch_activity WHERE media_kind = 'MANGA'), \
           (SELECT COUNT(*) FROM airing_data), \
           (SELECT COUNT(*) FROM airing_data WHERE fetched_at < ?), \
           (SELECT COUNT(*) FROM response_caches), \
@@ -1000,12 +1167,18 @@ pub(crate) async fn get_settings_overview(
     .map_err(DatabaseError::into_command_error)?;
     Ok(SettingsOverview {
         cached_media_count: row.0,
-        stale_media_count: row.1,
-        airing_record_count: row.2,
-        stale_airing_count: row.3,
-        response_cache_count: row.4,
-        stale_response_cache_count: row.5,
-        latest_cache_update_at: row.6,
+        cached_anime_count: row.1,
+        cached_manga_count: row.2,
+        stale_media_count: row.3,
+        library_anime_count: row.4,
+        library_manga_count: row.5,
+        anime_activity_count: row.6,
+        manga_activity_count: row.7,
+        airing_record_count: row.8,
+        stale_airing_count: row.9,
+        response_cache_count: row.10,
+        stale_response_cache_count: row.11,
+        latest_cache_update_at: row.12,
     })
 }
 
@@ -1148,6 +1321,7 @@ mod tests {
             media_kind: MediaKind::Anime,
             status: LibraryStatus::Watching,
             progress,
+            volume_progress: None,
             score: Some(8.0),
             notes: Some(notes.to_owned()),
         }
@@ -1640,6 +1814,7 @@ mod tests {
                 tags: Vec::new(),
                 media_status: Some("RELEASING".to_owned()),
                 total_units: Some(12),
+                volume_total: None,
                 duration_minutes: Some(24),
                 release_date: None,
                 cached_at: now - chrono::Duration::hours(25),
@@ -1676,5 +1851,100 @@ mod tests {
         assert_eq!(overview.response_cache_count, 1);
         assert_eq!(overview.stale_response_cache_count, 0);
         assert!(overview.latest_cache_update_at.is_some());
+    }
+
+    #[test]
+    fn schema_one_and_two_fixtures_normalize_to_lossless_mixed_media_records() {
+        let schema_one = parse_and_validate(include_str!(
+            "../../tests/fixtures/backups/v1-mixed-profile.json"
+        ))
+        .expect("valid schema 1 fixture");
+        assert_eq!(schema_one.schema_version, 1);
+        let schema_one_manga = schema_one
+            .library_entries
+            .iter()
+            .find(|entry| entry.source.media_kind == MediaKind::Manga)
+            .expect("schema 1 manga");
+        assert_eq!(schema_one_manga.source.volume_progress, Some(0));
+        assert_eq!(schema_one_manga.source.activity_volume_progress, Some(0));
+        assert_eq!(schema_one.watch_activity[1].source.volume_delta, 0);
+
+        let schema_two = parse_and_validate(include_str!(
+            "../../tests/fixtures/backups/v2-mixed-profile.json"
+        ))
+        .expect("valid schema 2 fixture");
+        assert_eq!(schema_two.schema_version, 2);
+        let manga = schema_two
+            .library_entries
+            .iter()
+            .find(|entry| entry.source.media_kind == MediaKind::Manga)
+            .expect("schema 2 manga");
+        assert_eq!(manga.source.volume_progress, Some(3));
+        assert_eq!(manga.source.activity_volume_progress, Some(4));
+        assert_eq!(schema_two.watch_activity[1].source.volume_delta, 3);
+    }
+
+    #[test]
+    fn schema_one_rejects_an_impossible_manga_duration_snapshot() {
+        let mut value: serde_json::Value = serde_json::from_str(include_str!(
+            "../../tests/fixtures/backups/v1-mixed-profile.json"
+        ))
+        .expect("fixture JSON");
+        value["watchActivity"][1]["episodeDurationMinutes"] = json!(24);
+        let issues = parse_and_validate(&value.to_string()).expect_err("invalid manga duration");
+        assert!(issues.iter().any(|issue| {
+            issue.code == "BACKUP_ACTIVITY_KIND_INVALID"
+                && issue.path.as_deref() == Some("watchActivity[1].episodeDurationMinutes")
+        }));
+    }
+
+    #[tokio::test]
+    async fn schema_two_mixed_fixture_imports_idempotently() {
+        let (_root, database) = database().await;
+        let sessions = ImportSessionStore::default();
+        let value: serde_json::Value = serde_json::from_str(include_str!(
+            "../../tests/fixtures/backups/v2-mixed-profile.json"
+        ))
+        .expect("fixture JSON");
+
+        let first_preview = preview_value(&database, &sessions, &value).await;
+        assert!(first_preview.can_apply);
+        assert_eq!(first_preview.changes.library_added, 2);
+        assert_eq!(first_preview.changes.activity_added, 2);
+        import_backup(
+            &database,
+            &sessions,
+            ImportBackupRequest {
+                import_token: first_preview.import_token.expect("first token"),
+            },
+        )
+        .await
+        .expect("first import");
+
+        let entries = database.library().list().await.expect("mixed library");
+        assert_eq!(entries.len(), 2);
+        let manga = entries
+            .iter()
+            .find(|entry| entry.media_kind == MediaKind::Manga)
+            .expect("manga entry");
+        assert_eq!((manga.progress, manga.volume_progress), (18, Some(3)));
+        let activity = database.activity().list().await.expect("mixed activity");
+        assert_eq!(activity.len(), 2);
+        assert_eq!(activity[0].volume_delta, 3);
+
+        let repeated = preview_value(&database, &sessions, &value).await;
+        assert!(repeated.can_apply);
+        assert_eq!(repeated.changes.activity_unchanged, 2);
+        assert_eq!(repeated.changes.activity_added, 0);
+        import_backup(
+            &database,
+            &sessions,
+            ImportBackupRequest {
+                import_token: repeated.import_token.expect("repeat token"),
+            },
+        )
+        .await
+        .expect("idempotent import");
+        assert_eq!(database.activity().list().await.expect("activity").len(), 2);
     }
 }

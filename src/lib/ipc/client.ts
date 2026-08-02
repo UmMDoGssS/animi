@@ -6,6 +6,7 @@ import type {
     ClearLocalDataRequest,
     ClearLocalDataResponse,
     DashboardInsights,
+    DashboardInsightsRequest,
     ExportBackupResponse,
     HomeAiringResponse,
     ImportBackupRequest,
@@ -20,6 +21,7 @@ import type {
     RemoveLibraryEntryRequest,
     RemoveLibraryEntryResponse,
     RefreshLibraryMetadataResponse,
+    RefreshLibraryMetadataRequest,
     RecommendationsRequest,
     RecommendationsResponse,
     SmokeResponse,
@@ -50,8 +52,10 @@ export async function advanceLibraryProgress(
     return invoke<LibraryEntry>("advance_library_progress", { request });
 }
 
-export async function getDashboardInsights(): Promise<DashboardInsights> {
-    return invoke<DashboardInsights>("get_dashboard_insights");
+export async function getDashboardInsights(
+    request: DashboardInsightsRequest = { mediaKind: "ANIME" },
+): Promise<DashboardInsights> {
+    return invoke<DashboardInsights>("get_dashboard_insights", { request });
 }
 
 export async function upsertLibraryEntry(
@@ -120,8 +124,12 @@ export async function getMediaDetails(
     return invoke<MediaDetailsResponse>("get_media_details", { request });
 }
 
-export async function refreshLibraryMetadata(): Promise<RefreshLibraryMetadataResponse> {
-    return invoke<RefreshLibraryMetadataResponse>("refresh_library_metadata");
+export async function refreshLibraryMetadata(
+    request: RefreshLibraryMetadataRequest = { mediaKind: "ANIME" },
+): Promise<RefreshLibraryMetadataResponse> {
+    return invoke<RefreshLibraryMetadataResponse>("refresh_library_metadata", {
+        request,
+    });
 }
 
 export async function getRecommendations(

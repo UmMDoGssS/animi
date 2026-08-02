@@ -10,10 +10,10 @@ use crate::domain::{
 use super::{DatabaseError, MediaTag as StoredMediaTag, parse_timestamp};
 
 const LIST_ITEMS_QUERY: &str = "SELECT \
-    library.anilist_id, library.media_kind, library.status, library.progress, \
+    library.anilist_id, library.media_kind, library.status, library.progress, library.volume_progress, \
     library.score, library.notes, library.created_at, library.updated_at, \
     media.title, media.cover_url, media.media_format, media.genres_json, \
-    media.tags_json, media.media_status, media.total_units, media.duration_minutes, media.release_date, \
+    media.tags_json, media.media_status, media.total_units, media.volume_total, media.duration_minutes, media.release_date, \
     media.cached_at \
  FROM library_entries AS library \
  LEFT JOIN media_snapshots AS media \
@@ -33,7 +33,7 @@ impl LibraryRepository {
 
     pub async fn list(&self) -> Result<Vec<LibraryEntry>, DatabaseError> {
         let rows = sqlx::query_as::<_, LibraryEntryRow>(
-            "SELECT anilist_id, media_kind, status, progress, score, notes, created_at, updated_at \
+            "SELECT anilist_id, media_kind, status, progress, volume_progress, score, notes, created_at, updated_at \
              FROM library_entries ORDER BY updated_at DESC, anilist_id ASC",
         )
         .fetch_all(&self.pool)
@@ -82,7 +82,7 @@ impl LibraryRepository {
     ) -> Result<LibraryEntry, CommandError> {
         let mut transaction = self.pool.begin().await.map_err(map_database_error)?;
         let snapshot = sqlx::query_as::<_, SnapshotProgressRow>(
-            "SELECT total_units, duration_minutes FROM media_snapshots \
+            "SELECT total_units, volume_total, duration_minutes FROM media_snapshots \
              WHERE anilist_id = ? AND media_kind = ?",
         )
         .bind(request.anilist_id)
@@ -90,8 +90,8 @@ impl LibraryRepository {
         .fetch_optional(&mut *transaction)
         .await
         .map_err(map_database_error)?;
-        let previous_activity_progress = sqlx::query_scalar::<_, i64>(
-            "SELECT activity_progress FROM library_entries \
+        let previous_activity = sqlx::query_as::<_, ActivityProgressRow>(
+            "SELECT activity_progress, activity_volume_progress FROM library_entries \
              WHERE anilist_id = ? AND media_kind = ?",
         )
         .bind(request.anilist_id)
@@ -100,24 +100,35 @@ impl LibraryRepository {
         .await
         .map_err(map_database_error)?;
 
-        let entry = request.validate(snapshot.as_ref().and_then(|row| row.total_units))?;
+        let entry = request.validate(
+            snapshot.as_ref().and_then(|row| row.total_units),
+            snapshot.as_ref().and_then(|row| row.volume_total),
+        )?;
         let timestamp = format_utc(now);
 
         sqlx::query(
             "INSERT INTO library_entries (\
-                anilist_id, media_kind, status, progress, activity_progress, score, notes, \
+                anilist_id, media_kind, status, progress, volume_progress, activity_progress, \
+                activity_volume_progress, score, notes, \
                 created_at, updated_at\
-             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) \
+             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) \
              ON CONFLICT(anilist_id, media_kind) DO UPDATE SET \
-                status = excluded.status, progress = excluded.progress, score = excluded.score, \
+                status = excluded.status, progress = excluded.progress, \
+                volume_progress = excluded.volume_progress, score = excluded.score, \
                 notes = excluded.notes, updated_at = excluded.updated_at, \
-                activity_progress = MAX(library_entries.activity_progress, excluded.progress)",
+                activity_progress = MAX(library_entries.activity_progress, excluded.progress), \
+                activity_volume_progress = CASE \
+                    WHEN excluded.media_kind = 'MANGA' THEN MAX(\
+                        library_entries.activity_volume_progress, excluded.volume_progress\
+                    ) ELSE NULL END",
         )
         .bind(entry.anilist_id)
         .bind(entry.media_kind.as_str())
         .bind(entry.status.as_str())
         .bind(entry.progress)
+        .bind(entry.volume_progress)
         .bind(entry.progress)
+        .bind(entry.volume_progress)
         .bind(entry.score)
         .bind(&entry.notes)
         .bind(&timestamp)
@@ -126,25 +137,45 @@ impl LibraryRepository {
         .await
         .map_err(map_database_error)?;
 
-        // Saving nonzero progress is an explicit record that those episodes were watched, even
-        // for a new entry. The high-water mark still prevents corrections and later restores
-        // from double-counting episodes or rewriting the append-only history.
-        if let Some(progress_delta) = entry
+        // Initial nonzero values are explicit consumed-unit records. Independent high-water
+        // marks prevent corrections and later restores in either dimension from double-counting.
+        let progress_delta = entry
             .progress
-            .checked_sub(previous_activity_progress.unwrap_or(0))
+            .checked_sub(
+                previous_activity
+                    .as_ref()
+                    .map_or(0, |row| row.activity_progress),
+            )
             .filter(|delta| *delta > 0)
-        {
+            .unwrap_or(0);
+        let volume_delta = entry
+            .volume_progress
+            .unwrap_or(0)
+            .checked_sub(
+                previous_activity
+                    .as_ref()
+                    .and_then(|row| row.activity_volume_progress)
+                    .unwrap_or(0),
+            )
+            .filter(|delta| *delta > 0)
+            .unwrap_or(0);
+        if progress_delta > 0 || volume_delta > 0 {
             sqlx::query(
                 "INSERT INTO watch_activity (\
-                    event_id, anilist_id, media_kind, progress_delta, \
+                    event_id, anilist_id, media_kind, progress_delta, volume_delta, \
                     episode_duration_minutes, occurred_at\
-                 ) VALUES (?, ?, ?, ?, ?, ?)",
+                 ) VALUES (?, ?, ?, ?, ?, ?, ?)",
             )
             .bind(Uuid::new_v4().to_string())
             .bind(entry.anilist_id)
             .bind(entry.media_kind.as_str())
             .bind(progress_delta)
-            .bind(snapshot.and_then(|row| row.duration_minutes))
+            .bind(volume_delta)
+            .bind(
+                snapshot
+                    .and_then(|row| row.duration_minutes)
+                    .filter(|_| entry.media_kind == MediaKind::Anime),
+            )
             .bind(&timestamp)
             .execute(&mut *transaction)
             .await
@@ -152,7 +183,7 @@ impl LibraryRepository {
         }
 
         let row = sqlx::query_as::<_, LibraryEntryRow>(
-            "SELECT anilist_id, media_kind, status, progress, score, notes, created_at, updated_at \
+            "SELECT anilist_id, media_kind, status, progress, volume_progress, score, notes, created_at, updated_at \
              FROM library_entries WHERE anilist_id = ? AND media_kind = ?",
         )
         .bind(entry.anilist_id)
@@ -168,13 +199,16 @@ impl LibraryRepository {
     pub async fn advance_home_progress(
         &self,
         anilist_id: i64,
+        media_kind: MediaKind,
     ) -> Result<LibraryEntry, CommandError> {
-        self.advance_home_progress_at(anilist_id, Utc::now()).await
+        self.advance_home_progress_at(anilist_id, media_kind, Utc::now())
+            .await
     }
 
     pub(crate) async fn advance_home_progress_at(
         &self,
         anilist_id: i64,
+        media_kind: MediaKind,
         now: DateTime<Utc>,
     ) -> Result<LibraryEntry, CommandError> {
         if !(1..=i64::from(i32::MAX)).contains(&anilist_id) {
@@ -187,22 +221,24 @@ impl LibraryRepository {
         let timestamp = format_utc(now);
         let mut transaction = self.pool.begin().await.map_err(map_database_error)?;
         let row = sqlx::query_as::<_, HomeProgressRow>(
-            "SELECT library.status, library.progress, library.activity_progress, library.score, \
-                library.notes, library.created_at, media.total_units, media.duration_minutes \
+            "SELECT library.status, library.progress, library.volume_progress, \
+                library.activity_progress, library.score, library.notes, library.created_at, \
+                media.total_units, media.duration_minutes \
              FROM library_entries AS library \
              LEFT JOIN media_snapshots AS media \
                ON media.anilist_id = library.anilist_id \
               AND media.media_kind = library.media_kind \
-             WHERE library.anilist_id = ? AND library.media_kind = 'ANIME'",
+             WHERE library.anilist_id = ? AND library.media_kind = ?",
         )
         .bind(anilist_id)
+        .bind(media_kind.as_str())
         .fetch_optional(&mut *transaction)
         .await
         .map_err(map_database_error)?
         .ok_or_else(|| {
             CommandError::new(
                 "LIBRARY_ENTRY_NOT_FOUND",
-                "This anime is not in the local library.",
+                "This title is not in the local library.",
                 false,
             )
         })?;
@@ -210,47 +246,55 @@ impl LibraryRepository {
         if status != LibraryStatus::Watching {
             return Err(CommandError::new(
                 "PROGRESS_NOT_ADVANCEABLE",
-                "Home quick progress is available only for Watching anime.",
+                "Quick progress is available only for current titles.",
                 false,
             ));
         }
-        let maximum_progress = row.total_units.ok_or_else(|| {
-            CommandError::new(
+        if media_kind == MediaKind::Anime && row.total_units.is_none() {
+            return Err(CommandError::new(
                 "EPISODE_TOTAL_UNKNOWN",
                 "The episode total is unknown, so Home did not change progress.",
                 false,
-            )
-        })?;
-        if row.progress >= maximum_progress {
+            ));
+        }
+        if row
+            .total_units
+            .is_some_and(|maximum| row.progress >= maximum)
+        {
             return Err(CommandError::new(
                 "PROGRESS_NOT_ADVANCEABLE",
-                "Every known episode is already marked watched.",
+                "Every known primary unit is already marked consumed.",
                 false,
             ));
         }
         let progress = row.progress + 1;
         sqlx::query(
             "UPDATE library_entries SET progress = ?, activity_progress = MAX(activity_progress, ?), \
-             updated_at = ? WHERE anilist_id = ? AND media_kind = 'ANIME'",
+             updated_at = ? WHERE anilist_id = ? AND media_kind = ?",
         )
         .bind(progress)
         .bind(progress)
         .bind(&timestamp)
         .bind(anilist_id)
+        .bind(media_kind.as_str())
         .execute(&mut *transaction)
         .await
         .map_err(map_database_error)?;
         if progress > row.activity_progress {
             sqlx::query(
                 "INSERT INTO watch_activity (\
-                    event_id, anilist_id, media_kind, progress_delta, \
+                    event_id, anilist_id, media_kind, progress_delta, volume_delta, \
                     episode_duration_minutes, occurred_at\
-                 ) VALUES (?, ?, 'ANIME', ?, ?, ?)",
+                 ) VALUES (?, ?, ?, ?, 0, ?, ?)",
             )
             .bind(Uuid::new_v4().to_string())
             .bind(anilist_id)
+            .bind(media_kind.as_str())
             .bind(progress - row.activity_progress)
-            .bind(row.duration_minutes)
+            .bind(
+                row.duration_minutes
+                    .filter(|_| media_kind == MediaKind::Anime),
+            )
             .bind(&timestamp)
             .execute(&mut *transaction)
             .await
@@ -259,9 +303,10 @@ impl LibraryRepository {
         transaction.commit().await.map_err(map_database_error)?;
         Ok(LibraryEntry {
             anilist_id,
-            media_kind: MediaKind::Anime,
+            media_kind,
             status,
             progress,
+            volume_progress: row.volume_progress,
             score: row.score,
             notes: row.notes,
             created_at: row.created_at,
@@ -295,6 +340,7 @@ struct LibraryEntryRow {
     media_kind: String,
     status: String,
     progress: i64,
+    volume_progress: Option<i64>,
     score: Option<f64>,
     notes: Option<String>,
     created_at: String,
@@ -304,13 +350,21 @@ struct LibraryEntryRow {
 #[derive(Debug, FromRow)]
 struct SnapshotProgressRow {
     total_units: Option<i64>,
+    volume_total: Option<i64>,
     duration_minutes: Option<i64>,
+}
+
+#[derive(Debug, FromRow)]
+struct ActivityProgressRow {
+    activity_progress: i64,
+    activity_volume_progress: Option<i64>,
 }
 
 #[derive(Debug, FromRow)]
 struct HomeProgressRow {
     status: String,
     progress: i64,
+    volume_progress: Option<i64>,
     activity_progress: i64,
     score: Option<f64>,
     notes: Option<String>,
@@ -325,6 +379,7 @@ struct LibraryItemRow {
     media_kind: String,
     status: String,
     progress: i64,
+    volume_progress: Option<i64>,
     score: Option<f64>,
     notes: Option<String>,
     created_at: String,
@@ -336,6 +391,7 @@ struct LibraryItemRow {
     tags_json: Option<String>,
     media_status: Option<String>,
     total_units: Option<i64>,
+    volume_total: Option<i64>,
     duration_minutes: Option<i64>,
     release_date: Option<String>,
     cached_at: Option<String>,
@@ -352,6 +408,7 @@ impl LibraryItemRow {
             media_kind,
             status,
             progress: self.progress,
+            volume_progress: self.volume_progress,
             score: self.score,
             notes: self.notes,
             created_at: self.created_at,
@@ -382,8 +439,18 @@ impl LibraryItemRow {
                     genres: serde_json::from_str(&genres_json)?,
                     tags,
                     status: self.media_status,
-                    episodes: self.total_units,
-                    duration_minutes: self.duration_minutes,
+                    episodes: (media_kind == MediaKind::Anime)
+                        .then_some(self.total_units)
+                        .flatten(),
+                    chapters: (media_kind == MediaKind::Manga)
+                        .then_some(self.total_units)
+                        .flatten(),
+                    volumes: (media_kind == MediaKind::Manga)
+                        .then_some(self.volume_total)
+                        .flatten(),
+                    duration_minutes: (media_kind == MediaKind::Anime)
+                        .then_some(self.duration_minutes)
+                        .flatten(),
                     release_date: self.release_date,
                     cached_at: format_utc(cached_timestamp),
                     expires_at: format_utc(expires_timestamp),
@@ -416,6 +483,7 @@ impl TryFrom<LibraryEntryRow> for LibraryEntry {
             media_kind,
             status,
             progress: row.progress,
+            volume_progress: row.volume_progress,
             score: row.score,
             notes: row.notes,
             created_at: row.created_at,
@@ -438,6 +506,7 @@ mod tests {
             media_kind: MediaKind::Anime,
             status,
             progress,
+            volume_progress: None,
             score: None,
             notes: None,
         }
@@ -457,6 +526,7 @@ mod tests {
             }],
             media_status: Some("RELEASING".to_owned()),
             total_units: Some(12),
+            volume_total: None,
             duration_minutes,
             release_date: None,
             cached_at: "2026-07-16T08:00:00Z".parse().expect("snapshot timestamp"),
@@ -563,7 +633,7 @@ mod tests {
             .expect("baseline");
 
         let advanced = repository
-            .advance_home_progress_at(1, now)
+            .advance_home_progress_at(1, MediaKind::Anime, now)
             .await
             .expect("episode 12");
         assert_eq!(advanced.progress, 12);
@@ -573,7 +643,7 @@ mod tests {
         assert_eq!(activity[0].progress_delta, 1);
         assert_eq!(activity[1].progress_delta, 11);
         let error = repository
-            .advance_home_progress_at(1, now)
+            .advance_home_progress_at(1, MediaKind::Anime, now)
             .await
             .expect_err("known total is already watched");
         assert_eq!(error.code, "PROGRESS_NOT_ADVANCEABLE");

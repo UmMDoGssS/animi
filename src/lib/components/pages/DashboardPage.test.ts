@@ -47,6 +47,8 @@ const trailingTwelveMonths = [
     recordedEpisodes: period === "2026-07" ? 3 : 0,
     recordedMinutes: period === "2026-07" ? 48 : 0,
     unknownDurationEpisodes: period === "2026-07" ? 1 : 0,
+    recordedChapters: 0,
+    recordedVolumes: 0,
 }));
 
 beforeAll(() => {
@@ -97,6 +99,7 @@ function entry(
         mediaKind: "ANIME",
         status,
         progress,
+        volumeProgress: null,
         score,
         notes: null,
         createdAt: "2026-07-15T08:00:00.000Z",
@@ -116,6 +119,8 @@ function media(
         tags: [{ name: "Found Family", rank: 90 }],
         status: "RELEASING",
         episodes: 12,
+        chapters: null,
+        volumes: null,
         durationMinutes: 24,
         releaseDate: null,
         cachedAt: "2026-07-16T08:00:00.000Z",
@@ -168,6 +173,7 @@ const populatedInsights: DashboardInsights = {
         completed: 1,
         planning: 1,
         currentProgress: 8,
+        currentVolumeProgress: 0,
     },
     preferenceSignals: {
         eligibleTitles: 3,
@@ -189,6 +195,8 @@ const populatedInsights: DashboardInsights = {
         knownDurationEpisodes: 2,
         recordedMinutes: 48,
         unknownDurationEpisodes: 1,
+        recordedChapters: 0,
+        recordedVolumes: 0,
         coveredFrom: "2026-07-16T09:00:00.000Z",
         coveredTo: "2026-07-17T10:00:00.000Z",
         monthly: trailingTwelveMonths,
@@ -198,20 +206,26 @@ const populatedInsights: DashboardInsights = {
                 recordedEpisodes: 3,
                 recordedMinutes: 48,
                 unknownDurationEpisodes: 1,
+                recordedChapters: 0,
+                recordedVolumes: 0,
             },
         ],
         events: [
             {
+                eventId: "00000000-0000-4000-a000-000000000101",
                 anilistId: 101,
                 mediaKind: "ANIME",
                 progressDelta: 2,
+                volumeDelta: 0,
                 episodeDurationMinutes: 24,
                 occurredAt: "2026-07-16T09:00:00.000Z",
             },
             {
+                eventId: "00000000-0000-4000-a000-000000000404",
                 anilistId: 404,
                 mediaKind: "ANIME",
                 progressDelta: 1,
+                volumeDelta: 0,
                 episodeDurationMinutes: null,
                 occurredAt: "2026-07-16T10:00:00.000Z",
             },
@@ -316,6 +330,7 @@ const indexedInsights: DashboardInsights = {
         completed: 2,
         planning: 2,
         currentProgress: 40,
+        currentVolumeProgress: 0,
     },
 };
 
@@ -333,6 +348,7 @@ const emptyInsights: DashboardInsights = {
         completed: 0,
         planning: 0,
         currentProgress: 0,
+        currentVolumeProgress: 0,
     },
     preferenceSignals: {
         eligibleTitles: 0,
@@ -348,6 +364,8 @@ const emptyInsights: DashboardInsights = {
         knownDurationEpisodes: 0,
         recordedMinutes: 0,
         unknownDurationEpisodes: 0,
+        recordedChapters: 0,
+        recordedVolumes: 0,
         coveredFrom: null,
         coveredTo: null,
         monthly: [],
@@ -360,12 +378,15 @@ function detailsFor(item: LibraryItem): MediaDetailsResponse {
     const summary = item.media;
     return {
         media: {
+            mediaKind: item.entry.mediaKind,
             anilistId: item.entry.anilistId,
             title: summary?.title ?? `AniList #${item.entry.anilistId}`,
             coverUrl: summary?.coverUrl ?? null,
             mediaFormat: summary?.mediaFormat ?? null,
             status: summary?.status ?? null,
             episodes: summary?.episodes ?? null,
+            chapters: summary?.chapters ?? null,
+            volumes: summary?.volumes ?? null,
             durationMinutes: summary?.durationMinutes ?? null,
             releaseDate: summary?.releaseDate ?? null,
             genres: summary?.genres ?? [],
@@ -979,7 +1000,10 @@ describe("DashboardPage", () => {
         expect(
             within(dialog).getByText("Edit library entry"),
         ).toBeInTheDocument();
-        expect(loadDetails).toHaveBeenCalledWith({ anilistId: 101 });
+        expect(loadDetails).toHaveBeenCalledWith({
+            mediaKind: "ANIME",
+            anilistId: 101,
+        });
 
         await user.click(
             within(dialog).getByRole("button", { name: "Close details" }),

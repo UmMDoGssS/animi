@@ -1,0 +1,53 @@
+{
+    "schemaVersion": 1,
+    "exportedAt": "2026-07-17T12:00:00.000Z",
+    "settings": [
+        {
+            "key": "themePreference",
+            "value": "MACCHIATO",
+            "updatedAt": "2026-07-17T08:00:00.000Z"
+        }
+    ],
+    "libraryEntries": [
+        {
+            "anilistId": 101,
+            "mediaKind": "ANIME",
+            "status": "WATCHING",
+            "progress": 3,
+            "activityProgress": 5,
+            "score": 8.5,
+            "notes": "Version 1 anime",
+            "createdAt": "2026-07-16T08:00:00.000Z",
+            "updatedAt": "2026-07-17T09:00:00.000Z"
+        },
+        {
+            "anilistId": 202,
+            "mediaKind": "MANGA",
+            "status": "WATCHING",
+            "progress": 12,
+            "activityProgress": 12,
+            "score": null,
+            "notes": "Pre-existing manga row",
+            "createdAt": "2026-07-16T10:00:00.000Z",
+            "updatedAt": "2026-07-17T10:00:00.000Z"
+        }
+    ],
+    "watchActivity": [
+        {
+            "eventId": "10000000-0000-4000-a000-000000000101",
+            "anilistId": 101,
+            "mediaKind": "ANIME",
+            "progressDelta": 5,
+            "episodeDurationMinutes": 24,
+            "occurredAt": "2026-07-16T08:00:00.000Z"
+        },
+        {
+            "eventId": "20000000-0000-4000-a000-000000000202",
+            "anilistId": 202,
+            "mediaKind": "MANGA",
+            "progressDelta": 12,
+            "episodeDurationMinutes": null,
+            "occurredAt": "2026-07-16T10:00:00.000Z"
+        }
+    ]
+}

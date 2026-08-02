@@ -22,12 +22,15 @@ import type {
 import AppShell from "./AppShell.svelte";
 
 const media: MediaSummary = {
+    mediaKind: "ANIME",
     anilistId: 101,
     title: "Paper Cranes at Dawn",
     coverUrl: null,
     mediaFormat: "TV",
     status: "RELEASING",
     episodes: 12,
+    chapters: null,
+    volumes: null,
     durationMinutes: 24,
     releaseDate: null,
     genres: ["Drama", "Slice of Life"],
@@ -109,6 +112,8 @@ function createStatefulP4Services() {
         tags: media.tags,
         status: media.status,
         episodes: media.episodes,
+        chapters: media.chapters,
+        volumes: media.volumes,
         durationMinutes: media.durationMinutes,
         releaseDate: media.releaseDate,
         cachedAt: freshness().fetchedAt,
@@ -136,6 +141,7 @@ function createStatefulP4Services() {
                 completed: isCompleted ? 1 : 0,
                 planning: isPlanning ? 1 : 0,
                 currentProgress: item?.progress ?? 0,
+                currentVolumeProgress: 0,
             },
             preferenceSignals: {
                 eligibleTitles: eligible ? 1 : 0,
@@ -182,6 +188,8 @@ function createStatefulP4Services() {
                             : 0),
                     0,
                 ),
+                recordedChapters: 0,
+                recordedVolumes: 0,
                 coveredFrom: activity.at(-1)?.occurredAt ?? null,
                 coveredTo: activity[0]?.occurredAt ?? null,
                 monthly: [],
@@ -196,9 +204,11 @@ function createStatefulP4Services() {
             const previous = localEntry;
             if (request.progress > activityHighWater) {
                 activity.unshift({
+                    eventId: `00000000-0000-4000-a000-${String(updateSequence + 1).padStart(12, "0")}`,
                     anilistId: request.anilistId,
                     mediaKind: "ANIME",
                     progressDelta: request.progress - activityHighWater,
+                    volumeDelta: 0,
                     episodeDurationMinutes: media.durationMinutes,
                     occurredAt:
                         previous === null

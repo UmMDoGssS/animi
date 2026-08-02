@@ -1,24 +1,33 @@
+use serde::Deserialize;
 use tauri::State;
 
 use crate::database::Database;
-use crate::domain::{CommandError, DashboardInsights};
+use crate::domain::{CommandError, DashboardInsights, MediaKind};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct DashboardInsightsRequest {
+    pub media_kind: MediaKind,
+}
 
 #[tauri::command(rename_all = "camelCase")]
 pub async fn get_dashboard_insights(
     database: State<'_, Database>,
+    request: DashboardInsightsRequest,
 ) -> Result<DashboardInsights, CommandError> {
-    get_dashboard_insights_with_database(&database).await
+    get_dashboard_insights_with_database(&database, request).await
 }
 
 pub(crate) async fn get_dashboard_insights_with_database(
     database: &Database,
+    request: DashboardInsightsRequest,
 ) -> Result<DashboardInsights, CommandError> {
     let (library_items, activity) = database
         .dashboard()
         .load()
         .await
         .map_err(|error| error.into_command_error())?;
-    DashboardInsights::build(library_items, activity)
+    DashboardInsights::build_for(request.media_kind, library_items, activity)
 }
 
 #[cfg(test)]
@@ -28,7 +37,7 @@ mod tests {
     use crate::database::{Database, DatabasePaths, MediaSnapshotRecord, MediaTag};
     use crate::domain::{LibraryStatus, MediaKind, UpsertLibraryEntryRequest};
 
-    use super::get_dashboard_insights_with_database;
+    use super::{DashboardInsightsRequest, get_dashboard_insights_with_database};
 
     #[tokio::test]
     async fn command_returns_authoritative_library_preferences_and_activity() {
@@ -50,6 +59,7 @@ mod tests {
                 }],
                 media_status: Some("RELEASING".to_owned()),
                 total_units: Some(12),
+                volume_total: None,
                 duration_minutes: Some(24),
                 release_date: None,
                 cached_at: "2026-07-16T08:00:00Z".parse().expect("snapshot time"),
@@ -64,6 +74,7 @@ mod tests {
                     media_kind: MediaKind::Anime,
                     status: LibraryStatus::Watching,
                     progress,
+                    volume_progress: None,
                     score: None,
                     notes: None,
                 })
@@ -71,9 +82,14 @@ mod tests {
                 .expect("library update");
         }
 
-        let insights = get_dashboard_insights_with_database(&database)
-            .await
-            .expect("dashboard insights");
+        let insights = get_dashboard_insights_with_database(
+            &database,
+            DashboardInsightsRequest {
+                media_kind: MediaKind::Anime,
+            },
+        )
+        .await
+        .expect("dashboard insights");
 
         assert_eq!(insights.library_totals.tracked, 1);
         assert_eq!(insights.library_totals.watching, 1);
@@ -91,9 +107,14 @@ mod tests {
         let database = Database::connect(&paths).await.expect("database");
         database.clone().close().await;
 
-        let error = get_dashboard_insights_with_database(&database)
-            .await
-            .expect_err("closed database should fail");
+        let error = get_dashboard_insights_with_database(
+            &database,
+            DashboardInsightsRequest {
+                media_kind: MediaKind::Anime,
+            },
+        )
+        .await
+        .expect_err("closed database should fail");
 
         assert_eq!(error.code, "DATABASE_UNAVAILABLE");
         assert!(error.retryable);

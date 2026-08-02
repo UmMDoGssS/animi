@@ -15,6 +15,7 @@ const existingEntry: LibraryEntry = {
     mediaKind: "ANIME",
     status: "WATCHING",
     progress: 3,
+    volumeProgress: null,
     score: 8.5,
     notes: "Quietly excellent.",
     createdAt: "2026-07-16T08:00:00.000Z",
@@ -30,6 +31,7 @@ function savedEntry(
         mediaKind: request.mediaKind,
         status: request.status,
         progress: request.progress,
+        volumeProgress: request.volumeProgress,
         score: request.score,
         notes: request.notes,
         createdAt: original?.createdAt ?? "2026-07-17T08:00:00.000Z",
@@ -88,6 +90,7 @@ describe("LibraryEntryEditor", () => {
             mediaKind: "ANIME",
             status: "WATCHING",
             progress: 14,
+            volumeProgress: null,
             score: 9,
             notes: "Unknown total, known favorite.",
         });
@@ -165,6 +168,7 @@ describe("LibraryEntryEditor", () => {
             mediaKind: "ANIME",
             status: "COMPLETED",
             progress: 28,
+            volumeProgress: null,
             score: 10,
             notes: "A keeper.",
         });

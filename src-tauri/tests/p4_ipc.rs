@@ -127,6 +127,7 @@ fn library_request(status: &str, progress: i64, score: f64, notes: &str) -> Valu
             "mediaKind": "ANIME",
             "status": status,
             "progress": progress,
+            "volumeProgress": null,
             "score": score,
             "notes": notes
         }
@@ -155,6 +156,7 @@ fn p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network() {
         "search_media",
         json!({
             "request": {
+                "mediaKind": "ANIME",
                 "search": "Frieren",
                 "page": 1,
                 "perPage": 20
@@ -168,7 +170,7 @@ fn p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network() {
     let details = invoke_ok(
         &webview,
         "get_media_details",
-        json!({ "request": { "anilistId": 154_587 } }),
+        json!({ "request": { "mediaKind": "ANIME", "anilistId": 154_587 } }),
     );
     assert_eq!(details["media"]["title"], "Frieren: Beyond Journey's End");
     assert_eq!(details["media"]["episodes"], 28);
@@ -195,7 +197,11 @@ fn p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network() {
     assert_eq!(updated["score"], 9.0);
     assert_eq!(updated["notes"], "final local note");
 
-    let dashboard = invoke_ok(&webview, "get_dashboard_insights", json!({}));
+    let dashboard = invoke_ok(
+        &webview,
+        "get_dashboard_insights",
+        json!({ "request": { "mediaKind": "ANIME" } }),
+    );
     assert_eq!(dashboard["libraryTotals"]["tracked"], 1);
     assert_eq!(dashboard["libraryTotals"]["completed"], 1);
     assert_eq!(dashboard["libraryTotals"]["currentProgress"], 5);
@@ -239,7 +245,7 @@ fn p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network() {
     let cached_offline = invoke_ok(
         &reopened_webview,
         "get_media_details",
-        json!({ "request": { "anilistId": 154_587 } }),
+        json!({ "request": { "mediaKind": "ANIME", "anilistId": 154_587 } }),
     );
     assert_eq!(
         cached_offline["media"]["title"],
@@ -255,7 +261,11 @@ fn p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network() {
     let persisted_entry = persisted[0]["entry"].clone();
     assert_eq!(persisted_entry, before_restart[0]["entry"]);
 
-    let refresh = invoke_ok(&reopened_webview, "refresh_library_metadata", json!({}));
+    let refresh = invoke_ok(
+        &reopened_webview,
+        "refresh_library_metadata",
+        json!({ "request": { "mediaKind": "ANIME" } }),
+    );
     assert_eq!(refresh["attempted"], 1);
     assert_eq!(refresh["updated"], 0);
     assert_eq!(refresh["stale"], 0);
@@ -264,7 +274,11 @@ fn p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network() {
 
     let after_refresh = invoke_ok(&reopened_webview, "list_library", json!({}));
     assert_eq!(after_refresh[0]["entry"], persisted_entry);
-    let refreshed_dashboard = invoke_ok(&reopened_webview, "get_dashboard_insights", json!({}));
+    let refreshed_dashboard = invoke_ok(
+        &reopened_webview,
+        "get_dashboard_insights",
+        json!({ "request": { "mediaKind": "ANIME" } }),
+    );
     assert_eq!(refreshed_dashboard["activity"]["eventCount"], 2);
     assert_eq!(refreshed_dashboard["activity"]["recordedEpisodes"], 5);
 
@@ -307,7 +321,11 @@ fn p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network() {
             .is_empty()
     );
 
-    let after_removal = invoke_ok(&reopened_webview, "get_dashboard_insights", json!({}));
+    let after_removal = invoke_ok(
+        &reopened_webview,
+        "get_dashboard_insights",
+        json!({ "request": { "mediaKind": "ANIME" } }),
+    );
     assert_eq!(after_removal["libraryTotals"]["tracked"], 0);
     assert_eq!(after_removal["activity"]["eventCount"], 2);
     assert_eq!(after_removal["activity"]["recordedEpisodes"], 5);

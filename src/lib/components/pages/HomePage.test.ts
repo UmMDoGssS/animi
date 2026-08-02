@@ -21,6 +21,7 @@ function entry(id: number, progress: number): LibraryEntry {
         mediaKind: "ANIME",
         status: "WATCHING",
         progress,
+        volumeProgress: null,
         score: null,
         notes: null,
         createdAt: checkedAt,
@@ -49,6 +50,8 @@ function item(
                 tags: [{ name: "Time", rank: 80 }],
                 status: mediaStatus,
                 episodes,
+                chapters: null,
+                volumes: null,
                 durationMinutes: 24,
                 releaseDate: null,
                 cachedAt: checkedAt,
@@ -82,12 +85,15 @@ function response(items: HomeAiringItem[]): HomeAiringResponse {
 function detailsFor(homeItem: HomeAiringItem): MediaDetailsResponse {
     return {
         media: {
+            mediaKind: homeItem.library.entry.mediaKind,
             anilistId: homeItem.library.entry.anilistId,
             title: homeItem.library.media?.title ?? "Unknown anime",
             coverUrl: homeItem.library.media?.coverUrl ?? null,
             mediaFormat: homeItem.library.media?.mediaFormat ?? null,
             status: homeItem.library.media?.status ?? null,
             episodes: homeItem.library.media?.episodes ?? null,
+            chapters: homeItem.library.media?.chapters ?? null,
+            volumes: homeItem.library.media?.volumes ?? null,
             durationMinutes: homeItem.library.media?.durationMinutes ?? null,
             releaseDate: homeItem.library.media?.releaseDate ?? null,
             genres: homeItem.library.media?.genres ?? [],
@@ -254,7 +260,10 @@ describe("HomePage", () => {
         });
         expect(watchButton).toBeEnabled();
         await user.click(watchButton);
-        expect(props.advanceProgress).toHaveBeenCalledWith({ anilistId: 2 });
+        expect(props.advanceProgress).toHaveBeenCalledWith({
+            anilistId: 2,
+            mediaKind: "ANIME",
+        });
 
         const next = screen.getByRole("button", { name: "Next anime" });
         next.focus();
@@ -277,7 +286,10 @@ describe("HomePage", () => {
         await user.click(coverButton);
 
         const dialog = await screen.findByRole("dialog");
-        expect(props.loadDetails).toHaveBeenCalledWith({ anilistId: 1 });
+        expect(props.loadDetails).toHaveBeenCalledWith({
+            anilistId: 1,
+            mediaKind: "ANIME",
+        });
         expect(
             within(dialog).getByRole("heading", {
                 name: "Moonlit Post Office",
@@ -399,7 +411,10 @@ describe("HomePage", () => {
                 name: "watch ep 6",
             }),
         );
-        expect(props.advanceProgress).toHaveBeenCalledWith({ anilistId: 2 });
+        expect(props.advanceProgress).toHaveBeenCalledWith({
+            anilistId: 2,
+            mediaKind: "ANIME",
+        });
         expect(within(slide).getByText("06 / 12")).toBeInTheDocument();
         expect(
             within(slide).getByText(/1 episode waiting/i),

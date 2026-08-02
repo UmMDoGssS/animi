@@ -24,12 +24,12 @@ pub(crate) use import::{
     clear_local_data, get_settings_overview, import_backup, preview_import_from_path,
 };
 
-/// Every export currently uses backup schema v1.
-pub const CURRENT_SCHEMA_VERSION: u32 = 1;
+/// Every export uses the current lossless mixed-media backup schema.
+pub const CURRENT_SCHEMA_VERSION: u32 = 2;
 
 /// The P6-M3 validator will accept exactly these versions. No import path is
 /// exposed until that validator enforces the semantic rules documented below.
-pub const SUPPORTED_IMPORT_SCHEMA_VERSIONS: &[u32] = &[1];
+pub const SUPPORTED_IMPORT_SCHEMA_VERSIONS: &[u32] = &[1, 2];
 
 /// Stable v1 backup envelope.
 ///
@@ -81,6 +81,47 @@ pub struct BackupWatchActivityV1 {
     pub anilist_id: i64,
     pub media_kind: MediaKind,
     pub progress_delta: i64,
+    pub episode_duration_minutes: Option<i64>,
+    pub occurred_at: String,
+}
+
+/// Stable v2 backup envelope. The collection name remains `watchActivity` for
+/// schema-1 reader compatibility, while each row now carries generalized primary
+/// and volume deltas and every library row carries both activity high-water marks.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct BackupEnvelopeV2 {
+    pub schema_version: u32,
+    pub exported_at: String,
+    pub settings: Vec<BackupSettingV1>,
+    pub library_entries: Vec<BackupLibraryEntryV2>,
+    pub watch_activity: Vec<BackupProgressActivityV2>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct BackupLibraryEntryV2 {
+    pub anilist_id: i64,
+    pub media_kind: MediaKind,
+    pub status: LibraryStatus,
+    pub progress: i64,
+    pub volume_progress: Option<i64>,
+    pub activity_progress: i64,
+    pub activity_volume_progress: Option<i64>,
+    pub score: Option<f64>,
+    pub notes: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct BackupProgressActivityV2 {
+    pub event_id: String,
+    pub anilist_id: i64,
+    pub media_kind: MediaKind,
+    pub progress_delta: i64,
+    pub volume_delta: i64,
     pub episode_duration_minutes: Option<i64>,
     pub occurred_at: String,
 }
@@ -160,7 +201,7 @@ pub(crate) async fn export_backup_to_path_at(
         .await
         .map_err(BackupError::from)
         .map_err(BackupError::into_command_error)?;
-    let envelope = BackupEnvelopeV1::from_snapshot(snapshot, exported_at);
+    let envelope = BackupEnvelopeV2::from_snapshot(snapshot, exported_at);
     let response = ExportBackupResponse {
         schema_version: envelope.schema_version,
         exported_at: envelope.exported_at.clone(),
@@ -180,7 +221,7 @@ pub(crate) async fn export_backup_to_path_at(
     Ok(response)
 }
 
-impl BackupEnvelopeV1 {
+impl BackupEnvelopeV2 {
     fn from_snapshot(snapshot: BackupSnapshotRecord, exported_at: DateTime<Utc>) -> Self {
         Self {
             schema_version: CURRENT_SCHEMA_VERSION,
@@ -193,12 +234,12 @@ impl BackupEnvelopeV1 {
             library_entries: snapshot
                 .library_entries
                 .into_iter()
-                .map(BackupLibraryEntryV1::from)
+                .map(BackupLibraryEntryV2::from)
                 .collect(),
             watch_activity: snapshot
                 .watch_activity
                 .into_iter()
-                .map(BackupWatchActivityV1::from)
+                .map(BackupProgressActivityV2::from)
                 .collect(),
         }
     }
@@ -214,14 +255,16 @@ impl From<BackupSettingRecord> for BackupSettingV1 {
     }
 }
 
-impl From<BackupLibraryEntryRecord> for BackupLibraryEntryV1 {
+impl From<BackupLibraryEntryRecord> for BackupLibraryEntryV2 {
     fn from(record: BackupLibraryEntryRecord) -> Self {
         Self {
             anilist_id: record.anilist_id,
             media_kind: record.media_kind,
             status: record.status,
             progress: record.progress,
+            volume_progress: record.volume_progress,
             activity_progress: record.activity_progress,
+            activity_volume_progress: record.activity_volume_progress,
             score: record.score,
             notes: record.notes,
             created_at: format_utc(record.created_at),
@@ -230,13 +273,14 @@ impl From<BackupLibraryEntryRecord> for BackupLibraryEntryV1 {
     }
 }
 
-impl From<BackupWatchActivityRecord> for BackupWatchActivityV1 {
+impl From<BackupWatchActivityRecord> for BackupProgressActivityV2 {
     fn from(record: BackupWatchActivityRecord) -> Self {
         Self {
             event_id: record.event_id.to_string(),
             anilist_id: record.anilist_id,
             media_kind: record.media_kind,
             progress_delta: record.progress_delta,
+            volume_delta: record.volume_delta,
             episode_duration_minutes: record.episode_duration_minutes,
             occurred_at: format_utc(record.occurred_at),
         }
@@ -278,7 +322,7 @@ fn is_within_root(destination: &Path, root: &Path) -> bool {
     destination.starts_with(root)
 }
 
-fn write_atomically(destination: &Path, envelope: &BackupEnvelopeV1) -> Result<(), BackupError> {
+fn write_atomically(destination: &Path, envelope: &BackupEnvelopeV2) -> Result<(), BackupError> {
     write_atomically_with(
         destination,
         |file| {
@@ -354,15 +398,16 @@ mod tests {
             media_kind: MediaKind::Anime,
             status: LibraryStatus::Watching,
             progress,
+            volume_progress: None,
             score: Some(8.5),
             notes: Some(notes.to_owned()),
         }
     }
 
     #[test]
-    fn v1_is_the_only_documented_export_and_import_schema() {
-        assert_eq!(CURRENT_SCHEMA_VERSION, 1);
-        assert_eq!(SUPPORTED_IMPORT_SCHEMA_VERSIONS, &[1]);
+    fn v2_is_exported_and_v1_remains_importable() {
+        assert_eq!(CURRENT_SCHEMA_VERSION, 2);
+        assert_eq!(SUPPORTED_IMPORT_SCHEMA_VERSIONS, &[1, 2]);
     }
 
     #[test]
@@ -397,7 +442,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn empty_export_uses_the_exact_camel_case_v1_envelope() {
+    async fn empty_export_uses_the_exact_camel_case_v2_envelope() {
         let (_root, database) = test_database().await;
         let destination_root = tempdir().expect("temporary export root");
         let destination = destination_root.path().join("empty-backup.json");
@@ -411,7 +456,7 @@ mod tests {
         .await
         .expect("empty export");
 
-        assert_eq!(response.schema_version, 1);
+        assert_eq!(response.schema_version, 2);
         assert_eq!(response.exported_at, "2026-07-17T08:30:45.123Z");
         assert_eq!(response.settings_count, 0);
         assert_eq!(response.library_entry_count, 0);
@@ -423,7 +468,7 @@ mod tests {
         assert_eq!(
             value,
             json!({
-                "schemaVersion": 1,
+                "schemaVersion": 2,
                 "exportedAt": "2026-07-17T08:30:45.123Z",
                 "settings": [],
                 "libraryEntries": [],
@@ -465,6 +510,7 @@ mod tests {
             }],
             media_status: Some("RELEASING".to_owned()),
             total_units: Some(12),
+            volume_total: None,
             duration_minutes: None,
             release_date: None,
             cached_at: timestamp("2026-07-17T06:00:00Z"),
@@ -626,6 +672,47 @@ mod tests {
                 "excluded cache value {excluded}"
             );
         }
+    }
+
+    #[tokio::test]
+    async fn schema_two_export_preserves_manga_volume_state_and_generalized_activity() {
+        let (_root, database) = test_database().await;
+        database
+            .library()
+            .upsert_at(
+                UpsertLibraryEntryRequest {
+                    anilist_id: 202,
+                    media_kind: MediaKind::Manga,
+                    status: LibraryStatus::Watching,
+                    progress: 10,
+                    volume_progress: Some(2),
+                    score: Some(8.0),
+                    notes: Some("mixed backup".to_owned()),
+                },
+                timestamp("2026-08-02T08:00:00Z"),
+            )
+            .await
+            .expect("manga entry");
+        let destination_root = tempdir().expect("export root");
+        let destination = destination_root.path().join("mixed-v2.json");
+        let response = export_backup_to_path_at(
+            &database,
+            destination.clone(),
+            timestamp("2026-08-02T09:00:00Z"),
+        )
+        .await
+        .expect("schema 2 export");
+        assert_eq!(response.schema_version, 2);
+
+        let value: Value =
+            serde_json::from_str(&std::fs::read_to_string(destination).expect("backup contents"))
+                .expect("backup JSON");
+        assert_eq!(value["libraryEntries"][0]["mediaKind"], "MANGA");
+        assert_eq!(value["libraryEntries"][0]["volumeProgress"], 2);
+        assert_eq!(value["libraryEntries"][0]["activityVolumeProgress"], 2);
+        assert_eq!(value["watchActivity"][0]["progressDelta"], 10);
+        assert_eq!(value["watchActivity"][0]["volumeDelta"], 2);
+        assert!(value["watchActivity"][0]["episodeDurationMinutes"].is_null());
     }
 
     #[tokio::test]

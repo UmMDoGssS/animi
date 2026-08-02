@@ -317,12 +317,15 @@
 
     function summaryForItem(item: LibraryItem): MediaSummary {
         return {
+            mediaKind: item.entry.mediaKind,
             anilistId: item.entry.anilistId,
             title: titleForItem(item),
             coverUrl: item.media?.coverUrl ?? null,
             mediaFormat: item.media?.mediaFormat ?? null,
             status: item.media?.status ?? null,
             episodes: item.media?.episodes ?? null,
+            chapters: item.media?.chapters ?? null,
+            volumes: item.media?.volumes ?? null,
             durationMinutes: item.media?.durationMinutes ?? null,
             releaseDate: item.media?.releaseDate ?? null,
             genres: item.media?.genres ?? [],
@@ -406,6 +409,8 @@
             tags: response.media.tags,
             status: response.media.status,
             episodes: response.media.episodes,
+            chapters: response.media.chapters,
+            volumes: response.media.volumes,
             durationMinutes: response.media.durationMinutes,
             releaseDate: response.media.releaseDate,
             cachedAt: response.freshness.fetchedAt,

@@ -8,7 +8,12 @@ use tempfile::tempdir;
 
 #[tokio::test]
 async fn every_released_profile_fixture_reaches_the_latest_schema_and_reopens() {
-    for fixture_name in ["v0001.sqlite3", "v0002.sqlite3", "v0003.sqlite3"] {
+    for fixture_name in [
+        "v0001.sqlite3",
+        "v0002.sqlite3",
+        "v0003.sqlite3",
+        "v0007.sqlite3",
+    ] {
         let root = tempdir().expect("temporary upgrade profile");
         let paths = DatabasePaths::from_root(root.path()).expect("valid app-data paths");
         let fixture = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -50,15 +55,20 @@ async fn every_released_profile_fixture_reaches_the_latest_schema_and_reopens() 
         .fetch_all(&mut inspection)
         .await
         .expect("migration ledger");
-        assert_eq!(migrations.len(), 7);
-        assert_eq!(migrations.last(), Some(&(7, true)));
+        assert_eq!(migrations.len(), 8);
+        assert_eq!(migrations.last(), Some(&(8, true)));
         inspection.close().await.expect("close inspection");
 
         let reopened = Database::connect(&paths)
             .await
             .expect("reopen upgraded profile");
+        let reopened_entries = reopened.library().list().await.expect("reopened library");
         assert_eq!(
-            reopened.library().list().await.expect("reopened library")[0].progress,
+            reopened_entries
+                .iter()
+                .find(|entry| entry.anilist_id == 101)
+                .expect("reopened anime entry")
+                .progress,
             3
         );
     }

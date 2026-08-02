@@ -30,6 +30,7 @@ impl MediaRepository {
         let prepared = snapshots
             .iter()
             .map(|snapshot| {
+                validate_snapshot(snapshot)?;
                 Ok((
                     snapshot,
                     serde_json::to_string(&snapshot.genres)?,
@@ -42,13 +43,14 @@ impl MediaRepository {
             sqlx::query(
                 "INSERT INTO media_snapshots (\
                     anilist_id, media_kind, title, cover_url, media_format, genres_json, tags_json, \
-                    media_status, total_units, duration_minutes, release_date, cached_at\
-                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) \
+                    media_status, total_units, volume_total, duration_minutes, release_date, cached_at\
+                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) \
                  ON CONFLICT(anilist_id, media_kind) DO UPDATE SET \
                     title = excluded.title, cover_url = excluded.cover_url, \
                     media_format = excluded.media_format, genres_json = excluded.genres_json, \
                     tags_json = excluded.tags_json, media_status = excluded.media_status, \
                     total_units = excluded.total_units, \
+                    volume_total = excluded.volume_total, \
                     duration_minutes = excluded.duration_minutes, \
                     release_date = excluded.release_date, cached_at = excluded.cached_at",
             )
@@ -61,6 +63,7 @@ impl MediaRepository {
             .bind(tags)
             .bind(&snapshot.media_status)
             .bind(snapshot.total_units)
+            .bind(snapshot.volume_total)
             .bind(snapshot.duration_minutes)
             .bind(&snapshot.release_date)
             .bind(format_utc(snapshot.cached_at))
@@ -78,7 +81,7 @@ impl MediaRepository {
     ) -> Result<Option<MediaSnapshotRecord>, DatabaseError> {
         let row = sqlx::query_as::<_, SnapshotRow>(
             "SELECT anilist_id, media_kind, title, cover_url, media_format, genres_json, tags_json, \
-             media_status, total_units, duration_minutes, release_date, cached_at FROM media_snapshots \
+             media_status, total_units, volume_total, duration_minutes, release_date, cached_at FROM media_snapshots \
              WHERE anilist_id = ? AND media_kind = ?",
         )
         .bind(anilist_id)
@@ -162,6 +165,32 @@ impl MediaRepository {
     }
 }
 
+fn validate_snapshot(snapshot: &MediaSnapshotRecord) -> Result<(), DatabaseError> {
+    if snapshot
+        .total_units
+        .is_some_and(|total| !(0..=i64::from(i32::MAX)).contains(&total))
+        || snapshot
+            .volume_total
+            .is_some_and(|total| !(0..=i64::from(i32::MAX)).contains(&total))
+        || snapshot
+            .duration_minutes
+            .is_some_and(|duration| duration <= 0)
+    {
+        return Err(DatabaseError::CorruptData(
+            "A media snapshot contains an invalid total or duration.".to_owned(),
+        ));
+    }
+    match snapshot.media_kind {
+        MediaKind::Anime if snapshot.volume_total.is_some() => Err(DatabaseError::CorruptData(
+            "An anime snapshot cannot contain a volume total.".to_owned(),
+        )),
+        MediaKind::Manga if snapshot.duration_minutes.is_some() => Err(DatabaseError::CorruptData(
+            "A manga snapshot cannot contain an episode duration.".to_owned(),
+        )),
+        _ => Ok(()),
+    }
+}
+
 #[derive(Debug, FromRow)]
 struct SnapshotRow {
     anilist_id: i64,
@@ -173,6 +202,7 @@ struct SnapshotRow {
     tags_json: String,
     media_status: Option<String>,
     total_units: Option<i64>,
+    volume_total: Option<i64>,
     duration_minutes: Option<i64>,
     release_date: Option<String>,
     cached_at: String,
@@ -196,6 +226,7 @@ impl TryFrom<SnapshotRow> for MediaSnapshotRecord {
             tags,
             media_status: row.media_status,
             total_units: row.total_units,
+            volume_total: row.volume_total,
             duration_minutes: row.duration_minutes,
             release_date: row.release_date.map(validate_release_date).transpose()?,
             cached_at: parse_timestamp(&row.cached_at)?,

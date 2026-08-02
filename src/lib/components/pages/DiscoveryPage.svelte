@@ -68,7 +68,11 @@
         debounceMs = 350,
     }: Props = $props();
 
-    const collectionRequest = { page: 1, perPage: 12 } as const;
+    const collectionRequest = {
+        mediaKind: "ANIME",
+        page: 1,
+        perPage: 12,
+    } as const;
 
     let query = $state("");
     let searchTerm = $state("");
@@ -135,6 +139,7 @@
         recommendationsError = null;
         try {
             recommendationsResponse = await loadRecommendations({
+                mediaKind: "ANIME",
                 perPage: 18,
             });
         } catch (reason) {

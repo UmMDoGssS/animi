@@ -1,0 +1,23 @@
+{
+    "schemaVersion": 7,
+    "migration": "0007_refresh_missing_release_dates.sql",
+    "sqliteSha256": "e62bfc7d96023d2c06652b0a6ad39ecc2491474867ae8c2c612921b41b966b1b",
+    "migrationChecksums": {
+        "0001_initial.sql": "4f33f13a114dc098bc6ab75229eb86c43c4f35eb98c8280f36215860ebfd679deb83643d3a731391ddd5e67aac85cc04",
+        "0002_watch_activity.sql": "9361fde43170e805d0688fc5db6e64a11ac3e7f5a1a54d3b881f2a218f122e8e77c43993ea186a1968fb733f16b1fe27",
+        "0003_activity_progress.sql": "614bc98e326578e7a1649dae266c728ee5ec5468ec7a0c72291b998c3c7b7297620ef2f567b803105036135f6126b318",
+        "0004_watch_activity_identity.sql": "2d33bf79c69c9975e0f2e0341bd55b7c8117d495db9e4818dcf0f678aec199f9aeabf55df24da15138c670442231563e",
+        "0005_record_initial_watch_activity.sql": "364ea2015447827da34dd27a3aced13ff4015a14d039b5d70a6c54c733598a2df3676e9073cf26822701ae11e97842ea",
+        "0006_media_release_date.sql": "acb07fd7605f13d3d1d98684187ac1eedbd1d982dd4c7eba54d03d43fe27a5de5a7412a84548d828cc19d3fa75cc8977",
+        "0007_refresh_missing_release_dates.sql": "ac12d71cd3774e812497656d0c8196f9cb88d9f715d0c349bcbccc318f77f047d6e0b2b1cc3dbb686c6fe4bafdb3c23c"
+    },
+    "representativeRows": {
+        "airingData": 1,
+        "libraryEntries": 2,
+        "mediaSnapshots": 2,
+        "responseCaches": 1,
+        "settings": 1,
+        "watchActivity": 3
+    },
+    "notes": "Immutable Animi 1.0.1 baseline immediately before the version 1.1 manga migration. Copy to a temporary directory before opening."
+}

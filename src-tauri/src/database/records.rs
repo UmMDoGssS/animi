@@ -21,6 +21,7 @@ pub struct MediaSnapshotRecord {
     pub tags: Vec<MediaTag>,
     pub media_status: Option<String>,
     pub total_units: Option<i64>,
+    pub volume_total: Option<i64>,
     pub duration_minutes: Option<i64>,
     pub release_date: Option<String>,
     pub cached_at: DateTime<Utc>,

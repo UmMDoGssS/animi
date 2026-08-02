@@ -52,6 +52,7 @@ mod tests {
             media_kind: MediaKind::Anime,
             status: LibraryStatus::Watching,
             progress,
+            volume_progress: None,
             score: None,
             notes: None,
         }

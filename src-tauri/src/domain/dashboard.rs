@@ -13,6 +13,7 @@ pub struct DashboardLibraryTotals {
     pub completed: i64,
     pub planning: i64,
     pub current_progress: i64,
+    pub current_volume_progress: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -49,6 +50,8 @@ pub struct DashboardActivitySummary {
     pub known_duration_episodes: i64,
     pub recorded_minutes: i64,
     pub unknown_duration_episodes: i64,
+    pub recorded_chapters: i64,
+    pub recorded_volumes: i64,
     pub covered_from: Option<String>,
     pub covered_to: Option<String>,
     pub monthly: Vec<DashboardActivityBucket>,
@@ -63,6 +66,8 @@ pub struct DashboardActivityBucket {
     pub recorded_episodes: i64,
     pub recorded_minutes: i64,
     pub unknown_duration_episodes: i64,
+    pub recorded_chapters: i64,
+    pub recorded_volumes: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -80,22 +85,40 @@ impl DashboardInsights {
         library_items: Vec<LibraryItem>,
         events: Vec<WatchActivity>,
     ) -> Result<Self, CommandError> {
-        Self::build_at(library_items, events, Utc::now())
+        Self::build_for_at(MediaKind::Anime, library_items, events, Utc::now())
+    }
+
+    pub fn build_for(
+        media_kind: MediaKind,
+        library_items: Vec<LibraryItem>,
+        events: Vec<WatchActivity>,
+    ) -> Result<Self, CommandError> {
+        Self::build_for_at(media_kind, library_items, events, Utc::now())
     }
 
     pub fn build_at(
+        library_items: Vec<LibraryItem>,
+        events: Vec<WatchActivity>,
+        now: DateTime<Utc>,
+    ) -> Result<Self, CommandError> {
+        Self::build_for_at(MediaKind::Anime, library_items, events, now)
+    }
+
+    pub fn build_for_at(
+        media_kind: MediaKind,
         mut library_items: Vec<LibraryItem>,
         mut events: Vec<WatchActivity>,
         now: DateTime<Utc>,
     ) -> Result<Self, CommandError> {
-        library_items.retain(|item| item.entry.media_kind == MediaKind::Anime);
-        events.retain(|event| event.media_kind == MediaKind::Anime);
+        library_items.retain(|item| item.entry.media_kind == media_kind);
+        events.retain(|event| event.media_kind == media_kind);
         let mut library_totals = DashboardLibraryTotals {
             tracked: i64::try_from(library_items.len()).map_err(|_| invalid_dashboard_data())?,
             watching: 0,
             completed: 0,
             planning: 0,
             current_progress: 0,
+            current_volume_progress: 0,
         };
         let mut eligible_titles = 0_i64;
         let mut metadata_titles = 0_i64;
@@ -108,6 +131,10 @@ impl DashboardInsights {
             library_totals.current_progress = library_totals
                 .current_progress
                 .checked_add(item.entry.progress)
+                .ok_or_else(invalid_dashboard_data)?;
+            library_totals.current_volume_progress = library_totals
+                .current_volume_progress
+                .checked_add(item.entry.volume_progress.unwrap_or(0))
                 .ok_or_else(invalid_dashboard_data)?;
             match item.entry.status {
                 LibraryStatus::Watching => {
@@ -200,9 +227,9 @@ impl DashboardInsights {
             genres: genre_signals,
             tags: tag_signals,
         };
-        let activity = DashboardActivitySummary::build(events, now)?;
+        let activity = DashboardActivitySummary::build(media_kind, events, now)?;
         Ok(Self {
-            media_kind: MediaKind::Anime,
+            media_kind,
             library_items,
             library_totals,
             preference_signals,
@@ -212,11 +239,17 @@ impl DashboardInsights {
 }
 
 impl DashboardActivitySummary {
-    fn build(events: Vec<WatchActivity>, now: DateTime<Utc>) -> Result<Self, CommandError> {
+    fn build(
+        media_kind: MediaKind,
+        events: Vec<WatchActivity>,
+        now: DateTime<Utc>,
+    ) -> Result<Self, CommandError> {
         let mut recorded_episodes = 0_i64;
         let mut known_duration_episodes = 0_i64;
         let mut recorded_minutes = 0_i64;
         let mut unknown_duration_episodes = 0_i64;
+        let mut recorded_chapters = 0_i64;
+        let mut recorded_volumes = 0_i64;
         let current_month = NaiveDate::from_ymd_opt(now.year(), now.month(), 1)
             .ok_or_else(invalid_dashboard_data)?;
         let first_month = current_month
@@ -235,10 +268,17 @@ impl DashboardActivitySummary {
         let mut covered_to: Option<DateTime<Utc>> = None;
 
         for event in &events {
-            if event.progress_delta <= 0
+            if event.progress_delta < 0
+                || event.volume_delta < 0
+                || event.progress_delta == 0 && event.volume_delta == 0
                 || event
                     .episode_duration_minutes
                     .is_some_and(|duration| duration <= 0)
+            {
+                return Err(invalid_dashboard_data());
+            }
+            if media_kind == MediaKind::Anime && event.volume_delta != 0
+                || media_kind == MediaKind::Manga && event.episode_duration_minutes.is_some()
             {
                 return Err(invalid_dashboard_data());
             }
@@ -247,35 +287,47 @@ impl DashboardActivitySummary {
                 .map_err(|_| invalid_dashboard_data())?;
             covered_from = Some(covered_from.map_or(occurred_at, |value| value.min(occurred_at)));
             covered_to = Some(covered_to.map_or(occurred_at, |value| value.max(occurred_at)));
-            recorded_episodes = recorded_episodes
-                .checked_add(event.progress_delta)
-                .ok_or_else(invalid_dashboard_data)?;
-            if let Some(duration) = event.episode_duration_minutes {
-                known_duration_episodes = known_duration_episodes
+            if media_kind == MediaKind::Manga {
+                recorded_chapters = recorded_chapters
                     .checked_add(event.progress_delta)
                     .ok_or_else(invalid_dashboard_data)?;
-                let minutes = event
-                    .progress_delta
-                    .checked_mul(duration)
-                    .ok_or_else(invalid_dashboard_data)?;
-                recorded_minutes = recorded_minutes
-                    .checked_add(minutes)
+                recorded_volumes = recorded_volumes
+                    .checked_add(event.volume_delta)
                     .ok_or_else(invalid_dashboard_data)?;
             } else {
-                unknown_duration_episodes = unknown_duration_episodes
+                recorded_episodes = recorded_episodes
                     .checked_add(event.progress_delta)
                     .ok_or_else(invalid_dashboard_data)?;
+            }
+            if media_kind == MediaKind::Anime {
+                if let Some(duration) = event.episode_duration_minutes {
+                    known_duration_episodes = known_duration_episodes
+                        .checked_add(event.progress_delta)
+                        .ok_or_else(invalid_dashboard_data)?;
+                    let minutes = event
+                        .progress_delta
+                        .checked_mul(duration)
+                        .ok_or_else(invalid_dashboard_data)?;
+                    recorded_minutes = recorded_minutes
+                        .checked_add(minutes)
+                        .ok_or_else(invalid_dashboard_data)?;
+                } else {
+                    unknown_duration_episodes = unknown_duration_episodes
+                        .checked_add(event.progress_delta)
+                        .ok_or_else(invalid_dashboard_data)?;
+                }
             }
             let year_period = format!("{:04}", occurred_at.year());
             accumulate_bucket(
                 yearly
                     .entry(year_period.clone())
                     .or_insert_with(|| DashboardActivityBucket::empty(year_period)),
+                media_kind,
                 event,
             )?;
             let month_period = format!("{:04}-{:02}", occurred_at.year(), occurred_at.month());
             if let Some(bucket) = monthly.get_mut(&month_period) {
-                accumulate_bucket(bucket, event)?;
+                accumulate_bucket(bucket, media_kind, event)?;
             }
         }
 
@@ -285,6 +337,8 @@ impl DashboardActivitySummary {
             known_duration_episodes,
             recorded_minutes,
             unknown_duration_episodes,
+            recorded_chapters,
+            recorded_volumes,
             covered_from: covered_from.map(format_utc),
             covered_to: covered_to.map(format_utc),
             monthly: monthly.into_values().collect(),
@@ -301,14 +355,28 @@ impl DashboardActivityBucket {
             recorded_episodes: 0,
             recorded_minutes: 0,
             unknown_duration_episodes: 0,
+            recorded_chapters: 0,
+            recorded_volumes: 0,
         }
     }
 }
 
 fn accumulate_bucket(
     bucket: &mut DashboardActivityBucket,
+    media_kind: MediaKind,
     event: &WatchActivity,
 ) -> Result<(), CommandError> {
+    if media_kind == MediaKind::Manga {
+        bucket.recorded_chapters = bucket
+            .recorded_chapters
+            .checked_add(event.progress_delta)
+            .ok_or_else(invalid_dashboard_data)?;
+        bucket.recorded_volumes = bucket
+            .recorded_volumes
+            .checked_add(event.volume_delta)
+            .ok_or_else(invalid_dashboard_data)?;
+        return Ok(());
+    }
     bucket.recorded_episodes = bucket
         .recorded_episodes
         .checked_add(event.progress_delta)
@@ -366,6 +434,7 @@ mod tests {
                 media_kind: MediaKind::Anime,
                 status,
                 progress,
+                volume_progress: None,
                 score: None,
                 notes: None,
                 created_at: "2026-07-16T08:00:00.000Z".to_owned(),
@@ -390,6 +459,8 @@ mod tests {
                 .collect(),
             status: Some("FINISHED".to_owned()),
             episodes: Some(12),
+            chapters: None,
+            volumes: None,
             duration_minutes: Some(24),
             release_date: None,
             cached_at: "2026-07-16T08:00:00.000Z".to_owned(),
@@ -400,9 +471,11 @@ mod tests {
 
     fn activity(anilist_id: i64, progress_delta: i64, duration: Option<i64>) -> WatchActivity {
         WatchActivity {
+            event_id: format!("00000000-0000-4000-a000-{anilist_id:012}"),
             anilist_id,
             media_kind: MediaKind::Anime,
             progress_delta,
+            volume_delta: 0,
             episode_duration_minutes: duration,
             occurred_at: "2026-07-16T09:00:00.000Z".to_owned(),
         }

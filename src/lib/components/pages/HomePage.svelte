@@ -120,6 +120,7 @@
         try {
             const entry = await advanceProgress({
                 anilistId: item.library.entry.anilistId,
+                mediaKind: item.library.entry.mediaKind,
             });
             if (response !== null) {
                 response = {
@@ -292,12 +293,15 @@
 
     function summaryForItem(item: HomeAiringItem): MediaSummary {
         return {
+            mediaKind: item.library.entry.mediaKind,
             anilistId: item.library.entry.anilistId,
             title: title(item),
             coverUrl: item.library.media?.coverUrl ?? null,
             mediaFormat: item.library.media?.mediaFormat ?? null,
             status: item.library.media?.status ?? null,
             episodes: item.library.media?.episodes ?? null,
+            chapters: item.library.media?.chapters ?? null,
+            volumes: item.library.media?.volumes ?? null,
             durationMinutes: item.library.media?.durationMinutes ?? null,
             releaseDate: item.library.media?.releaseDate ?? null,
             genres: item.library.media?.genres ?? [],

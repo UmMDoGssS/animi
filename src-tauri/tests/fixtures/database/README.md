@@ -17,3 +17,8 @@ and upgrade regressions remain reproducible.
 `v0003.sqlite3` pins the activity high-water schema immediately before
 `0004_watch_activity_identity.sql`. Its activity row verifies that the identity migration adds a
 portable event identifier without changing the user-owned event or its local ordering ID.
+
+`v0007.sqlite3` freezes the complete Animi 1.0.1 schema and representative profile immediately
+before `0008_manga_persistence.sql`. It proves that the version 1.1 migration preserves the anime
+library row, settings, cached metadata, airing and response-cache records, watch events, event IDs,
+duration snapshots, and timestamps while initializing the new kind-aware columns.

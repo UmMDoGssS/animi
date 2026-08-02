@@ -169,6 +169,17 @@ impl AniListService {
         })
     }
 
+    pub async fn search_media_for_kind(
+        &self,
+        media_kind: MediaKind,
+        search: &str,
+        page: u16,
+        per_page: u8,
+    ) -> Result<MediaPageResponse, CommandError> {
+        require_anime_transport(media_kind)?;
+        self.search_media(search, page, per_page).await
+    }
+
     pub async fn list_trending(
         &self,
         page: u16,
@@ -192,6 +203,16 @@ impl AniListService {
             has_next_page: cached.value.has_next_page,
             freshness: cached.freshness,
         })
+    }
+
+    pub async fn list_trending_for_kind(
+        &self,
+        media_kind: MediaKind,
+        page: u16,
+        per_page: u8,
+    ) -> Result<MediaPageResponse, CommandError> {
+        require_anime_transport(media_kind)?;
+        self.list_trending(page, per_page).await
     }
 
     pub async fn recommendations(
@@ -226,6 +247,15 @@ impl AniListService {
         })
     }
 
+    pub async fn recommendations_for_kind(
+        &self,
+        media_kind: MediaKind,
+        per_page: u8,
+    ) -> Result<RecommendationsResponse, CommandError> {
+        require_anime_transport(media_kind)?;
+        self.recommendations(per_page).await
+    }
+
     pub async fn get_media_details(
         &self,
         anilist_id: i64,
@@ -241,6 +271,15 @@ impl AniListService {
             media: cached.value,
             freshness: cached.freshness,
         })
+    }
+
+    pub async fn get_media_details_for_kind(
+        &self,
+        media_kind: MediaKind,
+        anilist_id: i64,
+    ) -> Result<MediaDetailsResponse, CommandError> {
+        require_anime_transport(media_kind)?;
+        self.get_media_details(anilist_id).await
     }
 
     pub async fn airing_schedule(
@@ -400,6 +439,14 @@ impl AniListService {
         Ok(response)
     }
 
+    pub async fn refresh_library_metadata_for_kind(
+        &self,
+        media_kind: MediaKind,
+    ) -> Result<RefreshLibraryMetadataResponse, CommandError> {
+        require_anime_transport(media_kind)?;
+        self.refresh_library_metadata().await
+    }
+
     async fn cached_media_details(
         &self,
         anilist_id: i64,
@@ -507,7 +554,7 @@ fn media_summary_snapshot(
 ) -> MediaSnapshotRecord {
     MediaSnapshotRecord {
         anilist_id: summary.anilist_id,
-        media_kind: MediaKind::Anime,
+        media_kind: summary.media_kind,
         title: summary.title.clone(),
         cover_url: summary.cover_url.clone(),
         media_format: summary.media_format.clone(),
@@ -522,7 +569,10 @@ fn media_summary_snapshot(
             .collect(),
         media_status: summary.status.clone(),
         total_units: summary.episodes,
-        duration_minutes: summary.duration_minutes,
+        volume_total: summary.volumes,
+        duration_minutes: summary
+            .duration_minutes
+            .filter(|_| summary.media_kind == MediaKind::Anime),
         release_date: summary.release_date.clone(),
         cached_at,
     }
@@ -586,6 +636,18 @@ fn validate_page(page: u16, per_page: u8) -> Result<(), CommandError> {
         ));
     }
     Ok(())
+}
+
+fn require_anime_transport(media_kind: MediaKind) -> Result<(), CommandError> {
+    if media_kind == MediaKind::Anime {
+        Ok(())
+    } else {
+        Err(CommandError::new(
+            "MEDIA_KIND_NOT_AVAILABLE",
+            "Manga metadata transport is not available in this compatibility phase.",
+            false,
+        ))
+    }
 }
 
 fn validate_anilist_id(anilist_id: i64) -> Result<(), CommandError> {
@@ -796,6 +858,7 @@ mod tests {
                     .collect(),
                 media_status: Some("RELEASING".to_owned()),
                 total_units: Some(12),
+                volume_total: None,
                 duration_minutes: Some(24),
                 release_date: None,
                 cached_at: "2026-07-16T08:00:00Z".parse().expect("seed time"),
@@ -809,6 +872,7 @@ mod tests {
                 media_kind: MediaKind::Anime,
                 status,
                 progress: 1,
+                volume_progress: None,
                 score: None,
                 notes: None,
             })
@@ -1031,6 +1095,7 @@ mod tests {
         let search = search_media_with_service(
             &service,
             SearchMediaRequest {
+                media_kind: MediaKind::Anime,
                 search: "Frieren".to_owned(),
                 page: 1,
                 per_page: 20,
@@ -1042,6 +1107,7 @@ mod tests {
         let details = get_media_details_with_service(
             &service,
             MediaDetailsRequest {
+                media_kind: MediaKind::Anime,
                 anilist_id: search.items[0].anilist_id,
             },
         )
@@ -1055,6 +1121,7 @@ mod tests {
                 media_kind: MediaKind::Anime,
                 status: LibraryStatus::Watching,
                 progress: 3,
+                volume_progress: None,
                 score: Some(8.0),
                 notes: Some("local note".to_owned()),
             },
@@ -1198,6 +1265,7 @@ mod tests {
                 media_kind: MediaKind::Anime,
                 status: LibraryStatus::Planning,
                 progress: 0,
+                volume_progress: None,
                 score: None,
                 notes: None,
             })
@@ -1268,6 +1336,7 @@ mod tests {
                     media_kind,
                     status: LibraryStatus::Planning,
                     progress: 0,
+                    volume_progress: (media_kind == MediaKind::Manga).then_some(0),
                     score: None,
                     notes: None,
                 })
@@ -1314,6 +1383,7 @@ mod tests {
                     media_kind: MediaKind::Anime,
                     status: LibraryStatus::Planning,
                     progress: 0,
+                    volume_progress: None,
                     score: None,
                     notes: None,
                 })
@@ -1358,6 +1428,7 @@ mod tests {
                 media_kind: MediaKind::Anime,
                 status: LibraryStatus::Watching,
                 progress: 1,
+                volume_progress: None,
                 score: None,
                 notes: None,
             })

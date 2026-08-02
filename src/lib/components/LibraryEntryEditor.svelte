@@ -247,6 +247,7 @@
                 mediaKind: entry?.mediaKind ?? "ANIME",
                 status: statusDraft,
                 progress: validatedDrafts.progress,
+                volumeProgress: entry?.volumeProgress ?? null,
                 score: validatedDrafts.score,
                 notes: notesDraft,
             });

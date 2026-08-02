@@ -19,7 +19,7 @@ export type LibraryStatus = "WATCHING" | "COMPLETED" | "PLANNING";
 export type ThemePreference = "SYSTEM" | "LATTE" | "MACCHIATO";
 
 export interface ExportBackupResponse {
-    schemaVersion: 1;
+    schemaVersion: 2;
     exportedAt: UtcTimestamp;
     settingsCount: number;
     libraryEntryCount: number;
@@ -81,7 +81,13 @@ export interface ClearLocalDataResponse {
 
 export interface SettingsOverview {
     cachedMediaCount: number;
+    cachedAnimeCount: number;
+    cachedMangaCount: number;
     staleMediaCount: number;
+    libraryAnimeCount: number;
+    libraryMangaCount: number;
+    animeActivityCount: number;
+    mangaActivityCount: number;
     airingRecordCount: number;
     staleAiringCount: number;
     responseCacheCount: number;
@@ -94,6 +100,7 @@ export interface LibraryEntry {
     mediaKind: MediaKind;
     status: LibraryStatus;
     progress: number;
+    volumeProgress: number | null;
     score: number | null;
     notes: string | null;
     createdAt: UtcTimestamp;
@@ -113,6 +120,8 @@ export interface LibraryMediaSnapshot {
     tags: LibraryMediaTag[];
     status: string | null;
     episodes: number | null;
+    chapters: number | null;
+    volumes: number | null;
     durationMinutes: number | null;
     releaseDate: CalendarDate | null;
     cachedAt: UtcTimestamp;
@@ -127,15 +136,20 @@ export interface LibraryItem {
 
 export interface AdvanceLibraryProgressRequest {
     anilistId: number;
+    mediaKind: MediaKind;
 }
 
-export interface WatchActivity {
+export interface ProgressActivity {
+    eventId: string;
     anilistId: number;
     mediaKind: MediaKind;
     progressDelta: number;
+    volumeDelta: number;
     episodeDurationMinutes: number | null;
     occurredAt: UtcTimestamp;
 }
+
+export type WatchActivity = ProgressActivity;
 
 export interface DashboardLibraryTotals {
     tracked: number;
@@ -143,6 +157,7 @@ export interface DashboardLibraryTotals {
     completed: number;
     planning: number;
     currentProgress: number;
+    currentVolumeProgress: number;
 }
 
 export interface DashboardGenreSignal {
@@ -171,6 +186,8 @@ export interface DashboardActivitySummary {
     knownDurationEpisodes: number;
     recordedMinutes: number;
     unknownDurationEpisodes: number;
+    recordedChapters: number;
+    recordedVolumes: number;
     coveredFrom: UtcTimestamp | null;
     coveredTo: UtcTimestamp | null;
     monthly: DashboardActivityBucket[];
@@ -183,6 +200,8 @@ export interface DashboardActivityBucket {
     recordedEpisodes: number;
     recordedMinutes: number;
     unknownDurationEpisodes: number;
+    recordedChapters: number;
+    recordedVolumes: number;
 }
 
 export interface DashboardInsights {
@@ -198,6 +217,7 @@ export interface UpsertLibraryEntryRequest {
     mediaKind: MediaKind;
     status: LibraryStatus;
     progress: number;
+    volumeProgress: number | null;
     /** Optional personal score in the inclusive 0–10 range. */
     score: number | null;
     notes: string | null;
@@ -219,12 +239,15 @@ export interface MediaTag {
 }
 
 export interface MediaSummary {
+    mediaKind: MediaKind;
     anilistId: number;
     title: string;
     coverUrl: string | null;
     mediaFormat: string | null;
     status: string | null;
     episodes: number | null;
+    chapters: number | null;
+    volumes: number | null;
     durationMinutes: number | null;
     releaseDate: CalendarDate | null;
     genres: string[];
@@ -279,17 +302,20 @@ export interface MediaDetailsResponse {
 }
 
 export interface SearchMediaRequest {
+    mediaKind: MediaKind;
     search: string;
     page: number;
     perPage: number;
 }
 
 export interface MediaPageRequest {
+    mediaKind: MediaKind;
     page: number;
     perPage: number;
 }
 
 export interface RecommendationsRequest {
+    mediaKind: MediaKind;
     perPage: number;
 }
 
@@ -307,7 +333,16 @@ export interface RecommendationsResponse {
 }
 
 export interface MediaDetailsRequest {
+    mediaKind: MediaKind;
     anilistId: number;
+}
+
+export interface RefreshLibraryMetadataRequest {
+    mediaKind: MediaKind;
+}
+
+export interface DashboardInsightsRequest {
+    mediaKind: MediaKind;
 }
 
 export interface MetadataRefreshFailure {

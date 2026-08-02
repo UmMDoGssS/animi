@@ -128,6 +128,7 @@ async fn seed_profile_title(
                 .collect(),
             media_status: Some("RELEASING".to_owned()),
             total_units: Some(total_units),
+            volume_total: None,
             duration_minutes: Some(24),
             release_date: None,
             cached_at: now,
@@ -141,6 +142,7 @@ async fn seed_profile_title(
             media_kind: MediaKind::Anime,
             status,
             progress,
+            volume_progress: None,
             score: None,
             notes: None,
         })
@@ -204,14 +206,14 @@ fn p5_home_recommendations_and_activity_cross_the_real_ipc_boundary() {
         let advanced = invoke_ok(
             &webview,
             "advance_library_progress",
-            json!({ "request": { "anilistId": 101 } }),
+            json!({ "request": { "anilistId": 101, "mediaKind": "ANIME" } }),
         );
         assert_eq!(advanced["progress"], expected);
     }
     let bounded = invoke(
         &webview,
         "advance_library_progress",
-        json!({ "request": { "anilistId": 101 } }),
+        json!({ "request": { "anilistId": 101, "mediaKind": "ANIME" } }),
     )
     .expect_err("episode total has been reached");
     assert_eq!(bounded["code"], "PROGRESS_NOT_ADVANCEABLE");
@@ -219,7 +221,7 @@ fn p5_home_recommendations_and_activity_cross_the_real_ipc_boundary() {
     let recommendations = invoke_ok(
         &webview,
         "get_recommendations",
-        json!({ "request": { "perPage": 18 } }),
+        json!({ "request": { "mediaKind": "ANIME", "perPage": 18 } }),
     );
     assert_eq!(recommendations["isFallback"], false);
     assert_eq!(recommendations["eligibleProfileTitles"], 2);
@@ -229,7 +231,11 @@ fn p5_home_recommendations_and_activity_cross_the_real_ipc_boundary() {
         json!(["Found Family"])
     );
 
-    let dashboard = invoke_ok(&webview, "get_dashboard_insights", json!({}));
+    let dashboard = invoke_ok(
+        &webview,
+        "get_dashboard_insights",
+        json!({ "request": { "mediaKind": "ANIME" } }),
+    );
     assert_eq!(dashboard["activity"]["recordedEpisodes"], 15);
     assert_eq!(dashboard["activity"]["recordedMinutes"], 360);
     assert_eq!(
