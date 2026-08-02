@@ -6,8 +6,8 @@
 |---|---|
 | Product | Animi |
 | Release | Version 1.1, Windows desktop |
-| Overall status | Version 1.0.1 complete; version 1.1 planned; private distribution only |
-| Current phase | P8 ready to begin |
+| Overall status | Version 1.0.1 complete; version 1.1 in progress; private distribution only |
+| Current phase | P9 ready to begin |
 | Schedule | Dependency-driven; no calendar commitment |
 | Last updated | 2026-08-02 |
 
@@ -59,7 +59,7 @@ The following remain outside version 1.1:
 | P5 | Home airing workflow, insights, and recommendations | P2, P4 | Complete | Home airing/progress, Dashboard insights, and deterministic recommendation behavior pass |
 | P6 | Settings, backup, and recovery | P1, P3, P4 | Complete | Backup round trips and rollback guarantees pass |
 | P7 | Release hardening and Windows packaging | P0-P6 | Complete | Full quality gate and production NSIS acceptance pass |
-| P8 | Manga domain, persistence, and compatibility | P7; approved 1.1 contracts | Not started | Existing 1.0.x profiles upgrade without loss and manga progress is durable |
+| P8 | Manga domain, persistence, and compatibility | P7; approved 1.1 contracts | Complete | Existing 1.0.x profiles upgrade without loss and manga progress is durable |
 | P9 | AniList manga integration and cache isolation | P8 contracts; existing P2 transport | Not started | Mocked manga discovery, details, cache, offline, and throttling behavior passes |
 | P10 | Media-aware application workflows | P8, P9; existing P3-P4 UI | Not started | Manga discovery-to-library and Dashboard flows pass end to end |
 | P11 | Continue Reading, activity, and recommendations | P8-P10; existing P5 behavior | Not started | Manga Home, reading activity, and same-kind recommendations pass |
@@ -468,24 +468,28 @@ Version 1.1 work begins at P8. P0-P7 and Completed Follow-up Work describe the s
 
 ### Entry gate
 
-- [ ] **P8-E1** Audit the current repository state, schema version, immutable migration fixtures, backup schema 1 fixtures, and unrelated user changes before editing.
-- [ ] **P8-E2** Freeze representative Animi 1.0.1 IPC, database, and backup fixtures that prove the pre-1.1 compatibility baseline.
+- [x] **P8-E1** Audit the current repository state, schema version, immutable migration fixtures, backup schema 1 fixtures, and unrelated user changes before editing.
+- [x] **P8-E2** Freeze representative Animi 1.0.1 IPC, database, and backup fixtures that prove the pre-1.1 compatibility baseline.
 
 ### Milestones
 
-- [ ] **P8-M1 - Kind-aware contracts:** Add `mediaKind` to media summaries and every discovery, details, progress, recommendation, refresh, and Dashboard request where kind cannot be safely inferred. Add nullable `chapters`, `volumes`, and `volumeProgress` fields; require volume progress to be null for anime and nonnegative for manga, and reject other cross-kind combinations such as manga episode duration.
-- [ ] **P8-M2 - Append-only migration:** Keep the existing `progress` and `total_units` columns as kind-scoped primary values for anime episodes or manga chapters. Add manga volume total, volume progress, an independent volume activity high-water mark, and generalized activity deltas through new forward migrations only. Preserve every existing anime row and any pre-existing row carrying `MediaKind.MANGA`, plus event IDs, valid duration snapshots, timestamps, and every released migration file.
-- [ ] **P8-M3 - Progress rules:** Implement episode-or-chapter primary progress and independent manga volume progress. Enforce nonnegative values and known totals without guessing unknown totals; apply initial-save, correction, restore, and newly-unrecorded-delta behavior independently to both progress dimensions in one transaction.
-- [ ] **P8-M4 - Repositories and IPC:** Extend library, snapshot, activity, Dashboard, and settings repositories plus their thin Tauri adapters for both media kinds. Missing manga metadata must not hide a local entry, and removal must preserve generalized user-owned activity.
-- [ ] **P8-M5 - Backup schema 2:** Export schema 2 with anime and manga library records, generalized progress activity, stable event IDs, and both high-water marks. Import schemas 1 and 2 through one fully validated preview/apply flow; interpret schema 1 progress by its existing media kind, initialize manga volume progress to zero, reject impossible manga duration snapshots, and never export a lossy schema 1 file.
-- [ ] **P8-M6 - Compatibility fixtures:** Add immutable profile and backup fixtures covering fresh 1.1 data, every released pre-1.1 schema, schema 1 import, schema 2 round trip, duplicate imports, event-ID collision, stale preview, transaction rollback, and mixed anime/manga libraries.
+- [x] **P8-M1 - Kind-aware contracts:** Add `mediaKind` to media summaries and every discovery, details, progress, recommendation, refresh, and Dashboard request where kind cannot be safely inferred. Add nullable `chapters`, `volumes`, and `volumeProgress` fields; require volume progress to be null for anime and nonnegative for manga, and reject other cross-kind combinations such as manga episode duration.
+- [x] **P8-M2 - Append-only migration:** Keep the existing `progress` and `total_units` columns as kind-scoped primary values for anime episodes or manga chapters. Add manga volume total, volume progress, an independent volume activity high-water mark, and generalized activity deltas through new forward migrations only. Preserve every existing anime row and any pre-existing row carrying `MediaKind.MANGA`, plus event IDs, valid duration snapshots, timestamps, and every released migration file.
+- [x] **P8-M3 - Progress rules:** Implement episode-or-chapter primary progress and independent manga volume progress. Enforce nonnegative values and known totals without guessing unknown totals; apply initial-save, correction, restore, and newly-unrecorded-delta behavior independently to both progress dimensions in one transaction.
+- [x] **P8-M4 - Repositories and IPC:** Extend library, snapshot, activity, Dashboard, and settings repositories plus their thin Tauri adapters for both media kinds. Missing manga metadata must not hide a local entry, and removal must preserve generalized user-owned activity.
+- [x] **P8-M5 - Backup schema 2:** Export schema 2 with anime and manga library records, generalized progress activity, stable event IDs, and both high-water marks. Import schemas 1 and 2 through one fully validated preview/apply flow; interpret schema 1 progress by its existing media kind, initialize manga volume progress to zero, reject impossible manga duration snapshots, and never export a lossy schema 1 file.
+- [x] **P8-M6 - Compatibility fixtures:** Add immutable profile and backup fixtures covering fresh 1.1 data, every released pre-1.1 schema, schema 1 import, schema 2 round trip, duplicate imports, event-ID collision, stale preview, transaction rollback, and mixed anime/manga libraries.
 
 ### Exit gate
 
-- [ ] **P8-G1** Every supported Animi 1.0.x profile upgrades to the new schema, preserves all anime data and event IDs, and reopens cleanly.
-- [ ] **P8-G2** Manga library CRUD, chapter progress, volume progress, corrections, high-water behavior, removal, and restart persistence pass through the command boundary.
-- [ ] **P8-G3** Backup schema 2 round trips mixed libraries, schema 1 restores anime data without loss, and repeated import remains idempotent.
-- [ ] **P8-G4** Invalid kind/field combinations and simulated database failures return structured errors without partial writes.
+- [x] **P8-G1** Every supported Animi 1.0.x profile upgrades to the new schema, preserves all anime data and event IDs, and reopens cleanly.
+- [x] **P8-G2** Manga library CRUD, chapter progress, volume progress, corrections, high-water behavior, removal, and restart persistence pass through the command boundary.
+- [x] **P8-G3** Backup schema 2 round trips mixed libraries, schema 1 restores anime data without loss, and repeated import remains idempotent.
+- [x] **P8-G4** Invalid kind/field combinations and simulated database failures return structured errors without partial writes.
+
+**Evidence:** Complete 2026-08-02. Append-only migration `0008_manga_persistence.sql` keeps primary progress kind-scoped, adds independent manga volume totals, progress, high-water state, and activity deltas, and rebuilds constrained tables without changing released migrations. A synthetic immutable Animi 1.0.1 schema-7 profile includes both anime and a pre-existing manga row; upgrade tests preserve local fields, event IDs, valid duration snapshots, timestamps, settings, cache records, and all prior migration checksums through restart. Kind-aware Rust and strict TypeScript contracts now carry `mediaKind`, chapter and volume totals, volume progress, and media-scoped discovery, details, recommendation, refresh, progress, and Dashboard requests. Manga metadata transport remains explicitly unavailable with a structured error until P9 rather than crossing the anime cache boundary.
+
+Manga command-boundary coverage proves chapter and volume bounds, unknown totals, independent initial/correction/restore/high-water deltas, missing metadata, retained activity after removal, transactional validation failures, and restart persistence. Backup export now emits schema 2 only; one normalized preview/apply path imports schemas 1 and 2, initializes schema-1 manga volume state to zero, rejects manga duration snapshots, preserves both high-water marks and stable event identities, and retains the established duplicate, collision, stale-preview, idempotency, and rollback guarantees. Immutable schema-1 and schema-2 mixed-media backup fixtures document the compatibility boundary. The completed gate passes `bun run format:check`, `bun run lint`, `bun run check` with zero diagnostics, `bun run test` (122 tests across 15 files), `bun run build`, Cargo formatting, Clippy with warnings denied, and `cargo test --all-features` (88 unit tests plus 20 integration/persistence tests). No dependency or non-Bun lockfile was added, and automated tests made no live AniList requests.
 
 ## P9 - AniList Manga Integration and Cache Isolation
 
