@@ -5,6 +5,7 @@
             "media": [
                 {
                     "id": 404,
+                    "type": "ANIME",
                     "title": {
                         "romaji": "Zero Minute Episode",
                         "english": null,

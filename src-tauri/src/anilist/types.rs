@@ -120,12 +120,18 @@ pub(super) struct RawAiringSchedule {
 #[derive(Debug, Deserialize)]
 pub(super) struct RawMedia {
     pub id: i64,
+    #[serde(rename = "type")]
+    pub media_type: String,
     pub title: RawTitle,
     #[serde(rename = "coverImage")]
     pub cover_image: Option<RawCoverImage>,
     pub format: Option<String>,
     pub status: Option<String>,
     pub episodes: Option<i64>,
+    #[serde(default)]
+    pub chapters: Option<i64>,
+    #[serde(default)]
+    pub volumes: Option<i64>,
     #[serde(rename = "nextAiringEpisode")]
     pub next_airing_episode: Option<RawNextAiringEpisode>,
     pub duration: Option<i64>,
@@ -197,10 +203,12 @@ pub(super) struct RawFuzzyDate {
     pub day: Option<u32>,
 }
 
-impl TryFrom<RawMedia> for MediaSummary {
-    type Error = AniListError;
-
-    fn try_from(media: RawMedia) -> Result<Self, Self::Error> {
+impl RawMedia {
+    pub(super) fn into_summary(
+        self,
+        expected_kind: MediaKind,
+    ) -> Result<MediaSummary, AniListError> {
+        let media = self;
         if media.id <= 0 {
             return Err(AniListError::contract(
                 "AniList returned an invalid media ID.",
@@ -214,6 +222,56 @@ impl TryFrom<RawMedia> for MediaSummary {
         if media.duration.is_some_and(|duration| duration <= 0) {
             return Err(AniListError::contract(
                 "AniList returned an invalid episode duration.",
+            ));
+        }
+        if media.chapters.is_some_and(|chapters| chapters < 0) {
+            return Err(AniListError::contract(
+                "AniList returned an invalid chapter total.",
+            ));
+        }
+        if media.volumes.is_some_and(|volumes| volumes < 0) {
+            return Err(AniListError::contract(
+                "AniList returned an invalid volume total.",
+            ));
+        }
+        if media.trending < 0 {
+            return Err(AniListError::contract(
+                "AniList returned an invalid trending score.",
+            ));
+        }
+
+        let actual_kind = MediaKind::parse(&media.media_type)
+            .map_err(|_| AniListError::contract("AniList returned an invalid media type."))?;
+        if actual_kind != expected_kind {
+            return Err(AniListError::contract(
+                "AniList returned a media type that did not match the request.",
+            ));
+        }
+        match expected_kind {
+            MediaKind::Anime
+                if media.chapters.is_some()
+                    || media.volumes.is_some()
+                    || !is_valid_format(expected_kind, media.format.as_deref()) =>
+            {
+                return Err(AniListError::contract(
+                    "AniList returned incompatible anime metadata.",
+                ));
+            }
+            MediaKind::Manga
+                if media.episodes.is_some()
+                    || media.duration.is_some()
+                    || media.next_airing_episode.is_some()
+                    || !is_valid_format(expected_kind, media.format.as_deref()) =>
+            {
+                return Err(AniListError::contract(
+                    "AniList returned incompatible manga metadata.",
+                ));
+            }
+            _ => {}
+        }
+        if !is_valid_status(media.status.as_deref()) {
+            return Err(AniListError::contract(
+                "AniList returned an unsupported publication status.",
             ));
         }
 
@@ -232,16 +290,16 @@ impl TryFrom<RawMedia> for MediaSummary {
             })
             .collect::<Result<Vec<_>, AniListError>>()?;
 
-        Ok(Self {
-            media_kind: MediaKind::Anime,
+        Ok(MediaSummary {
+            media_kind: expected_kind,
             anilist_id: media.id,
             title,
             cover_url: media.cover_image.and_then(|cover| cover.large),
             media_format: media.format,
             status: media.status,
             episodes: media.episodes,
-            chapters: None,
-            volumes: None,
+            chapters: media.chapters,
+            volumes: media.volumes,
             duration_minutes: media.duration,
             release_date: media
                 .start_date
@@ -273,8 +331,14 @@ impl RawTitle {
 }
 
 impl RawRelationEdge {
-    pub(super) fn into_sequel(self) -> Result<Option<Sequel>, AniListError> {
-        if self.relation_type != "SEQUEL" || self.node.media_type != "ANIME" || self.node.is_adult {
+    pub(super) fn into_continuation(
+        self,
+        expected_kind: MediaKind,
+    ) -> Result<Option<Sequel>, AniListError> {
+        if self.relation_type != "SEQUEL"
+            || self.node.media_type != expected_kind.as_str()
+            || self.node.is_adult
+        {
             return Ok(None);
         }
         if self.node.id <= 0 {
@@ -294,6 +358,28 @@ impl RawRelationEdge {
             release_date,
         }))
     }
+}
+
+fn is_valid_format(media_kind: MediaKind, media_format: Option<&str>) -> bool {
+    let Some(media_format) = media_format else {
+        return true;
+    };
+    match media_kind {
+        MediaKind::Anime => matches!(
+            media_format,
+            "TV" | "TV_SHORT" | "MOVIE" | "SPECIAL" | "OVA" | "ONA" | "MUSIC"
+        ),
+        MediaKind::Manga => matches!(media_format, "MANGA" | "NOVEL" | "ONE_SHOT"),
+    }
+}
+
+fn is_valid_status(status: Option<&str>) -> bool {
+    status.is_none_or(|status| {
+        matches!(
+            status,
+            "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED" | "HIATUS"
+        )
+    })
 }
 
 impl RawFuzzyDate {

@@ -1,0 +1,22 @@
+{
+    "data": {
+        "Page": {
+            "pageInfo": { "hasNextPage": false },
+            "media": [
+                {
+                    "id": 60601,
+                    "type": "ANIME",
+                    "title": { "romaji": "Wrong Kind", "english": null, "native": null },
+                    "coverImage": null,
+                    "format": "TV",
+                    "status": "FINISHED",
+                    "episodes": 12,
+                    "duration": 24,
+                    "genres": [],
+                    "tags": [],
+                    "trending": 1
+                }
+            ]
+        }
+    }
+}

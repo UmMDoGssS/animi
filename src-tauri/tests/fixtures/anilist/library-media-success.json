@@ -5,6 +5,7 @@
             "media": [
                 {
                     "id": 195539,
+                    "type": "ANIME",
                     "title": {
                         "romaji": "Cyberpunk: Edgerunners 2",
                         "english": null,
@@ -22,6 +23,7 @@
                 },
                 {
                     "id": 209939,
+                    "type": "ANIME",
                     "title": {
                         "romaji": "Sousou no Frieren 3rd Season",
                         "english": null,

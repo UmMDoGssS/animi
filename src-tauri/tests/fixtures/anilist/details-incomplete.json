@@ -2,6 +2,7 @@
     "data": {
         "Media": {
             "id": 21,
+            "type": "ANIME",
             "title": {
                 "romaji": "Incomplete Anime",
                 "english": null,

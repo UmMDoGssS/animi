@@ -5,4 +5,7 @@ Place deterministic AniList and migration fixtures beneath this directory. Tests
 Fixture groups use stable, behavior-oriented names such as `anilist/search-success.json`, `anilist/rate-limited.json`, and `database/v0001.sqlite3` as those test suites are introduced.
 
 The AniList fixtures cover normal, incomplete, partial-error, malformed, forbidden,
-rate-limited, and offline behavior. Tests load them only through an injected transport.
+rate-limited, and offline behavior. Manga fixtures additionally cover manga, novel, and
+one-shot formats; known and missing chapter or volume totals; fuzzy dates; same-kind
+continuations; kind mismatches; and invalid negative totals. Tests load every response only
+through an injected transport.

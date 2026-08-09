@@ -1,0 +1,19 @@
+{
+    "data": {
+        "Media": {
+            "id": 50501,
+            "type": "MANGA",
+            "title": { "romaji": "Ongoing Whiskers", "english": null, "native": null },
+            "coverImage": null,
+            "format": "MANGA",
+            "status": "HIATUS",
+            "chapters": null,
+            "volumes": null,
+            "startDate": { "year": 2019, "month": null, "day": null },
+            "genres": [],
+            "tags": [],
+            "trending": 0,
+            "relations": { "edges": [] }
+        }
+    }
+}

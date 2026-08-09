@@ -1,0 +1,30 @@
+{
+    "data": {
+        "Page": {
+            "pageInfo": { "hasNextPage": true },
+            "media": [
+                {
+                    "id": 30013,
+                    "type": "MANGA",
+                    "title": {
+                        "romaji": "Yotsuba to!",
+                        "english": "Yotsuba&!",
+                        "native": "よつばと!"
+                    },
+                    "coverImage": { "large": "https://example.invalid/yotsuba.jpg" },
+                    "format": "MANGA",
+                    "status": "RELEASING",
+                    "chapters": 120,
+                    "volumes": 16,
+                    "startDate": { "year": 2003, "month": 3, "day": 21 },
+                    "genres": ["Comedy", "Slice of Life"],
+                    "tags": [
+                        { "name": "Family Life", "rank": 91, "isAdult": false },
+                        { "name": "Adult Cast", "rank": 20, "isAdult": true }
+                    ],
+                    "trending": 42
+                }
+            ]
+        }
+    }
+}

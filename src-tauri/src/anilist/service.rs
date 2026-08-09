@@ -15,7 +15,7 @@ use super::{AiringSchedule, AniListClient, AniListError, MediaDetails, MediaSumm
 
 // Bump this whenever a persisted detail payload gains a field that library snapshots need.
 // Older payloads deserialize safely, but reusing them would leave the new snapshot field empty.
-const MEDIA_DETAILS_CACHE_SCHEMA_VERSION: u8 = 5;
+const MEDIA_CACHE_SCHEMA_VERSION: u8 = 6;
 const LIBRARY_METADATA_BATCH_SIZE: usize = 50;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -139,6 +139,17 @@ impl AniListService {
         page: u16,
         per_page: u8,
     ) -> Result<MediaPageResponse, CommandError> {
+        self.search_media_for_kind(MediaKind::Anime, search, page, per_page)
+            .await
+    }
+
+    pub async fn search_media_for_kind(
+        &self,
+        media_kind: MediaKind,
+        search: &str,
+        page: u16,
+        per_page: u8,
+    ) -> Result<MediaPageResponse, CommandError> {
         validate_page(page, per_page)?;
         let search = search.trim();
         if search.is_empty() || search.chars().count() > 200 {
@@ -149,48 +160,14 @@ impl AniListService {
             ));
         }
         let key = format!(
-            "discovery:search:anime:{page}:{per_page}:{}",
+            "discovery:v{MEDIA_CACHE_SCHEMA_VERSION}:search:{}:{page}:{per_page}:{}",
+            cache_kind(media_kind),
             search.to_lowercase()
         );
         let cached = self
             .fetch_cached(&key, CachePolicy::Discovery, || async {
-                self.client.search_media(search, page, per_page).await.map(
-                    |(items, has_next_page)| CachedPage {
-                        items,
-                        has_next_page,
-                    },
-                )
-            })
-            .await?;
-        Ok(MediaPageResponse {
-            items: cached.value.items,
-            has_next_page: cached.value.has_next_page,
-            freshness: cached.freshness,
-        })
-    }
-
-    pub async fn search_media_for_kind(
-        &self,
-        media_kind: MediaKind,
-        search: &str,
-        page: u16,
-        per_page: u8,
-    ) -> Result<MediaPageResponse, CommandError> {
-        require_anime_transport(media_kind)?;
-        self.search_media(search, page, per_page).await
-    }
-
-    pub async fn list_trending(
-        &self,
-        page: u16,
-        per_page: u8,
-    ) -> Result<MediaPageResponse, CommandError> {
-        validate_page(page, per_page)?;
-        let key = format!("discovery:trending:anime:{page}:{per_page}");
-        let cached = self
-            .fetch_cached(&key, CachePolicy::Discovery, || async {
                 self.client
-                    .trending_media(page, per_page)
+                    .search_media_for_kind(media_kind, search, page, per_page)
                     .await
                     .map(|(items, has_next_page)| CachedPage {
                         items,
@@ -205,18 +182,55 @@ impl AniListService {
         })
     }
 
+    pub async fn list_trending(
+        &self,
+        page: u16,
+        per_page: u8,
+    ) -> Result<MediaPageResponse, CommandError> {
+        self.list_trending_for_kind(MediaKind::Anime, page, per_page)
+            .await
+    }
+
     pub async fn list_trending_for_kind(
         &self,
         media_kind: MediaKind,
         page: u16,
         per_page: u8,
     ) -> Result<MediaPageResponse, CommandError> {
-        require_anime_transport(media_kind)?;
-        self.list_trending(page, per_page).await
+        validate_page(page, per_page)?;
+        let key = format!(
+            "discovery:v{MEDIA_CACHE_SCHEMA_VERSION}:trending:{}:{page}:{per_page}",
+            cache_kind(media_kind)
+        );
+        let cached = self
+            .fetch_cached(&key, CachePolicy::Discovery, || async {
+                self.client
+                    .trending_media_for_kind(media_kind, page, per_page)
+                    .await
+                    .map(|(items, has_next_page)| CachedPage {
+                        items,
+                        has_next_page,
+                    })
+            })
+            .await?;
+        Ok(MediaPageResponse {
+            items: cached.value.items,
+            has_next_page: cached.value.has_next_page,
+            freshness: cached.freshness,
+        })
     }
 
     pub async fn recommendations(
         &self,
+        per_page: u8,
+    ) -> Result<RecommendationsResponse, CommandError> {
+        self.recommendations_for_kind(MediaKind::Anime, per_page)
+            .await
+    }
+
+    pub async fn recommendations_for_kind(
+        &self,
+        media_kind: MediaKind,
         per_page: u8,
     ) -> Result<RecommendationsResponse, CommandError> {
         validate_page(1, per_page)?;
@@ -225,12 +239,18 @@ impl AniListService {
             .library()
             .list_items()
             .await
-            .map_err(|error| error.into_command_error())?;
-        let key = format!("recommendation:candidates:anime:1:{per_page}");
+            .map_err(|error| error.into_command_error())?
+            .into_iter()
+            .filter(|item| item.entry.media_kind == media_kind)
+            .collect::<Vec<_>>();
+        let key = format!(
+            "recommendation:v{MEDIA_CACHE_SCHEMA_VERSION}:candidates:{}:1:{per_page}",
+            cache_kind(media_kind)
+        );
         let cached = self
             .fetch_cached(&key, CachePolicy::Recommendation, || async {
                 self.client
-                    .trending_media(1, per_page)
+                    .trending_media_for_kind(media_kind, 1, per_page)
                     .await
                     .map(|(items, has_next_page)| CachedPage {
                         items,
@@ -247,20 +267,20 @@ impl AniListService {
         })
     }
 
-    pub async fn recommendations_for_kind(
-        &self,
-        media_kind: MediaKind,
-        per_page: u8,
-    ) -> Result<RecommendationsResponse, CommandError> {
-        require_anime_transport(media_kind)?;
-        self.recommendations(per_page).await
-    }
-
     pub async fn get_media_details(
         &self,
         anilist_id: i64,
     ) -> Result<MediaDetailsResponse, CommandError> {
-        let cached = self.cached_media_details(anilist_id).await?;
+        self.get_media_details_for_kind(MediaKind::Anime, anilist_id)
+            .await
+    }
+
+    pub async fn get_media_details_for_kind(
+        &self,
+        media_kind: MediaKind,
+        anilist_id: i64,
+    ) -> Result<MediaDetailsResponse, CommandError> {
+        let cached = self.cached_media_details(media_kind, anilist_id).await?;
         let snapshot = media_snapshot(&cached.value, &cached.freshness)?;
         self.database
             .media()
@@ -271,15 +291,6 @@ impl AniListService {
             media: cached.value,
             freshness: cached.freshness,
         })
-    }
-
-    pub async fn get_media_details_for_kind(
-        &self,
-        media_kind: MediaKind,
-        anilist_id: i64,
-    ) -> Result<MediaDetailsResponse, CommandError> {
-        require_anime_transport(media_kind)?;
-        self.get_media_details(anilist_id).await
     }
 
     pub async fn airing_schedule(
@@ -375,28 +386,36 @@ impl AniListService {
     pub async fn refresh_library_metadata(
         &self,
     ) -> Result<RefreshLibraryMetadataResponse, CommandError> {
-        let tracked_anime = self
+        self.refresh_library_metadata_for_kind(MediaKind::Anime)
+            .await
+    }
+
+    pub async fn refresh_library_metadata_for_kind(
+        &self,
+        media_kind: MediaKind,
+    ) -> Result<RefreshLibraryMetadataResponse, CommandError> {
+        let tracked = self
             .database
             .library()
             .list()
             .await
             .map_err(|error| error.into_command_error())?
             .into_iter()
-            .filter(|entry| entry.media_kind == MediaKind::Anime)
+            .filter(|entry| entry.media_kind == media_kind)
             .map(|entry| entry.anilist_id)
             .collect::<Vec<_>>();
         let mut response = RefreshLibraryMetadataResponse {
-            attempted: tracked_anime.len(),
+            attempted: tracked.len(),
             updated: 0,
             stale: 0,
             failures: Vec::new(),
         };
-        let mut snapshots = Vec::with_capacity(tracked_anime.len());
+        let mut snapshots = Vec::with_capacity(tracked.len());
 
         // AniList accepts up to 50 IDs in one media page. Batching prevents a normal-sized local
         // library refresh from exhausting the shared request budget before all titles are updated.
-        for batch in tracked_anime.chunks(LIBRARY_METADATA_BATCH_SIZE) {
-            match self.client.library_media(batch).await {
+        for batch in tracked.chunks(LIBRARY_METADATA_BATCH_SIZE) {
+            match self.client.library_media_for_kind(media_kind, batch).await {
                 Ok(media) => {
                     let mut by_id = media
                         .into_iter()
@@ -406,6 +425,16 @@ impl AniListService {
                         if let Some(summary) = by_id.remove(anilist_id) {
                             snapshots.push(media_summary_snapshot(&summary, self.client.now()));
                         } else {
+                            if self
+                                .database
+                                .media()
+                                .get_snapshot(*anilist_id, media_kind)
+                                .await
+                                .map_err(|error| error.into_command_error())?
+                                .is_some()
+                            {
+                                response.stale += 1;
+                            }
                             response.failures.push(MetadataRefreshFailure {
                                 anilist_id: *anilist_id,
                                 error: CommandError::new(
@@ -419,12 +448,22 @@ impl AniListService {
                 }
                 Err(error) => {
                     let error = error.into_command_error();
-                    response.failures.extend(batch.iter().map(|anilist_id| {
-                        MetadataRefreshFailure {
+                    for anilist_id in batch {
+                        if self
+                            .database
+                            .media()
+                            .get_snapshot(*anilist_id, media_kind)
+                            .await
+                            .map_err(|error| error.into_command_error())?
+                            .is_some()
+                        {
+                            response.stale += 1;
+                        }
+                        response.failures.push(MetadataRefreshFailure {
                             anilist_id: *anilist_id,
                             error: error.clone(),
-                        }
-                    }));
+                        });
+                    }
                 }
             }
         }
@@ -439,22 +478,18 @@ impl AniListService {
         Ok(response)
     }
 
-    pub async fn refresh_library_metadata_for_kind(
-        &self,
-        media_kind: MediaKind,
-    ) -> Result<RefreshLibraryMetadataResponse, CommandError> {
-        require_anime_transport(media_kind)?;
-        self.refresh_library_metadata().await
-    }
-
     async fn cached_media_details(
         &self,
+        media_kind: MediaKind,
         anilist_id: i64,
     ) -> Result<CachedResult<MediaDetails>, CommandError> {
         validate_anilist_id(anilist_id)?;
-        let key = format!("details:v{MEDIA_DETAILS_CACHE_SCHEMA_VERSION}:anime:{anilist_id}");
+        let key = format!(
+            "details:v{MEDIA_CACHE_SCHEMA_VERSION}:{}:{anilist_id}",
+            cache_kind(media_kind)
+        );
         self.fetch_cached(&key, CachePolicy::Details, || {
-            self.client.media_details(anilist_id)
+            self.client.media_details_for_kind(media_kind, anilist_id)
         })
         .await
     }
@@ -568,7 +603,10 @@ fn media_summary_snapshot(
             })
             .collect(),
         media_status: summary.status.clone(),
-        total_units: summary.episodes,
+        total_units: match summary.media_kind {
+            MediaKind::Anime => summary.episodes,
+            MediaKind::Manga => summary.chapters,
+        },
         volume_total: summary.volumes,
         duration_minutes: summary
             .duration_minutes
@@ -638,15 +676,10 @@ fn validate_page(page: u16, per_page: u8) -> Result<(), CommandError> {
     Ok(())
 }
 
-fn require_anime_transport(media_kind: MediaKind) -> Result<(), CommandError> {
-    if media_kind == MediaKind::Anime {
-        Ok(())
-    } else {
-        Err(CommandError::new(
-            "MEDIA_KIND_NOT_AVAILABLE",
-            "Manga metadata transport is not available in this compatibility phase.",
-            false,
-        ))
+fn cache_kind(media_kind: MediaKind) -> &'static str {
+    match media_kind {
+        MediaKind::Anime => "anime",
+        MediaKind::Manga => "manga",
     }
 }
 
@@ -784,6 +817,7 @@ mod tests {
             .map(|id| {
                 serde_json::json!({
                     "id": id,
+                    "type": "ANIME",
                     "title": { "romaji": format!("Tracked {id}"), "english": null, "native": null },
                     "coverImage": { "large": null },
                     "format": "TV",
@@ -1238,9 +1272,9 @@ mod tests {
         assert!(
             database
                 .cache()
-                .get("details:v5:anime:154587")
+                .get("details:v6:anime:154587")
                 .await
-                .expect("v5 cache lookup")
+                .expect("v6 cache lookup")
                 .is_some()
         );
     }

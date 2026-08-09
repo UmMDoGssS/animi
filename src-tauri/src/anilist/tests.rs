@@ -7,6 +7,7 @@ use super::{
     AniListClient, AniListClock, AniListError, AniListRequest, AniListResponse, AniListTransport,
     NetworkDisabledTransport, TransportError, TransportFuture,
 };
+use crate::domain::MediaKind;
 
 struct TestClock {
     now: Mutex<DateTime<Utc>>,
@@ -116,11 +117,110 @@ async fn search_uses_anime_only_non_adult_query_and_maps_stable_types() {
     let requests = transport.requests();
     assert_eq!(requests.len(), 1);
     assert_eq!(requests[0].operation_name, "SearchMedia");
-    assert!(requests[0].query.contains("type: ANIME"));
+    assert!(requests[0].query.contains("type: $mediaType"));
     assert!(requests[0].query.contains("isAdult: false"));
     assert!(requests[0].query.contains("duration"));
     assert!(requests[0].query.contains("startDate"));
+    assert_eq!(requests[0].variables["mediaType"], "ANIME");
+    assert_eq!(requests[0].variables["includeAnimeFields"], true);
+    assert_eq!(requests[0].variables["includeMangaFields"], false);
     assert_eq!(requests[0].variables["search"], "Frieren");
+}
+
+#[tokio::test]
+async fn manga_search_requests_manga_fields_and_maps_kind_specific_totals() {
+    let transport = Arc::new(FixtureTransport::with_response(Ok(response(
+        200,
+        include_str!("../../tests/fixtures/anilist/manga-search-success.json"),
+    ))));
+    let client = AniListClient::new(transport.clone());
+
+    let (media, has_next_page) = client
+        .search_media_for_kind(MediaKind::Manga, "Yotsuba", 2, 10)
+        .await
+        .expect("manga search response");
+
+    assert!(has_next_page);
+    assert_eq!(media.len(), 1);
+    assert_eq!(media[0].media_kind, MediaKind::Manga);
+    assert_eq!(media[0].media_format.as_deref(), Some("MANGA"));
+    assert_eq!((media[0].chapters, media[0].volumes), (Some(120), Some(16)));
+    assert_eq!((media[0].episodes, media[0].duration_minutes), (None, None));
+    assert_eq!(media[0].tags.len(), 1);
+
+    let requests = transport.requests();
+    assert_eq!(requests[0].variables["mediaType"], "MANGA");
+    assert_eq!(requests[0].variables["includeAnimeFields"], false);
+    assert_eq!(requests[0].variables["includeMangaFields"], true);
+    assert!(requests[0].query.contains("chapters @include"));
+    assert!(requests[0].query.contains("volumes @include"));
+    assert!(requests[0].query.contains("isAdult: false"));
+}
+
+#[tokio::test]
+async fn manga_details_preserve_novel_dates_and_only_same_kind_continuations() {
+    let transport = FixtureTransport::with_response(Ok(response(
+        200,
+        include_str!("../../tests/fixtures/anilist/manga-details-novel.json"),
+    )));
+    let client = AniListClient::new(Arc::new(transport));
+
+    let details = client
+        .media_details_for_kind(MediaKind::Manga, 170_643)
+        .await
+        .expect("manga details");
+
+    assert_eq!(details.summary.media_format.as_deref(), Some("NOVEL"));
+    assert_eq!(details.summary.status.as_deref(), Some("FINISHED"));
+    assert_eq!(details.summary.release_date.as_deref(), Some("2021-11"));
+    assert_eq!(details.episodes_aired, None);
+    assert_eq!(details.sequels.len(), 1);
+    assert_eq!(details.sequels[0].anilist_id, 170_644);
+    assert_eq!(details.sequels[0].release_date.as_deref(), Some("2024"));
+}
+
+#[tokio::test]
+async fn manga_one_shots_and_unknown_totals_remain_explicit() {
+    let one_shot = FixtureTransport::with_response(Ok(response(
+        200,
+        include_str!("../../tests/fixtures/anilist/manga-one-shot-success.json"),
+    )));
+    let (items, _) = AniListClient::new(Arc::new(one_shot))
+        .trending_media_for_kind(MediaKind::Manga, 1, 20)
+        .await
+        .expect("one-shot page");
+    assert_eq!(items[0].media_format.as_deref(), Some("ONE_SHOT"));
+    assert_eq!((items[0].chapters, items[0].volumes), (Some(1), None));
+
+    let unknown = FixtureTransport::with_response(Ok(response(
+        200,
+        include_str!("../../tests/fixtures/anilist/manga-missing-totals.json"),
+    )));
+    let details = AniListClient::new(Arc::new(unknown))
+        .media_details_for_kind(MediaKind::Manga, 50_501)
+        .await
+        .expect("unknown totals");
+    assert_eq!(details.summary.status.as_deref(), Some("HIATUS"));
+    assert_eq!(
+        (details.summary.chapters, details.summary.volumes),
+        (None, None)
+    );
+}
+
+#[tokio::test]
+async fn manga_kind_mismatches_and_negative_totals_are_contract_errors() {
+    for fixture in [
+        include_str!("../../tests/fixtures/anilist/manga-kind-mismatch.json"),
+        include_str!("../../tests/fixtures/anilist/manga-negative-total.json"),
+    ] {
+        let transport = FixtureTransport::with_response(Ok(response(200, fixture)));
+        let error = AniListClient::new(Arc::new(transport))
+            .trending_media_for_kind(MediaKind::Manga, 1, 20)
+            .await
+            .expect_err("invalid manga payload");
+        assert!(matches!(error, AniListError::Contract(_)));
+        assert!(!error.retryable());
+    }
 }
 
 #[tokio::test]

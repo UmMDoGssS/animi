@@ -1,15 +1,25 @@
 pub const SEARCH_MEDIA: &str = r#"
-query SearchMedia($search: String!, $page: Int!, $perPage: Int!) {
+query SearchMedia(
+  $mediaType: MediaType!
+  $includeAnimeFields: Boolean!
+  $includeMangaFields: Boolean!
+  $search: String!
+  $page: Int!
+  $perPage: Int!
+) {
   Page(page: $page, perPage: $perPage) {
     pageInfo { hasNextPage }
-    media(type: ANIME, search: $search, isAdult: false, sort: [SEARCH_MATCH, POPULARITY_DESC]) {
+    media(type: $mediaType, search: $search, isAdult: false, sort: [SEARCH_MATCH, POPULARITY_DESC]) {
       id
+      type
       title { romaji english native }
       coverImage { large }
       format
       status
-      episodes
-      duration
+      episodes @include(if: $includeAnimeFields)
+      duration @include(if: $includeAnimeFields)
+      chapters @include(if: $includeMangaFields)
+      volumes @include(if: $includeMangaFields)
       startDate { year month day }
       genres
       tags { name rank isAdult }
@@ -20,17 +30,26 @@ query SearchMedia($search: String!, $page: Int!, $perPage: Int!) {
 "#;
 
 pub const TRENDING_MEDIA: &str = r#"
-query TrendingMedia($page: Int!, $perPage: Int!) {
+query TrendingMedia(
+  $mediaType: MediaType!
+  $includeAnimeFields: Boolean!
+  $includeMangaFields: Boolean!
+  $page: Int!
+  $perPage: Int!
+) {
   Page(page: $page, perPage: $perPage) {
     pageInfo { hasNextPage }
-    media(type: ANIME, isAdult: false, sort: [TRENDING_DESC, POPULARITY_DESC]) {
+    media(type: $mediaType, isAdult: false, sort: [TRENDING_DESC, POPULARITY_DESC]) {
       id
+      type
       title { romaji english native }
       coverImage { large }
       format
       status
-      episodes
-      duration
+      episodes @include(if: $includeAnimeFields)
+      duration @include(if: $includeAnimeFields)
+      chapters @include(if: $includeMangaFields)
+      volumes @include(if: $includeMangaFields)
       startDate { year month day }
       genres
       tags { name rank isAdult }
@@ -41,17 +60,26 @@ query TrendingMedia($page: Int!, $perPage: Int!) {
 "#;
 
 pub const LIBRARY_MEDIA: &str = r#"
-query LibraryMedia($ids: [Int], $perPage: Int!) {
+query LibraryMedia(
+  $mediaType: MediaType!
+  $includeAnimeFields: Boolean!
+  $includeMangaFields: Boolean!
+  $ids: [Int]
+  $perPage: Int!
+) {
   Page(page: 1, perPage: $perPage) {
     pageInfo { hasNextPage }
-    media(type: ANIME, id_in: $ids, isAdult: false) {
+    media(type: $mediaType, id_in: $ids, isAdult: false) {
       id
+      type
       title { romaji english native }
       coverImage { large }
       format
       status
-      episodes
-      duration
+      episodes @include(if: $includeAnimeFields)
+      duration @include(if: $includeAnimeFields)
+      chapters @include(if: $includeMangaFields)
+      volumes @include(if: $includeMangaFields)
       startDate { year month day }
       genres
       tags { name rank isAdult }
@@ -62,16 +90,24 @@ query LibraryMedia($ids: [Int], $perPage: Int!) {
 "#;
 
 pub const MEDIA_DETAILS: &str = r#"
-query MediaDetails($id: Int!) {
-  Media(id: $id, type: ANIME, isAdult: false) {
+query MediaDetails(
+  $id: Int!
+  $mediaType: MediaType!
+  $includeAnimeFields: Boolean!
+  $includeMangaFields: Boolean!
+) {
+  Media(id: $id, type: $mediaType, isAdult: false) {
     id
+    type
     title { romaji english native }
     coverImage { large }
     format
     status
-    episodes
-    nextAiringEpisode { episode }
-    duration
+    episodes @include(if: $includeAnimeFields)
+    nextAiringEpisode @include(if: $includeAnimeFields) { episode }
+    duration @include(if: $includeAnimeFields)
+    chapters @include(if: $includeMangaFields)
+    volumes @include(if: $includeMangaFields)
     startDate { year month day }
     genres
     tags { name rank isAdult }

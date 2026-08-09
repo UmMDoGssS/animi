@@ -1,0 +1,61 @@
+{
+    "data": {
+        "Page": {
+            "pageInfo": { "hasNextPage": false },
+            "media": [
+                {
+                    "id": 9001,
+                    "type": "MANGA",
+                    "title": { "romaji": "Already Reading", "english": null, "native": null },
+                    "coverImage": null,
+                    "format": "MANGA",
+                    "status": "RELEASING",
+                    "chapters": 30,
+                    "volumes": 4,
+                    "genres": ["Fantasy"],
+                    "tags": [{ "name": "Cats", "rank": 90, "isAdult": false }],
+                    "trending": 999
+                },
+                {
+                    "id": 9003,
+                    "type": "MANGA",
+                    "title": { "romaji": "Same ID As Tracked Anime", "english": null, "native": null },
+                    "coverImage": null,
+                    "format": "NOVEL",
+                    "status": "FINISHED",
+                    "chapters": 12,
+                    "volumes": 2,
+                    "genres": ["Fantasy"],
+                    "tags": [{ "name": "Cats", "rank": 95, "isAdult": false }],
+                    "trending": 70
+                },
+                {
+                    "id": 9100,
+                    "type": "MANGA",
+                    "title": { "romaji": "Strong Cat Match", "english": null, "native": null },
+                    "coverImage": null,
+                    "format": "ONE_SHOT",
+                    "status": "FINISHED",
+                    "chapters": 1,
+                    "volumes": null,
+                    "genres": ["Fantasy"],
+                    "tags": [{ "name": "Cats", "rank": 98, "isAdult": false }],
+                    "trending": 80
+                },
+                {
+                    "id": 9200,
+                    "type": "MANGA",
+                    "title": { "romaji": "Trending Without Match", "english": null, "native": null },
+                    "coverImage": null,
+                    "format": "MANGA",
+                    "status": "RELEASING",
+                    "chapters": null,
+                    "volumes": null,
+                    "genres": ["Comedy"],
+                    "tags": [{ "name": "Sports", "rank": 100, "isAdult": false }],
+                    "trending": 100
+                }
+            ]
+        }
+    }
+}

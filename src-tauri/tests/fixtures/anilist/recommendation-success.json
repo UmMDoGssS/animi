@@ -5,6 +5,7 @@
             "media": [
                 {
                     "id": 301,
+                    "type": "ANIME",
                     "title": {
                         "romaji": "Glasswing Letters",
                         "english": "Glasswing Letters",
@@ -28,6 +29,7 @@
                 },
                 {
                     "id": 302,
+                    "type": "ANIME",
                     "title": {
                         "romaji": "Cat Signal Orbit",
                         "english": "Cat Signal Orbit",

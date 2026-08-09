@@ -268,7 +268,7 @@ fn p4_flow_crosses_the_mock_tauri_ipc_boundary_without_live_network() {
     );
     assert_eq!(refresh["attempted"], 1);
     assert_eq!(refresh["updated"], 0);
-    assert_eq!(refresh["stale"], 0);
+    assert_eq!(refresh["stale"], 1);
     assert_eq!(refresh["failures"][0]["anilistId"], 154_587);
     assert_eq!(refresh["failures"][0]["error"]["code"], "ANILIST_OFFLINE");
 

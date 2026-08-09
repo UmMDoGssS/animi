@@ -1,0 +1,22 @@
+{
+    "data": {
+        "Page": {
+            "pageInfo": { "hasNextPage": false },
+            "media": [
+                {
+                    "id": 70701,
+                    "type": "MANGA",
+                    "title": { "romaji": "Impossible Total", "english": null, "native": null },
+                    "coverImage": null,
+                    "format": "MANGA",
+                    "status": "RELEASING",
+                    "chapters": -1,
+                    "volumes": 2,
+                    "genres": [],
+                    "tags": [],
+                    "trending": 1
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,23 @@
+{
+    "data": {
+        "Page": {
+            "pageInfo": { "hasNextPage": false },
+            "media": [
+                {
+                    "id": 40401,
+                    "type": "MANGA",
+                    "title": { "romaji": "One Quiet Paw", "english": null, "native": null },
+                    "coverImage": null,
+                    "format": "ONE_SHOT",
+                    "status": "FINISHED",
+                    "chapters": 1,
+                    "volumes": null,
+                    "startDate": { "year": 2020, "month": 2, "day": 29 },
+                    "genres": ["Drama"],
+                    "tags": [],
+                    "trending": 3
+                }
+            ]
+        }
+    }
+}

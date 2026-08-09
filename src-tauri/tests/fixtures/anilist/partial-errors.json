@@ -5,6 +5,7 @@
             "media": [
                 {
                     "id": 99,
+                    "type": "ANIME",
                     "title": {
                         "romaji": "Partial Result",
                         "english": null,

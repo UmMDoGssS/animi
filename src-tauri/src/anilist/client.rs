@@ -8,6 +8,8 @@ use chrono::{DateTime, Duration, Utc};
 use serde::de::DeserializeOwned;
 use serde_json::{Value, json};
 
+use crate::domain::MediaKind;
+
 use super::GRAPHQL_ENDPOINT;
 use super::queries::{AIRING_SCHEDULE, LIBRARY_MEDIA, MEDIA_DETAILS, SEARCH_MEDIA, TRENDING_MEDIA};
 use super::types::{
@@ -204,6 +206,17 @@ impl AniListClient {
         page: u16,
         per_page: u8,
     ) -> Result<(Vec<MediaSummary>, bool), AniListError> {
+        self.search_media_for_kind(MediaKind::Anime, search, page, per_page)
+            .await
+    }
+
+    pub async fn search_media_for_kind(
+        &self,
+        media_kind: MediaKind,
+        search: &str,
+        page: u16,
+        per_page: u8,
+    ) -> Result<(Vec<MediaSummary>, bool), AniListError> {
         let search = search.trim();
         if search.is_empty() {
             return Err(AniListError::contract("Search text must not be empty."));
@@ -212,10 +225,13 @@ impl AniListClient {
             .execute(
                 "SearchMedia",
                 SEARCH_MEDIA,
-                json!({ "search": search, "page": page, "perPage": per_page }),
+                media_variables(
+                    media_kind,
+                    json!({ "search": search, "page": page, "perPage": per_page }),
+                ),
             )
             .await?;
-        map_media_page(data)
+        map_media_page(data, media_kind)
     }
 
     pub async fn trending_media(
@@ -223,17 +239,35 @@ impl AniListClient {
         page: u16,
         per_page: u8,
     ) -> Result<(Vec<MediaSummary>, bool), AniListError> {
+        self.trending_media_for_kind(MediaKind::Anime, page, per_page)
+            .await
+    }
+
+    pub async fn trending_media_for_kind(
+        &self,
+        media_kind: MediaKind,
+        page: u16,
+        per_page: u8,
+    ) -> Result<(Vec<MediaSummary>, bool), AniListError> {
         let data: MediaPageData = self
             .execute(
                 "TrendingMedia",
                 TRENDING_MEDIA,
-                json!({ "page": page, "perPage": per_page }),
+                media_variables(media_kind, json!({ "page": page, "perPage": per_page })),
             )
             .await?;
-        map_media_page(data)
+        map_media_page(data, media_kind)
     }
 
     pub async fn library_media(&self, ids: &[i64]) -> Result<Vec<MediaSummary>, AniListError> {
+        self.library_media_for_kind(MediaKind::Anime, ids).await
+    }
+
+    pub async fn library_media_for_kind(
+        &self,
+        media_kind: MediaKind,
+        ids: &[i64],
+    ) -> Result<Vec<MediaSummary>, AniListError> {
         if ids.is_empty() || ids.len() > 50 || ids.iter().any(|id| *id <= 0) {
             return Err(AniListError::contract(
                 "Library metadata batches must contain 1 to 50 positive AniList IDs.",
@@ -245,39 +279,53 @@ impl AniListClient {
             .execute(
                 "LibraryMedia",
                 LIBRARY_MEDIA,
-                json!({ "ids": ids, "perPage": per_page }),
+                media_variables(media_kind, json!({ "ids": ids, "perPage": per_page })),
             )
             .await?;
-        let (media, _) = map_media_page(data)?;
+        let (media, _) = map_media_page(data, media_kind)?;
         Ok(media)
     }
 
     pub async fn media_details(&self, id: i64) -> Result<MediaDetails, AniListError> {
+        self.media_details_for_kind(MediaKind::Anime, id).await
+    }
+
+    pub async fn media_details_for_kind(
+        &self,
+        media_kind: MediaKind,
+        id: i64,
+    ) -> Result<MediaDetails, AniListError> {
         if id <= 0 {
             return Err(AniListError::contract("AniList ID must be positive."));
         }
         let data: MediaDetailsData = self
-            .execute("MediaDetails", MEDIA_DETAILS, json!({ "id": id }))
+            .execute(
+                "MediaDetails",
+                MEDIA_DETAILS,
+                media_variables(media_kind, json!({ "id": id })),
+            )
             .await?;
         let mut media = data
             .media
             .ok_or_else(|| AniListError::contract("AniList did not return the requested media."))?;
         let relations = media.relations.take();
-        let episodes_aired = match media.next_airing_episode.as_ref() {
-            Some(next_airing) if next_airing.episode > 0 => Some(next_airing.episode - 1),
-            Some(_) => {
+        let episodes_aired = match (media_kind, media.next_airing_episode.as_ref()) {
+            (MediaKind::Anime, Some(next_airing)) if next_airing.episode > 0 => {
+                Some(next_airing.episode - 1)
+            }
+            (MediaKind::Anime, Some(_)) => {
                 return Err(AniListError::contract(
                     "AniList returned an invalid next airing episode number.",
                 ));
             }
-            None => None,
+            _ => None,
         };
-        let summary = MediaSummary::try_from(media)?;
+        let summary = media.into_summary(media_kind)?;
         let sequels = relations
             .into_iter()
             .flat_map(|relations| relations.edges)
             .flatten()
-            .map(|edge| edge.into_sequel())
+            .map(|edge| edge.into_continuation(media_kind))
             .collect::<Result<Vec<_>, _>>()?
             .into_iter()
             .flatten()
@@ -417,7 +465,24 @@ impl AniListClient {
     }
 }
 
-fn map_media_page(data: MediaPageData) -> Result<(Vec<MediaSummary>, bool), AniListError> {
+fn media_variables(media_kind: MediaKind, variables: Value) -> Value {
+    let mut variables = variables.as_object().cloned().unwrap_or_default();
+    variables.insert("mediaType".to_owned(), json!(media_kind.as_str()));
+    variables.insert(
+        "includeAnimeFields".to_owned(),
+        json!(media_kind == MediaKind::Anime),
+    );
+    variables.insert(
+        "includeMangaFields".to_owned(),
+        json!(media_kind == MediaKind::Manga),
+    );
+    Value::Object(variables)
+}
+
+fn map_media_page(
+    data: MediaPageData,
+    media_kind: MediaKind,
+) -> Result<(Vec<MediaSummary>, bool), AniListError> {
     let page = data
         .page
         .ok_or_else(|| AniListError::contract("AniList did not return a media page."))?;
@@ -425,7 +490,7 @@ fn map_media_page(data: MediaPageData) -> Result<(Vec<MediaSummary>, bool), AniL
         .media
         .into_iter()
         .flatten()
-        .map(MediaSummary::try_from)
+        .map(|media| media.into_summary(media_kind))
         .collect::<Result<Vec<_>, _>>()?;
     Ok((media, page.page_info.has_next_page))
 }
