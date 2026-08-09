@@ -6,7 +6,11 @@
                 {
                     "id": 60601,
                     "type": "ANIME",
-                    "title": { "romaji": "Wrong Kind", "english": null, "native": null },
+                    "title": {
+                        "romaji": "Wrong Kind",
+                        "english": null,
+                        "native": null
+                    },
                     "coverImage": null,
                     "format": "TV",
                     "status": "FINISHED",

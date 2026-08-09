@@ -6,7 +6,11 @@
                 {
                     "id": 80801,
                     "type": "MANGA",
-                    "title": { "romaji": "Usable Partial Manga", "english": null, "native": null },
+                    "title": {
+                        "romaji": "Usable Partial Manga",
+                        "english": null,
+                        "native": null
+                    },
                     "coverImage": null,
                     "format": "MANGA",
                     "status": "RELEASING",

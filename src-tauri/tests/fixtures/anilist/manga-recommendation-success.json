@@ -6,7 +6,11 @@
                 {
                     "id": 9001,
                     "type": "MANGA",
-                    "title": { "romaji": "Already Reading", "english": null, "native": null },
+                    "title": {
+                        "romaji": "Already Reading",
+                        "english": null,
+                        "native": null
+                    },
                     "coverImage": null,
                     "format": "MANGA",
                     "status": "RELEASING",
@@ -19,7 +23,11 @@
                 {
                     "id": 9003,
                     "type": "MANGA",
-                    "title": { "romaji": "Same ID As Tracked Anime", "english": null, "native": null },
+                    "title": {
+                        "romaji": "Same ID As Tracked Anime",
+                        "english": null,
+                        "native": null
+                    },
                     "coverImage": null,
                     "format": "NOVEL",
                     "status": "FINISHED",
@@ -32,7 +40,11 @@
                 {
                     "id": 9100,
                     "type": "MANGA",
-                    "title": { "romaji": "Strong Cat Match", "english": null, "native": null },
+                    "title": {
+                        "romaji": "Strong Cat Match",
+                        "english": null,
+                        "native": null
+                    },
                     "coverImage": null,
                     "format": "ONE_SHOT",
                     "status": "FINISHED",
@@ -45,14 +57,20 @@
                 {
                     "id": 9200,
                     "type": "MANGA",
-                    "title": { "romaji": "Trending Without Match", "english": null, "native": null },
+                    "title": {
+                        "romaji": "Trending Without Match",
+                        "english": null,
+                        "native": null
+                    },
                     "coverImage": null,
                     "format": "MANGA",
                     "status": "RELEASING",
                     "chapters": null,
                     "volumes": null,
                     "genres": ["Comedy"],
-                    "tags": [{ "name": "Sports", "rank": 100, "isAdult": false }],
+                    "tags": [
+                        { "name": "Sports", "rank": 100, "isAdult": false }
+                    ],
                     "trending": 100
                 }
             ]

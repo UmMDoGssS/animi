@@ -6,7 +6,11 @@
                 {
                     "id": 70701,
                     "type": "MANGA",
-                    "title": { "romaji": "Impossible Total", "english": null, "native": null },
+                    "title": {
+                        "romaji": "Impossible Total",
+                        "english": null,
+                        "native": null
+                    },
                     "coverImage": null,
                     "format": "MANGA",
                     "status": "RELEASING",

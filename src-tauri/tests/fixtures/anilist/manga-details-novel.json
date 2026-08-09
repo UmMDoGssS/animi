@@ -25,8 +25,16 @@
                             "id": 170644,
                             "type": "MANGA",
                             "isAdult": false,
-                            "title": { "romaji": "Neko no Shiro II", "english": null, "native": null },
-                            "startDate": { "year": 2024, "month": null, "day": null }
+                            "title": {
+                                "romaji": "Neko no Shiro II",
+                                "english": null,
+                                "native": null
+                            },
+                            "startDate": {
+                                "year": 2024,
+                                "month": null,
+                                "day": null
+                            }
                         }
                     },
                     {
@@ -35,8 +43,16 @@
                             "id": 170645,
                             "type": "ANIME",
                             "isAdult": false,
-                            "title": { "romaji": "Neko no Shiro Anime", "english": null, "native": null },
-                            "startDate": { "year": 2025, "month": null, "day": null }
+                            "title": {
+                                "romaji": "Neko no Shiro Anime",
+                                "english": null,
+                                "native": null
+                            },
+                            "startDate": {
+                                "year": 2025,
+                                "month": null,
+                                "day": null
+                            }
                         }
                     }
                 ]

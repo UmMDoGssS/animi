@@ -11,7 +11,9 @@
                         "english": "Yotsuba&!",
                         "native": "よつばと!"
                     },
-                    "coverImage": { "large": "https://example.invalid/yotsuba.jpg" },
+                    "coverImage": {
+                        "large": "https://example.invalid/yotsuba.jpg"
+                    },
                     "format": "MANGA",
                     "status": "RELEASING",
                     "chapters": 120,

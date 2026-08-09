@@ -3,7 +3,11 @@
         "Media": {
             "id": 50501,
             "type": "MANGA",
-            "title": { "romaji": "Ongoing Whiskers", "english": null, "native": null },
+            "title": {
+                "romaji": "Ongoing Whiskers",
+                "english": null,
+                "native": null
+            },
             "coverImage": null,
             "format": "MANGA",
             "status": "HIATUS",

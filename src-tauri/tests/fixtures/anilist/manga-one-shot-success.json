@@ -6,7 +6,11 @@
                 {
                     "id": 40401,
                     "type": "MANGA",
-                    "title": { "romaji": "One Quiet Paw", "english": null, "native": null },
+                    "title": {
+                        "romaji": "One Quiet Paw",
+                        "english": null,
+                        "native": null
+                    },
                     "coverImage": null,
                     "format": "ONE_SHOT",
                     "status": "FINISHED",
