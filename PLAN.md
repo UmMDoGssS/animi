@@ -7,9 +7,9 @@
 | Product | Animi |
 | Release | Version 1.1, Windows desktop |
 | Overall status | Version 1.0.1 complete; version 1.1 in progress; private distribution only |
-| Current phase | P9 ready to begin |
+| Current phase | P10 ready to begin |
 | Schedule | Dependency-driven; no calendar commitment |
-| Last updated | 2026-08-02 |
+| Last updated | 2026-08-09 |
 
 This document is the living execution roadmap for Animi. [`PROJECT.md`](PROJECT.md) is authoritative for product scope, architecture, fixed behavior, and technical decisions. This plan is authoritative for implementation order, milestone status, dependencies, and release readiness.
 
@@ -60,7 +60,7 @@ The following remain outside version 1.1:
 | P6 | Settings, backup, and recovery | P1, P3, P4 | Complete | Backup round trips and rollback guarantees pass |
 | P7 | Release hardening and Windows packaging | P0-P6 | Complete | Full quality gate and production NSIS acceptance pass |
 | P8 | Manga domain, persistence, and compatibility | P7; approved 1.1 contracts | Complete | Existing 1.0.x profiles upgrade without loss and manga progress is durable |
-| P9 | AniList manga integration and cache isolation | P8 contracts; existing P2 transport | Not started | Mocked manga discovery, details, cache, offline, and throttling behavior passes |
+| P9 | AniList manga integration and cache isolation | P8 contracts; existing P2 transport | Complete | Mocked manga discovery, details, cache, offline, and throttling behavior passes |
 | P10 | Media-aware application workflows | P8, P9; existing P3-P4 UI | Not started | Manga discovery-to-library and Dashboard flows pass end to end |
 | P11 | Continue Reading, activity, and recommendations | P8-P10; existing P5 behavior | Not started | Manga Home, reading activity, and same-kind recommendations pass |
 | P12 | Version 1.1 release hardening | P8-P11 | Not started | Full gate and NSIS upgrade acceptance pass from Animi 1.0.1 |
@@ -499,24 +499,28 @@ Manga command-boundary coverage proves chapter and volume bounds, unknown totals
 
 ### Entry gate
 
-- [ ] **P9-E1** Deterministic fixtures exist for manga, novel, one-shot, missing totals, malformed data, partial GraphQL errors, offline, `403`, and `429 Retry-After` responses.
-- [ ] **P9-E2** The request builder and cache-key strategy can express media kind without duplicating the transport or bypassing test network isolation.
+- [x] **P9-E1** Deterministic fixtures exist for manga, novel, one-shot, missing totals, malformed data, partial GraphQL errors, offline, `403`, and `429 Retry-After` responses.
+- [x] **P9-E2** The request builder and cache-key strategy can express media kind without duplicating the transport or bypassing test network isolation.
 
 ### Milestones
 
-- [ ] **P9-M1 - Kind-parameterized queries:** Parameterize search, trending, details, and tracked-library queries by `MediaKind`; request chapters and volumes for manga and episodes and duration for anime. Keep airing queries anime-only and exclude adult content for both kinds.
-- [ ] **P9-M2 - Validated mapping:** Map manga formats, publication statuses, fuzzy release dates, chapter and volume totals, genres, weighted tags, and official same-kind continuation relations into stable DTOs. Treat missing totals as unknown and reject impossible or negative provider values.
-- [ ] **P9-M3 - Discovery commands and caches:** Extend `search_media`, `get_media_details`, and `list_trending` with media-kind input. Version cache payloads and include kind in every cache key so one kind cannot satisfy the other's request; retain the existing 24-hour details and 6-hour discovery TTLs.
-- [ ] **P9-M4 - Metadata refresh:** Refresh tracked anime and manga in bounded same-kind batches without holding a database transaction across network work. Preserve per-title failures, stale fallback, and authoritative local fields.
-- [ ] **P9-M5 - Recommendation candidates:** Fetch, cache, and rank recommendation candidates within the requested media kind only. Manga profiles use Reading and Completed manga; anime profiles continue to use Watching and Completed anime.
-- [ ] **P9-M6 - Contract coverage:** Cover pagination, cache hits, expired refresh, offline stale reads, empty uncached failure, kind mismatch, missing chapter or volume totals, supported manga formats, relations, malformed GraphQL data, `403`, and `429 Retry-After` entirely through mocks.
+- [x] **P9-M1 - Kind-parameterized queries:** Parameterize search, trending, details, and tracked-library queries by `MediaKind`; request chapters and volumes for manga and episodes and duration for anime. Keep airing queries anime-only and exclude adult content for both kinds.
+- [x] **P9-M2 - Validated mapping:** Map manga formats, publication statuses, fuzzy release dates, chapter and volume totals, genres, weighted tags, and official same-kind continuation relations into stable DTOs. Treat missing totals as unknown and reject impossible or negative provider values.
+- [x] **P9-M3 - Discovery commands and caches:** Extend `search_media`, `get_media_details`, and `list_trending` with media-kind input. Version cache payloads and include kind in every cache key so one kind cannot satisfy the other's request; retain the existing 24-hour details and 6-hour discovery TTLs.
+- [x] **P9-M4 - Metadata refresh:** Refresh tracked anime and manga in bounded same-kind batches without holding a database transaction across network work. Preserve per-title failures, stale fallback, and authoritative local fields.
+- [x] **P9-M5 - Recommendation candidates:** Fetch, cache, and rank recommendation candidates within the requested media kind only. Manga profiles use Reading and Completed manga; anime profiles continue to use Watching and Completed anime.
+- [x] **P9-M6 - Contract coverage:** Cover pagination, cache hits, expired refresh, offline stale reads, empty uncached failure, kind mismatch, missing chapter or volume totals, supported manga formats, relations, malformed GraphQL data, `403`, and `429 Retry-After` entirely through mocks.
 
 ### Exit gate
 
-- [ ] **P9-G1** Manga discovery and details return stable kind-aware DTOs from live-shaped fixtures without contacting AniList in tests.
-- [ ] **P9-G2** Anime and manga cache entries cannot collide, and both kinds retain deterministic fresh, stale, offline, and throttled behavior.
-- [ ] **P9-G3** Manga metadata refresh updates only cache-owned fields and leaves local progress, status, score, notes, and activity unchanged.
-- [ ] **P9-G4** Existing anime AniList, caching, airing, and recommendation contract tests remain green.
+- [x] **P9-G1** Manga discovery and details return stable kind-aware DTOs from live-shaped fixtures without contacting AniList in tests.
+- [x] **P9-G2** Anime and manga cache entries cannot collide, and both kinds retain deterministic fresh, stale, offline, and throttled behavior.
+- [x] **P9-G3** Manga metadata refresh updates only cache-owned fields and leaves local progress, status, score, notes, and activity unchanged.
+- [x] **P9-G4** Existing anime AniList, caching, airing, and recommendation contract tests remain green.
+
+**Evidence:** Complete 2026-08-09. Search, trending, details, tracked-library refresh, and recommendation-candidate queries now share one `MediaKind`-parameterized AniList transport while selecting anime episode fields or manga chapter and volume fields explicitly. Airing remains anime-only, adult content is excluded in every media query, provider `type` is validated against the requested kind, and mapping preserves manga, novel, one-shot, publication status, fuzzy date, weighted-tag, unknown-total, and same-kind continuation semantics while rejecting negative or incompatible fields.
+
+Kind-scoped version-6 discovery, details, and recommendation cache keys prevent anime/manga collisions while retaining the 24-hour details and 6-hour discovery/recommendation TTLs. Metadata refresh batches only the selected kind, performs network work before snapshot transactions, reports per-title failures and stale fallback, and modifies only cache-owned media snapshots. Recommendation profiles and tracked-title exclusion are filtered by kind before deterministic 55/25/20 ranking, including the same AniList ID tracked under the other media kind. Deterministic fixtures and four real Tauri IPC tests cover pagination, cache hits, isolation, expiry, offline stale reads, uncached errors, manga formats and totals, partial GraphQL data, kind mismatch, invalid totals, same-kind relations, `403`, `429 Retry-After`, refresh authority, and recommendation isolation without live network access. The completed gate passes `bun run format:check`, `bun run lint`, `bun run check` with zero diagnostics, `bun run test` (122 tests across 15 files), Cargo formatting, Clippy with warnings denied, and `cargo test --all-features` (92 unit tests plus 24 integration/persistence tests). No dependency or non-Bun lockfile was added.
 
 ## P10 - Media-Aware Application Workflows
 
