@@ -1,8 +1,0 @@
-{
-    "nodes": [
-        {"id":"document:docs/RELEASE_AUDIT.md","type":"document","name":"RELEASE_AUDIT.md","filePath":"docs/RELEASE_AUDIT.md","summary":"Version 1 release audit covering regression evidence, accessibility, privacy boundaries, dependency policy, production configuration, and Windows installation expectations.","tags":["documentation","release","security","quality-assurance"],"complexity":"moderate"},
-        {"id":"document:docs/RELEASE_NOTES_1.0.0.md","type":"document","name":"RELEASE_NOTES_1.0.0.md","filePath":"docs/RELEASE_NOTES_1.0.0.md","summary":"Release notes for Animi 1.0.0 describing delivered local-first features, backup compatibility, migration guarantees, and private-build limitations.","tags":["documentation","release-notes","migration","product-scope"],"complexity":"simple"},
-        {"id":"document:docs/THIRD_PARTY_NOTICES.md","type":"document","name":"THIRD_PARTY_NOTICES.md","filePath":"docs/THIRD_PARTY_NOTICES.md","summary":"Attribution and license notices for third-party ASCII cat artwork reproduced in asynchronous-state UI components.","tags":["documentation","licensing","attribution","assets"],"complexity":"simple"}
-    ],
-    "edges": []
-}

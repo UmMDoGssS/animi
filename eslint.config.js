@@ -8,7 +8,6 @@ export default tseslint.config(
         ignores: [
             "build/",
             ".svelte-kit/",
-            ".ua/",
             "src-tauri/gen/",
             "src-tauri/target/",
         ],

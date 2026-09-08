@@ -1,7 +1,6 @@
 node_modules
 build
 .svelte-kit
-.ua
 src-tauri/target
 src-tauri/gen
 coverage
