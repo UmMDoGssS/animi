@@ -86,7 +86,7 @@ fn invoke(
             cmd: command.to_owned(),
             callback: CallbackFn(0),
             error: CallbackFn(1),
-            url: "http://tauri.localhost".parse().expect("mock URL"),
+            url: webview.url().expect("local webview URL"),
             body: InvokeBody::Json(body),
             headers: Default::default(),
             invoke_key: INVOKE_KEY.to_owned(),

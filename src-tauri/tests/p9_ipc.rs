@@ -113,7 +113,7 @@ fn invoke(
             cmd: command.to_owned(),
             callback: CallbackFn(0),
             error: CallbackFn(1),
-            url: "http://tauri.localhost".parse().expect("valid IPC URL"),
+            url: webview.url().expect("local webview URL"),
             body: InvokeBody::Json(body),
             headers: Default::default(),
             invoke_key: INVOKE_KEY.to_owned(),
@@ -466,4 +466,84 @@ fn manga_recommendations_use_only_manga_profile_and_candidate_identity() {
     assert_eq!(stale["freshness"]["isStale"], true);
     assert_eq!(stale["items"], first["items"]);
     assert_eq!(transport.requests().len(), 2);
+}
+
+#[test]
+fn p10_manga_library_flow_survives_restart_offline_and_confirmed_removal() {
+    let root = tempdir().expect("temporary profile");
+    let paths = DatabasePaths::from_root(root.path()).expect("paths");
+    let database = tauri::async_runtime::block_on(Database::connect(&paths)).expect("database");
+    let transport = Arc::new(FixtureTransport::new([
+        response(include_str!("fixtures/anilist/manga-search-success.json")),
+        response(include_str!("fixtures/anilist/manga-details-novel.json")),
+    ]));
+    let clock = Arc::new(TestClock::new());
+    let app = build_test_app(
+        database.clone(),
+        AniListClient::with_clock(transport, clock.clone()),
+    );
+    let webview = main_webview(&app);
+    let anime = json!({"request": {"anilistId": 101, "mediaKind": "ANIME", "status": "WATCHING", "progress": 3, "volumeProgress": null, "score": 8, "notes": "Preserve anime"}});
+    let original_anime = invoke_ok(&webview, "upsert_library_entry", anime);
+    invoke_ok(
+        &webview,
+        "search_media",
+        json!({"request": {"mediaKind": "MANGA", "search": "cat", "page": 1, "perPage": 20}}),
+    );
+    let details_request = json!({"request": {"mediaKind": "MANGA", "anilistId": 170643}});
+    let details = invoke_ok(&webview, "get_media_details", details_request.clone());
+    assert_eq!(details["media"]["mediaFormat"], "NOVEL");
+    let manga = |chapters, volumes| json!({"request": {"anilistId": 170643, "mediaKind": "MANGA", "status": "WATCHING", "progress": chapters, "volumeProgress": volumes, "score": 9, "notes": "Independent units"}});
+    invoke_ok(&webview, "upsert_library_entry", manga(12, 2));
+    invoke_ok(&webview, "upsert_library_entry", manga(8, 1));
+    invoke_ok(&webview, "upsert_library_entry", manga(12, 2));
+    let insights = invoke_ok(
+        &webview,
+        "get_dashboard_insights",
+        json!({"request": {"mediaKind": "MANGA"}}),
+    );
+    assert_eq!(insights["libraryTotals"]["currentProgress"], 12);
+    assert_eq!(insights["libraryTotals"]["currentVolumeProgress"], 2);
+    assert_eq!(insights["activity"]["recordedChapters"], 12);
+    assert_eq!(insights["activity"]["recordedVolumes"], 2);
+    assert_eq!(insights["activity"]["recordedEpisodes"], 0);
+    assert_eq!(insights["activity"]["eventCount"], 1);
+    drop(webview);
+    drop(app);
+    tauri::async_runtime::block_on(database.close());
+    let reopened =
+        tauri::async_runtime::block_on(Database::connect(&paths)).expect("reopened database");
+    clock.advance(Duration::days(2));
+    let offline = Arc::new(FixtureTransport::new([
+        Err(TransportError::Unavailable(
+            "isolated offline test".to_owned(),
+        )),
+        Err(TransportError::Unavailable(
+            "isolated offline test".to_owned(),
+        )),
+    ]));
+    let app = build_test_app(reopened, AniListClient::with_clock(offline, clock));
+    let webview = main_webview(&app);
+    let stale = invoke_ok(&webview, "get_media_details", details_request);
+    assert_eq!(stale["freshness"]["isStale"], true);
+    assert_eq!(stale["media"]["chapters"], 18);
+    let refreshed = invoke_ok(
+        &webview,
+        "refresh_library_metadata",
+        json!({"request": {"mediaKind": "MANGA"}}),
+    );
+    assert_eq!(refreshed["stale"], 1);
+    let removal = |confirmed| json!({"request": {"anilistId": 170643, "mediaKind": "MANGA", "confirmed": confirmed}});
+    assert!(invoke(&webview, "remove_library_entry", removal(false)).is_err());
+    let saved = invoke_ok(
+        &webview,
+        "get_dashboard_insights",
+        json!({"request": {"mediaKind": "MANGA"}}),
+    );
+    assert_eq!(saved["libraryItems"][0]["entry"]["progress"], 12);
+    assert_eq!(saved["libraryItems"][0]["entry"]["volumeProgress"], 2);
+    invoke_ok(&webview, "remove_library_entry", removal(true));
+    let remaining = invoke_ok(&webview, "list_library", json!({}));
+    assert_eq!(remaining.as_array().expect("array").len(), 1);
+    assert_eq!(remaining[0]["entry"], original_anime);
 }
