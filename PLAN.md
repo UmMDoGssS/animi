@@ -7,9 +7,9 @@
 | Product | Animi |
 | Release | Version 1.1, Windows desktop |
 | Overall status | Version 1.0.1 complete; version 1.1 in progress; private distribution only |
-| Current phase | P10 ready to begin |
+| Current phase | P10 implemented; Windows packaged acceptance pending |
 | Schedule | Dependency-driven; no calendar commitment |
-| Last updated | 2026-08-09 |
+| Last updated | 2026-09-11 |
 
 This document is the living execution roadmap for Animi. [`PROJECT.md`](PROJECT.md) is authoritative for product scope, architecture, fixed behavior, and technical decisions. This plan is authoritative for implementation order, milestone status, dependencies, and release readiness.
 
@@ -61,7 +61,7 @@ The following remain outside version 1.1:
 | P7 | Release hardening and Windows packaging | P0-P6 | Complete | Full quality gate and production NSIS acceptance pass |
 | P8 | Manga domain, persistence, and compatibility | P7; approved 1.1 contracts | Complete | Existing 1.0.x profiles upgrade without loss and manga progress is durable |
 | P9 | AniList manga integration and cache isolation | P8 contracts; existing P2 transport | Complete | Mocked manga discovery, details, cache, offline, and throttling behavior passes |
-| P10 | Media-aware application workflows | P8, P9; existing P3-P4 UI | Not started | Manga discovery-to-library and Dashboard flows pass end to end |
+| P10 | Media-aware application workflows | P8, P9; existing P3-P4 UI | Implemented; packaged acceptance pending | Manga discovery-to-library and Dashboard flows pass end to end |
 | P11 | Continue Reading, activity, and recommendations | P8-P10; existing P5 behavior | Not started | Manga Home, reading activity, and same-kind recommendations pass |
 | P12 | Version 1.1 release hardening | P8-P11 | Not started | Full gate and NSIS upgrade acceptance pass from Animi 1.0.1 |
 
@@ -530,25 +530,33 @@ Kind-scoped version-6 discovery, details, and recommendation cache keys prevent 
 
 ### Entry gate
 
-- [ ] **P10-E1** Kind-aware frontend DTOs and command adapters compile in strict TypeScript without `any` or unvalidated compatibility casts.
-- [ ] **P10-E2** The shared selector and unit-label conventions are defined for keyboard, screen-reader, desktop, narrow, Latte, and Macchiato behavior.
+- [x] **P10-E1** Kind-aware frontend DTOs and command adapters compile in strict TypeScript without `any` or unvalidated compatibility casts.
+- [x] **P10-E2** The shared selector and unit-label conventions are defined for keyboard, screen-reader, desktop, narrow, Latte, and Macchiato behavior.
 
 ### Milestones
 
-- [ ] **P10-M1 - Media-kind selector:** Add one reusable Anime/Manga selector to Home, Discover, and Dashboard. Selection is session-only and defaults to Anime on launch to preserve the 1.0 startup experience; switching kind clears incompatible search pagination, selected details, retry state, and stale announcements.
-- [ ] **P10-M2 - Manga Discover and details:** Connect manga search and trending collections to the shared cover-card system. Details show precise format, publication status, release date precision, chapters, volumes, genres, tags, freshness, and official continuation relations with explicit unknown states.
-- [ ] **P10-M3 - Manga library editor:** Present Reading, Completed, and Planning labels while retaining the durable status enum. Provide separate chapter and volume controls, known-total guidance, unknown-total behavior, draft/save feedback, score and notes, and explicit local removal confirmation.
-- [ ] **P10-M4 - Manga Dashboard:** Scope totals, preference signals, search, status filters, genre/tag filters, sorting, and library cards to manga. Display chapter and volume progress without combining them with anime units, and keep local entries visible when metadata is missing or stale.
-- [ ] **P10-M5 - Refresh and failure states:** Extend metadata refresh, loading, empty, offline, stale, retryable error, terminal error, and session debugger behavior to the selected kind. Kind switches and retries must not leave an indefinite spinner or show the previous kind's content.
-- [ ] **P10-M6 - Responsive and accessible presentation:** Verify kind controls, manga cards, unknown totals, editor controls, dialogs, filter overflow, focus restoration, reduced motion, and alternative text at desktop and 390-pixel widths in both themes.
-- [ ] **P10-M7 - Core end-to-end flow:** Cover manga search, details, add, chapter and volume edits, corrections, Dashboard presentation, metadata refresh, restart persistence, cached offline use, and confirmed removal while an existing anime library remains unchanged.
+- [x] **P10-M1 - Media-kind selector:** Add one reusable Anime/Manga selector to Home, Discover, and Dashboard. Selection is session-only and defaults to Anime on launch to preserve the 1.0 startup experience; switching kind clears incompatible search pagination, selected details, retry state, and stale announcements.
+- [x] **P10-M2 - Manga Discover and details:** Connect manga search and trending collections to the shared cover-card system. Details show precise format, publication status, release date precision, chapters, volumes, genres, tags, freshness, and official continuation relations with explicit unknown states.
+- [x] **P10-M3 - Manga library editor:** Present Reading, Completed, and Planning labels while retaining the durable status enum. Provide separate chapter and volume controls, known-total guidance, unknown-total behavior, draft/save feedback, score and notes, and explicit local removal confirmation.
+- [x] **P10-M4 - Manga Dashboard:** Scope totals, preference signals, search, status filters, genre/tag filters, sorting, and library cards to manga. Display chapter and volume progress without combining them with anime units, and keep local entries visible when metadata is missing or stale.
+- [x] **P10-M5 - Refresh and failure states:** Extend metadata refresh, loading, empty, offline, stale, retryable error, terminal error, and session debugger behavior to the selected kind. Kind switches and retries must not leave an indefinite spinner or show the previous kind's content.
+- [x] **P10-M6 - Responsive and accessible presentation:** Verify kind controls, manga cards, unknown totals, editor controls, dialogs, filter overflow, focus restoration, reduced motion, and alternative text at desktop and 390-pixel widths in both themes.
+- [x] **P10-M7 - Core end-to-end flow:** Cover manga search, details, add, chapter and volume edits, corrections, Dashboard presentation, metadata refresh, restart persistence, cached offline use, and confirmed removal while an existing anime library remains unchanged.
 
 ### Exit gate
 
 - [ ] **P10-G1** The complete manga discovery-to-library and Dashboard flow passes through the packaged application boundary using mocked AniList data and isolated storage.
-- [ ] **P10-G2** Media-kind switching is keyboard operable, resets incompatible view state, and never mixes anime and manga labels, units, cache content, or preference signals.
-- [ ] **P10-G3** Manga known-total, unknown-total, missing-metadata, loading, empty, offline, stale, validation, and command-error states are covered.
-- [ ] **P10-G4** Existing anime Home, Discover, details, Dashboard, library, and accessibility tests remain green.
+- [x] **P10-G2** Media-kind switching is keyboard operable, resets incompatible view state, and never mixes anime and manga labels, units, cache content, or preference signals.
+- [x] **P10-G3** Manga known-total, unknown-total, missing-metadata, loading, empty, offline, stale, validation, and command-error states are covered.
+- [x] **P10-G4** Existing anime Home, Discover, details, Dashboard, library, and accessibility tests remain green.
+
+**Evidence (2026-09-11):** The user-requested redesign follows the supplied mockup's compact frosted header, page-local kind selectors, diagonal rainbow, system typography, four-card recommendation shelf, compact trending list, responsive library grid, statistic tiles, and two-column Settings with theme previews. Home and Dashboard share the kind-scoped library workflow. Manga details preserve format and date precision, explicitly show unknown chapter/volume totals, and omit anime duration. Editing stores chapter and volume drafts independently with bounds, correction-safe backend semantics, save feedback, and confirmed removal. Keyed kind changes clear searches, dialogs, filters, pending search replies, and failure announcements; selection stays session-only and defaults to Anime. Home's anime carousel and library refresh each other after edits, and Home reloads on navigation so imported/restored or newly tracked data cannot remain hidden behind an old view.
+
+The component flow covers search, add, independent volume correction, application remount, Dashboard, refresh, cached offline details, confirmed removal, preserved anime, keyboard kind switching, and late-response isolation. A native Tauri IPC flow uses mocked AniList, a temporary SQLite database, real command registration, correction/high-water assertions, database close/reopen, stale offline refresh, rejected unconfirmed removal, and byte-equivalent anime entry preservation. Existing P5/P8/P9 IPC tests now take their origin from the actual mock webview, fixing a Windows-only test URL without changing production permissions. Live browser checks reviewed desktop and 390-pixel layouts in Latte/Macchiato, caught and fixed narrow navigation overflow, and verified a 374-pixel manga dialog within a 390-pixel document and Escape focus restoration. Temporary QA routes were removed; `.tmp/` is ignored by Git, Prettier, and ESLint and is never staged.
+
+**Quality gate:** `bun run format:check`, `bun run lint`, `bun run check` (zero diagnostics), `bun run test` (126 tests across 16 files), `bun run build`, `bun run release:audit`, Cargo formatting, Clippy with all targets/features and warnings denied, and all Rust unit/integration tests pass. `git diff --check` passes. No dependency or lockfile changed.
+
+**Acceptance limitation:** The Linux workspace can run component and native mock-runtime IPC coverage, but cannot prove the Windows packaged-app flow required by P10-G1. That gate remains unchecked; do not treat P10 as release-accepted until the Windows check is recorded. P11's Rust-owned Continue Reading feed, quick chapter action, and manga activity charts remain unimplemented, even though the supplied Home mockup previews them. No dependency, migration, durable contract, or production capability was added.
 
 ## P11 - Continue Reading, Activity, and Recommendations
 
