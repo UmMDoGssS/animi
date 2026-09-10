@@ -396,3 +396,92 @@ describe("LibraryEntryEditor", () => {
         ).toBeInTheDocument();
     });
 });
+
+describe("Manga progress", () => {
+    it("saves chapters and volumes independently and validates volume bounds", async () => {
+        const user = userEvent.setup();
+        const saveEntry = vi.fn(async (request: UpsertLibraryEntryRequest) =>
+            savedEntry(request, null),
+        );
+        render(LibraryEntryEditor, {
+            anilistId: 55,
+            mediaKind: "MANGA",
+            knownTotal: 30,
+            knownVolumeTotal: 5,
+            entry: null,
+            saveEntry,
+        });
+        await user.click(screen.getByRole("radio", { name: /Reading/ }));
+        await fireEvent.input(
+            screen.getByRole("slider", { name: "Chapters read" }),
+            { target: { value: "12" } },
+        );
+        const volumes = screen.getByRole("spinbutton", {
+            name: "Volumes read",
+        });
+        await user.clear(volumes);
+        await user.type(volumes, "6");
+        await user.click(
+            screen.getByRole("button", { name: "Add to library" }),
+        );
+        expect(saveEntry).not.toHaveBeenCalled();
+        expect(
+            screen.getByText("Volumes cannot exceed the known total of 5."),
+        ).toBeInTheDocument();
+        await user.clear(volumes);
+        await user.type(volumes, "2");
+        await user.click(
+            screen.getByRole("button", { name: "Add to library" }),
+        );
+        expect(saveEntry).toHaveBeenCalledWith(
+            expect.objectContaining({
+                mediaKind: "MANGA",
+                status: "WATCHING",
+                progress: 12,
+                volumeProgress: 2,
+            }),
+        );
+        await user.clear(volumes);
+        await user.type(volumes, "1");
+        await user.click(
+            screen.getByRole("button", { name: "Add to library" }),
+        );
+        expect(saveEntry).toHaveBeenLastCalledWith(
+            expect.objectContaining({ progress: 12, volumeProgress: 1 }),
+        );
+    });
+
+    it("allows unknown totals without inferring volume progress and rejects empty volumes", async () => {
+        const user = userEvent.setup();
+        const saveEntry = vi.fn(async (request: UpsertLibraryEntryRequest) =>
+            savedEntry(request, null),
+        );
+        render(LibraryEntryEditor, {
+            anilistId: 55,
+            mediaKind: "MANGA",
+            knownTotal: null,
+            entry: null,
+            saveEntry,
+        });
+        expect(
+            screen.getByText(/Chapter total is unknown/),
+        ).toBeInTheDocument();
+        expect(screen.getByText(/Volume total is unknown/)).toBeInTheDocument();
+        await user.click(
+            screen.getByRole("button", { name: "Increase chapters read" }),
+        );
+        expect(
+            screen.getByRole("spinbutton", { name: "Volumes read" }),
+        ).toHaveValue(0);
+        await user.clear(
+            screen.getByRole("spinbutton", { name: "Volumes read" }),
+        );
+        await user.click(
+            screen.getByRole("button", { name: "Add to library" }),
+        );
+        expect(saveEntry).not.toHaveBeenCalled();
+        expect(
+            screen.getByText("Enter volumes as a non-negative whole number."),
+        ).toBeInTheDocument();
+    });
+});

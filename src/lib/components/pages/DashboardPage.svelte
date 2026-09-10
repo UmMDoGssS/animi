@@ -13,6 +13,9 @@
         CommandError,
         DashboardActivityBucket,
         DashboardInsights,
+        DashboardInsightsRequest,
+        RefreshLibraryMetadataRequest,
+        MediaKind,
         Freshness,
         LibraryEntry,
         LibraryItem,
@@ -35,8 +38,14 @@
     import RefreshIcon from "../RefreshIcon.svelte";
 
     interface Props {
-        loadInsights?: () => Promise<DashboardInsights>;
-        refreshMetadata?: () => Promise<RefreshLibraryMetadataResponse>;
+        mediaKind?: MediaKind;
+        libraryOnly?: boolean;
+        loadInsights?: (
+            request: DashboardInsightsRequest,
+        ) => Promise<DashboardInsights>;
+        refreshMetadata?: (
+            request: RefreshLibraryMetadataRequest,
+        ) => Promise<RefreshLibraryMetadataResponse>;
         loadDetails?: (
             request: MediaDetailsRequest,
         ) => Promise<MediaDetailsResponse>;
@@ -57,12 +66,6 @@
         | "PROGRESS_DESC"
         | "SCORE_DESC";
 
-    const libraryStatusOptions = [
-        { value: "ALL", label: "All statuses" },
-        { value: "WATCHING", label: "Watching" },
-        { value: "COMPLETED", label: "Completed" },
-        { value: "PLANNING", label: "Planning" },
-    ] as const;
     const librarySortOptions = [
         { value: "RELEASE_DESC", label: "Newest release" },
         { value: "UPDATED_DESC", label: "Recently updated" },
@@ -72,6 +75,8 @@
     ] as const;
 
     let {
+        mediaKind = "ANIME",
+        libraryOnly = false,
         loadInsights = getDashboardInsights,
         refreshMetadata = refreshLibraryMetadata,
         loadDetails = getMediaDetails,
@@ -80,6 +85,16 @@
         openDiscovery,
     }: Props = $props();
 
+    const libraryStatusOptions = $derived([
+        { value: "ALL", label: "All statuses" },
+        {
+            value: "WATCHING",
+            label: mediaKind === "MANGA" ? "Reading" : "Watching",
+        },
+        { value: "COMPLETED", label: "Completed" },
+        { value: "PLANNING", label: "Planning" },
+    ] as const);
+    let kindLabel = $derived(mediaKind === "MANGA" ? "manga" : "anime");
     let insights = $state<DashboardInsights | null>(null);
     let loading = $state(true);
     let loadError = $state<CommandError | null>(null);
@@ -167,7 +182,7 @@
         loadError = null;
 
         try {
-            insights = await loadInsights();
+            insights = await loadInsights({ mediaKind });
             if (
                 !releaseDateBackfillChecked &&
                 insights.libraryItems.some(
@@ -193,7 +208,7 @@
         refreshError = null;
 
         try {
-            refreshResult = await refreshMetadata();
+            refreshResult = await refreshMetadata({ mediaKind });
             await loadDashboard();
         } catch (reason) {
             refreshError = normalizeCommandError(reason);
@@ -442,6 +457,8 @@
             totals[statusTotalKey(entry.status)] += 1;
         }
         totals.currentProgress += entry.progress - previousEntry.progress;
+        totals.currentVolumeProgress +=
+            (entry.volumeProgress ?? 0) - (previousEntry.volumeProgress ?? 0);
         insights = {
             ...insights,
             libraryTotals: totals,
@@ -461,6 +478,7 @@
         totals.tracked -= 1;
         totals[statusTotalKey(entry.status)] -= 1;
         totals.currentProgress -= entry.progress;
+        totals.currentVolumeProgress -= entry.volumeProgress ?? 0;
         insights = {
             ...insights,
             libraryTotals: totals,
@@ -519,7 +537,9 @@
     }
 
     function progressLabel(item: LibraryItem): string {
-        return `${item.entry.progress} / ${item.media?.episodes ?? "??"} eps`;
+        return mediaKind === "MANGA"
+            ? `${item.entry.progress} / ${item.media?.chapters ?? "??"} chapters · ${item.entry.volumeProgress ?? 0} / ${item.media?.volumes ?? "??"} volumes`
+            : `${item.entry.progress} / ${item.media?.episodes ?? "??"} eps`;
     }
 
     function activityDuration(activity: WatchActivity): string {
@@ -598,19 +618,19 @@
 </script>
 
 <div
-    id="dashboard-panel"
-    role="tabpanel"
-    aria-labelledby="dashboard-tab"
-    tabindex="0"
+    id={libraryOnly ? "home-library" : "dashboard-panel"}
+    role={libraryOnly ? "region" : "tabpanel"}
+    aria-labelledby={libraryOnly ? "library-index-heading" : "dashboard-tab"}
+    tabindex="-1"
     class="grid min-w-0 gap-4 pb-8 sm:gap-5"
 >
-    <h1 class="sr-only">Dashboard</h1>
+    {#if !libraryOnly}<h1 class="sr-only">Dashboard</h1>{/if}
 
     {#if loading && insights === null}
         <AsyncStateNotice
             status="loading"
             title="Loading your dashboard"
-            description="Gathering your library and watch history."
+            description="Gathering your library and activity."
         />
     {:else if loadError && insights === null}
         <AsyncStateNotice
@@ -621,513 +641,551 @@
             retryLabel="Retry Dashboard"
         />
     {:else if insights}
-        <section
-            aria-labelledby="library-manifest-heading"
-            class="glass-panel panel-large border-border grid min-w-0 overflow-hidden border lg:grid-cols-[minmax(0,1.25fr)_minmax(17rem,0.75fr)]"
-        >
-            <div class="min-w-0 p-4 sm:p-6 lg:p-7">
-                <div class="flex flex-wrap items-end justify-between gap-3">
-                    <div>
-                        <h2
-                            id="library-manifest-heading"
-                            class="text-foreground text-xl font-light tracking-[0.03em] sm:text-2xl"
-                        >
-                            {insights.libraryTotals.tracked === 0
-                                ? "Your shelves are quiet."
-                                : `${insights.libraryTotals.tracked} ${insights.libraryTotals.tracked === 1 ? "title" : "titles"}, filed by what comes next.`}
-                        </h2>
-                    </div>
-                    <button
-                        type="button"
-                        aria-label={refreshing
-                            ? "refreshing anime details"
-                            : "refresh anime details"}
-                        title={refreshing
-                            ? "Refreshing anime details"
-                            : "Refresh anime details"}
-                        class="glass-control glass-interactive control-rounded grid size-10 shrink-0 place-items-center transition-colors disabled:cursor-default disabled:opacity-60"
-                        disabled={refreshing ||
-                            insights.libraryTotals.tracked === 0}
-                        onclick={() => void checkTrackedMetadata()}
-                    >
-                        <span class:animate-spin={refreshing}>
-                            <RefreshIcon />
-                        </span>
-                    </button>
-                </div>
-
-                <dl
-                    role="group"
-                    aria-label="Library totals"
-                    class="border-border mt-6 grid grid-cols-2 border-y"
-                >
-                    <div class="border-border border-r p-3 sm:p-4">
-                        <dt
-                            class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
-                        >
-                            tracked
-                        </dt>
-                        <dd
-                            class="text-stat-tracked mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
-                            data-stat="tracked"
-                        >
-                            {padCount(insights.libraryTotals.tracked)}
-                        </dd>
-                    </div>
-                    <div class="border-border p-3 sm:p-4">
-                        <dt
-                            class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
-                        >
-                            watching
-                        </dt>
-                        <dd
-                            class="text-stat-watching mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
-                            data-stat="watching"
-                        >
-                            {padCount(insights.libraryTotals.watching)}
-                        </dd>
-                    </div>
-                    <div class="border-border border-t border-r p-3 sm:p-4">
-                        <dt
-                            class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
-                        >
-                            completed
-                        </dt>
-                        <dd
-                            class="text-stat-completed mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
-                            data-stat="completed"
-                        >
-                            {padCount(insights.libraryTotals.completed)}
-                        </dd>
-                    </div>
-                    <div class="border-border border-t p-3 sm:p-4">
-                        <dt
-                            class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
-                        >
-                            planning
-                        </dt>
-                        <dd
-                            class="text-stat-planning mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
-                            data-stat="planning"
-                        >
-                            {padCount(insights.libraryTotals.planning)}
-                        </dd>
-                    </div>
-                </dl>
-
-                <p class="text-muted mt-4 text-xs leading-5">
-                    <span class="text-foreground tabular-nums">
-                        {insights.libraryTotals.currentProgress} episodes
-                    </span>
-                    currently marked watched.
-                </p>
-
-                {#if loadError}
-                    <div class="mt-4">
-                        <AsyncStateNotice
-                            status="error"
-                            title="The dashboard could not be refreshed"
-                            description="Your previous dashboard is still shown."
-                            error={loadError}
-                            onRetry={loadError.retryable
-                                ? loadDashboard
-                                : undefined}
-                            retryLabel="Retry reload"
-                            compact
-                        />
-                    </div>
-                {/if}
-
-                {#if refreshError}
-                    <div class="mt-4">
-                        <AsyncStateNotice
-                            status={refreshError.code
-                                .toLocaleUpperCase()
-                                .includes("OFFLINE")
-                                ? "offline"
-                                : "error"}
-                            title="Anime details could not be refreshed"
-                            description="Your library is still available."
-                            error={refreshError}
-                            onRetry={refreshError.retryable
-                                ? checkTrackedMetadata
-                                : undefined}
-                            retryLabel="Check again"
-                            compact
-                        />
-                    </div>
-                {:else if refreshResult}
-                    <p
-                        role="status"
-                        class="control-rounded border-border bg-glass-control mt-4 border px-3 py-2 text-xs leading-5"
-                        class:text-warning={refreshResult.failures.length > 0}
-                        class:text-success={refreshResult.failures.length === 0}
-                    >
-                        {#if refreshResult.failures.length > 0}
-                            Updated {countLabel(
-                                refreshResult.updated,
-                                "title",
-                            )}; {countLabel(
-                                refreshResult.failures.length,
-                                "title",
-                            )} could not be refreshed.
-                        {:else}
-                            Anime details refreshed.
-                        {/if}
-                    </p>
-                {/if}
-            </div>
-
-            <div
-                class="border-border min-w-0 border-t p-4 sm:p-6 lg:border-t-0 lg:border-l lg:p-7"
+        {#if !libraryOnly}
+            <section
+                aria-labelledby="library-manifest-heading"
+                class="glass-panel panel-large border-border grid min-w-0 overflow-hidden border lg:grid-cols-[minmax(0,1.25fr)_minmax(17rem,0.75fr)]"
             >
-                <h2
-                    class="text-foreground text-xl font-light tracking-[0.03em]"
-                >
-                    Your favorite genres and tags
-                </h2>
-
-                {#if insights.preferenceSignals.genres.length > 0}
-                    <div class="mt-5">
-                        <h3
-                            class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
-                        >
-                            favorite genres
-                        </h3>
-                        <ul
-                            aria-label="Genre preference signals"
-                            class="mt-3 grid gap-3"
-                        >
-                            {#each insights.preferenceSignals.genres.slice(0, 5) as signal (signal.label)}
-                                <li>
-                                    <div
-                                        class="flex items-center justify-between gap-3 text-xs"
-                                    >
-                                        <span class="text-foreground"
-                                            >{signal.label}</span
-                                        >
-                                        <span class="text-muted tabular-nums">
-                                            {signal.titleCount}
-                                            {signal.titleCount === 1
-                                                ? "title"
-                                                : "titles"}
-                                        </span>
-                                    </div>
-                                    <div
-                                        aria-hidden="true"
-                                        class="bg-glass-control mt-1.5 h-1.5 overflow-hidden rounded-sm"
-                                    >
-                                        <span
-                                            class="bg-accent block h-full rounded-sm"
-                                            style:width={`${(signal.titleCount / (insights.preferenceSignals.genres[0]?.titleCount ?? 1)) * 100}%`}
-                                        ></span>
-                                    </div>
-                                </li>
-                            {/each}
-                        </ul>
-                    </div>
-                {:else}
-                    <p class="text-muted mt-5 text-xs leading-5">
-                        Genres will appear as you watch and complete anime.
-                    </p>
-                {/if}
-
-                {#if insights.preferenceSignals.tags.length > 0}
-                    <div class="mt-5">
-                        <h3
-                            class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
-                        >
-                            favorite tags
-                        </h3>
-                        <ul
-                            aria-label="Tag preference signals"
-                            class="mt-3 flex flex-wrap gap-2"
-                        >
-                            {#each insights.preferenceSignals.tags.slice(0, 6) as tag (tag.label)}
-                                <li
-                                    class="control-rounded border-border bg-glass-control text-foreground border px-2.5 py-1.5 text-[0.68rem]"
-                                >
-                                    <span class="block">{tag.label}</span>
-                                    <span
-                                        class="text-muted mt-0.5 block text-[0.58rem]"
-                                    >
-                                        {countLabel(tag.titleCount, "title")}
-                                    </span>
-                                </li>
-                            {/each}
-                        </ul>
-                    </div>
-                {:else}
-                    <p class="text-muted mt-5 text-xs leading-5">
-                        Tags will appear as you watch and complete anime.
-                    </p>
-                {/if}
-            </div>
-        </section>
-
-        <section
-            aria-labelledby="activity-ledger-heading"
-            class="glass-panel panel-large border-border min-w-0 overflow-hidden border p-4 sm:p-6 lg:p-7"
-        >
-            <header
-                class="border-border flex flex-col gap-3 border-b pb-5 sm:flex-row sm:items-end sm:justify-between"
-            >
-                <div>
-                    <h2
-                        id="activity-ledger-heading"
-                        class="text-foreground text-xl font-light tracking-[0.03em] sm:text-2xl"
-                    >
-                        Your watch history
-                    </h2>
-                </div>
-            </header>
-
-            {#if insights.activity.eventCount === 0}
-                <div
-                    class="grid min-h-56 items-center gap-5 py-6 sm:grid-cols-[10rem_minmax(0,1fr)]"
-                >
-                    <div
-                        aria-hidden="true"
-                        class="glass-control control-rounded border-border text-accent mx-auto grid min-h-32 w-full max-w-40 place-items-center border p-4 text-center"
-                    >
+                <div class="min-w-0 p-4 sm:p-6 lg:p-7">
+                    <div class="flex flex-wrap items-end justify-between gap-3">
                         <div>
-                            <p class="text-lg">(=^..^=)</p>
-                            <p
-                                class="text-muted mt-3 text-[0.62rem] tracking-[0.12em] uppercase"
+                            <h2
+                                id="library-manifest-heading"
+                                class="text-foreground text-xl font-light tracking-[0.03em] sm:text-2xl"
                             >
-                                no history yet
-                            </p>
+                                {insights.libraryTotals.tracked === 0
+                                    ? "Your shelves are quiet."
+                                    : `${insights.libraryTotals.tracked} ${insights.libraryTotals.tracked === 1 ? "title" : "titles"}, filed by what comes next.`}
+                            </h2>
                         </div>
+                        <button
+                            type="button"
+                            aria-label={refreshing
+                                ? `refreshing ${kindLabel} details`
+                                : `refresh ${kindLabel} details`}
+                            title={refreshing
+                                ? `Refreshing ${kindLabel} details`
+                                : `Refresh ${kindLabel} details`}
+                            class="glass-control glass-interactive control-rounded grid size-10 shrink-0 place-items-center transition-colors disabled:cursor-default disabled:opacity-60"
+                            disabled={refreshing ||
+                                insights.libraryTotals.tracked === 0}
+                            onclick={() => void checkTrackedMetadata()}
+                        >
+                            <span class:animate-spin={refreshing}>
+                                <RefreshIcon />
+                            </span>
+                        </button>
                     </div>
-                    <div>
-                        <h3 class="text-foreground text-lg font-light">
-                            Your watch history is empty.
-                        </h3>
-                        <p class="text-muted mt-2 text-sm leading-6">
-                            Watch an episode and update its progress to start
-                            your history.
+
+                    <dl
+                        role="group"
+                        aria-label="Library totals"
+                        class="border-border mt-6 grid grid-cols-2 border-y"
+                    >
+                        <div class="border-border border-r p-3 sm:p-4">
+                            <dt
+                                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
+                            >
+                                tracked
+                            </dt>
+                            <dd
+                                class="text-stat-tracked mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
+                                data-stat="tracked"
+                            >
+                                {padCount(insights.libraryTotals.tracked)}
+                            </dd>
+                        </div>
+                        <div class="border-border p-3 sm:p-4">
+                            <dt
+                                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
+                            >
+                                {mediaKind === "MANGA" ? "reading" : "watching"}
+                            </dt>
+                            <dd
+                                class="text-stat-watching mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
+                                data-stat="watching"
+                            >
+                                {padCount(insights.libraryTotals.watching)}
+                            </dd>
+                        </div>
+                        <div class="border-border border-t border-r p-3 sm:p-4">
+                            <dt
+                                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
+                            >
+                                completed
+                            </dt>
+                            <dd
+                                class="text-stat-completed mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
+                                data-stat="completed"
+                            >
+                                {padCount(insights.libraryTotals.completed)}
+                            </dd>
+                        </div>
+                        <div class="border-border border-t p-3 sm:p-4">
+                            <dt
+                                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
+                            >
+                                planning
+                            </dt>
+                            <dd
+                                class="text-stat-planning mt-2 text-3xl font-light tracking-[0.06em] tabular-nums sm:text-5xl"
+                                data-stat="planning"
+                            >
+                                {padCount(insights.libraryTotals.planning)}
+                            </dd>
+                        </div>
+                    </dl>
+
+                    <p class="text-muted mt-4 text-xs leading-5">
+                        <span class="text-foreground tabular-nums">
+                            {insights.libraryTotals.currentProgress}
+                            {mediaKind === "MANGA" ? "chapters" : "episodes"}
+                        </span>
+                        currently marked {mediaKind === "MANGA"
+                            ? "read"
+                            : "watched"}.
+                        {#if mediaKind === "MANGA"}<strong
+                                >{insights.libraryTotals.currentVolumeProgress} volumes</strong
+                            > recorded independently.{/if}
+                    </p>
+
+                    {#if loadError}
+                        <div class="mt-4">
+                            <AsyncStateNotice
+                                status="error"
+                                title="The dashboard could not be refreshed"
+                                description="Your previous dashboard is still shown."
+                                error={loadError}
+                                onRetry={loadError.retryable
+                                    ? loadDashboard
+                                    : undefined}
+                                retryLabel="Retry reload"
+                                compact
+                            />
+                        </div>
+                    {/if}
+
+                    {#if refreshError}
+                        <div class="mt-4">
+                            <AsyncStateNotice
+                                status={refreshError.code
+                                    .toLocaleUpperCase()
+                                    .includes("OFFLINE")
+                                    ? "offline"
+                                    : "error"}
+                                title="Anime details could not be refreshed"
+                                description="Your library is still available."
+                                error={refreshError}
+                                onRetry={refreshError.retryable
+                                    ? checkTrackedMetadata
+                                    : undefined}
+                                retryLabel="Check again"
+                                compact
+                            />
+                        </div>
+                    {:else if refreshResult}
+                        <p
+                            role="status"
+                            class="control-rounded border-border bg-glass-control mt-4 border px-3 py-2 text-xs leading-5"
+                            class:text-warning={refreshResult.failures.length >
+                                0}
+                            class:text-success={refreshResult.failures
+                                .length === 0}
+                        >
+                            {#if refreshResult.failures.length > 0}
+                                Updated {countLabel(
+                                    refreshResult.updated,
+                                    "title",
+                                )}; {countLabel(
+                                    refreshResult.failures.length,
+                                    "title",
+                                )} could not be refreshed.
+                            {:else}
+                                Anime details refreshed.
+                            {/if}
                         </p>
-                    </div>
+                    {/if}
                 </div>
-            {:else}
-                <dl
-                    role="group"
-                    aria-label="Recorded activity summary"
-                    class="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4"
-                >
-                    <div class="border-border border-l-2 pl-3">
-                        <dt
-                            class="text-muted text-[0.62rem] tracking-[0.1em] uppercase"
-                        >
-                            updates
-                        </dt>
-                        <dd class="text-foreground mt-1 text-lg tabular-nums">
-                            {insights.activity.eventCount}
-                        </dd>
-                    </div>
-                    <div class="border-border border-l-2 pl-3">
-                        <dt
-                            class="text-muted text-[0.62rem] tracking-[0.1em] uppercase"
-                        >
-                            recorded episodes
-                        </dt>
-                        <dd class="text-foreground mt-1 text-lg tabular-nums">
-                            {insights.activity.recordedEpisodes}
-                        </dd>
-                    </div>
-                    <div class="border-border border-l-2 pl-3">
-                        <dt
-                            class="text-muted text-[0.62rem] tracking-[0.1em] uppercase"
-                        >
-                            known watch time
-                        </dt>
-                        <dd class="text-foreground mt-1 text-lg tabular-nums">
-                            {formatDuration(insights.activity.recordedMinutes)}
-                        </dd>
-                    </div>
-                    <div class="border-warning border-l-2 pl-3">
-                        <dt
-                            class="text-muted text-[0.62rem] tracking-[0.1em] uppercase"
-                        >
-                            time unknown
-                        </dt>
-                        <dd class="text-warning mt-1 text-sm tabular-nums">
-                            {countLabel(
-                                insights.activity.unknownDurationEpisodes,
-                                "episode",
-                            )}
-                        </dd>
-                    </div>
-                </dl>
 
                 <div
-                    class="mt-6 grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(12rem,0.4fr)]"
+                    class="border-border min-w-0 border-t p-4 sm:p-6 lg:border-t-0 lg:border-l lg:p-7"
                 >
-                    <section
-                        aria-labelledby="monthly-activity-heading"
-                        class="glass-control control-rounded border-border min-w-0 border p-3 sm:p-4"
+                    <h2
+                        class="text-foreground text-xl font-light tracking-[0.03em]"
                     >
-                        <div
-                            class="flex flex-wrap items-end justify-between gap-2"
-                        >
-                            <div>
-                                <h3
-                                    id="monthly-activity-heading"
-                                    class="text-foreground text-base font-light"
-                                >
-                                    Time spent watching anime each month
-                                </h3>
-                                <p
-                                    id="monthly-activity-description"
-                                    class="sr-only"
-                                >
-                                    Each bar totals known watch time recorded
-                                    during one calendar month.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="mt-4 min-w-0 overflow-x-auto pb-1">
-                            <ol
-                                aria-label="Monthly recorded watch activity"
-                                aria-describedby="monthly-activity-description"
-                                class="grid min-w-[36rem] grid-cols-12 gap-2"
+                        Your favorite genres and tags
+                    </h2>
+
+                    {#if insights.preferenceSignals.genres.length > 0}
+                        <div class="mt-5">
+                            <h3
+                                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
                             >
-                                {#each insights.activity.monthly as bucket (bucket.period)}
-                                    <li
-                                        aria-label={monthlyBucketLabel(bucket)}
-                                        class="grid min-w-0 gap-2"
-                                    >
+                                favorite genres
+                            </h3>
+                            <ul
+                                aria-label="Genre preference signals"
+                                class="mt-3 grid gap-3"
+                            >
+                                {#each insights.preferenceSignals.genres.slice(0, 5) as signal (signal.label)}
+                                    <li>
                                         <div
-                                            aria-hidden="true"
-                                            class="bg-glass-control flex h-28 items-end overflow-hidden rounded-sm"
+                                            class="flex items-center justify-between gap-3 text-xs"
                                         >
+                                            <span class="text-foreground"
+                                                >{signal.label}</span
+                                            >
                                             <span
-                                                class="bg-accent block w-full rounded-t-sm opacity-80"
-                                                class:bg-warning={bucket.recordedMinutes ===
-                                                    0 &&
-                                                    bucket.unknownDurationEpisodes >
-                                                        0}
-                                                style:height={`${activityBarHeight(bucket, insights.activity.monthly)}%`}
-                                            ></span>
+                                                class="text-muted tabular-nums"
+                                            >
+                                                {signal.titleCount}
+                                                {signal.titleCount === 1
+                                                    ? "title"
+                                                    : "titles"}
+                                            </span>
                                         </div>
                                         <div
                                             aria-hidden="true"
-                                            class="text-center"
+                                            class="bg-glass-control mt-1.5 h-1.5 overflow-hidden rounded-sm"
                                         >
-                                            <p
-                                                class="text-foreground text-[0.62rem] tabular-nums"
-                                            >
-                                                {bucket.recordedMinutes > 0
-                                                    ? formatDuration(
-                                                          bucket.recordedMinutes,
-                                                      )
-                                                    : bucket.unknownDurationEpisodes >
-                                                        0
-                                                      ? "?"
-                                                      : "—"}
-                                            </p>
-                                            <time
-                                                datetime={`${bucket.period}-01`}
-                                                aria-label={formatMonthName(
-                                                    bucket.period,
-                                                )}
-                                                class="text-muted mt-1 block text-[0.55rem] uppercase"
-                                            >
-                                                {formatMonthPeriod(
-                                                    bucket.period,
-                                                )}
-                                            </time>
+                                            <span
+                                                class="bg-accent block h-full rounded-sm"
+                                                style:width={`${(signal.titleCount / (insights.preferenceSignals.genres[0]?.titleCount ?? 1)) * 100}%`}
+                                            ></span>
                                         </div>
                                     </li>
                                 {/each}
-                            </ol>
+                            </ul>
                         </div>
-                    </section>
+                    {:else}
+                        <p class="text-muted mt-5 text-xs leading-5">
+                            Genres will appear as you progress and complete
+                            titles.
+                        </p>
+                    {/if}
 
-                    <section
-                        aria-labelledby="yearly-activity-heading"
-                        class="glass-control control-rounded border-border border p-3 sm:p-4"
-                    >
-                        <h3
-                            id="yearly-activity-heading"
-                            class="text-foreground text-base font-light"
-                        >
-                            Yearly totals
-                        </h3>
-                        <ul
-                            aria-label="Yearly recorded watch activity"
-                            class="border-border mt-4 grid divide-y border-y"
-                        >
-                            {#each insights.activity.yearly as bucket (bucket.period)}
-                                <li
-                                    aria-label={bucketLabel(bucket)}
-                                    class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 py-3"
-                                >
-                                    <span
-                                        class="text-accent text-lg font-light tabular-nums"
-                                        >{bucket.period}</span
+                    {#if insights.preferenceSignals.tags.length > 0}
+                        <div class="mt-5">
+                            <h3
+                                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
+                            >
+                                favorite tags
+                            </h3>
+                            <ul
+                                aria-label="Tag preference signals"
+                                class="mt-3 flex flex-wrap gap-2"
+                            >
+                                {#each insights.preferenceSignals.tags.slice(0, 6) as tag (tag.label)}
+                                    <li
+                                        class="control-rounded border-border bg-glass-control text-foreground border px-2.5 py-1.5 text-[0.68rem]"
                                     >
-                                    <span
-                                        class="text-muted text-right text-[0.62rem] leading-4"
-                                    >
+                                        <span class="block">{tag.label}</span>
                                         <span
-                                            class="text-foreground block text-sm"
-                                            >{formatDuration(
-                                                bucket.recordedMinutes,
-                                            )}</span
+                                            class="text-muted mt-0.5 block text-[0.58rem]"
                                         >
-                                        {countLabel(
-                                            bucket.recordedEpisodes,
-                                            "episode",
-                                        )}
-                                        {#if bucket.unknownDurationEpisodes > 0}
-                                            <span class="text-warning block"
-                                                >{bucket.unknownDurationEpisodes}
-                                                duration excluded</span
+                                            {countLabel(
+                                                tag.titleCount,
+                                                "title",
+                                            )}
+                                        </span>
+                                    </li>
+                                {/each}
+                            </ul>
+                        </div>
+                    {:else}
+                        <p class="text-muted mt-5 text-xs leading-5">
+                            Tags will appear as you progress and complete
+                            titles.
+                        </p>
+                    {/if}
+                </div>
+            </section>
+
+            {#if mediaKind === "ANIME"}
+                <section
+                    aria-labelledby="activity-ledger-heading"
+                    class="glass-panel panel-large border-border min-w-0 overflow-hidden border p-4 sm:p-6 lg:p-7"
+                >
+                    <header
+                        class="border-border flex flex-col gap-3 border-b pb-5 sm:flex-row sm:items-end sm:justify-between"
+                    >
+                        <div>
+                            <h2
+                                id="activity-ledger-heading"
+                                class="text-foreground text-xl font-light tracking-[0.03em] sm:text-2xl"
+                            >
+                                Your watch history
+                            </h2>
+                        </div>
+                    </header>
+
+                    {#if insights.activity.eventCount === 0}
+                        <div
+                            class="grid min-h-56 items-center gap-5 py-6 sm:grid-cols-[10rem_minmax(0,1fr)]"
+                        >
+                            <div
+                                aria-hidden="true"
+                                class="glass-control control-rounded border-border text-accent mx-auto grid min-h-32 w-full max-w-40 place-items-center border p-4 text-center"
+                            >
+                                <div>
+                                    <p class="text-lg">(=^..^=)</p>
+                                    <p
+                                        class="text-muted mt-3 text-[0.62rem] tracking-[0.12em] uppercase"
+                                    >
+                                        no history yet
+                                    </p>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-foreground text-lg font-light">
+                                    Your watch history is empty.
+                                </h3>
+                                <p class="text-muted mt-2 text-sm leading-6">
+                                    Watch an episode and update its progress to
+                                    start your history.
+                                </p>
+                            </div>
+                        </div>
+                    {:else}
+                        <dl
+                            role="group"
+                            aria-label="Recorded activity summary"
+                            class="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4"
+                        >
+                            <div class="border-border border-l-2 pl-3">
+                                <dt
+                                    class="text-muted text-[0.62rem] tracking-[0.1em] uppercase"
+                                >
+                                    updates
+                                </dt>
+                                <dd
+                                    class="text-foreground mt-1 text-lg tabular-nums"
+                                >
+                                    {insights.activity.eventCount}
+                                </dd>
+                            </div>
+                            <div class="border-border border-l-2 pl-3">
+                                <dt
+                                    class="text-muted text-[0.62rem] tracking-[0.1em] uppercase"
+                                >
+                                    recorded episodes
+                                </dt>
+                                <dd
+                                    class="text-foreground mt-1 text-lg tabular-nums"
+                                >
+                                    {insights.activity.recordedEpisodes}
+                                </dd>
+                            </div>
+                            <div class="border-border border-l-2 pl-3">
+                                <dt
+                                    class="text-muted text-[0.62rem] tracking-[0.1em] uppercase"
+                                >
+                                    known watch time
+                                </dt>
+                                <dd
+                                    class="text-foreground mt-1 text-lg tabular-nums"
+                                >
+                                    {formatDuration(
+                                        insights.activity.recordedMinutes,
+                                    )}
+                                </dd>
+                            </div>
+                            <div class="border-warning border-l-2 pl-3">
+                                <dt
+                                    class="text-muted text-[0.62rem] tracking-[0.1em] uppercase"
+                                >
+                                    time unknown
+                                </dt>
+                                <dd
+                                    class="text-warning mt-1 text-sm tabular-nums"
+                                >
+                                    {countLabel(
+                                        insights.activity
+                                            .unknownDurationEpisodes,
+                                        "episode",
+                                    )}
+                                </dd>
+                            </div>
+                        </dl>
+
+                        <div
+                            class="mt-6 grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(12rem,0.4fr)]"
+                        >
+                            <section
+                                aria-labelledby="monthly-activity-heading"
+                                class="glass-control control-rounded border-border min-w-0 border p-3 sm:p-4"
+                            >
+                                <div
+                                    class="flex flex-wrap items-end justify-between gap-2"
+                                >
+                                    <div>
+                                        <h3
+                                            id="monthly-activity-heading"
+                                            class="text-foreground text-base font-light"
+                                        >
+                                            Time spent watching anime each month
+                                        </h3>
+                                        <p
+                                            id="monthly-activity-description"
+                                            class="sr-only"
+                                        >
+                                            Each bar totals known watch time
+                                            recorded during one calendar month.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 min-w-0 overflow-x-auto pb-1">
+                                    <ol
+                                        aria-label="Monthly recorded watch activity"
+                                        aria-describedby="monthly-activity-description"
+                                        class="grid min-w-[36rem] grid-cols-12 gap-2"
+                                    >
+                                        {#each insights.activity.monthly as bucket (bucket.period)}
+                                            <li
+                                                aria-label={monthlyBucketLabel(
+                                                    bucket,
+                                                )}
+                                                class="grid min-w-0 gap-2"
                                             >
-                                        {/if}
-                                    </span>
+                                                <div
+                                                    aria-hidden="true"
+                                                    class="bg-glass-control flex h-28 items-end overflow-hidden rounded-sm"
+                                                >
+                                                    <span
+                                                        class="bg-accent block w-full rounded-t-sm opacity-80"
+                                                        class:bg-warning={bucket.recordedMinutes ===
+                                                            0 &&
+                                                            bucket.unknownDurationEpisodes >
+                                                                0}
+                                                        style:height={`${activityBarHeight(bucket, insights.activity.monthly)}%`}
+                                                    ></span>
+                                                </div>
+                                                <div
+                                                    aria-hidden="true"
+                                                    class="text-center"
+                                                >
+                                                    <p
+                                                        class="text-foreground text-[0.62rem] tabular-nums"
+                                                    >
+                                                        {bucket.recordedMinutes >
+                                                        0
+                                                            ? formatDuration(
+                                                                  bucket.recordedMinutes,
+                                                              )
+                                                            : bucket.unknownDurationEpisodes >
+                                                                0
+                                                              ? "?"
+                                                              : "—"}
+                                                    </p>
+                                                    <time
+                                                        datetime={`${bucket.period}-01`}
+                                                        aria-label={formatMonthName(
+                                                            bucket.period,
+                                                        )}
+                                                        class="text-muted mt-1 block text-[0.55rem] uppercase"
+                                                    >
+                                                        {formatMonthPeriod(
+                                                            bucket.period,
+                                                        )}
+                                                    </time>
+                                                </div>
+                                            </li>
+                                        {/each}
+                                    </ol>
+                                </div>
+                            </section>
+
+                            <section
+                                aria-labelledby="yearly-activity-heading"
+                                class="glass-control control-rounded border-border border p-3 sm:p-4"
+                            >
+                                <h3
+                                    id="yearly-activity-heading"
+                                    class="text-foreground text-base font-light"
+                                >
+                                    Yearly totals
+                                </h3>
+                                <ul
+                                    aria-label="Yearly recorded watch activity"
+                                    class="border-border mt-4 grid divide-y border-y"
+                                >
+                                    {#each insights.activity.yearly as bucket (bucket.period)}
+                                        <li
+                                            aria-label={bucketLabel(bucket)}
+                                            class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 py-3"
+                                        >
+                                            <span
+                                                class="text-accent text-lg font-light tabular-nums"
+                                                >{bucket.period}</span
+                                            >
+                                            <span
+                                                class="text-muted text-right text-[0.62rem] leading-4"
+                                            >
+                                                <span
+                                                    class="text-foreground block text-sm"
+                                                    >{formatDuration(
+                                                        bucket.recordedMinutes,
+                                                    )}</span
+                                                >
+                                                {countLabel(
+                                                    bucket.recordedEpisodes,
+                                                    "episode",
+                                                )}
+                                                {#if bucket.unknownDurationEpisodes > 0}
+                                                    <span
+                                                        class="text-warning block"
+                                                        >{bucket.unknownDurationEpisodes}
+                                                        duration excluded</span
+                                                    >
+                                                {/if}
+                                            </span>
+                                        </li>
+                                    {/each}
+                                </ul>
+                            </section>
+                        </div>
+
+                        <ol
+                            aria-label="Recent recorded progress events"
+                            class="mt-5 grid gap-2"
+                        >
+                            {#each insights.activity.events.slice(0, 8) as activity, index (`${activity.occurredAt}:${activity.anilistId}:${index}`)}
+                                <li
+                                    class="glass-control control-rounded border-border grid min-w-0 gap-2 border px-3 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+                                >
+                                    <div class="min-w-0">
+                                        <p
+                                            class="text-foreground truncate text-sm"
+                                        >
+                                            {titleForActivity(activity)}
+                                        </p>
+                                        <time
+                                            class="text-muted mt-1 block text-[0.65rem]"
+                                            datetime={activity.occurredAt}
+                                        >
+                                            {formatTimestamp(
+                                                activity.occurredAt,
+                                            )}
+                                        </time>
+                                    </div>
+                                    <p
+                                        class="text-accent text-xs tabular-nums sm:text-right"
+                                    >
+                                        +{activity.progressDelta}
+                                        {activity.progressDelta === 1
+                                            ? "episode"
+                                            : "episodes"}
+                                        <span class="text-muted block"
+                                            >{activityDuration(activity)}</span
+                                        >
+                                    </p>
                                 </li>
                             {/each}
-                        </ul>
-                    </section>
-                </div>
-
-                <ol
-                    aria-label="Recent recorded progress events"
-                    class="mt-5 grid gap-2"
-                >
-                    {#each insights.activity.events.slice(0, 8) as activity, index (`${activity.occurredAt}:${activity.anilistId}:${index}`)}
-                        <li
-                            class="glass-control control-rounded border-border grid min-w-0 gap-2 border px-3 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
-                        >
-                            <div class="min-w-0">
-                                <p class="text-foreground truncate text-sm">
-                                    {titleForActivity(activity)}
-                                </p>
-                                <time
-                                    class="text-muted mt-1 block text-[0.65rem]"
-                                    datetime={activity.occurredAt}
-                                >
-                                    {formatTimestamp(activity.occurredAt)}
-                                </time>
-                            </div>
-                            <p
-                                class="text-accent text-xs tabular-nums sm:text-right"
-                            >
-                                +{activity.progressDelta}
-                                {activity.progressDelta === 1
-                                    ? "episode"
-                                    : "episodes"}
-                                <span class="text-muted block"
-                                    >{activityDuration(activity)}</span
-                                >
-                            </p>
-                        </li>
-                    {/each}
-                </ol>
+                        </ol>
+                    {/if}
+                </section>
             {/if}
-        </section>
+        {/if}
 
         <section
             aria-labelledby="library-index-heading"
@@ -1155,7 +1213,7 @@
                             =^.^=
                         </p>
                         <h3 class="text-foreground mt-4 text-xl font-light">
-                            Your library has no anime yet.
+                            Your library has no {kindLabel} yet.
                         </h3>
                         <p class="text-muted mt-2 text-sm leading-6">
                             Open a title in Discover and add it to your library.
@@ -1382,7 +1440,10 @@
                                             id={`library-card-summary-${item.entry.anilistId}`}
                                             class="sr-only"
                                         >
-                                            {item.entry.status.toLocaleLowerCase()}.
+                                            {mediaKind === "MANGA" &&
+                                            item.entry.status === "WATCHING"
+                                                ? "reading"
+                                                : item.entry.status.toLocaleLowerCase()}.
                                             {progressLabel(item)}.
                                             {item.entry.score === null
                                                 ? "No personal score."
@@ -1410,7 +1471,10 @@
                                             <span
                                                 class="text-accent mt-1 text-[0.62rem] tracking-[0.08em] uppercase"
                                             >
-                                                {item.entry.status.toLocaleLowerCase()}
+                                                {mediaKind === "MANGA" &&
+                                                item.entry.status === "WATCHING"
+                                                    ? "reading"
+                                                    : item.entry.status.toLocaleLowerCase()}
                                             </span>
                                             <span
                                                 class="text-muted mt-1 text-[0.62rem] tracking-[0.08em] uppercase"

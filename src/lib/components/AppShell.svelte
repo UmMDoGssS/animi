@@ -16,6 +16,9 @@
         ClearLocalDataRequest,
         ClearLocalDataResponse,
         DashboardInsights,
+        DashboardInsightsRequest,
+        RefreshLibraryMetadataRequest,
+        MediaKind,
         ExportBackupResponse,
         HomeAiringResponse,
         ImportBackupRequest,
@@ -40,6 +43,7 @@
     import type { DebugPresentationMode } from "$lib/state/debugPresentation";
     import { applyThemePreference } from "$lib/theme/theme";
 
+    import MediaKindSelector from "./MediaKindSelector.svelte";
     import AppNavigation from "./AppNavigation.svelte";
     import DashboardPage from "./pages/DashboardPage.svelte";
     import ForcedPresentationPanel from "./ForcedPresentationPanel.svelte";
@@ -74,8 +78,12 @@
         deleteEntry?: (
             request: RemoveLibraryEntryRequest,
         ) => Promise<RemoveLibraryEntryResponse>;
-        loadInsights?: () => Promise<DashboardInsights>;
-        refreshMetadata?: () => Promise<RefreshLibraryMetadataResponse>;
+        loadInsights?: (
+            request: DashboardInsightsRequest,
+        ) => Promise<DashboardInsights>;
+        refreshMetadata?: (
+            request: RefreshLibraryMetadataRequest,
+        ) => Promise<RefreshLibraryMetadataResponse>;
     }
 
     interface P6ServiceOverrides {
@@ -111,6 +119,7 @@
         p6Services = {},
     }: Props = $props();
 
+    let mediaKind = $state<MediaKind>("ANIME");
     let activeView = $state<PrimaryViewId>("home");
     let themePreference = $state<ThemePreference>("SYSTEM");
     let themeStatus = $state<"loading" | "ready" | "saving" | "error">(
@@ -215,63 +224,111 @@
             </header>
 
             <main id="main-content" tabindex="-1" class="min-w-0">
-                <div
-                    hidden={activeView !== "home" ||
-                        debugPresentationMode !== "off"}
-                >
-                    <HomePage
-                        loadAiring={p5Services.loadAiring}
-                        advanceProgress={p5Services.advanceProgress}
-                        loadDetails={p4Services.loadDetails}
-                        saveEntry={p4Services.saveEntry}
-                        deleteEntry={p4Services.deleteEntry}
-                        refreshIntervalMs={p5Services.refreshIntervalMs}
-                        openDiscovery={() => selectView("discovery")}
-                    />
-                </div>
-                {#if activeView === "settings"}
-                    <SettingsPage
-                        {themePreference}
-                        {themeStatus}
-                        {themeError}
-                        {selectThemePreference}
-                        {retryThemePreference}
-                        {debugPresentationMode}
-                        setDebugPresentationMode={(
-                            mode: DebugPresentationMode,
-                        ) => (debugPresentationMode = mode)}
-                        saveBackup={p6Services.saveBackup ?? exportBackup}
-                        chooseImport={p6Services.chooseImport ?? previewImport}
-                        restoreBackup={p6Services.restoreBackup ?? importBackup}
-                        clearData={p6Services.clearData ?? clearLocalData}
-                        localStateChanged={loadPreference}
-                    />
-                {:else if debugPresentationMode !== "off"}
-                    <ForcedPresentationPanel
-                        view={activeView}
-                        mode={debugPresentationMode}
-                        openSettings={() => selectView("settings")}
-                    />
-                {:else if activeView === "discovery"}
-                    <DiscoveryPage
-                        loadTrending={p4Services.loadTrending}
-                        searchAnime={p4Services.searchAnime}
-                        loadDetails={p4Services.loadDetails}
-                        loadLibrary={p4Services.loadLibrary}
-                        saveEntry={p4Services.saveEntry}
-                        deleteEntry={p4Services.deleteEntry}
-                        loadRecommendations={p5Services.loadRecommendations}
-                    />
-                {:else if activeView === "dashboard"}
-                    <DashboardPage
-                        loadInsights={p4Services.loadInsights}
-                        refreshMetadata={p4Services.refreshMetadata}
-                        loadDetails={p4Services.loadDetails}
-                        saveEntry={p4Services.saveEntry}
-                        deleteEntry={p4Services.deleteEntry}
-                        openDiscovery={() => selectView("discovery")}
-                    />
+                {#if activeView !== "settings"}
+                    <div class="scope-row">
+                        <p class="text-foreground text-xl font-semibold">
+                            {activeView === "home"
+                                ? mediaKind === "MANGA"
+                                    ? "Your reading library"
+                                    : "Continue watching"
+                                : activeView === "dashboard"
+                                  ? "Activity"
+                                  : "Discover"}
+                        </p>
+                        <MediaKindSelector
+                            value={mediaKind}
+                            onChange={(kind) => (mediaKind = kind)}
+                            label={`${activeView} media type`}
+                        />
+                    </div>
                 {/if}
+                {#key mediaKind}
+                    {#if mediaKind === "ANIME"}
+                        <div
+                            hidden={activeView !== "home" ||
+                                debugPresentationMode !== "off"}
+                        >
+                            <HomePage
+                                loadAiring={p5Services.loadAiring}
+                                advanceProgress={p5Services.advanceProgress}
+                                loadDetails={p4Services.loadDetails}
+                                saveEntry={p4Services.saveEntry}
+                                deleteEntry={p4Services.deleteEntry}
+                                refreshIntervalMs={p5Services.refreshIntervalMs}
+                                openDiscovery={() => selectView("discovery")}
+                            />
+                        </div>
+                    {/if}
+                    {#if activeView === "home" && debugPresentationMode === "off"}
+                        {#if mediaKind === "MANGA"}
+                            <div
+                                id="home-panel"
+                                role="tabpanel"
+                                aria-labelledby="home-tab"
+                                tabindex="-1"
+                            >
+                                <h1 class="sr-only">Home</h1>
+                            </div>
+                        {/if}
+                        <DashboardPage
+                            {mediaKind}
+                            libraryOnly
+                            loadInsights={p4Services.loadInsights}
+                            refreshMetadata={p4Services.refreshMetadata}
+                            loadDetails={p4Services.loadDetails}
+                            saveEntry={p4Services.saveEntry}
+                            deleteEntry={p4Services.deleteEntry}
+                            openDiscovery={() => selectView("discovery")}
+                        />
+                    {/if}
+                    {#if activeView === "settings"}
+                        <SettingsPage
+                            {themePreference}
+                            {themeStatus}
+                            {themeError}
+                            {selectThemePreference}
+                            {retryThemePreference}
+                            {debugPresentationMode}
+                            setDebugPresentationMode={(
+                                mode: DebugPresentationMode,
+                            ) => (debugPresentationMode = mode)}
+                            saveBackup={p6Services.saveBackup ?? exportBackup}
+                            chooseImport={p6Services.chooseImport ??
+                                previewImport}
+                            restoreBackup={p6Services.restoreBackup ??
+                                importBackup}
+                            clearData={p6Services.clearData ?? clearLocalData}
+                            localStateChanged={loadPreference}
+                        />
+                    {:else if debugPresentationMode !== "off"}
+                        <ForcedPresentationPanel
+                            view={activeView}
+                            mode={debugPresentationMode}
+                            openSettings={() => selectView("settings")}
+                        />
+                    {:else if activeView === "discovery"}
+                        <DiscoveryPage
+                            {mediaKind}
+                            loadTrending={p4Services.loadTrending}
+                            searchAnime={p4Services.searchAnime}
+                            loadDetails={p4Services.loadDetails}
+                            loadLibrary={p4Services.loadLibrary}
+                            saveEntry={p4Services.saveEntry}
+                            deleteEntry={p4Services.deleteEntry}
+                            loadRecommendations={p5Services.loadRecommendations}
+                        />
+                    {:else if activeView === "dashboard"}
+                        <DashboardPage
+                            {mediaKind}
+                            loadInsights={p4Services.loadInsights}
+                            refreshMetadata={p4Services.refreshMetadata}
+                            loadDetails={p4Services.loadDetails}
+                            saveEntry={p4Services.saveEntry}
+                            deleteEntry={p4Services.deleteEntry}
+                            openDiscovery={() => selectView("discovery")}
+                        />
+                    {/if}
+                {/key}
             </main>
         </div>
     </div>

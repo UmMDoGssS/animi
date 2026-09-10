@@ -10,6 +10,7 @@
         CommandError,
         LibraryEntry,
         LibraryStatus,
+        MediaKind,
         RemoveLibraryEntryRequest,
         RemoveLibraryEntryResponse,
         UpsertLibraryEntryRequest,
@@ -18,6 +19,8 @@
     interface Props {
         anilistId: number;
         knownTotal: number | null;
+        mediaKind?: MediaKind;
+        knownVolumeTotal?: number | null;
         entry: LibraryEntry | null;
         saveEntry?: (
             request: UpsertLibraryEntryRequest,
@@ -31,11 +34,13 @@
 
     interface FieldErrors {
         progress?: string;
+        volumeProgress?: string;
         notes?: string;
     }
 
     interface ValidatedDrafts {
         progress: number;
+        volumeProgress: number | null;
         score: number | null;
     }
 
@@ -77,6 +82,8 @@
         anilistId,
         knownTotal,
         entry,
+        mediaKind = entry?.mediaKind ?? "ANIME",
+        knownVolumeTotal = null,
         saveEntry = upsertLibraryEntry,
         deleteEntry = removeLibraryEntry,
         onSaved,
@@ -85,6 +92,9 @@
 
     let statusDraft = $state<LibraryStatus>("PLANNING");
     let progressDraft = $state(0);
+    let volumeDraft = $state<number | undefined>(0);
+    let isManga = $derived(mediaKind === "MANGA");
+    let primaryUnit = $derived(isManga ? "chapters" : "episodes");
     let scoreDraft = $state<number | null>(null);
     let unknownProgressMaximum = $state(DEFAULT_UNKNOWN_PROGRESS_MAXIMUM);
     let notesDraft = $state("");
@@ -114,13 +124,16 @@
 
     let notesCharacterCount = $derived(Array.from(notesDraft).length);
     let hasValidationErrors = $derived(
-        fieldErrors.progress !== undefined || fieldErrors.notes !== undefined,
+        fieldErrors.progress !== undefined ||
+            fieldErrors.volumeProgress !== undefined ||
+            fieldErrors.notes !== undefined,
     );
     let isBusy = $derived(busyOperation !== "idle");
     let hasUnsavedChanges = $derived(
         savedDraft === null ||
             statusDraft !== savedDraft.status ||
             progressDraft !== savedDraft.progress ||
+            (isManga && volumeDraft !== savedDraft.volumeProgress) ||
             scoreDraft !== savedDraft.score ||
             notesDraft !== savedDraft.notes,
     );
@@ -130,7 +143,7 @@
     );
 
     $effect.pre(() => {
-        const nextDraftSource = `${anilistId}:${entry?.updatedAt ?? "new"}`;
+        const nextDraftSource = `${mediaKind}:${anilistId}:${entry?.updatedAt ?? "new"}`;
         if (initializedDraftSource === nextDraftSource) {
             return;
         }
@@ -138,6 +151,7 @@
         initializedDraftSource = nextDraftSource;
         statusDraft = entry?.status ?? "PLANNING";
         progressDraft = entry?.progress ?? 0;
+        volumeDraft = entry?.volumeProgress ?? 0;
         scoreDraft = entry?.score ?? null;
         unknownProgressMaximum = Math.max(
             DEFAULT_UNKNOWN_PROGRESS_MAXIMUM,
@@ -148,6 +162,7 @@
             ? {
                   status: entry.status,
                   progress: entry.progress,
+                  volumeProgress: entry.volumeProgress,
                   score: entry.score,
                   notes: entry.notes ?? "",
               }
@@ -180,7 +195,24 @@
             nextErrors.progress =
                 "Enter a non-negative whole number within Animi's supported range.";
         } else if (knownTotal !== null && progress > knownTotal) {
-            nextErrors.progress = `Progress cannot exceed the known total of ${knownTotal} episodes.`;
+            nextErrors.progress = `Progress cannot exceed the known total of ${knownTotal} ${primaryUnit}.`;
+        }
+
+        if (
+            isManga &&
+            (!Number.isInteger(volumeDraft) ||
+                volumeDraft === undefined ||
+                volumeDraft < 0 ||
+                volumeDraft > MAX_PROGRESS)
+        ) {
+            nextErrors.volumeProgress =
+                "Enter volumes as a non-negative whole number.";
+        } else if (
+            isManga &&
+            knownVolumeTotal !== null &&
+            (volumeDraft ?? 0) > knownVolumeTotal
+        ) {
+            nextErrors.volumeProgress = `Volumes cannot exceed the known total of ${knownVolumeTotal}.`;
         }
 
         if (notesCharacterCount > MAX_NOTES_CHARACTERS) {
@@ -194,12 +226,17 @@
 
         if (
             nextErrors.progress !== undefined ||
+            nextErrors.volumeProgress !== undefined ||
             nextErrors.notes !== undefined
         ) {
             return null;
         }
 
-        return { progress, score: scoreDraft };
+        return {
+            progress,
+            volumeProgress: isManga ? (volumeDraft ?? 0) : null,
+            score: scoreDraft,
+        };
     }
 
     function updateProgress(value: string): void {
@@ -244,10 +281,10 @@
         try {
             const savedEntry = await saveEntry({
                 anilistId,
-                mediaKind: entry?.mediaKind ?? "ANIME",
+                mediaKind,
                 status: statusDraft,
                 progress: validatedDrafts.progress,
-                volumeProgress: entry?.volumeProgress ?? null,
+                volumeProgress: validatedDrafts.volumeProgress,
                 score: validatedDrafts.score,
                 notes: notesDraft,
             });
@@ -255,6 +292,7 @@
             savedDraft = {
                 status: savedEntry.status,
                 progress: savedEntry.progress,
+                volumeProgress: savedEntry.volumeProgress,
                 score: savedEntry.score,
                 notes: savedEntry.notes ?? "",
             };
@@ -356,12 +394,16 @@
                             <span
                                 class="text-foreground block text-sm font-medium"
                             >
-                                {option.label}
+                                {isManga && option.value === "WATCHING"
+                                    ? "Reading"
+                                    : option.label}
                             </span>
                             <span
                                 class="text-muted mt-0.5 block text-xs leading-5"
                             >
-                                {option.description}
+                                {isManga && option.value === "COMPLETED"
+                                    ? "Finished reading."
+                                    : option.description}
                             </span>
                         </span>
                     </label>
@@ -375,7 +417,7 @@
                             for={`${fieldIdPrefix}-progress`}
                             class="text-foreground block text-sm font-medium"
                         >
-                            Episodes watched
+                            {isManga ? "Chapters read" : "Episodes watched"}
                         </label>
                         <span
                             class="glass-control control-rounded border-border text-foreground border px-2.5 py-1 text-xs tabular-nums"
@@ -390,7 +432,9 @@
                     >
                         <button
                             type="button"
-                            aria-label="Decrease episodes watched"
+                            aria-label={isManga
+                                ? "Decrease chapters read"
+                                : "Decrease episodes watched"}
                             class="glass-control glass-interactive control-rounded border-border text-foreground min-h-11 border text-lg disabled:cursor-not-allowed disabled:opacity-40"
                             disabled={progressDraft === 0}
                             onclick={() => adjustProgress(-1)}
@@ -415,7 +459,9 @@
                         />
                         <button
                             type="button"
-                            aria-label="Increase episodes watched"
+                            aria-label={isManga
+                                ? "Increase chapters read"
+                                : "Increase episodes watched"}
                             class="glass-control glass-interactive control-rounded border-border text-foreground min-h-11 border text-lg disabled:cursor-not-allowed disabled:opacity-40"
                             disabled={knownTotal !== null &&
                                 progressDraft === knownTotal}
@@ -428,7 +474,13 @@
                         id={progressHelpId}
                         class="text-muted mt-2 text-xs leading-5"
                     >
-                        {#if knownTotal === null}
+                        {#if isManga}
+                            {knownTotal === null
+                                ? "Chapter total is unknown."
+                                : `Known chapter total: ${knownTotal}.`}
+                            Chapters and volumes are recorded independently. Corrections
+                            do not count the same progress twice.
+                        {:else if knownTotal === null}
                             Episode total is unknown. Use the slider, arrow
                             keys, or step buttons to record progress. Saving
                             nonzero progress adds those episodes to your watch
@@ -447,6 +499,45 @@
                         </p>
                     {/if}
                 </div>
+
+                {#if isManga}
+                    <div class="min-w-0">
+                        <label
+                            for={`${fieldIdPrefix}-volumes`}
+                            class="text-foreground block text-sm font-medium"
+                            >Volumes read</label
+                        >
+                        <input
+                            id={`${fieldIdPrefix}-volumes`}
+                            type="number"
+                            min="0"
+                            max={knownVolumeTotal ?? MAX_PROGRESS}
+                            step="1"
+                            bind:value={volumeDraft}
+                            oninput={() => clearFeedback("volumeProgress")}
+                            aria-invalid={fieldErrors.volumeProgress
+                                ? "true"
+                                : undefined}
+                            aria-describedby={`${fieldIdPrefix}-volume-help`}
+                            class="glass-control control-rounded mt-3 min-h-11 w-full px-3"
+                        />
+                        <p
+                            id={`${fieldIdPrefix}-volume-help`}
+                            class="text-muted mt-2 text-xs"
+                        >
+                            {knownVolumeTotal === null
+                                ? "Volume total is unknown."
+                                : `Known volume total: ${knownVolumeTotal}.`} Updating
+                            chapters never changes volumes.
+                        </p>
+                        {#if fieldErrors.volumeProgress}<p
+                                role="alert"
+                                class="text-danger mt-1 text-xs"
+                            >
+                                {fieldErrors.volumeProgress}
+                            </p>{/if}
+                    </div>
+                {/if}
 
                 <div class="min-w-0">
                     <div class="flex items-center justify-between gap-3">

@@ -631,7 +631,7 @@ describe("DiscoveryPage", () => {
             name: "Violet Evergreen",
         });
         expect(
-            within(dialog).getByText(/Try again to edit this anime/i),
+            within(dialog).getByText(/Try again to edit this title/i),
         ).toBeInTheDocument();
         expect(
             within(dialog).queryByRole("button", { name: "Add to library" }),

@@ -144,8 +144,8 @@ describe("theme contract", () => {
             const density = Number.parseFloat(
                 tokenValue(block, "glass-density"),
             );
-            expect(density).toBeGreaterThanOrEqual(50);
-            expect(density).toBeLessThanOrEqual(55);
+            expect(density).toBeGreaterThanOrEqual(75);
+            expect(density).toBeLessThanOrEqual(80);
         },
     );
 
@@ -175,7 +175,7 @@ describe("theme contract", () => {
             expect(block).toContain(`var(--${token})`);
         }
 
-        expect(block).toContain("rotate(-8deg)");
+        expect(block).toContain("rotate(-13deg)");
     });
 
     it.each(themeIds)("keeps %s text colors readable", (themeId) => {

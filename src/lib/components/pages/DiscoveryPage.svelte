@@ -21,6 +21,7 @@
         MediaPageRequest,
         MediaPageResponse,
         MediaSummary,
+        MediaKind,
         Recommendation,
         RecommendationsRequest,
         RecommendationsResponse,
@@ -35,6 +36,7 @@
     import MediaDetailsDialog from "../MediaDetailsDialog.svelte";
 
     interface Props {
+        mediaKind?: MediaKind;
         loadTrending?: (
             request: MediaPageRequest,
         ) => Promise<MediaPageResponse>;
@@ -58,6 +60,7 @@
     }
 
     let {
+        mediaKind = "ANIME",
         loadTrending = listTrending,
         loadRecommendations = getRecommendations,
         searchAnime = searchMedia,
@@ -68,12 +71,14 @@
         debounceMs = 350,
     }: Props = $props();
 
-    const collectionRequest = {
-        mediaKind: "ANIME",
+    const collectionRequest = $derived({
+        mediaKind,
         page: 1,
         perPage: 12,
-    } as const;
+    });
 
+    let kindLabel = $derived(mediaKind === "MANGA" ? "manga" : "anime");
+    let kindTitle = $derived(mediaKind === "MANGA" ? "Manga" : "Anime");
     let query = $state("");
     let searchTerm = $state("");
     let searchResponse = $state<MediaPageResponse | null>(null);
@@ -139,7 +144,7 @@
         recommendationsError = null;
         try {
             recommendationsResponse = await loadRecommendations({
-                mediaKind: "ANIME",
+                mediaKind,
                 perPage: 18,
             });
         } catch (reason) {
@@ -155,7 +160,7 @@
 
         try {
             libraryItems = (await loadLibrary()).filter(
-                (item) => item.entry.mediaKind === "ANIME",
+                (item) => item.entry.mediaKind === mediaKind,
             );
         } catch (reason) {
             libraryError = normalizeCommandError(reason);
@@ -319,8 +324,8 @@
 
     function episodeLabel(episodes: number | null): string {
         return episodes === null
-            ? "episode total unknown"
-            : `${episodes} ${episodes === 1 ? "episode" : "episodes"}`;
+            ? `${mediaKind === "MANGA" ? "chapter" : "episode"} total unknown`
+            : `${episodes} ${mediaKind === "MANGA" ? (episodes === 1 ? "chapter" : "chapters") : episodes === 1 ? "episode" : "episodes"}`;
     }
 
     function genreLabel(genres: string[]): string {
@@ -365,14 +370,14 @@
                     id="discover-search-heading"
                     class="text-foreground text-lg font-light tracking-[0.03em] sm:text-xl"
                 >
-                    Find an anime by title
+                    Find {mediaKind === "MANGA" ? "a manga" : "an anime"} by title
                 </h2>
             </div>
         </div>
 
         <form
             role="search"
-            aria-label="Search anime"
+            aria-label={`Search ${kindLabel}`}
             class="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]"
             onsubmit={submitSearch}
         >
@@ -381,7 +386,7 @@
                     for="discovery-search"
                     class="text-muted mb-2 block text-xs tracking-[0.08em]"
                 >
-                    Anime title
+                    {kindTitle} title
                 </label>
                 <div class="relative min-w-0">
                     <span
@@ -457,7 +462,9 @@
                                 class="text-muted text-[0.64rem] tracking-[0.08em] uppercase"
                             >
                                 {formatLabel(media.mediaFormat)} // {episodeLabel(
-                                    media.episodes,
+                                    media.mediaKind === "MANGA"
+                                        ? media.chapters
+                                        : media.episodes,
                                 )}
                             </span>
                             <span
@@ -478,7 +485,10 @@
                                 {:else if libraryError}
                                     tracking unavailable
                                 {:else if entry}
-                                    {entry.status.toLocaleLowerCase()}
+                                    {mediaKind === "MANGA" &&
+                                    entry.status === "WATCHING"
+                                        ? "reading"
+                                        : entry.status.toLocaleLowerCase()}
                                 {:else}
                                     not in library
                                 {/if}
@@ -496,7 +506,7 @@
         fallback: boolean,
     )}
         <ul
-            aria-label="Recommended anime"
+            aria-label={`Recommended ${kindLabel}`}
             class="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3"
         >
             {#each recommendations.slice(0, 6) as recommendation (recommendation.media.anilistId)}
@@ -547,7 +557,10 @@
                                 class:text-muted={entry === null}
                             >
                                 {entry
-                                    ? entry.status.toLocaleLowerCase()
+                                    ? mediaKind === "MANGA" &&
+                                      entry.status === "WATCHING"
+                                        ? "reading"
+                                        : entry.status.toLocaleLowerCase()
                                     : "not in library"}
                             </span>
                         </span>
@@ -583,7 +596,7 @@
                 <AsyncStateNotice
                     status="loading"
                     title={`Searching for "${searchTerm}"`}
-                    description="Looking for matching anime."
+                    description={`Looking for matching ${kindLabel}.`}
                     compact
                 />
             {/if}
@@ -632,13 +645,13 @@
                 {#if searchResponse.items.length > 0}
                     {@render mediaGrid(
                         searchResponse.items,
-                        `Anime search results for ${searchTerm}`,
+                        `${kindTitle} search results for ${searchTerm}`,
                         searchResponse.freshness,
                     )}
                 {:else}
                     <AsyncStateNotice
                         status="empty"
-                        title={`No anime found for "${searchTerm}"`}
+                        title={`No ${kindLabel} found for "${searchTerm}"`}
                         description="Check the title spelling or try a shorter title."
                         compact
                     />
@@ -656,7 +669,9 @@
                         id="recommendations-heading"
                         class="text-foreground text-xl font-light tracking-[0.03em]"
                     >
-                        For your next watch
+                        {mediaKind === "MANGA"
+                            ? "For your next read"
+                            : "For your next watch"}
                     </h2>
                 </div>
                 {#if recommendationsResponse}
@@ -665,7 +680,9 @@
                     >
                         {recommendationsResponse.isFallback
                             ? "Popular picks"
-                            : "Based on your watchlist"}
+                            : mediaKind === "MANGA"
+                              ? "Based on your reading list"
+                              : "Based on your watchlist"}
                     </p>
                 {/if}
             </header>
@@ -673,8 +690,8 @@
             {#if recommendationsLoading}
                 <AsyncStateNotice
                     status="loading"
-                    title="Finding anime for you"
-                    description="Comparing genres and tags from your watchlist."
+                    title={`Finding ${kindLabel} for you`}
+                    description="Comparing genres and tags from your library."
                     compact
                 />
             {/if}
@@ -748,7 +765,7 @@
                         id="trending-heading"
                         class="text-foreground text-xl font-light tracking-[0.03em]"
                     >
-                        Trending anime
+                        Trending {kindLabel}
                     </h2>
                 </div>
             </header>
@@ -756,8 +773,8 @@
             {#if trendingLoading}
                 <AsyncStateNotice
                     status="loading"
-                    title="Loading trending anime"
-                    description="Finding popular anime."
+                    title={`Loading trending ${kindLabel}`}
+                    description={`Finding popular ${kindLabel}.`}
                     compact
                 />
             {/if}
@@ -773,7 +790,7 @@
                           : "error"}
                     title={trendingResponse
                         ? "Keeping the saved trending list"
-                        : "Trending anime could not load"}
+                        : `Trending ${kindLabel} could not load`}
                     description={trendingResponse
                         ? "Your previous trending list is still shown."
                         : trendingError.message}
@@ -791,7 +808,7 @@
                     )
                         ? "offline"
                         : "stale"}
-                    title="Trending anime may be out of date"
+                    title={`Trending ${kindLabel} may be out of date`}
                     description="Reconnect or try again to update this list."
                     error={trendingResponse.freshness.refreshError}
                     onRetry={trendingResponse.freshness.refreshError?.retryable
@@ -806,13 +823,13 @@
                 {#if trendingResponse.items.length > 0}
                     {@render mediaGrid(
                         trendingResponse.items,
-                        "Trending anime",
+                        `Trending ${kindLabel}`,
                         trendingResponse.freshness,
                     )}
                 {:else}
                     <AsyncStateNotice
                         status="empty"
-                        title="No trending anime are available"
+                        title={`No trending ${kindLabel} are available`}
                         description="Try again later or search for a title directly."
                         compact
                     />

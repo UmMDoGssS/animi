@@ -279,20 +279,31 @@
                         <dt
                             class="text-muted text-[0.62rem] tracking-[0.12em] uppercase"
                         >
-                            episodes
+                            {media.mediaKind === "MANGA"
+                                ? "chapters"
+                                : "episodes"}
                         </dt>
                         <dd class="text-foreground text-right text-sm">
-                            {episodeLabel(media.episodes, media.episodesAired)}
+                            {media.mediaKind === "MANGA"
+                                ? (media.chapters ?? "Unknown")
+                                : episodeLabel(
+                                      media.episodes,
+                                      media.episodesAired,
+                                  )}
                         </dd>
                     </div>
                     <div class="flex items-baseline justify-between gap-4 py-3">
                         <dt
                             class="text-muted text-[0.62rem] tracking-[0.12em] uppercase"
                         >
-                            duration
+                            {media.mediaKind === "MANGA"
+                                ? "volumes"
+                                : "duration"}
                         </dt>
                         <dd class="text-foreground text-right text-sm">
-                            {durationLabel(media.durationMinutes)}
+                            {media.mediaKind === "MANGA"
+                                ? (media.volumes ?? "Unknown")
+                                : durationLabel(media.durationMinutes)}
                         </dd>
                     </div>
                     <div class="flex items-baseline justify-between gap-4 py-3">
@@ -319,7 +330,7 @@
             {#if detailsLoading}
                 <AsyncStateNotice
                     status="loading"
-                    title="Loading anime details"
+                    title={`Loading ${summary.mediaKind === "MANGA" ? "manga" : "anime"} details`}
                     description="This may take a moment."
                     compact
                 />
@@ -469,7 +480,7 @@
                                 : "Library controls are unavailable"}
                             description={trackingLoading
                                 ? "Editing will be available in a moment."
-                                : "Try again to edit this anime."}
+                                : "Try again to edit this title."}
                             error={trackingLoading ? null : trackingError}
                             onRetry={!trackingLoading && trackingError.retryable
                                 ? onRetryTracking
@@ -482,7 +493,11 @@
                     {#key `${summary.anilistId}:${currentEntry?.updatedAt ?? "new"}`}
                         <LibraryEntryEditor
                             anilistId={summary.anilistId}
-                            knownTotal={media.episodes}
+                            mediaKind={summary.mediaKind}
+                            knownTotal={media.mediaKind === "MANGA"
+                                ? media.chapters
+                                : media.episodes}
+                            knownVolumeTotal={media.volumes}
                             entry={currentEntry}
                             {saveEntry}
                             {deleteEntry}
