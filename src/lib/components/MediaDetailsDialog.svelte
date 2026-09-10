@@ -232,7 +232,9 @@
         <header
             class="bg-glass border-border sticky top-0 z-20 flex min-h-14 items-center justify-between gap-3 border-b px-4 py-2 backdrop-blur-xl"
         >
-            <span class="text-muted text-xs">Anime details</span>
+            <span class="text-muted text-xs"
+                >{summary.mediaKind === "MANGA" ? "Manga" : "Anime"} details</span
+            >
             <button
                 bind:this={closeButton}
                 type="button"

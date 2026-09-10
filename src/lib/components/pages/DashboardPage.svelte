@@ -40,6 +40,7 @@
     interface Props {
         mediaKind?: MediaKind;
         libraryOnly?: boolean;
+        onLibraryChanged?: () => void;
         loadInsights?: (
             request: DashboardInsightsRequest,
         ) => Promise<DashboardInsights>;
@@ -77,6 +78,7 @@
     let {
         mediaKind = "ANIME",
         libraryOnly = false,
+        onLibraryChanged,
         loadInsights = getDashboardInsights,
         refreshMetadata = refreshLibraryMetadata,
         loadDetails = getMediaDetails,
@@ -395,6 +397,7 @@
     async function handleLibraryChanged(
         entry: LibraryEntry | null,
     ): Promise<void> {
+        onLibraryChanged?.();
         if (selectedItem === null || insights === null) {
             await loadDashboard();
             return;
@@ -413,6 +416,7 @@
     async function handleDetailsLoaded(
         response: MediaDetailsResponse,
     ): Promise<void> {
+        onLibraryChanged?.();
         if (selectedItem === null || insights === null) {
             return;
         }
@@ -619,6 +623,7 @@
 
 <div
     id={libraryOnly ? "home-library" : "dashboard-panel"}
+    class:manga-dashboard={mediaKind === "MANGA"}
     role={libraryOnly ? "region" : "tabpanel"}
     aria-labelledby={libraryOnly ? "library-index-heading" : "dashboard-tab"}
     tabindex="-1"
@@ -644,9 +649,9 @@
         {#if !libraryOnly}
             <section
                 aria-labelledby="library-manifest-heading"
-                class="glass-panel panel-large border-border grid min-w-0 overflow-hidden border lg:grid-cols-[minmax(0,1.25fr)_minmax(17rem,0.75fr)]"
+                class="overview-panel"
             >
-                <div class="min-w-0 p-4 sm:p-6 lg:p-7">
+                <div class="overview-totals min-w-0">
                     <div class="flex flex-wrap items-end justify-between gap-3">
                         <div>
                             <h2
@@ -680,7 +685,7 @@
                     <dl
                         role="group"
                         aria-label="Library totals"
-                        class="border-border mt-6 grid grid-cols-2 border-y"
+                        class="library-totals mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4"
                     >
                         <div class="border-border border-r p-3 sm:p-4">
                             <dt
@@ -773,7 +778,7 @@
                                     .includes("OFFLINE")
                                     ? "offline"
                                     : "error"}
-                                title="Anime details could not be refreshed"
+                                title={`${mediaKind === "MANGA" ? "Manga" : "Anime"} details could not be refreshed`}
                                 description="Your library is still available."
                                 error={refreshError}
                                 onRetry={refreshError.retryable
@@ -801,14 +806,15 @@
                                     "title",
                                 )} could not be refreshed.
                             {:else}
-                                Anime details refreshed.
+                                {mediaKind === "MANGA" ? "Manga" : "Anime"} details
+                                refreshed.
                             {/if}
                         </p>
                     {/if}
                 </div>
 
                 <div
-                    class="border-border min-w-0 border-t p-4 sm:p-6 lg:border-t-0 lg:border-l lg:p-7"
+                    class="overview-preferences glass-panel panel-large min-w-0 p-6"
                 >
                     <h2
                         class="text-foreground text-xl font-light tracking-[0.03em]"
@@ -1204,8 +1210,39 @@
                         Your library
                     </h2>
                 </div>
+                {#if libraryOnly}
+                    <button
+                        type="button"
+                        aria-label={`refresh ${kindLabel} details`}
+                        class="glass-control glass-interactive control-rounded grid size-10 place-items-center"
+                        disabled={refreshing}
+                        onclick={() => void checkTrackedMetadata()}
+                        ><RefreshIcon /></button
+                    >
+                {/if}
             </header>
 
+            {#if libraryOnly && (loadError || refreshError)}
+                {@const error = loadError ?? refreshError}
+                {#if error}<AsyncStateNotice
+                        status={error.code.includes("OFFLINE")
+                            ? "offline"
+                            : "error"}
+                        title="Keeping your saved library"
+                        {error}
+                        onRetry={error.retryable
+                            ? checkTrackedMetadata
+                            : undefined}
+                        compact
+                    />{/if}
+            {/if}
+            {#if libraryOnly && refreshResult}<p
+                    role="status"
+                    class="text-muted mt-3 text-sm"
+                >
+                    Updated {refreshResult.updated} titles; {refreshResult.stale}
+                    using cached details.
+                </p>{/if}
             {#if insights.libraryTotals.tracked === 0}
                 <div class="grid min-h-64 place-items-center py-8 text-center">
                     <div class="max-w-xl">
@@ -1418,13 +1455,11 @@
                         <ul
                             bind:this={libraryRail}
                             aria-label="Library index results"
-                            class="flex min-w-0 touch-pan-x snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth pb-3"
+                            class="library-shelf grid min-w-0 grid-cols-2 gap-4 lg:grid-cols-3"
                         >
                             {#each filteredLibraryItems as item (item.entry.anilistId)}
                                 {@const itemTitle = titleForItem(item)}
-                                <li
-                                    class="w-[min(18rem,84vw)] min-w-0 shrink-0 snap-start sm:w-72"
-                                >
+                                <li class="min-w-0">
                                     <button
                                         type="button"
                                         aria-haspopup="dialog"
@@ -1432,7 +1467,7 @@
                                         aria-describedby={`library-card-summary-${item.entry.anilistId}`}
                                         data-library-anilist-id={item.entry
                                             .anilistId}
-                                        class="glass-control glass-interactive control-rounded border-border grid h-full w-full min-w-0 grid-cols-[3.75rem_minmax(0,1fr)] gap-3 border p-2 text-left transition-colors"
+                                        class="glass-control glass-interactive panel-large flex h-full w-full min-w-0 flex-col gap-3 p-3 text-left transition-colors"
                                         onclick={(event) =>
                                             openItemDetails(item, event)}
                                     >
@@ -1450,7 +1485,7 @@
                                                 : `Personal score ${item.entry.score} out of 10.`}
                                         </span>
                                         <div
-                                            class="min-h-[5.625rem] w-[3.75rem] shrink-0 self-stretch"
+                                            class="w-full min-w-0 self-stretch"
                                         >
                                             <MediaCover
                                                 title={itemTitle}
@@ -1524,3 +1559,63 @@
         />
     {/if}
 </div>
+
+<style>
+    .overview-panel {
+        display: contents;
+    }
+    .overview-totals {
+        grid-column: 1 / -1;
+    }
+    .library-totals > div {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px 18px;
+        background: var(--surface-raised);
+    }
+    .library-totals dd {
+        font-size: 30px;
+        letter-spacing: 0;
+        font-weight: 500;
+    }
+    .library-totals dt {
+        text-transform: capitalize;
+        font-size: 13px;
+        letter-spacing: 0;
+    }
+    .library-shelf :global([data-cover-state]) {
+        height: 200px;
+        aspect-ratio: auto;
+    }
+    @supports (backdrop-filter: blur(20px)) {
+        .library-totals > div {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+        }
+    }
+    @media (min-width: 1000px) {
+        #dashboard-panel {
+            grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+            align-items: start;
+        }
+        .manga-dashboard .overview-preferences {
+            grid-column: 1 / -1;
+        }
+        .overview-preferences {
+            grid-column: 2;
+            grid-row: 2;
+        }
+        section[aria-labelledby="activity-ledger-heading"] {
+            grid-column: 1;
+            grid-row: 2;
+        }
+        section[aria-labelledby="library-index-heading"] {
+            grid-column: 1 / -1;
+        }
+    }
+    @media (max-width: 600px) {
+        .library-shelf :global([data-cover-state]) {
+            height: 150px;
+        }
+    }
+</style>

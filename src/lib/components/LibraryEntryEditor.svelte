@@ -730,8 +730,9 @@
                     Remove this library entry?
                 </h3>
                 <p class="text-muted mt-2 text-sm leading-6">
-                    This removes the title from your library. Your watch history
-                    remains.
+                    This removes the title from your library. Your {isManga
+                        ? "reading"
+                        : "watch"} history remains.
                 </p>
                 <div class="mt-4 grid gap-2 sm:flex sm:flex-wrap">
                     <button

@@ -152,7 +152,7 @@ describe("SettingsPage", () => {
         await user.click(screen.getByRole("button", { name: "Export backup" }));
         expect(recoveryServices.saveBackup).toHaveBeenCalledTimes(1);
         expect(await screen.findByRole("status")).toHaveTextContent(
-            /4 library titles and 7 watch history updates/i,
+            /4 library titles and 7 activity updates/i,
         );
     });
 
@@ -256,7 +256,7 @@ describe("SettingsPage", () => {
             confirmation: "CLEAR MY LOCAL DATA",
         });
         expect(await screen.findByRole("status")).toHaveTextContent(
-            /Removed 4 library titles and 7 watch history updates/i,
+            /Removed 4 library titles and 7 activity updates/i,
         );
         expect(recoveryServices.localStateChanged).toHaveBeenCalledTimes(1);
     });

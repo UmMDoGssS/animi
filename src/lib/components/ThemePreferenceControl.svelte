@@ -52,11 +52,16 @@
         disabled={status === "loading" || status === "saving"}
     >
         <legend class="sr-only">Theme preference</legend>
-        <div class="grid gap-3 sm:grid-cols-3">
+        <div class="grid grid-cols-3 gap-2">
             {#each themeOptions as option (option.value)}
                 <label
-                    class="theme-option glass-control glass-interactive control-rounded border-border has-checked:border-accent has-checked:ring-accent/30 flex cursor-pointer gap-3 border p-4 transition has-checked:ring-2"
+                    class="theme-option glass-control glass-interactive control-rounded border-border has-checked:border-accent has-checked:ring-accent/30 flex cursor-pointer flex-col gap-3 border p-3 transition has-checked:ring-2"
                 >
+                    <span
+                        aria-hidden="true"
+                        class="theme-swatch"
+                        data-palette={option.value}><i></i><i></i><i></i></span
+                    >
                     <input
                         type="radio"
                         name="theme-preference"
@@ -121,6 +126,34 @@
 </section>
 
 <style>
+    .theme-swatch {
+        display: block;
+        width: 100%;
+        height: 86px;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        background: var(--preview-dark);
+    }
+    .theme-swatch[data-palette="LATTE"] {
+        background: var(--preview-light);
+    }
+    .theme-swatch[data-palette="SYSTEM"] {
+        background: linear-gradient(
+            90deg,
+            var(--preview-light) 50%,
+            var(--preview-dark) 50%
+        );
+    }
+    .theme-swatch i {
+        display: block;
+        width: 75%;
+        height: 7px;
+        border-radius: 3px;
+        margin: 8px 0;
+        background: var(--preview-line);
+    }
+
     .theme-option:has(input:focus-visible) {
         outline: 2px solid var(--accent);
         outline-offset: 3px;

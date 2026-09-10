@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
 
     import {
         clearLocalData,
@@ -119,6 +119,8 @@
         p6Services = {},
     }: Props = $props();
 
+    let homeRevision = $state(0);
+    let libraryRevision = $state(0);
     let mediaKind = $state<MediaKind>("ANIME");
     let activeView = $state<PrimaryViewId>("home");
     let themePreference = $state<ThemePreference>("SYSTEM");
@@ -181,6 +183,15 @@
         await selectThemePreference(failedThemeOperation.preference);
     }
 
+    async function selectMediaKind(kind: MediaKind): Promise<void> {
+        mediaKind = kind;
+        // Discover recreates its search tools on kind changes; retain keyboard focus.
+        await tick();
+        document
+            .querySelector<HTMLInputElement>(`input[data-media-kind="${kind}"]`)
+            ?.focus();
+    }
+
     function selectView(view: PrimaryViewId) {
         activeView = view;
         document.documentElement.scrollTop = 0;
@@ -224,7 +235,7 @@
             </header>
 
             <main id="main-content" tabindex="-1" class="min-w-0">
-                {#if activeView !== "settings"}
+                {#if activeView !== "settings" && (activeView !== "discovery" || debugPresentationMode !== "off")}
                     <div class="scope-row">
                         <p class="text-foreground text-xl font-semibold">
                             {activeView === "home"
@@ -237,27 +248,29 @@
                         </p>
                         <MediaKindSelector
                             value={mediaKind}
-                            onChange={(kind) => (mediaKind = kind)}
+                            onChange={selectMediaKind}
                             label={`${activeView} media type`}
                         />
                     </div>
                 {/if}
                 {#key mediaKind}
-                    {#if mediaKind === "ANIME"}
-                        <div
-                            hidden={activeView !== "home" ||
-                                debugPresentationMode !== "off"}
-                        >
-                            <HomePage
-                                loadAiring={p5Services.loadAiring}
-                                advanceProgress={p5Services.advanceProgress}
-                                loadDetails={p4Services.loadDetails}
-                                saveEntry={p4Services.saveEntry}
-                                deleteEntry={p4Services.deleteEntry}
-                                refreshIntervalMs={p5Services.refreshIntervalMs}
-                                openDiscovery={() => selectView("discovery")}
-                            />
-                        </div>
+                    {#if mediaKind === "ANIME" && activeView === "home" && debugPresentationMode === "off"}
+                        {#key homeRevision}
+                            <div>
+                                <HomePage
+                                    onLibraryChanged={() =>
+                                        (libraryRevision += 1)}
+                                    loadAiring={p5Services.loadAiring}
+                                    advanceProgress={p5Services.advanceProgress}
+                                    loadDetails={p4Services.loadDetails}
+                                    saveEntry={p4Services.saveEntry}
+                                    deleteEntry={p4Services.deleteEntry}
+                                    refreshIntervalMs={p5Services.refreshIntervalMs}
+                                    openDiscovery={() =>
+                                        selectView("discovery")}
+                                />
+                            </div>
+                        {/key}
                     {/if}
                     {#if activeView === "home" && debugPresentationMode === "off"}
                         {#if mediaKind === "MANGA"}
@@ -270,16 +283,19 @@
                                 <h1 class="sr-only">Home</h1>
                             </div>
                         {/if}
-                        <DashboardPage
-                            {mediaKind}
-                            libraryOnly
-                            loadInsights={p4Services.loadInsights}
-                            refreshMetadata={p4Services.refreshMetadata}
-                            loadDetails={p4Services.loadDetails}
-                            saveEntry={p4Services.saveEntry}
-                            deleteEntry={p4Services.deleteEntry}
-                            openDiscovery={() => selectView("discovery")}
-                        />
+                        {#key libraryRevision}
+                            <DashboardPage
+                                {mediaKind}
+                                onLibraryChanged={() => (homeRevision += 1)}
+                                libraryOnly
+                                loadInsights={p4Services.loadInsights}
+                                refreshMetadata={p4Services.refreshMetadata}
+                                loadDetails={p4Services.loadDetails}
+                                saveEntry={p4Services.saveEntry}
+                                deleteEntry={p4Services.deleteEntry}
+                                openDiscovery={() => selectView("discovery")}
+                            />
+                        {/key}
                     {/if}
                     {#if activeView === "settings"}
                         <SettingsPage
@@ -309,6 +325,7 @@
                     {:else if activeView === "discovery"}
                         <DiscoveryPage
                             {mediaKind}
+                            onMediaKindChange={selectMediaKind}
                             loadTrending={p4Services.loadTrending}
                             searchAnime={p4Services.searchAnime}
                             loadDetails={p4Services.loadDetails}

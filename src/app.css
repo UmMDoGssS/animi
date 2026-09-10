@@ -4,6 +4,9 @@
 :root,
 :root[data-theme="latte"] {
     color-scheme: light;
+    --preview-light: #eff1f5;
+    --preview-dark: #24273a;
+    --preview-line: #a5adcb;
     --surface: #eff1f5;
     --surface-raised: #e6e9ef;
     --surface-sunken: #dce0e8;
@@ -526,5 +529,36 @@ a {
     }
     .app-navigation [role="tablist"] {
         justify-content: space-between;
+    }
+}
+
+/* Keep content typography plain and legible across the redesigned pages. */
+.app-chrome h2 {
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+.app-chrome .uppercase {
+    text-transform: none;
+    letter-spacing: normal;
+}
+.app-chrome .font-light {
+    font-weight: 400;
+}
+
+.app-chrome h2.font-light {
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .app-navigation .glass-tab {
+        flex: 1;
+        min-width: 0;
+        padding-inline: 6px;
+    }
+    .app-navigation .glass-tab svg {
+        display: none;
+    }
+    .app-navigation .glass-tab span {
+        font-size: 12px;
     }
 }

@@ -44,6 +44,7 @@
             request: RemoveLibraryEntryRequest,
         ) => Promise<RemoveLibraryEntryResponse>;
         openDiscovery?: () => void;
+        onLibraryChanged?: () => void;
         refreshIntervalMs?: number;
     }
 
@@ -54,6 +55,7 @@
         saveEntry = upsertLibraryEntry,
         deleteEntry = removeLibraryEntry,
         openDiscovery = () => undefined,
+        onLibraryChanged,
         refreshIntervalMs = 30 * 60 * 1000,
     }: Props = $props();
 
@@ -122,6 +124,7 @@
                 anilistId: item.library.entry.anilistId,
                 mediaKind: item.library.entry.mediaKind,
             });
+            onLibraryChanged?.();
             if (response !== null) {
                 response = {
                     ...response,
@@ -335,6 +338,7 @@
     }
 
     function handleLibraryChanged(entry: LibraryEntry | null): void {
+        onLibraryChanged?.();
         if (selectedItem === null) return;
         const anilistId = selectedItem.library.entry.anilistId;
         if (entry === null || entry.status !== "WATCHING") {

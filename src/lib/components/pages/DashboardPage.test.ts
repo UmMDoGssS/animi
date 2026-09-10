@@ -421,7 +421,7 @@ describe("DashboardPage", () => {
                 name: "Library totals",
             });
             expect(totals).toHaveClass("grid-cols-2");
-            expect(totals).not.toHaveClass("sm:grid-cols-4");
+            expect(totals).toHaveClass("sm:grid-cols-4");
             for (const total of totals.querySelectorAll("dd")) {
                 expect(total).toHaveClass("text-3xl", "sm:text-5xl");
             }
@@ -513,7 +513,7 @@ describe("DashboardPage", () => {
             const libraryCards = within(libraryIndex).getAllByRole("listitem");
             expect(libraryCards).toHaveLength(4);
             for (const card of libraryCards) {
-                expect(card).toHaveClass("w-[min(18rem,84vw)]", "sm:w-72");
+                expect(card).toHaveClass("min-w-0");
             }
             const libraryCard = within(libraryIndex).getByRole("button", {
                 name: "Open library details for Paper Cranes at Dawn",
@@ -523,7 +523,7 @@ describe("DashboardPage", () => {
             });
             expect(libraryCover.parentElement).toHaveClass("h-full");
             expect(libraryCover.parentElement?.parentElement).toHaveClass(
-                "min-h-[5.625rem]",
+                "w-full",
                 "self-stretch",
             );
             expect(
@@ -601,7 +601,7 @@ describe("DashboardPage", () => {
         expect(openDiscovery).toHaveBeenCalledOnce();
     });
 
-    it("continuously scrolls all titles and supports title, status, and sort controls", async () => {
+    it("shows the responsive library shelf and supports title, status, and sort controls", async () => {
         const user = userEvent.setup();
         render(DashboardPage, {
             loadInsights: vi.fn().mockResolvedValue(indexedInsights),
@@ -637,11 +637,10 @@ describe("DashboardPage", () => {
                 );
 
         expect(within(libraryIndex).getAllByRole("listitem")).toHaveLength(7);
-        expect(libraryIndex).toHaveClass("overflow-x-auto", "snap-x");
+        expect(libraryIndex).toHaveClass("grid", "grid-cols-2");
         expect(libraryIndex).not.toHaveClass("scrollbar-hidden");
         expect(within(libraryIndex).getAllByRole("listitem")[0]).toHaveClass(
-            "shrink-0",
-            "snap-start",
+            "min-w-0",
         );
         expect(visibleTitles()).toEqual([
             "Gamma Garden",

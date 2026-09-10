@@ -31,12 +31,14 @@
         UpsertLibraryEntryRequest,
     } from "$lib/ipc/types";
 
+    import MediaKindSelector from "../MediaKindSelector.svelte";
     import AsyncStateNotice from "../AsyncStateNotice.svelte";
     import MediaCover from "../MediaCover.svelte";
     import MediaDetailsDialog from "../MediaDetailsDialog.svelte";
 
     interface Props {
         mediaKind?: MediaKind;
+        onMediaKindChange?: (kind: MediaKind) => void;
         loadTrending?: (
             request: MediaPageRequest,
         ) => Promise<MediaPageResponse>;
@@ -61,6 +63,7 @@
 
     let {
         mediaKind = "ANIME",
+        onMediaKindChange,
         loadTrending = listTrending,
         loadRecommendations = getRecommendations,
         searchAnime = searchMedia,
@@ -360,32 +363,23 @@
         />
     {/if}
 
-    <section
-        aria-labelledby="discover-search-heading"
-        class="glass-panel panel-large border-border grid min-w-0 gap-4 border p-4 sm:p-6"
-    >
-        <div class="flex flex-wrap items-end justify-between gap-3">
-            <div>
-                <h2
-                    id="discover-search-heading"
-                    class="text-foreground text-lg font-light tracking-[0.03em] sm:text-xl"
-                >
-                    Find {mediaKind === "MANGA" ? "a manga" : "an anime"} by title
-                </h2>
-            </div>
-        </div>
-
+    <section aria-labelledby="discover-search-heading" class="discover-tools">
+        <h2 id="discover-search-heading" class="sr-only">
+            Find {mediaKind === "MANGA" ? "a manga" : "an anime"} by title
+        </h2>
+        {#if onMediaKindChange}<MediaKindSelector
+                value={mediaKind}
+                onChange={onMediaKindChange}
+                label="discovery media type"
+            />{/if}
         <form
             role="search"
             aria-label={`Search ${kindLabel}`}
-            class="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]"
+            class="glass-panel control-group grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 p-2"
             onsubmit={submitSearch}
         >
             <div class="min-w-0">
-                <label
-                    for="discovery-search"
-                    class="text-muted mb-2 block text-xs tracking-[0.08em]"
-                >
+                <label for="discovery-search" class="sr-only">
                     {kindTitle} title
                 </label>
                 <div class="relative min-w-0">
@@ -393,7 +387,7 @@
                         aria-hidden="true"
                         class="text-accent pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm"
                     >
-                        &gt;_
+                        ⌕
                     </span>
                     <input
                         bind:this={searchInput}
@@ -404,8 +398,8 @@
                         value={query}
                         autocomplete="off"
                         maxlength="200"
-                        placeholder="Try Frieren or Cowboy Bebop"
-                        class="glass-control control-rounded border-border text-foreground placeholder:text-muted min-h-11 w-full min-w-0 border py-2 pr-11 pl-10 text-sm outline-none"
+                        placeholder={`Search ${kindLabel} by title`}
+                        class="control-rounded text-foreground placeholder:text-muted min-h-11 w-full min-w-0 bg-transparent py-2 pr-11 pl-10 text-sm"
                         oninput={handleSearchInput}
                     />
                     {#if query.length > 0}
@@ -434,10 +428,12 @@
         items: MediaSummary[],
         label: string,
         freshness: Freshness,
+        compact: boolean = false,
     )}
         <ul
             aria-label={label}
-            class="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-4 xl:grid-cols-6"
+            class:trending-shelf={compact}
+            class="media-shelf grid min-w-0 grid-cols-2 gap-5 lg:grid-cols-4"
         >
             {#each items as media (media.anilistId)}
                 {@const entry = entryFor(media.anilistId)}
@@ -446,7 +442,7 @@
                         type="button"
                         aria-haspopup="dialog"
                         aria-label={`Open details for ${media.title}`}
-                        class="discovery-card glass-control glass-interactive control-rounded border-border group flex h-full w-full min-w-0 flex-col border p-2 text-left transition-[transform,background-color] hover:-translate-y-0.5 focus-visible:-translate-y-0.5"
+                        class="discovery-card glass-panel glass-interactive panel-large flex h-full w-full min-w-0 flex-col p-3 text-left"
                         onclick={(event) =>
                             openDetails(media, freshness, event)}
                     >
@@ -456,7 +452,7 @@
                         />
 
                         <span
-                            class="flex min-h-32 w-full min-w-0 flex-1 flex-col px-1 pt-3 pb-2"
+                            class="card-copy flex min-h-32 w-full min-w-0 flex-1 flex-col px-1 pt-3 pb-2"
                         >
                             <span
                                 class="text-muted text-[0.64rem] tracking-[0.08em] uppercase"
@@ -507,9 +503,9 @@
     )}
         <ul
             aria-label={`Recommended ${kindLabel}`}
-            class="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+            class="media-shelf grid min-w-0 grid-cols-2 gap-5 lg:grid-cols-4"
         >
-            {#each recommendations.slice(0, 6) as recommendation (recommendation.media.anilistId)}
+            {#each recommendations.slice(0, 4) as recommendation (recommendation.media.anilistId)}
                 {@const media = recommendation.media}
                 {@const entry = entryFor(media.anilistId)}
                 <li class="min-w-0">
@@ -517,7 +513,7 @@
                         type="button"
                         aria-haspopup="dialog"
                         aria-label={`Open details for ${media.title}`}
-                        class="discovery-card glass-control glass-interactive control-rounded border-border group grid h-full w-full min-w-0 grid-cols-[5.25rem_minmax(0,1fr)] gap-3 border p-2 text-left transition-[transform,background-color] hover:-translate-y-0.5 focus-visible:-translate-y-0.5"
+                        class="discovery-card glass-panel glass-interactive panel-large flex h-full w-full min-w-0 flex-col gap-3 p-3 text-left"
                         onclick={(event) =>
                             openDetails(media, freshness, event)}
                     >
@@ -661,7 +657,7 @@
     {:else}
         <section
             aria-labelledby="recommendations-heading"
-            class="glass-panel panel-large border-border grid min-w-0 gap-4 border p-4 sm:p-6"
+            class="grid min-w-0 gap-5"
         >
             <header class="flex flex-wrap items-end justify-between gap-3">
                 <div>
@@ -669,9 +665,7 @@
                         id="recommendations-heading"
                         class="text-foreground text-xl font-light tracking-[0.03em]"
                     >
-                        {mediaKind === "MANGA"
-                            ? "For your next read"
-                            : "For your next watch"}
+                        For you
                     </h2>
                 </div>
                 {#if recommendationsResponse}
@@ -825,6 +819,7 @@
                         trendingResponse.items,
                         `Trending ${kindLabel}`,
                         trendingResponse.freshness,
+                        true,
                     )}
                 {:else}
                     <AsyncStateNotice
@@ -855,6 +850,52 @@
 </div>
 
 <style>
+    .discover-tools {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .media-shelf :global([data-cover-state]) {
+        height: 200px;
+        aspect-ratio: auto;
+    }
+    @media (max-width: 600px) {
+        .discover-tools {
+            flex-wrap: wrap;
+        }
+        .discover-tools form {
+            flex-basis: 100%;
+        }
+    }
+
+    .trending-shelf {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .trending-shelf .discovery-card {
+        display: grid;
+        grid-template-columns: 82px minmax(0, 1fr);
+        align-items: center;
+        gap: 16px;
+        border: 0;
+        border-bottom: 1px solid var(--border);
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+        padding: 16px 0;
+    }
+    .trending-shelf :global([data-cover-state]) {
+        height: 68px;
+    }
+    .trending-shelf .card-copy {
+        min-height: 0;
+        padding: 0;
+    }
+    @media (max-width: 600px) {
+        .trending-shelf {
+            grid-template-columns: 1fr;
+        }
+    }
+
     .discovery-card:active {
         transform: translateY(1px) scale(0.985);
     }

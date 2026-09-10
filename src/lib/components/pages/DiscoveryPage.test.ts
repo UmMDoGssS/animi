@@ -273,7 +273,7 @@ describe("DiscoveryPage", () => {
             expect(trending).toHaveClass(
                 "min-w-0",
                 "grid-cols-2",
-                "sm:grid-cols-3",
+                "lg:grid-cols-4",
             );
             expect(
                 screen.queryByText(/recommendation layout preview/i),
