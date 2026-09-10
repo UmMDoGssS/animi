@@ -160,7 +160,7 @@ describe("AppShell", () => {
                 within(screen.getByRole("tab", { name: "Home" })).getByText(
                     "Home",
                 ),
-            ).toHaveClass("top-0.5");
+            ).toBeVisible();
             expect(
                 screen.getByRole("heading", { level: 1, name: "Home" }),
             ).toBeInTheDocument();
@@ -180,7 +180,7 @@ describe("AppShell", () => {
             expect(screen.getByRole("main")).toHaveAttribute("tabindex", "-1");
             expect(
                 screen.getByRole("banner", { name: "Application header" }),
-            ).toHaveClass("justify-between");
+            ).toHaveClass("app-header");
             expect(
                 screen.getByRole("banner", { name: "Application header" }),
             ).not.toHaveClass("sticky", "fixed");

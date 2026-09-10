@@ -47,9 +47,7 @@
     }
 </script>
 
-<div
-    class="glass-panel control-group border-border flex items-center border p-1.5"
->
+<div class="app-navigation flex items-center">
     <nav aria-label="Primary navigation">
         <div
             role="tablist"
@@ -75,7 +73,7 @@
                     <NavigationIcon name={item.icon} />
                     <span
                         aria-hidden="true"
-                        class="relative top-0.5 hidden text-xs leading-none font-medium sm:inline"
+                        class="text-sm leading-none font-medium"
                     >
                         {item.label}
                     </span>

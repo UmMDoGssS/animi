@@ -11,3 +11,5 @@ vite.config.ts.timestamp-*
 /coverage
 /src-tauri/target
 /src-tauri/gen
+
+/.tmp/

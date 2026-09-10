@@ -38,7 +38,7 @@
     --rainbow-mauve: #8839ef;
     --border: rgb(119 38 211 / 48%);
     --control-border: #6c6f85;
-    --glass-density: 54%;
+    --glass-density: 78%;
     --glass-hover-density: 72%;
     --glass: rgb(239 241 245 / var(--glass-density));
     --glass-control: rgb(220 224 232 / var(--glass-density));
@@ -54,8 +54,12 @@
     --radius-control-group: 0.75rem;
     --radius-control: 0.5rem;
     font-family:
-        "Cascadia Mono", "Cascadia Code", Consolas, "Lucida Console", monospace;
-    font-weight: 300;
+        "Segoe UI",
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+    font-weight: 400;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
 }
@@ -96,7 +100,7 @@
     --rainbow-mauve: #c6a0f6;
     --border: rgb(198 160 246 / 44%);
     --control-border: #6e738d;
-    --glass-density: 52%;
+    --glass-density: 76%;
     --glass-hover-density: 74%;
     --glass: rgb(36 39 58 / var(--glass-density));
     --glass-control: rgb(24 25 38 / var(--glass-density));
@@ -147,7 +151,7 @@
         --rainbow-mauve: #c6a0f6;
         --border: rgb(198 160 246 / 44%);
         --control-border: #6e738d;
-        --glass-density: 52%;
+        --glass-density: 76%;
         --glass-hover-density: 74%;
         --glass: rgb(36 39 58 / var(--glass-density));
         --glass-control: rgb(24 25 38 / var(--glass-density));
@@ -282,7 +286,7 @@ a {
 }
 
 .app-chrome[data-page] {
-    --border: color-mix(in srgb, var(--accent) 46%, transparent);
+    --border: color-mix(in srgb, var(--text-muted) 42%, var(--surface));
     --selection: color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
@@ -292,8 +296,8 @@ a {
     top: -14vh;
     bottom: -14vh;
     left: clamp(6rem, 24vw, 23rem);
-    width: clamp(8rem, 12vw, 12.5rem);
-    transform: rotate(-8deg) skewY(-1.5deg);
+    width: clamp(8.75rem, 17vw, 16rem);
+    transform: rotate(-13deg);
     transform-origin: 50% 0;
     background: linear-gradient(
         90deg,
@@ -307,7 +311,7 @@ a {
     );
     box-shadow: 0 0 4rem
         color-mix(in srgb, var(--rainbow-blue) 18%, transparent);
-    opacity: 0.62;
+    opacity: 0.48;
 }
 
 @media (max-width: 40rem) {
@@ -320,7 +324,7 @@ a {
 }
 
 .glass-panel {
-    border: 2px solid var(--border);
+    border: 1px solid var(--border);
     background: var(--surface-raised);
     box-shadow:
         inset 0 1px 0 var(--glass-highlight),
@@ -328,7 +332,7 @@ a {
 }
 
 .glass-control {
-    border: 1.5px solid var(--control-border);
+    border: 1px solid var(--border);
     background: var(--surface-sunken);
     box-shadow:
         inset 0 1px 0 var(--glass-highlight),
@@ -458,5 +462,69 @@ a {
         transition-duration: 0.01ms !important;
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
+    }
+}
+
+/* Compact frosted shell from the approved frontend study. */
+.app-header {
+    min-height: 82px;
+    margin-bottom: 26px;
+    padding: 16px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+.app-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 25px;
+    font-weight: 600;
+    letter-spacing: -1px;
+}
+.app-brand strong {
+    border-bottom: 3px solid transparent;
+    border-image: linear-gradient(
+            90deg,
+            var(--rainbow-red),
+            var(--rainbow-peach),
+            var(--rainbow-yellow),
+            var(--rainbow-green),
+            var(--rainbow-sky),
+            var(--rainbow-blue),
+            var(--rainbow-mauve)
+        )
+        1;
+}
+.app-navigation .glass-tab {
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+    color: var(--text-muted);
+}
+.app-navigation .glass-tab[aria-selected="true"] {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent);
+}
+.scope-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+@media (max-width: 600px) {
+    .app-header {
+        flex-wrap: wrap;
+        padding: 14px;
+    }
+    .app-navigation,
+    .app-navigation nav,
+    .app-navigation [role="tablist"] {
+        width: 100%;
+    }
+    .app-navigation [role="tablist"] {
+        justify-content: space-between;
     }
 }

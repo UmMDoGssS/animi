@@ -198,33 +198,23 @@
         <span class="rainbow-band"></span>
     </div>
 
-    <div class="relative mx-auto min-h-screen max-w-[96rem] p-2 sm:p-4">
+    <div
+        class="relative mx-auto min-h-screen max-w-[90rem] px-4 py-[18px] sm:px-6 lg:px-10"
+    >
         <div class="min-w-0">
             <header
                 aria-label="Application header"
-                class="flex min-h-16 items-center justify-between gap-3 px-2 py-2 sm:min-h-20 sm:px-3"
+                class="app-header glass-panel panel-large"
             >
-                <div class="min-w-0">
-                    <p
-                        class="text-foreground truncate text-lg font-light tracking-[0.18em]"
-                    >
-                        animi
-                    </p>
-                    <p
-                        class="text-muted hidden truncate text-xs tracking-wide sm:block"
-                    >
-                        Your quiet anime corner
-                    </p>
+                <div class="app-brand">
+                    <img src="/favicon.png" alt="" width="38" height="38" />
+                    <strong>animi</strong>
                 </div>
 
                 <AppNavigation {activeView} {selectView} />
             </header>
 
-            <main
-                id="main-content"
-                tabindex="-1"
-                class="min-w-0 px-1 pt-2 sm:px-3"
-            >
+            <main id="main-content" tabindex="-1" class="min-w-0">
                 <div
                     hidden={activeView !== "home" ||
                         debugPresentationMode !== "off"}
