@@ -9,7 +9,7 @@
 | Overall status | Version 1.0.1 complete; version 1.1 in progress; private distribution only |
 | Current phase | P10 implemented; Windows packaged acceptance pending |
 | Schedule | Dependency-driven; no calendar commitment |
-| Last updated | 2026-09-11 |
+| Last updated | 2026-09-17 |
 
 This document is the living execution roadmap for Animi. [`PROJECT.md`](PROJECT.md) is authoritative for product scope, architecture, fixed behavior, and technical decisions. This plan is authoritative for implementation order, milestone status, dependencies, and release readiness.
 
@@ -555,6 +555,8 @@ Kind-scoped version-6 discovery, details, and recommendation cache keys prevent 
 The component flow covers search, add, independent volume correction, application remount, Dashboard, refresh, cached offline details, confirmed removal, preserved anime, keyboard kind switching, and late-response isolation. A native Tauri IPC flow uses mocked AniList, a temporary SQLite database, real command registration, correction/high-water assertions, database close/reopen, stale offline refresh, rejected unconfirmed removal, and byte-equivalent anime entry preservation. Existing P5/P8/P9 IPC tests now take their origin from the actual mock webview, fixing a Windows-only test URL without changing production permissions. Live browser checks reviewed desktop and 390-pixel layouts in Latte/Macchiato, caught and fixed narrow navigation overflow, and verified a 374-pixel manga dialog within a 390-pixel document and Escape focus restoration. Temporary QA routes were removed; `.tmp/` is ignored by Git, Prettier, and ESLint and is never staged.
 
 **Quality gate:** `bun run format:check`, `bun run lint`, `bun run check` (zero diagnostics), `bun run test` (126 tests across 16 files), `bun run build`, `bun run release:audit`, Cargo formatting, Clippy with all targets/features and warnings denied, and all Rust unit/integration tests pass. `git diff --check` passes. No dependency or lockfile changed.
+
+**Presentation correction (2026-09-17):** Per user feedback, the searchable library now appears exclusively on Home in one horizontally scrolling row of fixed-width cards. Dashboard retains totals, preferences, and activity without duplicating the library. Anime and manga flow tests now verify library edits on Home and activity on Dashboard. Frontend formatting, lint, strict checks, all 126 tests, and the production web build pass. Rust is unchanged; native suites were not rerun for this presentation-only correction.
 
 **Acceptance limitation:** The Linux workspace can run component and native mock-runtime IPC coverage, but cannot prove the Windows packaged-app flow required by P10-G1. That gate remains unchecked; do not treat P10 as release-accepted until the Windows check is recorded. P11's Rust-owned Continue Reading feed, quick chapter action, and manga activity charts remain unimplemented, even though the supplied Home mockup previews them. No dependency, migration, durable contract, or production capability was added.
 

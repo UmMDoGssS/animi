@@ -336,6 +336,7 @@
                         />
                     {:else if activeView === "dashboard"}
                         <DashboardPage
+                            hideLibrary
                             {mediaKind}
                             loadInsights={p4Services.loadInsights}
                             refreshMetadata={p4Services.refreshMetadata}

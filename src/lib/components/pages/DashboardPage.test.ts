@@ -637,7 +637,7 @@ describe("DashboardPage", () => {
                 );
 
         expect(within(libraryIndex).getAllByRole("listitem")).toHaveLength(7);
-        expect(libraryIndex).toHaveClass("grid", "grid-cols-2");
+        expect(libraryIndex).toHaveClass("flex", "overflow-x-auto");
         expect(libraryIndex).not.toHaveClass("scrollbar-hidden");
         expect(within(libraryIndex).getAllByRole("listitem")[0]).toHaveClass(
             "min-w-0",

@@ -274,12 +274,12 @@ describe("P10 media-aware shell", () => {
         expect(screen.getByRole("radio", { name: "Anime" })).toBeChecked();
         await user.click(screen.getByRole("tab", { name: "Dashboard" }));
         await user.click(screen.getByRole("radio", { name: "Manga" }));
-        let library = await screen.findByRole("list", {
-            name: "Library index results",
-        });
-        expect(library).toHaveTextContent("42 / ?? chapters");
-        expect(library).toHaveTextContent("5 / 8 volumes");
-        expect(library).not.toHaveTextContent("AniList #12");
+        expect(
+            screen.queryByRole("region", { name: "Your library" }),
+        ).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole("list", { name: "Library index results" }),
+        ).not.toBeInTheDocument();
         expect(screen.queryByText("known watch time")).not.toBeInTheDocument();
         await user.click(
             screen.getByRole("button", { name: "refresh manga details" }),
@@ -291,9 +291,12 @@ describe("P10 media-aware shell", () => {
         );
         state.goOffline();
         await user.click(screen.getByRole("tab", { name: "Home" }));
-        library = await screen.findByRole("list", {
+        const library = await screen.findByRole("list", {
             name: "Library index results",
         });
+        expect(library).toHaveTextContent("42 / ?? chapters");
+        expect(library).toHaveTextContent("5 / 8 volumes");
+        expect(library).not.toHaveTextContent("AniList #12");
         await user.click(
             within(library).getByRole("button", {
                 name: "Open library details for The Last Garden",

@@ -40,6 +40,7 @@
     interface Props {
         mediaKind?: MediaKind;
         libraryOnly?: boolean;
+        hideLibrary?: boolean;
         onLibraryChanged?: () => void;
         loadInsights?: (
             request: DashboardInsightsRequest,
@@ -78,6 +79,7 @@
     let {
         mediaKind = "ANIME",
         libraryOnly = false,
+        hideLibrary = false,
         onLibraryChanged,
         loadInsights = getDashboardInsights,
         refreshMetadata = refreshLibraryMetadata,
@@ -1193,356 +1195,367 @@
             {/if}
         {/if}
 
-        <section
-            aria-labelledby="library-index-heading"
-            class="glass-panel panel-large border-border min-w-0 overflow-hidden border p-4 sm:p-6 lg:p-7"
-        >
-            <header
-                class="border-border flex flex-col gap-3 border-b pb-5 sm:flex-row sm:items-end sm:justify-between"
+        {#if !hideLibrary}
+            <section
+                aria-labelledby="library-index-heading"
+                class="glass-panel panel-large border-border min-w-0 overflow-hidden border p-4 sm:p-6 lg:p-7"
             >
-                <div>
-                    <h2
-                        bind:this={libraryIndexHeading}
-                        id="library-index-heading"
-                        tabindex="-1"
-                        class="text-foreground text-xl font-light tracking-[0.03em] sm:text-2xl"
-                    >
-                        Your library
-                    </h2>
-                </div>
-                {#if libraryOnly}
-                    <button
-                        type="button"
-                        aria-label={`refresh ${kindLabel} details`}
-                        class="glass-control glass-interactive control-rounded grid size-10 place-items-center"
-                        disabled={refreshing}
-                        onclick={() => void checkTrackedMetadata()}
-                        ><RefreshIcon /></button
-                    >
-                {/if}
-            </header>
-
-            {#if libraryOnly && (loadError || refreshError)}
-                {@const error = loadError ?? refreshError}
-                {#if error}<AsyncStateNotice
-                        status={error.code.includes("OFFLINE")
-                            ? "offline"
-                            : "error"}
-                        title="Keeping your saved library"
-                        {error}
-                        onRetry={error.retryable
-                            ? checkTrackedMetadata
-                            : undefined}
-                        compact
-                    />{/if}
-            {/if}
-            {#if libraryOnly && refreshResult}<p
-                    role="status"
-                    class="text-muted mt-3 text-sm"
+                <header
+                    class="border-border flex flex-col gap-3 border-b pb-5 sm:flex-row sm:items-end sm:justify-between"
                 >
-                    Updated {refreshResult.updated} titles; {refreshResult.stale}
-                    using cached details.
-                </p>{/if}
-            {#if insights.libraryTotals.tracked === 0}
-                <div class="grid min-h-64 place-items-center py-8 text-center">
-                    <div class="max-w-xl">
-                        <p aria-hidden="true" class="text-accent text-xl">
-                            =^.^=
-                        </p>
-                        <h3 class="text-foreground mt-4 text-xl font-light">
-                            Your library has no {kindLabel} yet.
-                        </h3>
-                        <p class="text-muted mt-2 text-sm leading-6">
-                            Open a title in Discover and add it to your library.
-                        </p>
-                        {#if openDiscovery}
-                            <button
-                                type="button"
-                                class="glass-accent control-rounded mt-5 min-h-10 px-4 py-2 text-xs tracking-[0.08em]"
-                                onclick={openDiscovery}
-                            >
-                                open Discover
-                            </button>
-                        {/if}
+                    <div>
+                        <h2
+                            bind:this={libraryIndexHeading}
+                            id="library-index-heading"
+                            tabindex="-1"
+                            class="text-foreground text-xl font-light tracking-[0.03em] sm:text-2xl"
+                        >
+                            Your library
+                        </h2>
                     </div>
-                </div>
-            {:else}
-                <div class="mt-5 grid min-w-0 gap-4">
-                    <div
-                        role="search"
-                        aria-label="Filter library index"
-                        class="glass-control control-rounded border-border relative z-20 grid min-w-0 gap-3 border p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-3 xl:grid-cols-[minmax(14rem,1.2fr)_repeat(4,minmax(8.5rem,0.6fr))_auto] xl:items-end"
-                    >
-                        <label class="grid min-w-0 gap-1.5">
-                            <span
-                                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
-                            >
-                                find a title
-                            </span>
-                            <input
-                                type="search"
-                                placeholder="Title or AniList ID"
-                                bind:value={libraryQuery}
-                                oninput={resetLibraryScroll}
-                                class="glass-control control-rounded border-border text-foreground placeholder:text-muted min-h-10 w-full min-w-0 border px-3 py-2 text-sm outline-none"
-                            />
-                        </label>
-
-                        <div class="grid min-w-0 gap-1.5">
-                            <span
-                                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
-                            >
-                                status
-                            </span>
-                            <GlassSelect
-                                id="library-status-filter"
-                                label="status"
-                                value={libraryStatusFilter}
-                                options={libraryStatusOptions}
-                                onChange={changeLibraryStatusFilter}
-                            />
-                        </div>
-
-                        <div class="grid min-w-0 gap-1.5">
-                            <span
-                                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
-                            >
-                                genres
-                            </span>
-                            <GlassMultiSelect
-                                id="library-genre-filter"
-                                label="genre"
-                                defaultLabel="All genres"
-                                selectedValues={libraryGenreFilters}
-                                options={libraryGenreOptions}
-                                onChange={changeLibraryGenreFilters}
-                            />
-                        </div>
-
-                        <div class="grid min-w-0 gap-1.5">
-                            <span
-                                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
-                            >
-                                tags
-                            </span>
-                            <GlassMultiSelect
-                                id="library-tag-filter"
-                                label="tag"
-                                defaultLabel="All tags"
-                                selectedValues={libraryTagFilters}
-                                options={libraryTagOptions}
-                                onChange={changeLibraryTagFilters}
-                            />
-                        </div>
-
-                        <div class="grid min-w-0 gap-1.5">
-                            <span
-                                class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
-                            >
-                                sort by
-                            </span>
-                            <GlassSelect
-                                id="library-sort"
-                                label="sort by"
-                                value={librarySort}
-                                options={librarySortOptions}
-                                onChange={changeLibrarySort}
-                            />
-                        </div>
-
+                    {#if libraryOnly}
                         <button
                             type="button"
-                            class="glass-interactive control-rounded min-h-10 px-3 py-2 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-45"
-                            disabled={!libraryFiltersActive}
-                            onclick={resetLibraryFilters}
+                            aria-label={`refresh ${kindLabel} details`}
+                            class="glass-control glass-interactive control-rounded grid size-10 place-items-center"
+                            disabled={refreshing}
+                            onclick={() => void checkTrackedMetadata()}
+                            ><RefreshIcon /></button
                         >
-                            clear filters
-                        </button>
+                    {/if}
+                </header>
 
-                        {#if libraryGenreFilters.length > 0 || libraryTagFilters.length > 0}
-                            <div
-                                role="group"
-                                aria-label="Active genre and tag filters"
-                                class="flex min-w-0 flex-wrap items-center gap-2 sm:col-span-2 lg:col-span-3 xl:col-span-6"
-                            >
-                                <span
-                                    class="text-muted mr-1 text-[0.62rem] tracking-[0.1em] uppercase"
-                                >
-                                    must include
-                                </span>
-                                {#each libraryGenreFilters as genre (genre)}
-                                    <button
-                                        type="button"
-                                        aria-label={`remove genre ${genre}`}
-                                        class="glass-interactive control-rounded border-border text-foreground flex min-h-8 items-center gap-2 border px-2.5 py-1 text-xs transition-colors"
-                                        onclick={() =>
-                                            removeLibraryGenreFilter(genre)}
-                                    >
-                                        <span
-                                            class="text-accent text-[0.58rem] tracking-[0.08em] uppercase"
-                                            >genre</span
-                                        >
-                                        <span>{genre}</span>
-                                        <span
-                                            aria-hidden="true"
-                                            class="text-muted">×</span
-                                        >
-                                    </button>
-                                {/each}
-                                {#each libraryTagFilters as tag (tag)}
-                                    <button
-                                        type="button"
-                                        aria-label={`remove tag ${tag}`}
-                                        class="glass-interactive control-rounded border-border text-foreground flex min-h-8 items-center gap-2 border px-2.5 py-1 text-xs transition-colors"
-                                        onclick={() =>
-                                            removeLibraryTagFilter(tag)}
-                                    >
-                                        <span
-                                            class="text-accent text-[0.58rem] tracking-[0.08em] uppercase"
-                                            >tag</span
-                                        >
-                                        <span>{tag}</span>
-                                        <span
-                                            aria-hidden="true"
-                                            class="text-muted">×</span
-                                        >
-                                    </button>
-                                {/each}
-                            </div>
-                        {/if}
-                    </div>
-
-                    <div
-                        class="flex flex-wrap items-center justify-between gap-2"
+                {#if libraryOnly && (loadError || refreshError)}
+                    {@const error = loadError ?? refreshError}
+                    {#if error}<AsyncStateNotice
+                            status={error.code.includes("OFFLINE")
+                                ? "offline"
+                                : "error"}
+                            title="Keeping your saved library"
+                            {error}
+                            onRetry={error.retryable
+                                ? checkTrackedMetadata
+                                : undefined}
+                            compact
+                        />{/if}
+                {/if}
+                {#if libraryOnly && refreshResult}<p
+                        role="status"
+                        class="text-muted mt-3 text-sm"
                     >
-                        <p
-                            class="text-muted text-xs leading-5"
-                            aria-live="polite"
-                        >
-                            <span class="text-foreground tabular-nums"
-                                >{filteredLibraryItems.length}</span
-                            >
-                            matching {filteredLibraryItems.length === 1
-                                ? "title"
-                                : "titles"}
-                            shown.
-                        </p>
-                    </div>
-
-                    {#if filteredLibraryItems.length === 0}
-                        <div
-                            class="border-border grid min-h-48 place-items-center border-y py-8 text-center"
-                        >
-                            <div class="max-w-lg">
-                                <h3 class="text-foreground text-lg font-light">
-                                    No titles match these filters.
-                                </h3>
-                                <p class="text-muted mt-2 text-xs leading-5">
-                                    Try another title, status, genre, or tag, or
-                                    clear the filters to restore your full
-                                    library.
-                                </p>
+                        Updated {refreshResult.updated} titles; {refreshResult.stale}
+                        using cached details.
+                    </p>{/if}
+                {#if insights.libraryTotals.tracked === 0}
+                    <div
+                        class="grid min-h-64 place-items-center py-8 text-center"
+                    >
+                        <div class="max-w-xl">
+                            <p aria-hidden="true" class="text-accent text-xl">
+                                =^.^=
+                            </p>
+                            <h3 class="text-foreground mt-4 text-xl font-light">
+                                Your library has no {kindLabel} yet.
+                            </h3>
+                            <p class="text-muted mt-2 text-sm leading-6">
+                                Open a title in Discover and add it to your
+                                library.
+                            </p>
+                            {#if openDiscovery}
                                 <button
                                     type="button"
-                                    class="glass-interactive control-rounded mt-4 min-h-10 px-4 py-2 text-xs"
-                                    onclick={resetLibraryFilters}
+                                    class="glass-accent control-rounded mt-5 min-h-10 px-4 py-2 text-xs tracking-[0.08em]"
+                                    onclick={openDiscovery}
                                 >
-                                    clear filters
+                                    open Discover
                                 </button>
-                            </div>
+                            {/if}
                         </div>
-                    {:else}
-                        <ul
-                            bind:this={libraryRail}
-                            aria-label="Library index results"
-                            class="library-shelf grid min-w-0 grid-cols-2 gap-4 lg:grid-cols-3"
+                    </div>
+                {:else}
+                    <div class="mt-5 grid min-w-0 gap-4">
+                        <div
+                            role="search"
+                            aria-label="Filter library index"
+                            class="glass-control control-rounded border-border relative z-20 grid min-w-0 gap-3 border p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-3 xl:grid-cols-[minmax(14rem,1.2fr)_repeat(4,minmax(8.5rem,0.6fr))_auto] xl:items-end"
                         >
-                            {#each filteredLibraryItems as item (item.entry.anilistId)}
-                                {@const itemTitle = titleForItem(item)}
-                                <li class="min-w-0">
+                            <label class="grid min-w-0 gap-1.5">
+                                <span
+                                    class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
+                                >
+                                    find a title
+                                </span>
+                                <input
+                                    type="search"
+                                    placeholder="Title or AniList ID"
+                                    bind:value={libraryQuery}
+                                    oninput={resetLibraryScroll}
+                                    class="glass-control control-rounded border-border text-foreground placeholder:text-muted min-h-10 w-full min-w-0 border px-3 py-2 text-sm outline-none"
+                                />
+                            </label>
+
+                            <div class="grid min-w-0 gap-1.5">
+                                <span
+                                    class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
+                                >
+                                    status
+                                </span>
+                                <GlassSelect
+                                    id="library-status-filter"
+                                    label="status"
+                                    value={libraryStatusFilter}
+                                    options={libraryStatusOptions}
+                                    onChange={changeLibraryStatusFilter}
+                                />
+                            </div>
+
+                            <div class="grid min-w-0 gap-1.5">
+                                <span
+                                    class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
+                                >
+                                    genres
+                                </span>
+                                <GlassMultiSelect
+                                    id="library-genre-filter"
+                                    label="genre"
+                                    defaultLabel="All genres"
+                                    selectedValues={libraryGenreFilters}
+                                    options={libraryGenreOptions}
+                                    onChange={changeLibraryGenreFilters}
+                                />
+                            </div>
+
+                            <div class="grid min-w-0 gap-1.5">
+                                <span
+                                    class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
+                                >
+                                    tags
+                                </span>
+                                <GlassMultiSelect
+                                    id="library-tag-filter"
+                                    label="tag"
+                                    defaultLabel="All tags"
+                                    selectedValues={libraryTagFilters}
+                                    options={libraryTagOptions}
+                                    onChange={changeLibraryTagFilters}
+                                />
+                            </div>
+
+                            <div class="grid min-w-0 gap-1.5">
+                                <span
+                                    class="text-muted text-[0.65rem] tracking-[0.12em] uppercase"
+                                >
+                                    sort by
+                                </span>
+                                <GlassSelect
+                                    id="library-sort"
+                                    label="sort by"
+                                    value={librarySort}
+                                    options={librarySortOptions}
+                                    onChange={changeLibrarySort}
+                                />
+                            </div>
+
+                            <button
+                                type="button"
+                                class="glass-interactive control-rounded min-h-10 px-3 py-2 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-45"
+                                disabled={!libraryFiltersActive}
+                                onclick={resetLibraryFilters}
+                            >
+                                clear filters
+                            </button>
+
+                            {#if libraryGenreFilters.length > 0 || libraryTagFilters.length > 0}
+                                <div
+                                    role="group"
+                                    aria-label="Active genre and tag filters"
+                                    class="flex min-w-0 flex-wrap items-center gap-2 sm:col-span-2 lg:col-span-3 xl:col-span-6"
+                                >
+                                    <span
+                                        class="text-muted mr-1 text-[0.62rem] tracking-[0.1em] uppercase"
+                                    >
+                                        must include
+                                    </span>
+                                    {#each libraryGenreFilters as genre (genre)}
+                                        <button
+                                            type="button"
+                                            aria-label={`remove genre ${genre}`}
+                                            class="glass-interactive control-rounded border-border text-foreground flex min-h-8 items-center gap-2 border px-2.5 py-1 text-xs transition-colors"
+                                            onclick={() =>
+                                                removeLibraryGenreFilter(genre)}
+                                        >
+                                            <span
+                                                class="text-accent text-[0.58rem] tracking-[0.08em] uppercase"
+                                                >genre</span
+                                            >
+                                            <span>{genre}</span>
+                                            <span
+                                                aria-hidden="true"
+                                                class="text-muted">×</span
+                                            >
+                                        </button>
+                                    {/each}
+                                    {#each libraryTagFilters as tag (tag)}
+                                        <button
+                                            type="button"
+                                            aria-label={`remove tag ${tag}`}
+                                            class="glass-interactive control-rounded border-border text-foreground flex min-h-8 items-center gap-2 border px-2.5 py-1 text-xs transition-colors"
+                                            onclick={() =>
+                                                removeLibraryTagFilter(tag)}
+                                        >
+                                            <span
+                                                class="text-accent text-[0.58rem] tracking-[0.08em] uppercase"
+                                                >tag</span
+                                            >
+                                            <span>{tag}</span>
+                                            <span
+                                                aria-hidden="true"
+                                                class="text-muted">×</span
+                                            >
+                                        </button>
+                                    {/each}
+                                </div>
+                            {/if}
+                        </div>
+
+                        <div
+                            class="flex flex-wrap items-center justify-between gap-2"
+                        >
+                            <p
+                                class="text-muted text-xs leading-5"
+                                aria-live="polite"
+                            >
+                                <span class="text-foreground tabular-nums"
+                                    >{filteredLibraryItems.length}</span
+                                >
+                                matching {filteredLibraryItems.length === 1
+                                    ? "title"
+                                    : "titles"}
+                                shown.
+                            </p>
+                        </div>
+
+                        {#if filteredLibraryItems.length === 0}
+                            <div
+                                class="border-border grid min-h-48 place-items-center border-y py-8 text-center"
+                            >
+                                <div class="max-w-lg">
+                                    <h3
+                                        class="text-foreground text-lg font-light"
+                                    >
+                                        No titles match these filters.
+                                    </h3>
+                                    <p
+                                        class="text-muted mt-2 text-xs leading-5"
+                                    >
+                                        Try another title, status, genre, or
+                                        tag, or clear the filters to restore
+                                        your full library.
+                                    </p>
                                     <button
                                         type="button"
-                                        aria-haspopup="dialog"
-                                        aria-label={`Open library details for ${itemTitle}`}
-                                        aria-describedby={`library-card-summary-${item.entry.anilistId}`}
-                                        data-library-anilist-id={item.entry
-                                            .anilistId}
-                                        class="glass-control glass-interactive panel-large flex h-full w-full min-w-0 flex-col gap-3 p-3 text-left transition-colors"
-                                        onclick={(event) =>
-                                            openItemDetails(item, event)}
+                                        class="glass-interactive control-rounded mt-4 min-h-10 px-4 py-2 text-xs"
+                                        onclick={resetLibraryFilters}
                                     >
-                                        <span
-                                            id={`library-card-summary-${item.entry.anilistId}`}
-                                            class="sr-only"
-                                        >
-                                            {mediaKind === "MANGA" &&
-                                            item.entry.status === "WATCHING"
-                                                ? "reading"
-                                                : item.entry.status.toLocaleLowerCase()}.
-                                            {progressLabel(item)}.
-                                            {item.entry.score === null
-                                                ? "No personal score."
-                                                : `Personal score ${item.entry.score} out of 10.`}
-                                        </span>
-                                        <div
-                                            class="w-full min-w-0 self-stretch"
-                                        >
-                                            <MediaCover
-                                                title={itemTitle}
-                                                coverUrl={item.media
-                                                    ?.coverUrl ?? null}
-                                                fill
-                                            />
-                                        </div>
-
-                                        <span
-                                            class="flex min-w-0 flex-col py-0.5"
+                                        clear filters
+                                    </button>
+                                </div>
+                            </div>
+                        {:else}
+                            <ul
+                                bind:this={libraryRail}
+                                aria-label="Library index results"
+                                class="library-shelf flex min-w-0 gap-4 overflow-x-auto overscroll-x-contain pb-3"
+                            >
+                                {#each filteredLibraryItems as item (item.entry.anilistId)}
+                                    {@const itemTitle = titleForItem(item)}
+                                    <li class="w-44 min-w-0 shrink-0 sm:w-52">
+                                        <button
+                                            type="button"
+                                            aria-haspopup="dialog"
+                                            aria-label={`Open library details for ${itemTitle}`}
+                                            aria-describedby={`library-card-summary-${item.entry.anilistId}`}
+                                            data-library-anilist-id={item.entry
+                                                .anilistId}
+                                            class="glass-control glass-interactive panel-large flex h-full w-full min-w-0 flex-col gap-3 p-3 text-left transition-colors"
+                                            onclick={(event) =>
+                                                openItemDetails(item, event)}
                                         >
                                             <span
-                                                class="text-foreground line-clamp-2 text-sm leading-5 font-light"
-                                            >
-                                                {itemTitle}
-                                            </span>
-                                            <span
-                                                class="text-accent mt-1 text-[0.62rem] tracking-[0.08em] uppercase"
+                                                id={`library-card-summary-${item.entry.anilistId}`}
+                                                class="sr-only"
                                             >
                                                 {mediaKind === "MANGA" &&
                                                 item.entry.status === "WATCHING"
                                                     ? "reading"
-                                                    : item.entry.status.toLocaleLowerCase()}
+                                                    : item.entry.status.toLocaleLowerCase()}.
+                                                {progressLabel(item)}.
+                                                {item.entry.score === null
+                                                    ? "No personal score."
+                                                    : `Personal score ${item.entry.score} out of 10.`}
                                             </span>
-                                            <span
-                                                class="text-muted mt-1 text-[0.62rem] tracking-[0.08em] uppercase"
+                                            <div
+                                                class="w-full min-w-0 self-stretch"
                                             >
-                                                {formatMediaFormat(
-                                                    item.media?.mediaFormat ??
-                                                        null,
-                                                )}
-                                            </span>
-                                            <span class="mt-3">
+                                                <MediaCover
+                                                    title={itemTitle}
+                                                    coverUrl={item.media
+                                                        ?.coverUrl ?? null}
+                                                    fill
+                                                />
+                                            </div>
+
+                                            <span
+                                                class="flex min-w-0 flex-col py-0.5"
+                                            >
                                                 <span
-                                                    class="text-foreground block text-xs tabular-nums"
+                                                    class="text-foreground line-clamp-2 text-sm leading-5 font-light"
                                                 >
-                                                    {progressLabel(item)}
+                                                    {itemTitle}
                                                 </span>
-                                                {#if item.entry.score !== null}
+                                                <span
+                                                    class="text-accent mt-1 text-[0.62rem] tracking-[0.08em] uppercase"
+                                                >
+                                                    {mediaKind === "MANGA" &&
+                                                    item.entry.status ===
+                                                        "WATCHING"
+                                                        ? "reading"
+                                                        : item.entry.status.toLocaleLowerCase()}
+                                                </span>
+                                                <span
+                                                    class="text-muted mt-1 text-[0.62rem] tracking-[0.08em] uppercase"
+                                                >
+                                                    {formatMediaFormat(
+                                                        item.media
+                                                            ?.mediaFormat ??
+                                                            null,
+                                                    )}
+                                                </span>
+                                                <span class="mt-3">
                                                     <span
-                                                        class="text-muted mt-1 block text-[0.62rem]"
+                                                        class="text-foreground block text-xs tabular-nums"
                                                     >
-                                                        score // {item.entry
-                                                            .score} / 10
+                                                        {progressLabel(item)}
                                                     </span>
-                                                {/if}
+                                                    {#if item.entry.score !== null}
+                                                        <span
+                                                            class="text-muted mt-1 block text-[0.62rem]"
+                                                        >
+                                                            score // {item.entry
+                                                                .score} / 10
+                                                        </span>
+                                                    {/if}
+                                                </span>
                                             </span>
-                                        </span>
-                                    </button>
-                                </li>
-                            {/each}
-                        </ul>
-                    {/if}
-                </div>
-            {/if}
-        </section>
+                                        </button>
+                                    </li>
+                                {/each}
+                            </ul>
+                        {/if}
+                    </div>
+                {/if}
+            </section>
+        {/if}
     {/if}
 
     {#if selectedItem && selectedSummary}

@@ -341,14 +341,16 @@ describe("P4 discovery-to-library flow", () => {
         firstRun.unmount();
 
         render(AppShell, shellProps);
-        await user.click(screen.getByRole("tab", { name: "Dashboard" }));
         const libraryIndex = await screen.findByRole("list", {
             name: "Library index results",
         });
         expect(libraryIndex).toHaveTextContent(/Paper Cranes at Dawn/);
         expect(libraryIndex).toHaveTextContent(/3 \/ 12 eps/);
+        await user.click(screen.getByRole("tab", { name: "Dashboard" }));
         expect(
-            screen.getByRole("group", { name: "Recorded activity summary" }),
+            await screen.findByRole("group", {
+                name: "Recorded activity summary",
+            }),
         ).toHaveTextContent(/recorded episodes\s*3/i);
         expect(
             screen.getByRole("list", {
@@ -397,19 +399,23 @@ describe("P4 discovery-to-library flow", () => {
 
         state.goOffline();
         await user.click(screen.getByRole("tab", { name: "Dashboard" }));
-        const updatedLibraryIndex = await screen.findByRole("list", {
-            name: "Library index results",
-        });
-        expect(updatedLibraryIndex).toHaveTextContent(/5 \/ 12 eps/);
-        expect(updatedLibraryIndex).toHaveTextContent(/score \/\/ 9 \/ 10/i);
         expect(
-            screen.getByRole("group", { name: "Recorded activity summary" }),
+            await screen.findByRole("group", {
+                name: "Recorded activity summary",
+            }),
         ).toHaveTextContent(/recorded episodes\s*5/i);
         expect(
             screen.getByRole("list", {
                 name: "Recent recorded progress events",
             }),
         ).toHaveTextContent(/\+2 episodes.*48m/i);
+
+        await user.click(screen.getByRole("tab", { name: "Home" }));
+        const updatedLibraryIndex = await screen.findByRole("list", {
+            name: "Library index results",
+        });
+        expect(updatedLibraryIndex).toHaveTextContent(/5 \/ 12 eps/);
+        expect(updatedLibraryIndex).toHaveTextContent(/score \/\/ 9 \/ 10/i);
 
         await user.click(
             within(updatedLibraryIndex).getByRole("button", {
@@ -444,8 +450,11 @@ describe("P4 discovery-to-library flow", () => {
                 name: "Your library has no anime yet.",
             }),
         ).toBeInTheDocument();
+        await user.click(screen.getByRole("tab", { name: "Dashboard" }));
         expect(
-            screen.getByRole("group", { name: "Recorded activity summary" }),
+            await screen.findByRole("group", {
+                name: "Recorded activity summary",
+            }),
         ).toHaveTextContent(/updates\s*2/i);
     });
 });
