@@ -334,6 +334,17 @@
         libraryRail?.scrollTo?.({ left: 0, behavior: "smooth" });
     }
 
+    function scrollLibrary(direction: -1 | 1): void {
+        if (libraryRail === null) {
+            return;
+        }
+
+        libraryRail.scrollBy({
+            left: direction * libraryRail.clientWidth,
+            behavior: "smooth",
+        });
+    }
+
     function summaryForItem(item: LibraryItem): MediaSummary {
         return {
             mediaKind: item.entry.mediaKind,
@@ -1433,6 +1444,54 @@
                                     : "titles"}
                                 shown.
                             </p>
+                            {#if filteredLibraryItems.length > 1}
+                                <div
+                                    role="group"
+                                    aria-label="Library shelf controls"
+                                    class="flex items-center gap-2"
+                                >
+                                    <button
+                                        type="button"
+                                        aria-label="Previous library titles"
+                                        aria-controls="library-shelf"
+                                        class="glass-control glass-interactive control-rounded grid size-10 place-items-center transition-colors"
+                                        onclick={() => scrollLibrary(-1)}
+                                    >
+                                        <svg
+                                            aria-hidden="true"
+                                            class="size-4"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="1.8"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        >
+                                            <path d="m15 18-6-6 6-6" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        aria-label="Next library titles"
+                                        aria-controls="library-shelf"
+                                        class="glass-control glass-interactive control-rounded grid size-10 place-items-center transition-colors"
+                                        onclick={() => scrollLibrary(1)}
+                                    >
+                                        <svg
+                                            aria-hidden="true"
+                                            class="size-4"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="1.8"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        >
+                                            <path d="m9 18 6-6-6-6" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            {/if}
                         </div>
 
                         {#if filteredLibraryItems.length === 0}
@@ -1464,6 +1523,7 @@
                         {:else}
                             <ul
                                 bind:this={libraryRail}
+                                id="library-shelf"
                                 aria-label="Library index results"
                                 class="library-shelf flex min-w-0 gap-4 overflow-x-auto overscroll-x-contain pb-3"
                             >

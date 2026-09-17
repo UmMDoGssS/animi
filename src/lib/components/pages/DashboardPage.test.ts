@@ -612,7 +612,13 @@ describe("DashboardPage", () => {
             name: "Library index results",
         });
         const scrollTo = vi.fn();
+        const scrollBy = vi.fn();
         libraryIndex.scrollTo = scrollTo;
+        libraryIndex.scrollBy = scrollBy;
+        Object.defineProperty(libraryIndex, "clientWidth", {
+            configurable: true,
+            value: 720,
+        });
         const searchControls = screen.getByRole("search", {
             name: "Filter library index",
         });
@@ -654,6 +660,27 @@ describe("DashboardPage", () => {
         expect(
             screen.queryByRole("navigation", { name: "Library index pages" }),
         ).not.toBeInTheDocument();
+        const shelfControls = screen.getByRole("group", {
+            name: "Library shelf controls",
+        });
+        await user.click(
+            within(shelfControls).getByRole("button", {
+                name: "Next library titles",
+            }),
+        );
+        await user.click(
+            within(shelfControls).getByRole("button", {
+                name: "Previous library titles",
+            }),
+        );
+        expect(scrollBy).toHaveBeenNthCalledWith(1, {
+            left: 720,
+            behavior: "smooth",
+        });
+        expect(scrollBy).toHaveBeenNthCalledWith(2, {
+            left: -720,
+            behavior: "smooth",
+        });
 
         await chooseOption("sort by", "Title A–Z");
         expect(scrollTo).toHaveBeenCalledWith({ left: 0, behavior: "smooth" });
