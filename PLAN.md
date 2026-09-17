@@ -558,6 +558,8 @@ The component flow covers search, add, independent volume correction, applicatio
 
 **Presentation correction (2026-09-17):** Per user feedback, the searchable library now appears exclusively on Home in one horizontally scrolling row of fixed-width cards. Dashboard retains totals, preferences, and activity without duplicating the library. Anime and manga flow tests now verify library edits on Home and activity on Dashboard. Frontend formatting, lint, strict checks, all 126 tests, and the production web build pass. Rust is unchanged; native suites were not rerun for this presentation-only correction.
 
+**Shelf snapping follow-up (2026-09-17):** Library cards snap to their leading edge and scale using the panel width, fitting one to six whole cards across with gaps included. Container queries preserve the fit when the window or available content width changes. A browser geometry check using the shelf CSS at 11 panel widths (260–1296px) confirmed whole-card fit within 0.063px and snap alignment within 0.5px of the card edge. Frontend formatting, lint, strict checks, all 126 tests, and the production build pass; Rust is unchanged.
+
 **Acceptance limitation:** The Linux workspace can run component and native mock-runtime IPC coverage, but cannot prove the Windows packaged-app flow required by P10-G1. That gate remains unchecked; do not treat P10 as release-accepted until the Windows check is recorded. P11's Rust-owned Continue Reading feed, quick chapter action, and manga activity charts remain unimplemented, even though the supplied Home mockup previews them. No dependency, migration, durable contract, or production capability was added.
 
 ## P11 - Continue Reading, Activity, and Recommendations

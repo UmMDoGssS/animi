@@ -1198,7 +1198,7 @@
         {#if !hideLibrary}
             <section
                 aria-labelledby="library-index-heading"
-                class="glass-panel panel-large border-border min-w-0 overflow-hidden border p-4 sm:p-6 lg:p-7"
+                class="library-panel glass-panel panel-large border-border min-w-0 overflow-hidden border p-4 sm:p-6 lg:p-7"
             >
                 <header
                     class="border-border flex flex-col gap-3 border-b pb-5 sm:flex-row sm:items-end sm:justify-between"
@@ -1469,7 +1469,7 @@
                             >
                                 {#each filteredLibraryItems as item (item.entry.anilistId)}
                                     {@const itemTitle = titleForItem(item)}
-                                    <li class="w-44 min-w-0 shrink-0 sm:w-52">
+                                    <li class="min-w-0">
                                         <button
                                             type="button"
                                             aria-haspopup="dialog"
@@ -1595,6 +1595,46 @@
         text-transform: capitalize;
         font-size: 13px;
         letter-spacing: 0;
+    }
+    .library-panel {
+        container-type: inline-size;
+    }
+    .library-shelf {
+        --visible-cards: 1;
+        scroll-snap-type: x mandatory;
+    }
+    .library-shelf > li {
+        flex: 0 0
+            calc(
+                (100% - (var(--visible-cards) - 1) * 1rem) /
+                    var(--visible-cards)
+            );
+        scroll-snap-align: start;
+    }
+    @container (min-width: 280px) {
+        .library-shelf {
+            --visible-cards: 2;
+        }
+    }
+    @container (min-width: 560px) {
+        .library-shelf {
+            --visible-cards: 3;
+        }
+    }
+    @container (min-width: 760px) {
+        .library-shelf {
+            --visible-cards: 4;
+        }
+    }
+    @container (min-width: 960px) {
+        .library-shelf {
+            --visible-cards: 5;
+        }
+    }
+    @container (min-width: 1160px) {
+        .library-shelf {
+            --visible-cards: 6;
+        }
     }
     .library-shelf :global([data-cover-state]) {
         height: 200px;
