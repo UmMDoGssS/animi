@@ -612,9 +612,15 @@ describe("DashboardPage", () => {
             name: "Library index results",
         });
         const scrollTo = vi.fn();
-        const scrollBy = vi.fn();
         libraryIndex.scrollTo = scrollTo;
-        libraryIndex.scrollBy = scrollBy;
+        libraryIndex.style.setProperty("--visible-cards", "3");
+        const stride = (720 + 16) / 3;
+        Array.from(libraryIndex.children).forEach((card, index) => {
+            vi.spyOn(card, "getBoundingClientRect").mockImplementation(() => ({
+                ...new DOMRect(0, 0, stride - 16, 300).toJSON(),
+                left: index * stride - libraryIndex.scrollLeft,
+            }));
+        });
         Object.defineProperty(libraryIndex, "clientWidth", {
             configurable: true,
             value: 720,
@@ -668,22 +674,48 @@ describe("DashboardPage", () => {
                 name: "Next library titles",
             }),
         );
+        // A second click before the animation finishes must use its destination,
+        // then clamp to the last three cards rather than a partial final page.
+        await user.click(
+            within(shelfControls).getByRole("button", {
+                name: "Next library titles",
+            }),
+        );
         await user.click(
             within(shelfControls).getByRole("button", {
                 name: "Previous library titles",
             }),
         );
-        expect(scrollBy).toHaveBeenNthCalledWith(1, {
-            left: 720,
-            behavior: "smooth",
+        expect(scrollTo).toHaveBeenNthCalledWith(1, {
+            left: 3 * stride,
+            behavior: "auto",
         });
-        expect(scrollBy).toHaveBeenNthCalledWith(2, {
-            left: -720,
-            behavior: "smooth",
+        expect(scrollTo).toHaveBeenNthCalledWith(2, {
+            left: 4 * stride,
+            behavior: "auto",
+        });
+        expect(scrollTo).toHaveBeenNthCalledWith(3, {
+            left: stride,
+            behavior: "auto",
+        });
+        libraryIndex.scrollLeft = stride - 15;
+        await fireEvent(libraryIndex, new Event("scrollend"));
+        expect(scrollTo).toHaveBeenLastCalledWith({
+            left: stride,
+            behavior: "instant",
+        });
+        // Direct scrolling cancels any pending button destination and settles
+        // at the nearest complete group instead.
+        await fireEvent.wheel(libraryIndex);
+        libraryIndex.scrollLeft = 2 * stride + 20;
+        await fireEvent(libraryIndex, new Event("scrollend"));
+        expect(scrollTo).toHaveBeenLastCalledWith({
+            left: 2 * stride,
+            behavior: "instant",
         });
 
         await chooseOption("sort by", "Title A–Z");
-        expect(scrollTo).toHaveBeenCalledWith({ left: 0, behavior: "smooth" });
+        expect(scrollTo).toHaveBeenCalledWith({ left: 0, behavior: "instant" });
         expect(visibleTitles()).toEqual([
             "Alpha Archive",
             "Bravo Brigade",

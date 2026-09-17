@@ -114,7 +114,24 @@
     let libraryTagFilters = $state<string[]>([]);
     let librarySort = $state<LibrarySort>("RELEASE_DESC");
     let libraryRail = $state<HTMLElement | null>(null);
+    let libraryTargetIndex: number | null = null;
     let releaseDateBackfillChecked = false;
+
+    $effect(() => {
+        const rail = libraryRail;
+        // Re-measure after filtering, metadata updates, or responsive resizing.
+        const itemCount = filteredLibraryItems.length;
+        libraryTargetIndex = null;
+        if (rail === null || itemCount === 0) return;
+        alignLibraryScroll();
+        if (typeof ResizeObserver === "undefined") return;
+        const observer = new ResizeObserver(() => {
+            libraryTargetIndex = null;
+            alignLibraryScroll();
+        });
+        observer.observe(rail);
+        return () => observer.disconnect();
+    });
 
     const selectedSummary = $derived.by<MediaSummary | null>(() => {
         if (selectedItem === null) {
@@ -331,17 +348,68 @@
     }
 
     function resetLibraryScroll(): void {
-        libraryRail?.scrollTo?.({ left: 0, behavior: "smooth" });
+        libraryTargetIndex = null;
+        libraryRail?.scrollTo?.({ left: 0, behavior: "instant" });
+    }
+
+    function libraryScrollPositions(): {
+        positions: number[];
+        visible: number;
+    } {
+        if (libraryRail === null) return { positions: [], visible: 1 };
+        const cards = Array.from(libraryRail.children);
+        const firstLeft = cards[0]?.getBoundingClientRect().left ?? 0;
+        const visible = Math.max(
+            1,
+            Number.parseInt(
+                getComputedStyle(libraryRail).getPropertyValue(
+                    "--visible-cards",
+                ),
+                10,
+            ) || 1,
+        );
+        // Only allow leading cards that leave a full group visible at the end.
+        return {
+            positions: cards
+                .slice(0, Math.max(1, cards.length - visible + 1))
+                .map((card) => card.getBoundingClientRect().left - firstLeft),
+            visible,
+        };
+    }
+
+    function nearestLibraryIndex(positions: number[]): number {
+        const left = libraryRail?.scrollLeft ?? 0;
+        return positions.reduce(
+            (nearest, position, index) =>
+                Math.abs(position - left) < Math.abs(positions[nearest]! - left)
+                    ? index
+                    : nearest,
+            0,
+        );
+    }
+
+    function alignLibraryScroll(): void {
+        const { positions } = libraryScrollPositions();
+        if (libraryRail === null || positions.length === 0) return;
+        const index = libraryTargetIndex ?? nearestLibraryIndex(positions);
+        libraryTargetIndex = null;
+        const left = positions[Math.min(index, positions.length - 1)]!;
+        if (Math.abs(libraryRail.scrollLeft - left) > 1) {
+            libraryRail.scrollTo?.({ left, behavior: "instant" });
+        }
     }
 
     function scrollLibrary(direction: -1 | 1): void {
-        if (libraryRail === null) {
-            return;
-        }
-
-        libraryRail.scrollBy({
-            left: direction * libraryRail.clientWidth,
-            behavior: "smooth",
+        const { positions, visible } = libraryScrollPositions();
+        if (libraryRail === null || positions.length === 0) return;
+        const current = libraryTargetIndex ?? nearestLibraryIndex(positions);
+        libraryTargetIndex = Math.max(
+            0,
+            Math.min(positions.length - 1, current + direction * visible),
+        );
+        libraryRail.scrollTo({
+            left: positions[libraryTargetIndex]!,
+            behavior: "auto",
         });
     }
 
@@ -1524,6 +1592,10 @@
                             <ul
                                 bind:this={libraryRail}
                                 id="library-shelf"
+                                onscrollend={alignLibraryScroll}
+                                onwheel={() => (libraryTargetIndex = null)}
+                                onpointerdown={() =>
+                                    (libraryTargetIndex = null)}
                                 aria-label="Library index results"
                                 class="library-shelf flex min-w-0 gap-4 overflow-x-auto overscroll-x-contain pb-3"
                             >
@@ -1661,6 +1733,7 @@
     }
     .library-shelf {
         --visible-cards: 1;
+        scroll-behavior: smooth;
         scroll-snap-type: x mandatory;
     }
     .library-shelf > li {
