@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import socket
+import signal
 import shutil
 import hashlib
 import sqlite3
@@ -59,7 +60,7 @@ def main():
             probe.bind(("127.0.0.1", 0))
             port = probe.getsockname()[1]
         environment = dict(os.environ, XDG_CONFIG_HOME=str(root / "config"), XDG_CACHE_HOME=str(root / "cache"), XDG_DATA_HOME=str(root / "data"), TAURI_WEBVIEW_AUTOMATION="true", ANIMI_RELEASE_SMOKE="1", ANIMI_RELEASE_SMOKE_DATA_DIR=str(profile), ANIMI_RELEASE_SMOKE_FIXTURES=str(fixtures), HTTPS_PROXY="http://127.0.0.1:9", HTTP_PROXY="http://127.0.0.1:9", ALL_PROXY="http://127.0.0.1:9", NO_PROXY="127.0.0.1,localhost")
-        driver = subprocess.Popen([driver_binary, f"--port={port}"], env=environment)
+        driver = subprocess.Popen([driver_binary, f"--port={port}"], env=environment, start_new_session=True)
         session = None
         base = f"http://127.0.0.1:{port}"
 
@@ -261,10 +262,21 @@ def main():
                 assert hashlib.sha256((profile / "animi.sqlite3").read_bytes()).hexdigest() == digest
             print("PASS: packaged WebKitGTK search, details, add, chapter/volume correction, Dashboard, metadata refresh, restart, offline cache, removal, preserved anime, Continue Reading, durable chapter activity, theme/viewport screenshots, schema 1/2 recovery, package removal/reinstall retention, and optional real 1.0.1 upgrade/downgrade checks")
         finally:
-            if session:
-                request(f"/session/{session}", method="DELETE")
-            driver.terminate()
-            driver.wait(timeout=10)
+            try:
+                if session:
+                    request(f"/session/{session}", method="DELETE")
+            finally:
+                # WebKit helpers can outlive a deleted session and still write XDG caches.
+                # Stop the isolated driver process group before removing its temporary root.
+                try:
+                    os.killpg(driver.pid, signal.SIGTERM)
+                    driver.wait(timeout=10)
+                finally:
+                    try:
+                        os.killpg(driver.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                    driver.wait(timeout=10)
 
 
 if __name__ == "__main__":
