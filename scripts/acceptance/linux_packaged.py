@@ -47,9 +47,12 @@ def main():
         package_action("--install", previous_package or package)
         manga = json.loads((REPO / "src-tauri/tests/fixtures/anilist/manga-search-success.json").read_text())["data"]["Page"]["media"][0]
         manga["coverImage"]["large"] = None
+        anime_media = json.loads((REPO / "src-tauri/tests/fixtures/anilist/details-known.json").read_text())["data"]["Media"]
+        anime_media["coverImage"]["large"] = None
+        (fixtures / "MediaDetails-ANIME.json").write_text(json.dumps({"data":{"Media":anime_media}}))
         for kind in ["ANIME", "MANGA"]:
             for operation in ["SearchMedia", "TrendingMedia", "LibraryMedia"]:
-                (fixtures / f"{operation}-{kind}.json").write_text(json.dumps({"data": {"Page": {"pageInfo": {"hasNextPage": False}, "media": [manga] if kind == "MANGA" else []}}}))
+                (fixtures / f"{operation}-{kind}.json").write_text(json.dumps({"data": {"Page": {"pageInfo": {"hasNextPage": False}, "media": [manga] if kind == "MANGA" else [anime_media]}}}))
         (fixtures / "MediaDetails-MANGA.json").write_text(json.dumps({"data": {"Media": dict(manga, relations={"edges": []})}}))
         (fixtures / "AiringSchedule-ANIME.json").write_text('{"data":{"Page":{"airingSchedules":[]}}}')
         with socket.socket() as probe:
@@ -117,6 +120,22 @@ def main():
                 assert ipc("get_theme_preference") == "MACCHIATO"
                 with sqlite3.connect(profile / "animi.sqlite3") as db:
                     assert db.execute("SELECT event_id, anilist_id, media_kind, progress_delta, episode_duration_minutes, occurred_at FROM watch_activity ORDER BY event_id").fetchall() == original_events
+            click('button[aria-label="Discover"]')
+            fill('input[placeholder="Search anime by title"]', "Frieren")
+            button("Search now")
+            click('button[aria-label="Open details for Frieren: Beyond Journey\'s End"]')
+            text_contains("Anime details")
+            click('dialog input[value="WATCHING"]')
+            fill('dialog input[type="range"]', 2)
+            button("Add to library")
+            text_contains("Changes saved")
+            click('button[aria-label="Close details"]')
+            click('button[aria-label="Home"]')
+            button("watch ep 3")
+            wait_for(lambda: next(i["entry"] for i in ipc("list_library") if i["entry"]["anilistId"] == 154587)["progress"] == 3)
+            click('button[aria-label="Dashboard"]')
+            text_contains("Your watch history")
+            assert ipc("get_dashboard_insights", request={"mediaKind":"ANIME"})["activity"]["recordedMinutes"] == 72
             baseline_entries = [i["entry"] for i in ipc("list_library")]
             click('button[aria-label="Discover"]')
             click('input[data-media-kind="MANGA"]')
@@ -149,9 +168,12 @@ def main():
             session = start()
             text_contains("Your library")
             entries = ipc("list_library")
-            assert next(i["entry"] for i in entries if i["entry"]["mediaKind"] == "ANIME") == anime
+            assert next(i["entry"] for i in entries if i["entry"]["mediaKind"] == "ANIME" and i["entry"]["anilistId"] == 101) == anime
             manga_entry = next(i["entry"] for i in entries if i["entry"]["mediaKind"] == "MANGA")
             assert (manga_entry["progress"], manga_entry["volumeProgress"]) == (42, 5)
+            anime_details = ipc("get_media_details", request={"mediaKind":"ANIME","anilistId":154587})
+            assert anime_details["freshness"]["isStale"] is True
+            assert anime_details["media"]["episodes"] == 28
             details = ipc("get_media_details", request={"mediaKind": "MANGA", "anilistId": 30013})
             assert details["media"]["chapters"] == 120
             assert details["freshness"]["isStale"] is True

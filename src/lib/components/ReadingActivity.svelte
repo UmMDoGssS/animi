@@ -61,7 +61,12 @@
             <p class="sr-only">
                 Each chart uses its own scale. Months are grouped in UTC.
             </p>
-            <div class="mt-3 overflow-x-auto pb-2">
+            <div
+                class="mt-3 overflow-x-auto pb-2"
+                role="region"
+                aria-label={`Scrollable monthly ${series.label} chart`}
+                tabindex="0"
+            >
                 <ol
                     aria-label={`Monthly recorded ${series.label}`}
                     class="grid min-w-[32rem] grid-cols-12 gap-2"

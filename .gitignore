@@ -13,3 +13,5 @@ vite.config.ts.timestamp-*
 /src-tauri/gen
 
 /.tmp/
+
+__pycache__/

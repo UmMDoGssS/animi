@@ -53,6 +53,11 @@ describe("reading activity", () => {
                 name: "Yearly recorded reading activity",
             }),
         ).toHaveTextContent("5 chapters · 2 volumes");
+        expect(
+            screen.getByRole("region", {
+                name: "Scrollable monthly chapters chart",
+            }),
+        ).toHaveAttribute("tabindex", "0");
         expect(container.textContent).not.toMatch(
             /minutes|episodes|watch time/i,
         );
