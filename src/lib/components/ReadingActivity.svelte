@@ -61,6 +61,7 @@
             <p class="sr-only">
                 Each chart uses its own scale. Months are grouped in UTC.
             </p>
+            <!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to focus this scroll region to reveal every month in WebKitGTK.) -->
             <div
                 class="mt-3 overflow-x-auto pb-2"
                 role="region"

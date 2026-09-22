@@ -201,6 +201,10 @@ def main():
                         click(f'button[aria-label="{page}"]')
                         time.sleep(0.15)
                         assert js("return document.documentElement.scrollWidth <= window.innerWidth + 1"), (page, width, "overflow")
+                        if page == "Dashboard" and width == 390:
+                            js("document.querySelector('[aria-label=\"Scrollable monthly chapters chart\"]').focus()")
+                            request(f"/session/{session}/actions", {"actions":[{"type":"key","id":"keyboard","actions":[{"type":"keyDown","value":"\ue014"},{"type":"keyUp","value":"\ue014"}]}]})
+                            wait_for(lambda: js("return document.querySelector('[aria-label=\"Scrollable monthly chapters chart\"]').scrollLeft > 0"))
                         screenshot = request(f"/session/{session}/screenshot")
                         (output / f"{theme.lower()}-{width}-{page.lower()}.png").write_bytes(base64.b64decode(screenshot))
             request(f"/session/{session}", method="DELETE")
