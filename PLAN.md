@@ -5,11 +5,11 @@
 | Field | Value |
 |---|---|
 | Product | Animi |
-| Release | Version 1.1, Windows desktop |
+| Release | Version 1.1, Linux-first desktop |
 | Overall status | Version 1.0.1 complete; version 1.1 in progress; private distribution only |
-| Current phase | P10 implemented; Windows packaged acceptance pending |
+| Current phase | P10 implemented; Linux packaged acceptance in progress |
 | Schedule | Dependency-driven; no calendar commitment |
-| Last updated | 2026-09-17 |
+| Last updated | 2026-09-22 |
 
 This document is the living execution roadmap for Animi. [`PROJECT.md`](PROJECT.md) is authoritative for product scope, architecture, fixed behavior, and technical decisions. This plan is authoritative for implementation order, milestone status, dependencies, and release readiness.
 
@@ -591,7 +591,7 @@ The component flow covers search, add, independent volume correction, applicatio
 
 ## P12 - Version 1.1 Release Hardening
 
-**Objective:** Prove that Animi 1.1 is a safe private upgrade for fresh and existing Windows profiles.
+**Objective:** Prove that Animi 1.1 is a safe private upgrade for fresh and existing Linux profiles.
 
 **Depends on:** P8-P11 and every cumulative P0-P7 release gate.
 
@@ -606,13 +606,13 @@ The component flow covers search, add, independent volume correction, applicatio
 - [ ] **P12-M2 - Regression matrix:** Exercise Home, Discover, details, Dashboard, Settings, both media kinds, online and offline states, fresh and stale caches, both themes, desktop and narrow widths, keyboard use, focus, alternative text, contrast, and reduced motion.
 - [ ] **P12-M3 - Full automated gate:** Run frontend formatting, lint, strict checks, tests, production build, release audit, Rust formatting, Clippy with warnings denied, all Rust tests, migration fixtures, and critical-flow coverage from a clean worktree.
 - [ ] **P12-M4 - Release documentation:** Update the README, release notes, release audit, known limitations, backup compatibility, data location, private-distribution restriction, dependency notices, and any user-facing migration or recovery guidance.
-- [ ] **P12-M5 - Windows package acceptance:** Build the private current-user NSIS installer, perform fresh install and same-identity upgrade from 1.0.1, launch online and offline against isolated profiles, reinstall, uninstall, and verify the documented retained-data behavior.
+- [ ] **P12-M5 - Linux package acceptance:** Build the private Debian package on Ubuntu 26.04 Wayland, perform fresh install and same-identity upgrade using an isolated 1.0.1 database profile, launch online and offline against isolated profiles, reinstall, uninstall, and verify the documented retained-data behavior.
 - [ ] **P12-M6 - Artifact audit:** Confirm the installer and repository contain no secrets, real user data, bundled databases, backups, caches, updater, analytics, public publishing path, non-Bun lockfile, accidental capability expansion, or undocumented dependency.
 
 ### Exit gate
 
-- [ ] **P12-G1** Anime and manga critical flows pass from the packaged Windows application, including offline use of previously cached tracked titles.
-- [ ] **P12-G2** A production installer upgrades Animi 1.0.1 without losing or changing anime library, settings, watch activity, event IDs, or backup compatibility.
+- [ ] **P12-G1** Anime and manga critical flows pass from the packaged Linux application, including offline use of previously cached tracked titles.
+- [ ] **P12-G2** A production Linux package upgrades an isolated Animi 1.0.1 database profile without losing or changing anime library, settings, watch activity, event IDs, or backup compatibility.
 - [ ] **P12-G3** Fresh and upgraded profiles can create, back up, clear in isolation, and restore mixed anime/manga data transactionally.
 - [ ] **P12-G4** The complete clean-tree quality gate passes and the release audit records reproducible evidence.
 - [ ] **P12-G5** Version 1.1 remains private, local-only, adult-content-filtered, and within every boundary in `PROJECT.md`.
@@ -693,3 +693,7 @@ Future phases have no schedule, implementation status, or permission to begin. P
 | 2026-08-02 | Use local recency for Continue Reading and omit manga schedules or time estimates | AniList has no airing-equivalent chapter feed or reliable reading duration, so inferred catch-up and time claims would be misleading |
 | 2026-08-02 | Export backup schema 2 and continue importing schema 1 | Manga requires new progress and activity fields, while every Animi 1.0.x backup must remain recoverable without a lossy downgrade format |
 | 2026-08-02 | Isolate discovery, caches, activity presentation, preferences, and recommendations by media kind | Episodes, chapters, volumes, and profile signals have different meanings and must never be combined implicitly |
+
+### Linux priority (2026-09-22)
+
+The user approved Linux-first delivery, especially this Ubuntu 26.04 x86_64 Wayland machine. P10 packaged acceptance and P12 packaging now target native Linux WebKitGTK and a Debian package. Windows configuration and historical P7 acceptance remain intact; Windows 1.1 installer execution is deferred to a Windows host and is not claimed by Linux evidence. The package gate still requires real webview IPC, isolated profiles, deterministic mocked metadata, offline recovery, retained user data, and upgrade/downgrade checks. No existing unchecked gate is completed by this scope update.

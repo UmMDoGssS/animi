@@ -2,7 +2,7 @@
 
 ## Summary
 
-Animi is a private, local-first Windows tracker and recommendation application. Version 1.0 shipped anime workflows; version 1.1 adds manga capabilities without weakening the existing anime experience or requiring a server.
+Animi is a private, local-first Linux-first desktop tracker and recommendation application. Version 1.0 shipped anime workflows; version 1.1 adds manga capabilities without weakening the existing anime experience or requiring a server.
 
 - **Tauri 2** desktop shell
 - **Svelte 5 + TypeScript + Vite** SPA
@@ -34,7 +34,7 @@ The release does not include AniList OAuth or account synchronization, a content
 - Retain Home, Discover, Dashboard, and Settings as the four primary destinations. Present media details as a secondary view and recommendations within Discover.
 - Use one consistent media-kind selector where a view can operate on anime or manga. The selector is session-only and defaults to Anime on launch to preserve the version 1.0 startup experience. Do not mix episodes and chapters into one unlabeled progress or activity total.
 - Keep all durable operations behind typed Tauri commands. Rust owns SQLite migrations, transactions, AniList requests, caching, throttling, recommendations, and backup handling; the UI never executes SQL or calls AniList directly.
-- Resolve production storage from the stable Windows per-user application-data directory. Packaged release QA may redirect only the database root when both the exact `ANIMI_RELEASE_SMOKE=1` guard and a nonempty `ANIMI_RELEASE_SMOKE_DATA_DIR` are present; the directory value alone has no effect.
+- Resolve production storage from the stable platform per-user application-data directory (`$XDG_DATA_HOME/app.animi.desktop`, normally `~/.local/share/app.animi.desktop`, on Linux; the existing Windows location remains unchanged). Packaged release QA may redirect only the database root when both the exact `ANIMI_RELEASE_SMOKE=1` guard and a nonempty `ANIMI_RELEASE_SMOKE_DATA_DIR` are present; the directory value alone has no effect.
 - Preserve `MediaKind` in identifiers, cache keys, repository keys, request DTOs, and response DTOs even where AniList identifiers are globally distinct. Cross-kind field combinations are validated rather than guessed.
 - Store only locally meaningful records and metadata for titles the user searches, opens, or tracks. Do not bulk-copy AniList.
 - Cache media details for 24 hours and discovery or recommendation results for 6 hours. Keep the existing 30-minute airing cache and refresh cycle for anime only. Honor AniList rate-limit headers and `Retry-After`. ([AniList rate limits](https://docs.anilist.co/guide/rate-limiting))
@@ -93,7 +93,7 @@ All IPC JSON fields use camelCase. Rust may retain idiomatic snake_case internal
 - Mock AniList contract tests cover manga, novel, and one-shot formats; known and missing chapter or volume totals; finished and releasing statuses; relations; offline responses; malformed cross-kind data; partial GraphQL errors; `403`; and `429 Retry-After`.
 - Svelte component tests cover the media-kind selector, kind-specific labels and units, Continue Reading, manga Discover and details, manga library editing and filters, Dashboard reading activity, recommendations, loading, empty, offline, stale, and error states.
 - End-to-end flows cover manga search, details, add, chapter and volume updates, restart persistence, Continue Reading quick progress, Dashboard activity, same-kind recommendations, cached offline use, schema 2 export, schema 1 and 2 import, and preservation of an existing anime library.
-- Acceptance requires a Windows NSIS 1.1 build that upgrades an isolated 1.0.1 profile without data loss and remains usable offline for previously cached anime and manga titles.
+- Acceptance requires a Linux Debian 1.1 package on this Ubuntu 26.04 Wayland machine that upgrades an isolated 1.0.1 database profile without data loss and remains usable offline for previously cached anime and manga titles.
 
 ## Assumptions and Prerequisites
 
@@ -101,4 +101,5 @@ All IPC JSON fields use camelCase. Rust may retain idiomatic snake_case internal
 - AniList is an on-demand metadata provider, not application storage. Public metadata requires no authentication. ([AniList authentication](https://docs.anilist.co/guide/auth/))
 - Adult content remains excluded by default.
 - Phone support and live cross-device sync remain deferred. Responsive layouts and platform-neutral DTOs must be maintained; manual transfer continues through the versioned backup format.
-- Bun 1.3.14 or a newer compatible release, Node 24 or newer, Rust 1.96 or newer, Cargo, Microsoft C++ Build Tools, and WebView2 are required for development and packaging. ([Tauri prerequisites](https://v2.tauri.app/start/prerequisites/))
+- Linux is the primary version 1.1 acceptance platform, particularly this Ubuntu 26.04 x86_64 Wayland machine. Use a native Debian package, system WebKitGTK, desktop integration, native file dialogs, system fonts, and XDG data paths. Windows NSIS configuration remains supported, with Windows 1.1 installer acceptance deferred to a Windows host; historical P7 evidence is unchanged. Linux package removal must retain user data, and migration-ledger validation must reject unsupported database downgrades.
+- Bun 1.3.14 or a newer compatible release, Node 24 or newer, Rust 1.96 or newer, Cargo, a C compiler, pkg-config, GTK 3, WebKitGTK 4.1, librsvg, and patchelf are required for Linux development and packaging. Windows additionally requires Microsoft C++ Build Tools and WebView2. ([Tauri prerequisites](https://v2.tauri.app/start/prerequisites/))
