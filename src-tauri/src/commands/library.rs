@@ -7,6 +7,25 @@ use crate::domain::{
 };
 
 #[tauri::command(rename_all = "camelCase")]
+pub async fn get_home_reading(
+    database: State<'_, Database>,
+) -> Result<Vec<LibraryItem>, CommandError> {
+    let mut items = list_library_with_database(&database).await?;
+    items.retain(|item| {
+        item.entry.media_kind == crate::domain::MediaKind::Manga
+            && item.entry.status == crate::domain::LibraryStatus::Watching
+    });
+    items.sort_by(|left, right| {
+        right
+            .entry
+            .updated_at
+            .cmp(&left.entry.updated_at)
+            .then_with(|| left.entry.anilist_id.cmp(&right.entry.anilist_id))
+    });
+    Ok(items)
+}
+
+#[tauri::command(rename_all = "camelCase")]
 pub async fn list_library(database: State<'_, Database>) -> Result<Vec<LibraryItem>, CommandError> {
     list_library_with_database(&database).await
 }

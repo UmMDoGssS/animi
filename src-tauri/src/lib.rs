@@ -33,6 +33,7 @@ pub fn register_commands<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri
         commands::backups::get_settings_overview,
         commands::backups::clear_local_data,
         commands::library::list_library,
+        commands::library::get_home_reading,
         commands::library::upsert_library_entry,
         commands::library::advance_library_progress,
         commands::library::remove_library_entry,

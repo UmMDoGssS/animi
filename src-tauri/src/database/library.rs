@@ -267,6 +267,13 @@ impl LibraryRepository {
                 false,
             ));
         }
+        if row.progress >= i64::from(i32::MAX) {
+            return Err(CommandError::new(
+                "INVALID_PROGRESS",
+                "Progress has reached the supported limit.",
+                false,
+            ));
+        }
         let progress = row.progress + 1;
         sqlx::query(
             "UPDATE library_entries SET progress = ?, activity_progress = MAX(activity_progress, ?), \

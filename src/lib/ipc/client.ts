@@ -42,6 +42,10 @@ export async function listLibrary(): Promise<LibraryItem[]> {
     return invoke<LibraryItem[]>("list_library");
 }
 
+export async function getHomeReading(): Promise<LibraryItem[]> {
+    return invoke<LibraryItem[]>("get_home_reading");
+}
+
 export async function getHomeAiring(): Promise<HomeAiringResponse> {
     return invoke<HomeAiringResponse>("get_home_airing");
 }
