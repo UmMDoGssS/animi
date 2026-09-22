@@ -1,6 +1,6 @@
 # Animi release audits
 
-## Version 1.1 Linux acceptance (2026-09-22)
+## Version 1.1 Linux acceptance (2026-09-23)
 
 Version 1.1 targets Ubuntu 26.04 x86_64 on this Wayland desktop with GTK 3.24.52 and WebKitGTK 2.52.6. The stable identity remains `app.animi.desktop`; versions are aligned at 1.1.0. Windows 1.1 installer execution is deferred to a Windows host; the historical P7 record below is unchanged.
 
@@ -21,6 +21,8 @@ ANIMI_PREVIOUS_PACKAGE=/absolute/path/to/Animi_1.0.1_amd64.deb python3 scripts/a
 ```
 
 `ANIMI_PREVIOUS_PACKAGE` must identify a private Linux build from the actual old tag, not an intermediate manga-development build still numbered 1.0.1. Backup fixture mode does not contact AniList. The old release, which predates fixture transport, uses a deliberately unavailable proxy for non-loopback requests. The driver and application communicate locally. Screenshots are written outside the repository to `/tmp/animi-acceptance-evidence` by default.
+
+An intermittent WebKit helper shutdown abort was observed on this host. System core backtraces identify Mesa 26.0.8 Gallium/GBM cleanup through `__run_exit_handlers` in WebKitWebProcess (WebKitGTK 2.52.6). The active flows, persistence checks, and final harness exits passed; this runtime shutdown limitation is not claimed fixed. The harness separately stops its isolated driver process group before deleting temporary XDG storage to avoid late helper writes racing cleanup.
 
 The final clean-tree command results and package hash are recorded in `PLAN.md`. No runtime dependency was added for P10 acceptance or P11/P12 completion.
 

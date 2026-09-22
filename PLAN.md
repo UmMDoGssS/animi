@@ -6,10 +6,10 @@
 |---|---|
 | Product | Animi |
 | Release | Version 1.1, Linux-first desktop |
-| Overall status | Version 1.0.1 complete; version 1.1 in progress; private distribution only |
-| Current phase | P10 and P11 complete; P12 release hardening in progress |
+| Overall status | Version 1.1.0 complete for Linux; private distribution only |
+| Current phase | P10, P11, and P12 complete |
 | Schedule | Dependency-driven; no calendar commitment |
-| Last updated | 2026-09-22 |
+| Last updated | 2026-09-23 |
 
 This document is the living execution roadmap for Animi. [`PROJECT.md`](PROJECT.md) is authoritative for product scope, architecture, fixed behavior, and technical decisions. This plan is authoritative for implementation order, milestone status, dependencies, and release readiness.
 
@@ -63,7 +63,7 @@ The following remain outside version 1.1:
 | P9 | AniList manga integration and cache isolation | P8 contracts; existing P2 transport | Complete | Mocked manga discovery, details, cache, offline, and throttling behavior passes |
 | P10 | Media-aware application workflows | P8, P9; existing P3-P4 UI | Complete | Manga discovery-to-library and Dashboard flows pass end to end |
 | P11 | Continue Reading, activity, and recommendations | P8-P10; existing P5 behavior | Complete | Manga Home, reading activity, and same-kind recommendations pass |
-| P12 | Version 1.1 release hardening | P8-P11 | In progress | Full gate and Linux package upgrade acceptance pass from an Animi 1.0.1 profile |
+| P12 | Version 1.1 release hardening | P8-P11 | Complete | Full gate and Linux package upgrade acceptance pass from an Animi 1.0.1 profile |
 
 ## Planned Contracts
 
@@ -610,20 +610,30 @@ Frontend formatting/lint/strict checks, 132 tests, production Debian build, nati
 
 ### Milestones
 
-- [ ] **P12-M1 - Migration and backup acceptance:** Upgrade isolated copies of every immutable database fixture and a representative 1.0.1 profile; verify anime preservation, new manga writes, schema 1 import, schema 2 round trip, failure rollback, reinstall retention, and downgrade protection.
-- [ ] **P12-M2 - Regression matrix:** Exercise Home, Discover, details, Dashboard, Settings, both media kinds, online and offline states, fresh and stale caches, both themes, desktop and narrow widths, keyboard use, focus, alternative text, contrast, and reduced motion.
-- [ ] **P12-M3 - Full automated gate:** Run frontend formatting, lint, strict checks, tests, production build, release audit, Rust formatting, Clippy with warnings denied, all Rust tests, migration fixtures, and critical-flow coverage from a clean worktree.
+- [x] **P12-M1 - Migration and backup acceptance:** Upgrade isolated copies of every immutable database fixture and a representative 1.0.1 profile; verify anime preservation, new manga writes, schema 1 import, schema 2 round trip, failure rollback, reinstall retention, and downgrade protection.
+- [x] **P12-M2 - Regression matrix:** Exercise Home, Discover, details, Dashboard, Settings, both media kinds, online and offline states, fresh and stale caches, both themes, desktop and narrow widths, keyboard use, focus, alternative text, contrast, and reduced motion.
+- [x] **P12-M3 - Full automated gate:** Run frontend formatting, lint, strict checks, tests, production build, release audit, Rust formatting, Clippy with warnings denied, all Rust tests, migration fixtures, and critical-flow coverage from a clean worktree.
 - [x] **P12-M4 - Release documentation:** Update the README, release notes, release audit, known limitations, backup compatibility, data location, private-distribution restriction, dependency notices, and any user-facing migration or recovery guidance.
-- [ ] **P12-M5 - Linux package acceptance:** Build the private Debian package on Ubuntu 26.04 Wayland, perform fresh install and same-identity upgrade using an isolated 1.0.1 database profile, launch online and offline against isolated profiles, reinstall, uninstall, and verify the documented retained-data behavior.
-- [ ] **P12-M6 - Artifact audit:** Confirm the installer and repository contain no secrets, real user data, bundled databases, backups, caches, updater, analytics, public publishing path, non-Bun lockfile, accidental capability expansion, or undocumented dependency.
+- [x] **P12-M5 - Linux package acceptance:** Build the private Debian package on Ubuntu 26.04 Wayland, perform fresh install and same-identity upgrade using an isolated 1.0.1 database profile, launch online and offline against isolated profiles, reinstall, uninstall, and verify the documented retained-data behavior.
+- [x] **P12-M6 - Artifact audit:** Confirm the installer and repository contain no secrets, real user data, bundled databases, backups, caches, updater, analytics, public publishing path, non-Bun lockfile, accidental capability expansion, or undocumented dependency.
 
 ### Exit gate
 
-- [ ] **P12-G1** Anime and manga critical flows pass from the packaged Linux application, including offline use of previously cached tracked titles.
-- [ ] **P12-G2** A production Linux package upgrades an isolated Animi 1.0.1 database profile without losing or changing anime library, settings, watch activity, event IDs, or backup compatibility.
-- [ ] **P12-G3** Fresh and upgraded profiles can create, back up, clear in isolation, and restore mixed anime/manga data transactionally.
-- [ ] **P12-G4** The complete clean-tree quality gate passes and the release audit records reproducible evidence.
-- [ ] **P12-G5** Version 1.1 remains private, local-only, adult-content-filtered, and within every boundary in `PROJECT.md`.
+- [x] **P12-G1** Anime and manga critical flows pass from the packaged Linux application, including offline use of previously cached tracked titles.
+- [x] **P12-G2** A production Linux package upgrades an isolated Animi 1.0.1 database profile without losing or changing anime library, settings, watch activity, event IDs, or backup compatibility.
+- [x] **P12-G3** Fresh and upgraded profiles can create, back up, clear in isolation, and restore mixed anime/manga data transactionally.
+- [x] **P12-G4** The complete clean-tree quality gate passes and the release audit records reproducible evidence.
+- [x] **P12-G5** Version 1.1 remains private, local-only, adult-content-filtered, and within every boundary in `PROJECT.md`.
+
+**Final Linux evidence (2026-09-23):** The complete quality gate ran from clean commit `51bae66`: `bun run format:check`, `bun run lint`, `bun run check` (zero errors/warnings), `bun run test` (132 tests across 18 files), `bun run build`, `bun run release:audit`, Cargo formatting, all-target/all-feature Clippy with warnings denied, and `cargo test --manifest-path src-tauri/Cargo.toml --all-features` (93 unit and 27 integration tests). `bun run release:build` then produced the private 1.1.0 Debian package. Frontend test workers are capped at four for this shared laptop; only the two long application-flow cases use a 15-second timeout. No runtime dependency, database migration, capability, or CSP expansion was introduced by P11/P12.
+
+The final package passed the strict payload audit, normal non-smoke XDG startup, fresh-profile packaged flow, and the actual `v1.0.1`-tag package upgrade flow. Real webview UI/IPC verified anime and manga progress, independent activity units, cached offline use, restart persistence, both themes, 1180/390-pixel layouts, keyboard chart scrolling, and the Home panel gap. Screenshots were visually reviewed. All four immutable migration fixtures upgrade and reopen. The real old-profile upgrade preserved anime entries, settings, watch activity, and event IDs. Schema-2 backup/clear/restore matched settings, entries, and activity exactly; schema-1 import and invalid-preview no-write checks passed. Isolated dpkg removal retained the database byte-for-byte, reinstall restored access, and the old binary refused the migrated database without changing it.
+
+Package: `src-tauri/target/release/bundle/deb/Animi_1.1.0_amd64.deb`. SHA-256: `9f1f821ca7f5f3b16957d41138857ac5ec17178ec21ff0445c082405c8910a85`.
+
+The acceptance harness initially encountered a temporary-directory cleanup race after passing its assertions. Commit `60b33aa` stops the isolated WebKit driver process group before cleanup; fresh and upgraded flows then both exited successfully against the same final package. This harness-only change does not alter shipped assets. The final evidence/documentation change was checked with formatting, release audit, and `git diff --check`; runtime suites were not repeated for documentation alone.
+
+**Acceptance limits:** Package-manager lifecycle checks use an isolated fakeroot/dpkg root with host GTK/WebKit libraries, not installation into the user's system. Native GTK file-picker clicks are not automated; guarded fixture destinations exercise the shipped backup commands and transactions. Windows 1.1 installer execution remains deferred. On this machine, an intermittent WebKitWebProcess shutdown abort emitted `corrupted double-linked list`; the system core backtrace places it in Mesa 26.0.8 Gallium/GBM cleanup through `__run_exit_handlers` (WebKitGTK 2.52.6). No active workflow failure or data change was observed, and both final acceptance runs completed, but the upstream shutdown limitation remains recorded in the release notes. It is not claimed fixed by the harness cleanup change.
 
 ## Quality Gates
 
@@ -645,7 +655,7 @@ Documentation-only changes may skip runtime suites when the handoff states that 
 
 | Risk | Control | Release gate |
 |---|---|---|
-| Missing Windows native prerequisites | Verify them before scaffolding and again on the packaging machine | P0, P7, P12 |
+| Missing native prerequisites | Verify Linux GTK/WebKit and build tools on the packaging machine; Windows also requires its C++ tools and WebView2 | P0, P7, P12 |
 | AniList outage, malformed data, or throttling | Typed adapters, bounded kind-scoped caching, stale fallback, `Retry-After`, and deterministic mocks | P2, P7, P9, P12 |
 | Existing 1.0.x data or backups are damaged by manga migrations | Append-only migrations, immutable upgrade fixtures, schema 1 import coverage, stable event IDs, transactional rollback, and packaged upgrade QA | P8, P12 |
 | Anime and manga fields, caches, progress units, or preferences leak across kinds | Carry `MediaKind` through keys and DTOs, validate cross-kind fields, and run mixed-profile isolation tests | P8-P12 |

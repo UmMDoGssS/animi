@@ -27,6 +27,7 @@ Linux package managers can install an older binary, but the application's migrat
 - This is a private release. Public redistribution remains outside the approved AniList terms scope.
 - Windows configuration remains supported, but Windows 1.1 NSIS execution is deferred to a Windows host. Historical 1.0.1 acceptance remains recorded separately.
 - Linux acceptance is specific to Ubuntu 26.04 x86_64 and its system libraries. This build does not claim compatibility with older distributions or provide an AppImage.
+- On the acceptance machine, WebKitGTK 2.52.6 intermittently reports a helper-process abort during Mesa 26.0.8 shutdown cleanup. Active workflows and data-preservation checks passed; the shutdown warning remains a known system-runtime limitation.
 - No reader, chapter release predictions, reading-time estimates, OAuth, cloud sync, analytics, updater, background service, mobile client, or closed-app notifications.
 - Offline use requires cached metadata. Missing metadata remains explicit; local progress and backups remain available.
 
