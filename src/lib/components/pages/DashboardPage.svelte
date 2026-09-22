@@ -1,4 +1,5 @@
 <script lang="ts">
+    import ReadingActivity from "../ReadingActivity.svelte";
     import { onMount, tick } from "svelte";
 
     import {
@@ -988,6 +989,9 @@
                 </div>
             </section>
 
+            {#if mediaKind === "MANGA"}
+                <ReadingActivity activity={insights.activity} />
+            {/if}
             {#if mediaKind === "ANIME"}
                 <section
                     aria-labelledby="activity-ledger-heading"
@@ -1783,9 +1787,6 @@
         #dashboard-panel {
             grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
             align-items: start;
-        }
-        .manga-dashboard .overview-preferences {
-            grid-column: 1 / -1;
         }
         .overview-preferences {
             grid-column: 2;

@@ -3,6 +3,7 @@
 Usage: python3 scripts/acceptance/linux_packaged.py PACKAGE.deb WebKitWebDriver
 Requires a desktop session. No live AniList requests or third-party Python modules.
 """
+import base64
 import json
 import os
 from pathlib import Path
@@ -114,7 +115,7 @@ def main():
             request(f"/session/{session}", method="DELETE")
             session = None
             with sqlite3.connect(profile / "animi.sqlite3") as database:
-                database.execute("UPDATE response_caches SET expires_at = '2000-01-01T00:00:00Z'")
+                database.execute("UPDATE response_caches SET fetched_at = '2000-01-01T00:00:00Z', expires_at = '2000-01-02T00:00:00Z'")
                 database.execute("UPDATE media_snapshots SET cached_at = '2000-01-01T00:00:00Z'")
             (fixtures / "offline").touch()
             session = start()
@@ -129,9 +130,37 @@ def main():
             assert details["freshness"]["refreshError"] is not None
             click('input[data-media-kind="MANGA"]')
             text_contains("Yotsuba&!")
+            text_contains("Continue Reading")
+            click('button[aria-label="Read one more chapter of Yotsuba&!"]')
+            text_contains("chapter 43 recorded")
+            assert ipc("get_home_reading")[0]["entry"]["volumeProgress"] == 5
+            click('button[aria-label="Dashboard"]')
+            text_contains("Your reading history")
+            assert ipc("get_dashboard_insights", request={"mediaKind": "MANGA"})["activity"]["recordedChapters"] == 43
+            output = Path(os.environ.get("ANIMI_ACCEPTANCE_OUTPUT", "/tmp/animi-acceptance-evidence"))
+            output.mkdir(parents=True, exist_ok=True)
+            for theme in ["LATTE", "MACCHIATO"]:
+                # Theme setting values are persisted through real IPC; reload applies preference.
+                ipc("set_theme_preference", preference=theme)
+                request(f"/session/{session}/refresh", {})
+                text_contains("Your library")
+                click('input[data-media-kind="MANGA"]')
+                for width in [1180, 390]:
+                    request(f"/session/{session}/window/rect", {"width": width, "height": 850})
+                    for page in ["Home", "Dashboard", "Discover", "Settings"]:
+                        click(f'button[aria-label="{page}"]')
+                        time.sleep(0.15)
+                        assert js("return document.documentElement.scrollWidth <= window.innerWidth + 1"), (page, width, "overflow")
+                        screenshot = request(f"/session/{session}/screenshot")
+                        (output / f"{theme.lower()}-{width}-{page.lower()}.png").write_bytes(base64.b64decode(screenshot))
+            request(f"/session/{session}", method="DELETE")
+            session = start()
+            text_contains("Your library")
+            assert ipc("get_home_reading")[0]["entry"]["progress"] == 43
+            assert ipc("get_dashboard_insights", request={"mediaKind": "MANGA"})["activity"]["recordedChapters"] == 43
             ipc("remove_library_entry", request={"mediaKind": "MANGA", "anilistId": 30013, "confirmed": True})
             assert [i["entry"] for i in ipc("list_library")] == [anime]
-            print("PASS: packaged WebKitGTK search, details, add, chapter/volume correction, Dashboard, metadata refresh, restart, offline cache, removal, and preserved anime")
+            print("PASS: packaged WebKitGTK search, details, add, chapter/volume correction, Dashboard, metadata refresh, restart, offline cache, removal, preserved anime, Continue Reading, durable chapter activity, and theme/viewport screenshots")
         finally:
             if session:
                 request(f"/session/{session}", method="DELETE")

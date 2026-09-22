@@ -7,7 +7,7 @@
 | Product | Animi |
 | Release | Version 1.1, Linux-first desktop |
 | Overall status | Version 1.0.1 complete; version 1.1 in progress; private distribution only |
-| Current phase | P10 complete; P11 in progress |
+| Current phase | P10 and P11 complete; P12 release hardening in progress |
 | Schedule | Dependency-driven; no calendar commitment |
 | Last updated | 2026-09-22 |
 
@@ -62,7 +62,7 @@ The following remain outside version 1.1:
 | P8 | Manga domain, persistence, and compatibility | P7; approved 1.1 contracts | Complete | Existing 1.0.x profiles upgrade without loss and manga progress is durable |
 | P9 | AniList manga integration and cache isolation | P8 contracts; existing P2 transport | Complete | Mocked manga discovery, details, cache, offline, and throttling behavior passes |
 | P10 | Media-aware application workflows | P8, P9; existing P3-P4 UI | Complete | Manga discovery-to-library and Dashboard flows pass end to end |
-| P11 | Continue Reading, activity, and recommendations | P8-P10; existing P5 behavior | Not started | Manga Home, reading activity, and same-kind recommendations pass |
+| P11 | Continue Reading, activity, and recommendations | P8-P10; existing P5 behavior | Complete | Manga Home, reading activity, and same-kind recommendations pass |
 | P12 | Version 1.1 release hardening | P8-P11 | Not started | Full gate and NSIS upgrade acceptance pass from Animi 1.0.1 |
 
 ## Planned Contracts
@@ -572,24 +572,30 @@ Frontend formatting, lint, strict checks (zero diagnostics), 126 tests, producti
 
 ### Entry gate
 
-- [ ] **P11-E1** Manga progress activity crosses the real IPC boundary with stable units and timestamps, including chapter-only and chapter-plus-volume saves.
-- [ ] **P11-E2** Recommendation fixtures contain sufficient and insufficient same-kind history, already-tracked candidates, missing metadata, stale cache, and offline fallback cases.
+- [x] **P11-E1** Manga progress activity crosses the real IPC boundary with stable units and timestamps, including chapter-only and chapter-plus-volume saves.
+- [x] **P11-E2** Recommendation fixtures contain sufficient and insufficient same-kind history, already-tracked candidates, missing metadata, stale cache, and offline fallback cases.
 
 ### Milestones
 
-- [ ] **P11-M1 - Continue Reading data:** Implement `get_home_reading` from locally authoritative `WATCHING` manga, enriched by optional cached metadata and ordered by most recently updated local entry. Do not infer unread availability, chapter release dates, or publication cadence.
-- [ ] **P11-M2 - Chapter quick progress:** Add an accessible `+1 chapter` action that records progress and activity transactionally, stops at a known chapter total, remains usable for unknown totals, and never changes volume progress implicitly.
-- [ ] **P11-M3 - Reading Home presentation:** Add distinct active, completed-at-known-total, unknown-total, missing-metadata, empty, stale, and error presentations. Preserve the anime airing carousel and prevent its 30-minute refresh loop from treating manga as airing media.
-- [ ] **P11-M4 - Reading activity:** Generalize Dashboard activity presentation so manga reports chapter and volume deltas in monthly and yearly buckets while anime retains episode counts and watch minutes. Never sum or convert chapters, volumes, episodes, or minutes into one value.
-- [ ] **P11-M5 - Manga recommendations:** Reuse the deterministic 55/25/20 scoring model with only Reading and Completed manga as profile signals, exclude tracked manga, explain the strongest same-kind tags, and fall back to manga trending when history is insufficient.
-- [ ] **P11-M6 - Daily-loop coverage:** Test chapter and volume activity high-water semantics, quick progress at known and unknown totals, restart persistence, Continue Reading ordering, missing metadata, recommendation isolation, cached offline fallback, and both media kinds in one profile.
+- [x] **P11-M1 - Continue Reading data:** Implement `get_home_reading` from locally authoritative `WATCHING` manga, enriched by optional cached metadata and ordered by most recently updated local entry. Do not infer unread availability, chapter release dates, or publication cadence.
+- [x] **P11-M2 - Chapter quick progress:** Add an accessible `+1 chapter` action that records progress and activity transactionally, stops at a known chapter total, remains usable for unknown totals, and never changes volume progress implicitly.
+- [x] **P11-M3 - Reading Home presentation:** Add distinct active, completed-at-known-total, unknown-total, missing-metadata, empty, stale, and error presentations. Preserve the anime airing carousel and prevent its 30-minute refresh loop from treating manga as airing media.
+- [x] **P11-M4 - Reading activity:** Generalize Dashboard activity presentation so manga reports chapter and volume deltas in monthly and yearly buckets while anime retains episode counts and watch minutes. Never sum or convert chapters, volumes, episodes, or minutes into one value.
+- [x] **P11-M5 - Manga recommendations:** Reuse the deterministic 55/25/20 scoring model with only Reading and Completed manga as profile signals, exclude tracked manga, explain the strongest same-kind tags, and fall back to manga trending when history is insufficient.
+- [x] **P11-M6 - Daily-loop coverage:** Test chapter and volume activity high-water semantics, quick progress at known and unknown totals, restart persistence, Continue Reading ordering, missing metadata, recommendation isolation, cached offline fallback, and both media kinds in one profile.
 
 ### Exit gate
 
-- [ ] **P11-G1** A user can resume a manga from Home, advance one chapter safely, and see the durable reading activity after restart.
-- [ ] **P11-G2** Manga activity reports only chapters and volumes; anime activity retains its existing episode and watch-time behavior.
-- [ ] **P11-G3** Recommendations never mix profile signals or candidates across media kinds and remain deterministic under offline stale fallback.
-- [ ] **P11-G4** Home and recommendation flows pass at desktop and narrow widths with keyboard, focus, screen-reader status, and reduced-motion coverage.
+- [x] **P11-G1** A user can resume a manga from Home, advance one chapter safely, and see the durable reading activity after restart.
+- [x] **P11-G2** Manga activity reports only chapters and volumes; anime activity retains its existing episode and watch-time behavior.
+- [x] **P11-G3** Recommendations never mix profile signals or candidates across media kinds and remain deterministic under offline stale fallback.
+- [x] **P11-G4** Home and recommendation flows pass at desktop and narrow widths with keyboard, focus, screen-reader status, and reduced-motion coverage.
+
+**Evidence (2026-09-22):** `get_home_reading` filters local Reading manga and sorts by update time with ID tie-breaking; no network service or airing timer is involved. Optional cached metadata supplies known totals and stale disclosure. The quick command preserves volumes, transactionally records only new high-water activity, stops at known totals and the supported integer limit, and works without metadata. The cover-led, keyboard-operable reading shelf exposes loading, empty, unknown-total, completed-at-total, stale, missing-metadata, and command-error states, with save announcements and details editing. Dashboard renders independent chapter and volume monthly charts and yearly totals in UTC, retaining anime watch-time presentation.
+
+`p11_ipc` verifies the real command registration, local-only ordering/filtering, unknown/known bounds, stale metadata, correction semantics, chapter/volume buckets, integer limit, and process-independent database reopen. Existing P8/P9 tests cover chapter-only and combined saves, same-kind 55/25/20 ranking, profile sufficiency, tracked exclusion, missing metadata, stable explanations, and deterministic offline fallback. Six new component tests verify keyboard quick progress, status announcements, errors, empty/stale/missing states, and independent accessible chart units. The packaged WebKitGTK flow now advances a chapter from Home, verifies Dashboard activity, restarts again, and checks durable progress and volume preservation. Sixteen screenshots cover all four destinations in Latte/Macchiato at 1180 and 390 pixels, with document-overflow assertions. Visual review confirmed readable reading cards and separate activity charts; a missing panel gap was corrected. Existing global focus/contrast/reduced-motion tests remain green.
+
+Frontend formatting/lint/strict checks, 132 tests, production Debian build, native P11 IPC, complete Rust suite, and all-target/all-feature Clippy pass. No dependency or migration was added.
 
 ## P12 - Version 1.1 Release Hardening
 

@@ -49,6 +49,7 @@
     import ForcedPresentationPanel from "./ForcedPresentationPanel.svelte";
     import DiscoveryPage from "./pages/DiscoveryPage.svelte";
     import HomePage from "./pages/HomePage.svelte";
+    import ReadingHome from "./pages/ReadingHome.svelte";
     import SettingsPage from "./pages/SettingsPage.svelte";
 
     interface Props {
@@ -99,6 +100,7 @@
 
     interface P5ServiceOverrides {
         loadAiring?: () => Promise<HomeAiringResponse>;
+        loadReading?: () => Promise<LibraryItem[]>;
         advanceProgress?: (
             request: AdvanceLibraryProgressRequest,
         ) => Promise<LibraryEntry>;
@@ -274,14 +276,19 @@
                     {/if}
                     {#if activeView === "home" && debugPresentationMode === "off"}
                         {#if mediaKind === "MANGA"}
-                            <div
-                                id="home-panel"
-                                role="tabpanel"
-                                aria-labelledby="home-tab"
-                                tabindex="-1"
-                            >
-                                <h1 class="sr-only">Home</h1>
-                            </div>
+                            {#key homeRevision}
+                                <ReadingHome
+                                    loadReading={p5Services.loadReading}
+                                    advanceProgress={p5Services.advanceProgress}
+                                    loadDetails={p4Services.loadDetails}
+                                    saveEntry={p4Services.saveEntry}
+                                    deleteEntry={p4Services.deleteEntry}
+                                    onLibraryChanged={() =>
+                                        (libraryRevision += 1)}
+                                    openDiscovery={() =>
+                                        selectView("discovery")}
+                                />
+                            {/key}
                         {/if}
                         {#key libraryRevision}
                             <DashboardPage
