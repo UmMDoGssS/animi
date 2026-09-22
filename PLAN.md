@@ -7,7 +7,7 @@
 | Product | Animi |
 | Release | Version 1.1, Linux-first desktop |
 | Overall status | Version 1.0.1 complete; version 1.1 in progress; private distribution only |
-| Current phase | P10 implemented; Linux packaged acceptance in progress |
+| Current phase | P10 complete; P11 in progress |
 | Schedule | Dependency-driven; no calendar commitment |
 | Last updated | 2026-09-22 |
 
@@ -61,7 +61,7 @@ The following remain outside version 1.1:
 | P7 | Release hardening and Windows packaging | P0-P6 | Complete | Full quality gate and production NSIS acceptance pass |
 | P8 | Manga domain, persistence, and compatibility | P7; approved 1.1 contracts | Complete | Existing 1.0.x profiles upgrade without loss and manga progress is durable |
 | P9 | AniList manga integration and cache isolation | P8 contracts; existing P2 transport | Complete | Mocked manga discovery, details, cache, offline, and throttling behavior passes |
-| P10 | Media-aware application workflows | P8, P9; existing P3-P4 UI | Implemented; packaged acceptance pending | Manga discovery-to-library and Dashboard flows pass end to end |
+| P10 | Media-aware application workflows | P8, P9; existing P3-P4 UI | Complete | Manga discovery-to-library and Dashboard flows pass end to end |
 | P11 | Continue Reading, activity, and recommendations | P8-P10; existing P5 behavior | Not started | Manga Home, reading activity, and same-kind recommendations pass |
 | P12 | Version 1.1 release hardening | P8-P11 | Not started | Full gate and NSIS upgrade acceptance pass from Animi 1.0.1 |
 
@@ -545,7 +545,7 @@ Kind-scoped version-6 discovery, details, and recommendation cache keys prevent 
 
 ### Exit gate
 
-- [ ] **P10-G1** The complete manga discovery-to-library and Dashboard flow passes through the packaged application boundary using mocked AniList data and isolated storage.
+- [x] **P10-G1** The complete manga discovery-to-library and Dashboard flow passes through the packaged application boundary using mocked AniList data and isolated storage.
 - [x] **P10-G2** Media-kind switching is keyboard operable, resets incompatible view state, and never mixes anime and manga labels, units, cache content, or preference signals.
 - [x] **P10-G3** Manga known-total, unknown-total, missing-metadata, loading, empty, offline, stale, validation, and command-error states are covered.
 - [x] **P10-G4** Existing anime Home, Discover, details, Dashboard, library, and accessibility tests remain green.
@@ -560,7 +560,9 @@ The component flow covers search, add, independent volume correction, applicatio
 
 **Shelf snapping follow-up (2026-09-17):** Library cards snap to their leading edge and scale using the panel width, fitting one to six whole cards across with gaps included. Container queries preserve the fit when the window or available content width changes. Paired keyboard-operable previous and next controls target measured card boundaries, advance by one visible group, clamp at the last complete group, and recover from direct scrolling or resizing. A browser geometry check using the shelf CSS at 11 panel widths (260–1296px) confirmed whole-card fit within 0.063px and snap alignment within 0.5px of the card edge. Frontend formatting, lint, strict checks, all 126 tests, and the production build pass; Rust is unchanged.
 
-**Acceptance limitation:** The Linux workspace can run component and native mock-runtime IPC coverage, but cannot prove the Windows packaged-app flow required by P10-G1. That gate remains unchecked; do not treat P10 as release-accepted until the Windows check is recorded. P11's Rust-owned Continue Reading feed, quick chapter action, and manga activity charts remain unimplemented, even though the supplied Home mockup previews them. No dependency, migration, durable contract, or production capability was added.
+**Linux packaged acceptance (2026-09-22):** `bun run release:build` produced `Animi_1.0.1_amd64.deb`; `scripts/acceptance/linux_packaged.py` extracted and launched that package through WebKitGTK 2.52.6 on Ubuntu 26.04 Wayland. Real webview UI and IPC verified manga search/details/add, independent chapter/volume correction, Dashboard totals, metadata refresh, process restart, expired-cache offline fallback with explicit stale/error assertions, confirmed removal, and unchanged anime records. All profiles and fixtures were temporary. Fixture transport requires both the existing smoke guard and isolated data root plus an explicit fixture directory; missing fixtures and the offline marker never fall through to live AniList. The production CSP and capabilities are unchanged. This closes P10-G1 under the approved Linux priority; it does not claim Windows 1.1 installer acceptance.
+
+Frontend formatting, lint, strict checks (zero diagnostics), 126 tests, production build, release audit, Rust formatting, all-target/all-feature Clippy with warnings denied, and the complete Rust test suite pass. The fixture transport has focused fail-closed tests. P11 Continue Reading and manga activity presentation remain the next work.
 
 ## P11 - Continue Reading, Activity, and Recommendations
 

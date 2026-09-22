@@ -62,3 +62,13 @@ Frontend dependencies and scripts use Bun exclusively. Automated backend tests i
 - `src-tauri/src/backups`: backup format ownership
 - `src-tauri/src/recommendations`: deterministic recommendation configuration
 - `src-tauri/tests/fixtures`: deterministic backend fixtures
+
+## Packaged Linux acceptance
+
+With a desktop session and Ubuntu's `webkitgtk-webdriver` package (called `webkit2gtk-driver` on older releases), run:
+
+```sh
+python3 scripts/acceptance/linux_packaged.py src-tauri/target/release/bundle/deb/Animi_1.0.1_amd64.deb /usr/bin/WebKitWebDriver
+```
+
+The script extracts the package, creates temporary storage and deterministic metadata, exercises the real WebKitGTK UI/IPC, restarts, and verifies offline data. It never opens the normal profile. Fixture mode requires `ANIMI_RELEASE_SMOKE=1`, nonempty `ANIMI_RELEASE_SMOKE_DATA_DIR`, and `ANIMI_RELEASE_SMOKE_FIXTURES`; it cannot fall back to live network access. These values are for isolated QA only.

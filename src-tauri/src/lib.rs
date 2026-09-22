@@ -4,6 +4,7 @@ pub mod commands;
 pub mod database;
 pub mod domain;
 pub mod recommendations;
+mod release_smoke;
 
 use std::ffi::{OsStr, OsString};
 use std::path::PathBuf;
@@ -74,9 +75,22 @@ pub fn run() {
                 );
                 let paths = DatabasePaths::from_root(data_root)?;
                 let database = tauri::async_runtime::block_on(Database::connect(&paths))?;
-                let transport = ReqwestTransport::new()?;
-                let anilist =
-                    AniListService::new(database.clone(), AniListClient::new(Arc::new(transport)));
+                // Mock transport requires the same explicit isolated-profile guard as storage.
+                let fixture_root = if std::env::var(RELEASE_SMOKE_MODE_ENV).as_deref() == Ok("1")
+                    && std::env::var_os(RELEASE_SMOKE_DATA_DIR_ENV)
+                        .is_some_and(|root| !root.is_empty())
+                {
+                    std::env::var_os("ANIMI_RELEASE_SMOKE_FIXTURES")
+                        .filter(|root| !root.is_empty())
+                        .map(PathBuf::from)
+                } else {
+                    None
+                };
+                let transport: Arc<dyn anilist::AniListTransport> = match fixture_root {
+                    Some(root) => Arc::new(release_smoke::FixtureTransport { root }),
+                    None => Arc::new(ReqwestTransport::new()?),
+                };
+                let anilist = AniListService::new(database.clone(), AniListClient::new(transport));
                 let backup_destination_picker =
                     commands::backups::BackupDestinationPicker::for_app(app.handle().clone());
                 let backup_source_picker =
