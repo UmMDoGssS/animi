@@ -114,7 +114,13 @@
     }
 </script>
 
-<div id="home-panel" role="tabpanel" aria-labelledby="home-tab" tabindex="-1">
+<div
+    class="mb-6"
+    id="home-panel"
+    role="tabpanel"
+    aria-labelledby="home-tab"
+    tabindex="-1"
+>
     <h1 class="sr-only">Home</h1>
     <section
         aria-label="Continue Reading"

@@ -201,6 +201,8 @@ def main():
                         click(f'button[aria-label="{page}"]')
                         time.sleep(0.15)
                         assert js("return document.documentElement.scrollWidth <= window.innerWidth + 1"), (page, width, "overflow")
+                        if page == "Home":
+                            assert js("return document.querySelector('[aria-labelledby=\"library-index-heading\"]').getBoundingClientRect().top - document.querySelector('[aria-label=\"Continue Reading\"]').getBoundingClientRect().bottom >= 16"), "Reading and library panels need a visible gap"
                         if page == "Dashboard" and width == 390:
                             js("document.querySelector('[aria-label=\"Scrollable monthly chapters chart\"]').focus()")
                             request(f"/session/{session}/actions", {"actions":[{"type":"key","id":"keyboard","actions":[{"type":"keyDown","value":"\ue014"},{"type":"keyUp","value":"\ue014"}]}]})
