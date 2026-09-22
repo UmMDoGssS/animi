@@ -43,4 +43,6 @@ No runtime dependency was added for Linux or manga completion. Versions below ar
 | tokio               | 1.52.3  | MIT               |
 | uuid                | 1.24.0  | MIT OR Apache-2.0 |
 
+The bundled frontend uses `@tauri-apps/api` 2.11.1 (MIT OR Apache-2.0), Svelte 5.56.5 (MIT), SvelteKit 2.69.3 (MIT), and Tailwind CSS 4.3.2 (MIT).
+
 Linux uses the distribution's dynamically linked GTK 3 and WebKitGTK 4.1, rather than redistributing a browser runtime. Their license and copyright records are supplied by the installed Ubuntu packages under `/usr/share/doc`. WebKitWebDriver and fakeroot are development-only acceptance tools, downloaded/installed separately; they are not application dependencies or bundled binaries.

@@ -130,7 +130,9 @@ for (const required of [
     "bun.lock",
     "src-tauri/Cargo.lock",
     "LICENSE",
-    "docs/RELEASE_NOTES_1.0.0.md",
+    "docs/RELEASE_NOTES_1.1.0.md",
+    "docs/THIRD_PARTY_NOTICES.md",
+    "src-tauri/linux/Animi.desktop",
 ]) {
     if (!existsSync(join(root, required)))
         fail(`Required release file is missing: ${required}`);
@@ -142,5 +144,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-    "Release audit passed: private scope, identity, CSP, NSIS policy, capabilities, URLs, lockfiles, and artifact hygiene are intact.",
+    "Release audit passed: private scope, identity, CSP, Linux/Windows package policy, capabilities, URLs, lockfiles, and artifact hygiene are intact.",
 );

@@ -63,7 +63,7 @@ The following remain outside version 1.1:
 | P9 | AniList manga integration and cache isolation | P8 contracts; existing P2 transport | Complete | Mocked manga discovery, details, cache, offline, and throttling behavior passes |
 | P10 | Media-aware application workflows | P8, P9; existing P3-P4 UI | Complete | Manga discovery-to-library and Dashboard flows pass end to end |
 | P11 | Continue Reading, activity, and recommendations | P8-P10; existing P5 behavior | Complete | Manga Home, reading activity, and same-kind recommendations pass |
-| P12 | Version 1.1 release hardening | P8-P11 | Not started | Full gate and NSIS upgrade acceptance pass from Animi 1.0.1 |
+| P12 | Version 1.1 release hardening | P8-P11 | In progress | Full gate and Linux package upgrade acceptance pass from an Animi 1.0.1 profile |
 
 ## Planned Contracts
 
@@ -605,15 +605,15 @@ Frontend formatting/lint/strict checks, 132 tests, production Debian build, nati
 
 ### Entry gate
 
-- [ ] **P12-E1** Every P8-P11 milestone and exit gate is complete with recorded evidence and no unresolved data-loss, privacy, migration, backup, or accessibility blocker.
-- [ ] **P12-E2** Release configuration is ready for version `1.1.0` without enabling public publishing, an updater, or expanded capabilities.
+- [x] **P12-E1** Every P8-P11 milestone and exit gate is complete with recorded evidence and no unresolved data-loss, privacy, migration, backup, or accessibility blocker.
+- [x] **P12-E2** Release configuration is ready for version `1.1.0` without enabling public publishing, an updater, or expanded capabilities.
 
 ### Milestones
 
 - [ ] **P12-M1 - Migration and backup acceptance:** Upgrade isolated copies of every immutable database fixture and a representative 1.0.1 profile; verify anime preservation, new manga writes, schema 1 import, schema 2 round trip, failure rollback, reinstall retention, and downgrade protection.
 - [ ] **P12-M2 - Regression matrix:** Exercise Home, Discover, details, Dashboard, Settings, both media kinds, online and offline states, fresh and stale caches, both themes, desktop and narrow widths, keyboard use, focus, alternative text, contrast, and reduced motion.
 - [ ] **P12-M3 - Full automated gate:** Run frontend formatting, lint, strict checks, tests, production build, release audit, Rust formatting, Clippy with warnings denied, all Rust tests, migration fixtures, and critical-flow coverage from a clean worktree.
-- [ ] **P12-M4 - Release documentation:** Update the README, release notes, release audit, known limitations, backup compatibility, data location, private-distribution restriction, dependency notices, and any user-facing migration or recovery guidance.
+- [x] **P12-M4 - Release documentation:** Update the README, release notes, release audit, known limitations, backup compatibility, data location, private-distribution restriction, dependency notices, and any user-facing migration or recovery guidance.
 - [ ] **P12-M5 - Linux package acceptance:** Build the private Debian package on Ubuntu 26.04 Wayland, perform fresh install and same-identity upgrade using an isolated 1.0.1 database profile, launch online and offline against isolated profiles, reinstall, uninstall, and verify the documented retained-data behavior.
 - [ ] **P12-M6 - Artifact audit:** Confirm the installer and repository contain no secrets, real user data, bundled databases, backups, caches, updater, analytics, public publishing path, non-Bun lockfile, accidental capability expansion, or undocumented dependency.
 

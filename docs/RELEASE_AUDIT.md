@@ -1,4 +1,30 @@
-# Version 1 release audit
+# Animi release audits
+
+## Version 1.1 Linux acceptance (2026-09-22)
+
+Version 1.1 targets Ubuntu 26.04 x86_64 on this Wayland desktop with GTK 3.24.52 and WebKitGTK 2.52.6. The stable identity remains `app.animi.desktop`; versions are aligned at 1.1.0. Windows 1.1 installer execution is deferred to a Windows host; the historical P7 record below is unchanged.
+
+- `scripts/acceptance/linux_packaged.py` runs the Debian-installed executable through the real WebKitGTK webview. It covers anime search/details/add/Home quick progress/watch time; manga search/details/add, independent chapter/volume correction, Continue Reading, Dashboard, stale offline caches, restart, and confirmed removal. Sixteen screenshots cover Home, Discover, Dashboard, and Settings at 1180 and 390 pixels in Latte and Macchiato with document-overflow assertions. Focus, keyboard actions, status announcements, contrast, and reduced motion also have component coverage.
+- Fresh and upgraded package runs use temporary database, XDG config/cache/data, and fixture directories. Explicit smoke mode replaces only transport and backup picker destinations; shipped commands, migrations, database transactions, frontend assets, and IPC registration remain in use. Backup destinations are outside live storage, schema-2 exports round-trip settings/entries/activity exactly, schema-1 imports remain accepted, and invalid previews preserve local records. Native file-dialog clicks are not automated by WebKitWebDriver; normal launches retain Rust-owned GTK dialogs.
+- A Debian package rebuilt from the actual `v1.0.1` tag creates a representative old profile. Installing 1.1 over it preserves the anime entry, settings, and activity event IDs. An isolated `fakeroot`/`dpkg` root verifies install, same-identity upgrade, removal, and reinstall. The root intentionally omits dependency registration and uses host GTK/WebKit libraries; this is not a real-system package installation. Removing the package retains the profile byte-for-byte. Reinstall restores access. The old executable rejects the migrated database before normal startup and leaves it unchanged.
+- `scripts/acceptance/linux_xdg.py` verifies a normal, non-smoke startup resolves `$XDG_DATA_HOME/app.animi.desktop/animi.sqlite3` in a temporary XDG environment.
+- All four immutable database fixtures (schemas 1, 2, 3, and 7) upgrade and reopen through native integration tests. Existing P8 and backup suites cover mixed profiles, schema compatibility, independent high-water marks, foreign keys, import conflicts, stale previews, and forced transaction rollback. A new release test rejects a future migration without changing user records.
+- `scripts/acceptance/audit_deb.py` allows only the executable, desktop entry, icons, application license, and third-party notices. There are no maintainer scripts, bundled user databases, caches, backups, environment files, or extra executables. `bun run release:audit` verifies private publishing policy, versions, identity, CSP, unchanged capabilities, Linux Debian/Windows NSIS policy, approved API boundary, lockfiles, and repository artifact hygiene.
+
+Reproduce the Linux checks after `bun run release:build`:
+
+```sh
+python3 scripts/acceptance/audit_deb.py src-tauri/target/release/bundle/deb/Animi_1.1.0_amd64.deb
+python3 scripts/acceptance/linux_xdg.py src-tauri/target/release/animi /usr/bin/WebKitWebDriver
+python3 scripts/acceptance/linux_packaged.py src-tauri/target/release/bundle/deb/Animi_1.1.0_amd64.deb /usr/bin/WebKitWebDriver
+ANIMI_PREVIOUS_PACKAGE=/absolute/path/to/Animi_1.0.1_amd64.deb python3 scripts/acceptance/linux_packaged.py src-tauri/target/release/bundle/deb/Animi_1.1.0_amd64.deb /usr/bin/WebKitWebDriver
+```
+
+`ANIMI_PREVIOUS_PACKAGE` must identify a private Linux build from the actual old tag, not an intermediate manga-development build still numbered 1.0.1. Backup fixture mode does not contact AniList. The old release, which predates fixture transport, uses a deliberately unavailable proxy for non-loopback requests. The driver and application communicate locally. Screenshots are written outside the repository to `/tmp/animi-acceptance-evidence` by default.
+
+The final clean-tree command results and package hash are recorded in `PLAN.md`. No runtime dependency was added for P10 acceptance or P11/P12 completion.
+
+## Historical version 1 Windows release audit
 
 This record maps P7 verification to repeatable evidence. It does not authorize public distribution.
 

@@ -34,7 +34,7 @@ On Linux this produces a Debian package in `src-tauri/target/release/bundle/deb`
 
 On Windows this produces a current-user NSIS installer. WebView2 must already be installed. Animi's durable profile lives in the Windows per-user app-data directory for the stable `app.animi.desktop` identity; upgrades preserve that directory, and uninstall intentionally leaves it available for recovery. Use Settings → Clear local data when user-owned data should be deleted deliberately.
 
-See [`docs/RELEASE_NOTES_1.0.0.md`](docs/RELEASE_NOTES_1.0.0.md) and [`docs/RELEASE_AUDIT.md`](docs/RELEASE_AUDIT.md) for compatibility, limitations, and P7 verification scope.
+See [`docs/RELEASE_NOTES_1.1.0.md`](docs/RELEASE_NOTES_1.1.0.md) and [`docs/RELEASE_AUDIT.md`](docs/RELEASE_AUDIT.md) for compatibility, limitations, and release verification scope.
 
 ## Quality gates
 
@@ -65,10 +65,12 @@ Frontend dependencies and scripts use Bun exclusively. Automated backend tests i
 
 ## Packaged Linux acceptance
 
-With a desktop session and Ubuntu's `webkitgtk-webdriver` package (called `webkit2gtk-driver` on older releases), run:
+With a desktop session, `fakeroot`, `dpkg`, and Ubuntu's `webkitgtk-webdriver` package (called `webkit2gtk-driver` on older releases), run:
 
 ```sh
-python3 scripts/acceptance/linux_packaged.py src-tauri/target/release/bundle/deb/Animi_1.0.1_amd64.deb /usr/bin/WebKitWebDriver
+python3 scripts/acceptance/linux_packaged.py src-tauri/target/release/bundle/deb/Animi_1.1.0_amd64.deb /usr/bin/WebKitWebDriver
 ```
 
-The script extracts the package, creates temporary storage and deterministic metadata, exercises the real WebKitGTK UI/IPC, restarts, and verifies offline data. It never opens the normal profile. Fixture mode requires `ANIMI_RELEASE_SMOKE=1`, nonempty `ANIMI_RELEASE_SMOKE_DATA_DIR`, and `ANIMI_RELEASE_SMOKE_FIXTURES`; it cannot fall back to live network access. These values are for isolated QA only.
+The script installs the package into an isolated `fakeroot`/`dpkg` root, creates temporary storage and deterministic metadata, exercises the real WebKitGTK UI/IPC, restarts, and verifies offline data. It never opens the normal profile. Fixture mode requires `ANIMI_RELEASE_SMOKE=1`, nonempty `ANIMI_RELEASE_SMOKE_DATA_DIR`, and `ANIMI_RELEASE_SMOKE_FIXTURES`; it cannot fall back to live network access. These values are for isolated QA only.
+
+Set `ANIMI_PREVIOUS_PACKAGE` to a privately built Debian package from tag `v1.0.1` to include a real old-to-new package/profile upgrade and old-binary downgrade rejection. The temporary dpkg database intentionally omits system dependencies; execution uses the host's installed GTK/WebKit libraries. No system package is installed or removed by this harness. In explicit fixture mode, backup pickers use `acceptance-backup.json` inside the fixture directory, outside the live data root; normal launches always use native dialogs.
