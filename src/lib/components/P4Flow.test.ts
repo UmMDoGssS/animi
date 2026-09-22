@@ -282,179 +282,196 @@ function createStatefulP4Services() {
 }
 
 describe("P4 discovery-to-library flow", () => {
-    it("persists edits across a restart, records initial and later progress, works from cache offline, and confirms removal", async () => {
-        const user = userEvent.setup();
-        const state = createStatefulP4Services();
-        const shellProps = {
-            loadThemePreference: vi.fn().mockResolvedValue("SYSTEM" as const),
-            saveThemePreference: vi.fn(),
-            p4Services: state.services,
-        };
+    // This multi-page integration flow includes remounts and many real user events.
+    it(
+        "persists edits across a restart, records initial and later progress, works from cache offline, and confirms removal",
+        { timeout: 15_000 },
+        async () => {
+            const user = userEvent.setup();
+            const state = createStatefulP4Services();
+            const shellProps = {
+                loadThemePreference: vi
+                    .fn()
+                    .mockResolvedValue("SYSTEM" as const),
+                saveThemePreference: vi.fn(),
+                p4Services: state.services,
+            };
 
-        const firstRun = render(AppShell, shellProps);
-        await user.click(screen.getByRole("tab", { name: "Discover" }));
-        await user.type(
-            screen.getByRole("searchbox", { name: "Anime title" }),
-            "Paper Cranes{Enter}",
-        );
-        const searchResults = await screen.findByRole("list", {
-            name: "Anime search results for Paper Cranes",
-        });
-        await user.click(
-            within(searchResults).getByRole("button", {
-                name: "Open details for Paper Cranes at Dawn",
-            }),
-        );
+            const firstRun = render(AppShell, shellProps);
+            await user.click(screen.getByRole("tab", { name: "Discover" }));
+            await user.type(
+                screen.getByRole("searchbox", { name: "Anime title" }),
+                "Paper Cranes{Enter}",
+            );
+            const searchResults = await screen.findByRole("list", {
+                name: "Anime search results for Paper Cranes",
+            });
+            await user.click(
+                within(searchResults).getByRole("button", {
+                    name: "Open details for Paper Cranes at Dawn",
+                }),
+            );
 
-        let dialog = await screen.findByRole("dialog", {
-            name: "Paper Cranes at Dawn",
-        });
-        await user.click(
-            within(dialog).getByRole("radio", { name: /Watching/ }),
-        );
-        await fireEvent.input(
-            within(dialog).getByRole("slider", { name: "Episodes watched" }),
-            { target: { value: "3" } },
-        );
-        await user.click(
-            within(dialog).getByRole("button", {
-                name: "Set personal score to 8 out of 10",
-            }),
-        );
-        await user.type(
-            within(dialog).getByRole("textbox", { name: /Private notes/ }),
-            "Quiet first watch",
-        );
-        await user.click(
-            within(dialog).getByRole("button", { name: "Add to library" }),
-        );
-        expect(
-            await within(dialog).findByText(/Added to your library/i),
-        ).toBeInTheDocument();
-        expect(state.activity).toHaveLength(1);
-        expect(state.activity[0]?.progressDelta).toBe(3);
-        await user.click(
-            within(dialog).getByRole("button", { name: "Close details" }),
-        );
-        await waitFor(() => expect(dialog).not.toBeInTheDocument());
+            let dialog = await screen.findByRole("dialog", {
+                name: "Paper Cranes at Dawn",
+            });
+            await user.click(
+                within(dialog).getByRole("radio", { name: /Watching/ }),
+            );
+            await fireEvent.input(
+                within(dialog).getByRole("slider", {
+                    name: "Episodes watched",
+                }),
+                { target: { value: "3" } },
+            );
+            await user.click(
+                within(dialog).getByRole("button", {
+                    name: "Set personal score to 8 out of 10",
+                }),
+            );
+            await user.type(
+                within(dialog).getByRole("textbox", { name: /Private notes/ }),
+                "Quiet first watch",
+            );
+            await user.click(
+                within(dialog).getByRole("button", { name: "Add to library" }),
+            );
+            expect(
+                await within(dialog).findByText(/Added to your library/i),
+            ).toBeInTheDocument();
+            expect(state.activity).toHaveLength(1);
+            expect(state.activity[0]?.progressDelta).toBe(3);
+            await user.click(
+                within(dialog).getByRole("button", { name: "Close details" }),
+            );
+            await waitFor(() => expect(dialog).not.toBeInTheDocument());
 
-        firstRun.unmount();
+            firstRun.unmount();
 
-        render(AppShell, shellProps);
-        const libraryIndex = await screen.findByRole("list", {
-            name: "Library index results",
-        });
-        expect(libraryIndex).toHaveTextContent(/Paper Cranes at Dawn/);
-        expect(libraryIndex).toHaveTextContent(/3 \/ 12 eps/);
-        await user.click(screen.getByRole("tab", { name: "Dashboard" }));
-        expect(
-            await screen.findByRole("group", {
-                name: "Recorded activity summary",
-            }),
-        ).toHaveTextContent(/recorded episodes\s*3/i);
-        expect(
-            screen.getByRole("list", {
-                name: "Recent recorded progress events",
-            }),
-        ).toHaveTextContent(/\+3 episodes.*1h 12m/i);
+            render(AppShell, shellProps);
+            const libraryIndex = await screen.findByRole("list", {
+                name: "Library index results",
+            });
+            expect(libraryIndex).toHaveTextContent(/Paper Cranes at Dawn/);
+            expect(libraryIndex).toHaveTextContent(/3 \/ 12 eps/);
+            await user.click(screen.getByRole("tab", { name: "Dashboard" }));
+            expect(
+                await screen.findByRole("group", {
+                    name: "Recorded activity summary",
+                }),
+            ).toHaveTextContent(/recorded episodes\s*3/i);
+            expect(
+                screen.getByRole("list", {
+                    name: "Recent recorded progress events",
+                }),
+            ).toHaveTextContent(/\+3 episodes.*1h 12m/i);
 
-        await user.click(screen.getByRole("tab", { name: "Discover" }));
-        const trending = await screen.findByRole("list", {
-            name: "Trending anime",
-        });
-        await user.click(
-            within(trending).getByRole("button", {
-                name: "Open details for Paper Cranes at Dawn",
-            }),
-        );
-        dialog = await screen.findByRole("dialog", {
-            name: "Paper Cranes at Dawn",
-        });
-        await user.click(
-            within(dialog).getByRole("radio", { name: /Completed/ }),
-        );
-        const progress = within(dialog).getByRole("slider", {
-            name: "Episodes watched",
-        });
-        await fireEvent.input(progress, { target: { value: "5" } });
-        await user.click(
-            within(dialog).getByRole("button", {
-                name: "Set personal score to 9 out of 10",
-            }),
-        );
-        const notes = within(dialog).getByRole("textbox", {
-            name: /Private notes/,
-        });
-        await user.clear(notes);
-        await user.type(notes, "Finished the local edit pass");
-        await user.click(
-            within(dialog).getByRole("button", { name: "Save changes" }),
-        );
-        await waitFor(() => expect(state.activity).toHaveLength(2));
-        expect(state.activity[0]?.progressDelta).toBe(2);
-        expect(state.activity[1]?.progressDelta).toBe(3);
-        await user.click(
-            within(dialog).getByRole("button", { name: "Close details" }),
-        );
+            await user.click(screen.getByRole("tab", { name: "Discover" }));
+            const trending = await screen.findByRole("list", {
+                name: "Trending anime",
+            });
+            await user.click(
+                within(trending).getByRole("button", {
+                    name: "Open details for Paper Cranes at Dawn",
+                }),
+            );
+            dialog = await screen.findByRole("dialog", {
+                name: "Paper Cranes at Dawn",
+            });
+            await user.click(
+                within(dialog).getByRole("radio", { name: /Completed/ }),
+            );
+            const progress = within(dialog).getByRole("slider", {
+                name: "Episodes watched",
+            });
+            await fireEvent.input(progress, { target: { value: "5" } });
+            await user.click(
+                within(dialog).getByRole("button", {
+                    name: "Set personal score to 9 out of 10",
+                }),
+            );
+            const notes = within(dialog).getByRole("textbox", {
+                name: /Private notes/,
+            });
+            await user.clear(notes);
+            await user.type(notes, "Finished the local edit pass");
+            await user.click(
+                within(dialog).getByRole("button", { name: "Save changes" }),
+            );
+            await waitFor(() => expect(state.activity).toHaveLength(2));
+            expect(state.activity[0]?.progressDelta).toBe(2);
+            expect(state.activity[1]?.progressDelta).toBe(3);
+            await user.click(
+                within(dialog).getByRole("button", { name: "Close details" }),
+            );
 
-        state.goOffline();
-        await user.click(screen.getByRole("tab", { name: "Dashboard" }));
-        expect(
-            await screen.findByRole("group", {
-                name: "Recorded activity summary",
-            }),
-        ).toHaveTextContent(/recorded episodes\s*5/i);
-        expect(
-            screen.getByRole("list", {
-                name: "Recent recorded progress events",
-            }),
-        ).toHaveTextContent(/\+2 episodes.*48m/i);
+            state.goOffline();
+            await user.click(screen.getByRole("tab", { name: "Dashboard" }));
+            expect(
+                await screen.findByRole("group", {
+                    name: "Recorded activity summary",
+                }),
+            ).toHaveTextContent(/recorded episodes\s*5/i);
+            expect(
+                screen.getByRole("list", {
+                    name: "Recent recorded progress events",
+                }),
+            ).toHaveTextContent(/\+2 episodes.*48m/i);
 
-        await user.click(screen.getByRole("tab", { name: "Home" }));
-        const updatedLibraryIndex = await screen.findByRole("list", {
-            name: "Library index results",
-        });
-        expect(updatedLibraryIndex).toHaveTextContent(/5 \/ 12 eps/);
-        expect(updatedLibraryIndex).toHaveTextContent(/score \/\/ 9 \/ 10/i);
+            await user.click(screen.getByRole("tab", { name: "Home" }));
+            const updatedLibraryIndex = await screen.findByRole("list", {
+                name: "Library index results",
+            });
+            expect(updatedLibraryIndex).toHaveTextContent(/5 \/ 12 eps/);
+            expect(updatedLibraryIndex).toHaveTextContent(
+                /score \/\/ 9 \/ 10/i,
+            );
 
-        await user.click(
-            within(updatedLibraryIndex).getByRole("button", {
-                name: "Open library details for Paper Cranes at Dawn",
-            }),
-        );
-        dialog = await screen.findByRole("dialog", {
-            name: "Paper Cranes at Dawn",
-        });
-        expect(
-            await within(dialog).findByText("Showing available details"),
-        ).toBeInTheDocument();
-        expect(within(dialog).getByText("12 episodes")).toBeInTheDocument();
+            await user.click(
+                within(updatedLibraryIndex).getByRole("button", {
+                    name: "Open library details for Paper Cranes at Dawn",
+                }),
+            );
+            dialog = await screen.findByRole("dialog", {
+                name: "Paper Cranes at Dawn",
+            });
+            expect(
+                await within(dialog).findByText("Showing available details"),
+            ).toBeInTheDocument();
+            expect(within(dialog).getByText("12 episodes")).toBeInTheDocument();
 
-        await user.click(
-            within(dialog).getByRole("button", { name: "Remove from library" }),
-        );
-        expect(state.deleteEntry).not.toHaveBeenCalled();
-        expect(
-            within(dialog).getByText(/Your watch history remains/i),
-        ).toBeInTheDocument();
-        await user.click(
-            within(dialog).getByRole("button", { name: "Remove from library" }),
-        );
-        await waitFor(() => expect(state.deleteEntry).toHaveBeenCalledOnce());
-        await user.click(
-            within(dialog).getByRole("button", { name: "Close details" }),
-        );
+            await user.click(
+                within(dialog).getByRole("button", {
+                    name: "Remove from library",
+                }),
+            );
+            expect(state.deleteEntry).not.toHaveBeenCalled();
+            expect(
+                within(dialog).getByText(/Your watch history remains/i),
+            ).toBeInTheDocument();
+            await user.click(
+                within(dialog).getByRole("button", {
+                    name: "Remove from library",
+                }),
+            );
+            await waitFor(() =>
+                expect(state.deleteEntry).toHaveBeenCalledOnce(),
+            );
+            await user.click(
+                within(dialog).getByRole("button", { name: "Close details" }),
+            );
 
-        expect(
-            await screen.findByRole("heading", {
-                name: "Your library has no anime yet.",
-            }),
-        ).toBeInTheDocument();
-        await user.click(screen.getByRole("tab", { name: "Dashboard" }));
-        expect(
-            await screen.findByRole("group", {
-                name: "Recorded activity summary",
-            }),
-        ).toHaveTextContent(/updates\s*2/i);
-    });
+            expect(
+                await screen.findByRole("heading", {
+                    name: "Your library has no anime yet.",
+                }),
+            ).toBeInTheDocument();
+            await user.click(screen.getByRole("tab", { name: "Dashboard" }));
+            expect(
+                await screen.findByRole("group", {
+                    name: "Recorded activity summary",
+                }),
+            ).toHaveTextContent(/updates\s*2/i);
+        },
+    );
 });

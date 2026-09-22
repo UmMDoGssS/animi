@@ -202,131 +202,148 @@ afterAll(() => {
 });
 
 describe("P10 media-aware shell", () => {
-    it("adds, corrects, reloads, refreshes and removes manga while preserving anime", async () => {
-        const user = userEvent.setup();
-        const state = services();
-        const props = {
-            loadThemePreference: async () => "SYSTEM" as const,
-            p4Services: state.services,
-        };
-        const first = render(AppShell, props);
-        expect(screen.getByRole("radio", { name: "Anime" })).toBeChecked();
-        await user.click(screen.getByRole("tab", { name: "Discover" }));
-        await user.click(screen.getByRole("radio", { name: "Manga" }));
-        await user.type(
-            screen.getByRole("searchbox", { name: "Manga title" }),
-            "Garden{Enter}",
-        );
-        const results = await screen.findByRole("list", {
-            name: "Manga search results for Garden",
-        });
-        expect(state.services.searchAnime).toHaveBeenCalledWith(
-            expect.objectContaining({ mediaKind: "MANGA" }),
-        );
-        await user.click(
-            within(results).getByRole("button", {
-                name: "Open details for The Last Garden",
-            }),
-        );
-        let dialog = await screen.findByRole("dialog");
-        expect(within(dialog).getByText("Manga details")).toBeInTheDocument();
-        expect(
-            within(dialog).queryByText("duration", { exact: true }),
-        ).not.toBeInTheDocument();
-        expect(within(dialog).getByText(/novel/)).toBeInTheDocument();
-        await user.click(
-            within(dialog).getByRole("radio", { name: /Reading/ }),
-        );
-        await fireEvent.input(
-            within(dialog).getByRole("slider", { name: "Chapters read" }),
-            { target: { value: "42" } },
-        );
-        const volumes = within(dialog).getByRole("spinbutton", {
-            name: "Volumes read",
-        });
-        await user.clear(volumes);
-        await user.type(volumes, "6");
-        await user.click(
-            within(dialog).getByRole("button", { name: "Add to library" }),
-        );
-        await within(dialog).findByRole("button", { name: "Changes saved" });
-        const correctedVolumes = within(dialog).getByRole("spinbutton", {
-            name: "Volumes read",
-        });
-        await user.clear(correctedVolumes);
-        await user.type(correctedVolumes, "5");
-        await user.click(
-            within(dialog).getByRole("button", { name: "Save changes" }),
-        );
-        expect(state.services.saveEntry).toHaveBeenLastCalledWith(
-            expect.objectContaining({
-                mediaKind: "MANGA",
-                progress: 42,
-                volumeProgress: 5,
-            }),
-        );
-        await user.click(
-            within(dialog).getByRole("button", { name: "Close details" }),
-        );
-        first.unmount();
+    // This multi-page integration flow includes remounts and many real user events.
+    it(
+        "adds, corrects, reloads, refreshes and removes manga while preserving anime",
+        { timeout: 15_000 },
+        async () => {
+            const user = userEvent.setup();
+            const state = services();
+            const props = {
+                loadThemePreference: async () => "SYSTEM" as const,
+                p4Services: state.services,
+            };
+            const first = render(AppShell, props);
+            expect(screen.getByRole("radio", { name: "Anime" })).toBeChecked();
+            await user.click(screen.getByRole("tab", { name: "Discover" }));
+            await user.click(screen.getByRole("radio", { name: "Manga" }));
+            await user.type(
+                screen.getByRole("searchbox", { name: "Manga title" }),
+                "Garden{Enter}",
+            );
+            const results = await screen.findByRole("list", {
+                name: "Manga search results for Garden",
+            });
+            expect(state.services.searchAnime).toHaveBeenCalledWith(
+                expect.objectContaining({ mediaKind: "MANGA" }),
+            );
+            await user.click(
+                within(results).getByRole("button", {
+                    name: "Open details for The Last Garden",
+                }),
+            );
+            let dialog = await screen.findByRole("dialog");
+            expect(
+                within(dialog).getByText("Manga details"),
+            ).toBeInTheDocument();
+            expect(
+                within(dialog).queryByText("duration", { exact: true }),
+            ).not.toBeInTheDocument();
+            expect(within(dialog).getByText(/novel/)).toBeInTheDocument();
+            await user.click(
+                within(dialog).getByRole("radio", { name: /Reading/ }),
+            );
+            await fireEvent.input(
+                within(dialog).getByRole("slider", { name: "Chapters read" }),
+                { target: { value: "42" } },
+            );
+            const volumes = within(dialog).getByRole("spinbutton", {
+                name: "Volumes read",
+            });
+            await user.clear(volumes);
+            await user.type(volumes, "6");
+            await user.click(
+                within(dialog).getByRole("button", { name: "Add to library" }),
+            );
+            await within(dialog).findByRole("button", {
+                name: "Changes saved",
+            });
+            const correctedVolumes = within(dialog).getByRole("spinbutton", {
+                name: "Volumes read",
+            });
+            await user.clear(correctedVolumes);
+            await user.type(correctedVolumes, "5");
+            await user.click(
+                within(dialog).getByRole("button", { name: "Save changes" }),
+            );
+            expect(state.services.saveEntry).toHaveBeenLastCalledWith(
+                expect.objectContaining({
+                    mediaKind: "MANGA",
+                    progress: 42,
+                    volumeProgress: 5,
+                }),
+            );
+            await user.click(
+                within(dialog).getByRole("button", { name: "Close details" }),
+            );
+            first.unmount();
 
-        render(AppShell, props);
-        expect(screen.getByRole("radio", { name: "Anime" })).toBeChecked();
-        await user.click(screen.getByRole("tab", { name: "Dashboard" }));
-        await user.click(screen.getByRole("radio", { name: "Manga" }));
-        expect(
-            screen.queryByRole("region", { name: "Your library" }),
-        ).not.toBeInTheDocument();
-        expect(
-            screen.queryByRole("list", { name: "Library index results" }),
-        ).not.toBeInTheDocument();
-        expect(screen.queryByText("known watch time")).not.toBeInTheDocument();
-        await user.click(
-            screen.getByRole("button", { name: "refresh manga details" }),
-        );
-        await waitFor(() =>
-            expect(state.services.refreshMetadata).toHaveBeenCalledWith({
+            render(AppShell, props);
+            expect(screen.getByRole("radio", { name: "Anime" })).toBeChecked();
+            await user.click(screen.getByRole("tab", { name: "Dashboard" }));
+            await user.click(screen.getByRole("radio", { name: "Manga" }));
+            expect(
+                screen.queryByRole("region", { name: "Your library" }),
+            ).not.toBeInTheDocument();
+            expect(
+                screen.queryByRole("list", { name: "Library index results" }),
+            ).not.toBeInTheDocument();
+            expect(
+                screen.queryByText("known watch time"),
+            ).not.toBeInTheDocument();
+            await user.click(
+                screen.getByRole("button", { name: "refresh manga details" }),
+            );
+            await waitFor(() =>
+                expect(state.services.refreshMetadata).toHaveBeenCalledWith({
+                    mediaKind: "MANGA",
+                }),
+            );
+            state.goOffline();
+            await user.click(screen.getByRole("tab", { name: "Home" }));
+            const library = await screen.findByRole("list", {
+                name: "Library index results",
+            });
+            expect(library).toHaveTextContent("42 / ?? chapters");
+            expect(library).toHaveTextContent("5 / 8 volumes");
+            expect(library).not.toHaveTextContent("AniList #12");
+            await user.click(
+                within(library).getByRole("button", {
+                    name: "Open library details for The Last Garden",
+                }),
+            );
+            dialog = await screen.findByRole("dialog");
+            expect(
+                await within(dialog).findByText("may be out of date"),
+            ).toBeInTheDocument();
+            await user.click(
+                within(dialog).getByRole("button", {
+                    name: "Remove from library",
+                }),
+            );
+            expect(state.services.deleteEntry).not.toHaveBeenCalled();
+            await user.click(
+                within(dialog).getByRole("button", {
+                    name: "Remove from library",
+                }),
+            );
+            expect(state.services.deleteEntry).toHaveBeenCalledWith({
+                anilistId: 55,
                 mediaKind: "MANGA",
-            }),
-        );
-        state.goOffline();
-        await user.click(screen.getByRole("tab", { name: "Home" }));
-        const library = await screen.findByRole("list", {
-            name: "Library index results",
-        });
-        expect(library).toHaveTextContent("42 / ?? chapters");
-        expect(library).toHaveTextContent("5 / 8 volumes");
-        expect(library).not.toHaveTextContent("AniList #12");
-        await user.click(
-            within(library).getByRole("button", {
-                name: "Open library details for The Last Garden",
-            }),
-        );
-        dialog = await screen.findByRole("dialog");
-        expect(
-            await within(dialog).findByText("may be out of date"),
-        ).toBeInTheDocument();
-        await user.click(
-            within(dialog).getByRole("button", { name: "Remove from library" }),
-        );
-        expect(state.services.deleteEntry).not.toHaveBeenCalled();
-        await user.click(
-            within(dialog).getByRole("button", { name: "Remove from library" }),
-        );
-        expect(state.services.deleteEntry).toHaveBeenCalledWith({
-            anilistId: 55,
-            mediaKind: "MANGA",
-            confirmed: true,
-        });
-        await user.click(
-            within(dialog).getByRole("button", { name: "Close details" }),
-        );
-        await user.click(screen.getByRole("radio", { name: "Anime" }));
-        expect(
-            await screen.findByRole("list", { name: "Library index results" }),
-        ).toHaveTextContent("3 / ?? eps");
-        expect(anime.notes).toBe("Keep this");
-    });
+                confirmed: true,
+            });
+            await user.click(
+                within(dialog).getByRole("button", { name: "Close details" }),
+            );
+            await user.click(screen.getByRole("radio", { name: "Anime" }));
+            expect(
+                await screen.findByRole("list", {
+                    name: "Library index results",
+                }),
+            ).toHaveTextContent("3 / ?? eps");
+            expect(anime.notes).toBe("Keep this");
+        },
+    );
 
     it("resets search and ignores old responses when switching with the keyboard", async () => {
         const user = userEvent.setup();

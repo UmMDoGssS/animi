@@ -26,6 +26,8 @@ export default defineConfig({
         },
     },
     test: {
+        // Svelte transforms and jsdom workers compete heavily on a shared desktop.
+        maxWorkers: 4,
         environment: "jsdom",
         include: ["src/**/*.test.ts"],
         setupFiles: ["./src/test/setup.ts"],
