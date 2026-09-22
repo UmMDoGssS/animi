@@ -96,3 +96,37 @@ fn release_configuration_keeps_the_private_windows_identity_stable() {
             .is_some_and(|csp| csp.contains("object-src 'none'"))
     );
 }
+
+#[tokio::test]
+async fn future_migration_is_rejected_without_changing_user_records() {
+    let root = tempdir().expect("isolated profile");
+    let paths = DatabasePaths::from_root(root.path()).expect("paths");
+    let database = Database::connect(&paths).await.expect("database");
+    database
+        .settings()
+        .upsert_many(&[animi_lib::database::SettingRecord {
+            key: "retained".into(),
+            value: json!("unchanged"),
+            updated_at: chrono::Utc::now(),
+        }])
+        .await
+        .expect("setting");
+    database.close().await;
+    let options = SqliteConnectOptions::new().filename(paths.database());
+    let mut connection = SqliteConnection::connect_with(&options)
+        .await
+        .expect("inspection");
+    sqlx::query("INSERT INTO _sqlx_migrations (version, description, installed_on, success, checksum, execution_time) VALUES (999, 'future release', CURRENT_TIMESTAMP, 1, X'00', 0)")
+        .execute(&mut connection).await.expect("future migration");
+    connection.close().await.expect("close inspection");
+    assert!(Database::connect(&paths).await.is_err());
+    let mut connection = SqliteConnection::connect_with(&options)
+        .await
+        .expect("inspection");
+    let value: String =
+        sqlx::query_scalar("SELECT value_json FROM settings WHERE key = 'retained'")
+            .fetch_one(&mut connection)
+            .await
+            .expect("retained setting");
+    assert_eq!(value, "\"unchanged\"");
+}

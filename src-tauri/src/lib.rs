@@ -87,15 +87,24 @@ pub fn run() {
                 } else {
                     None
                 };
+                let scripted_backup_path = fixture_root
+                    .as_ref()
+                    .map(|root| root.join("acceptance-backup.json"));
                 let transport: Arc<dyn anilist::AniListTransport> = match fixture_root {
                     Some(root) => Arc::new(release_smoke::FixtureTransport { root }),
                     None => Arc::new(ReqwestTransport::new()?),
                 };
                 let anilist = AniListService::new(database.clone(), AniListClient::new(transport));
-                let backup_destination_picker =
-                    commands::backups::BackupDestinationPicker::for_app(app.handle().clone());
-                let backup_source_picker =
-                    commands::backups::BackupSourcePicker::for_app(app.handle().clone());
+                let (backup_destination_picker, backup_source_picker) = match scripted_backup_path {
+                    Some(path) => (
+                        commands::backups::BackupDestinationPicker::fixed_path(Some(path.clone())),
+                        commands::backups::BackupSourcePicker::fixed_path(Some(path)),
+                    ),
+                    None => (
+                        commands::backups::BackupDestinationPicker::for_app(app.handle().clone()),
+                        commands::backups::BackupSourcePicker::for_app(app.handle().clone()),
+                    ),
+                };
                 app.manage(database);
                 app.manage(anilist);
                 app.manage(backup_destination_picker);
