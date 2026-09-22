@@ -46,16 +46,16 @@ const anilistModule = await readFile(
     "utf8",
 );
 
-const expectedVersion = "1.0.1";
-if (packageJson.version !== expectedVersion) fail("package.json is not 1.0.1.");
-if (tauriConfig.version !== expectedVersion) fail("Tauri is not 1.0.1.");
+const expectedVersion = "1.1.0";
+if (packageJson.version !== expectedVersion) fail("package.json is not 1.1.0.");
+if (tauriConfig.version !== expectedVersion) fail("Tauri is not 1.1.0.");
 if (
     !new RegExp(
         `^version = "${expectedVersion.replaceAll(".", "\\.")}"$`,
         "m",
     ).test(cargoToml)
 ) {
-    fail("Cargo is not 1.0.1.");
+    fail("Cargo is not 1.1.0.");
 }
 if (packageJson.private !== true)
     fail("The frontend package must remain private.");

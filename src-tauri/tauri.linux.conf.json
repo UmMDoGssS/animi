@@ -1,6 +1,15 @@
 {
     "$schema": "https://schema.tauri.app/config/2",
     "bundle": {
-        "targets": ["deb"]
+        "targets": ["deb"],
+        "linux": {
+            "deb": {
+                "desktopTemplate": "linux/Animi.desktop",
+                "files": {
+                    "/usr/share/doc/animi/copyright": "../LICENSE",
+                    "/usr/share/doc/animi/THIRD_PARTY_NOTICES.md": "../docs/THIRD_PARTY_NOTICES.md"
+                }
+            }
+        }
     }
 }

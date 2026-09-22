@@ -1,7 +1,7 @@
 [package]
 name = "animi"
-version = "1.0.1"
-description = "A private, local-first anime tracker and recommendation app."
+version = "1.1.0"
+description = "A private, local-first anime and manga tracker and recommendation app."
 edition = "2024"
 publish = false
 license-file = "../LICENSE"

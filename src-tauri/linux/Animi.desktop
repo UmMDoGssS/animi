@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name={{name}}
+Comment=Track anime and manga privately on this device
+Exec={{exec}}
+Icon={{icon}}
+Terminal=false
+Categories=Utility;
+Keywords=Anime;Manga;Tracker;Reading;
+StartupWMClass=animi
+StartupNotify=true

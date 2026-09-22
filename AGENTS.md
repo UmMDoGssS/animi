@@ -4,9 +4,9 @@
 
 This file applies to the entire repository. Read `PROJECT.md` and `PLAN.md` before making non-trivial changes. `PROJECT.md` is the product and architecture source of truth; `PLAN.md` is the delivery roadmap and implementation-status source of truth. Update `PROJECT.md` when approved product scope or architecture changes, update `PLAN.md` as milestones progress, and keep the two documents aligned.
 
-Animi is a private, local-first anime tracker and recommendation application. Version 1 is a Windows desktop application built with Tauri 2, Svelte 5, TypeScript, Rust, SQLite, Tailwind CSS, AniList GraphQL, and Bun.
+Animi is a private, local-first anime tracker and recommendation application. Version 1.1 is a Linux-first desktop application (Ubuntu 26.04 x86_64 Wayland is the primary acceptance platform), retaining Windows compatibility, built with Tauri 2, Svelte 5, TypeScript, Rust, SQLite, Tailwind CSS, AniList GraphQL, and Bun.
 
-Version 1 is anime-focused and has no server, cloud database, analytics, AniList OAuth, live cross-device synchronization, or closed-app notifications. The local SQLite database is authoritative. Manga support and mobile clients are later additions, although shared types and responsive layouts must leave room for them.
+Version 1.1 supports anime and manga and has no server, cloud database, analytics, AniList OAuth, live cross-device synchronization, or closed-app notifications. The local SQLite database is authoritative. Mobile clients remain deferred; shared types and responsive layouts must leave room for them.
 
 ## Working Agreement
 
