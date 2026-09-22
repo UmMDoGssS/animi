@@ -37,6 +37,7 @@ async function collectFiles(directory: string): Promise<string[]> {
 
 const packageJson = await readJson("package.json");
 const tauriConfig = await readJson("src-tauri/tauri.conf.json");
+const linuxConfig = await readJson("src-tauri/tauri.linux.conf.json");
 const capability = await readJson("src-tauri/capabilities/default.json");
 const cargoToml = await readFile(join(root, "src-tauri/Cargo.toml"), "utf8");
 const ipcClient = await readFile(join(root, "src/lib/ipc/client.ts"), "utf8");
@@ -72,7 +73,13 @@ if (typeof security.csp !== "string" || security.csp.trim().length === 0) {
 }
 const bundle = object(tauriConfig.bundle, "bundle");
 if (JSON.stringify(bundle.targets) !== JSON.stringify(["nsis"])) {
-    fail("Only the Windows NSIS target may be enabled for v1.");
+    fail("The Windows base target must remain NSIS.");
+}
+if (
+    JSON.stringify(object(linuxConfig.bundle, "linux.bundle").targets) !==
+    JSON.stringify(["deb"])
+) {
+    fail("Linux must use the native Debian package target.");
 }
 if (bundle.createUpdaterArtifacts !== false)
     fail("Updater artifacts must remain disabled.");

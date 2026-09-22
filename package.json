@@ -17,8 +17,9 @@
         "test": "vitest run",
         "test:watch": "vitest",
         "release:audit": "bun scripts/release-audit.ts",
-        "release:build": "tauri build --bundles nsis",
-        "tauri": "tauri"
+        "release:build": "tauri build",
+        "tauri": "tauri",
+        "release:build:windows": "tauri build --bundles nsis"
     },
     "license": "UNLICENSED",
     "dependencies": {
